@@ -74,4 +74,10 @@ static inline bool is_optee_smc_api(void)
 }
 #endif
 
+#if defined(CONFIG_OPTEE) && defined(CONFIG_SUPPORT_EMMC_RPMB)
+void optee_rpmb_available(void);
+#else
+static inline void optee_rpmb_available(void) {}
+#endif
+
 #endif /* _OPTEE_H */

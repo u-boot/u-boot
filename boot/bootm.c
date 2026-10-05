@@ -14,6 +14,7 @@
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <imagemap.h>
 #include <irq_func.h>
 #include <lmb.h>
 #include <log.h>
@@ -23,7 +24,10 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 #include <linux/sizes.h>
+#include <linux/zstd.h>
+#include <lzma/LzmaDec.h>
 #include <tpm-v2.h>
 #include <tpm_tcg2.h>
 #if defined(CONFIG_CMD_USB)
@@ -147,7 +151,22 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
-	buf = map_sysmem(img_addr, 0);
+	if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+		/*
+		 * Storage path: read enough bytes to detect the image
+		 * format. genimg_get_kernel_addr_fit() above still
+		 * parsed any #config / :subimage suffix so the FIT
+		 * selection variables are populated.
+		 */
+		buf = imagemap_map(images->imagemap, 0, 64);
+		if (IS_ERR(buf)) {
+			puts("Cannot read image header from storage\n");
+			return PTR_ERR(buf);
+		}
+		img_addr = map_to_sysmem(buf);
+	} else {
+		buf = map_sysmem(img_addr, 0);
+	}
 	switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
@@ -193,6 +212,20 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 #endif
 #if CONFIG_IS_ENABLED(FIT)
 	case IMAGE_FORMAT_FIT:
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+			/*
+			 * Extend the mapping to cover the full FIT
+			 * FDT structure so all metadata is accessible.
+			 */
+			size_t fdt_sz = fdt_totalsize(buf);
+
+			buf = imagemap_map(images->imagemap, 0, fdt_sz);
+			if (IS_ERR(buf)) {
+				puts("Cannot read FIT header from storage\n");
+				return PTR_ERR(buf);
+			}
+			img_addr = map_to_sysmem(buf);
+		}
 		os_noffset = fit_image_load(images, img_addr,
 				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
@@ -638,6 +671,101 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 #endif
 
 #ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(GZIP)
+/*
+ * Return the gzip stream's uncompressed size from its ISIZE trailer, or
+ * 0 if the buffer is not a gzip stream. Only the two magic bytes are
+ * checked, since a fuller validation happens inside gunzip() during
+ * decompression; the caller uses the return value as a size hint only.
+ */
+static ulong bootm_gzip_uncompressed_size(const void *src, ulong len)
+{
+	const u8 *b = src;
+
+	/* Minimum gzip: 10-byte header + 2-byte deflate + 8-byte trailer */
+	if (len < 20 || b[0] != 0x1f || b[1] != 0x8b)
+		return 0;
+	return get_unaligned_le32(b + len - 4);
+}
+#endif
+
+#if CONFIG_IS_ENABLED(LZMA)
+/*
+ * Return the uncompressed size recorded in the lzma stream header, or
+ * 0 if the buffer is too short or the size field carries the "unknown"
+ * marker (0xff..ff). The .lzma-alone format keeps the size in a fixed
+ * 8-byte field right after the 5-byte properties block; nothing else
+ * is validated since the value is only an allocation hint.
+ */
+static ulong bootm_lzma_uncompressed_size(const void *src, ulong len)
+{
+	const u8 *b = src;
+	u64 usize;
+
+	if (len < LZMA_PROPS_SIZE + 8)
+		return 0;
+	usize = get_unaligned_le64(b + LZMA_PROPS_SIZE);
+	if (usize == U64_MAX || usize > ULONG_MAX)
+		return 0;
+	return (ulong)usize;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(LZ4)
+/*
+ * Return the lz4 frame's Content_Size, or 0 if the buffer is not an
+ * lz4 frame or the frame does not carry the size. The header parse
+ * mirrors ulz4fn()'s validation so we do not accept a stream the
+ * decoder itself would refuse.
+ */
+static ulong bootm_lz4_uncompressed_size(const void *src, ulong len)
+{
+	const u8 *b = src;
+	u8 flg, version, indep_blocks, has_content_size, bd;
+	u64 cs;
+
+	if (len < 4 + 2 || get_unaligned_le32(b) != LZ4F_MAGIC)
+		return 0;
+	flg = b[4];
+	bd = b[5];
+	version = (flg >> 6) & 3;
+	indep_blocks = (flg >> 5) & 1;
+	has_content_size = (flg >> 3) & 1;
+	if (version != 1 || !indep_blocks || (flg & 3) || (bd & 0x8f) ||
+	    !has_content_size)
+		return 0;
+	if (len < 4 + 2 + 8)
+		return 0;
+	cs = get_unaligned_le64(b + 6);
+	return cs > ULONG_MAX ? 0 : (ulong)cs;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(ZSTD)
+/*
+ * Return the zstd frame's Frame_Content_Size, or 0 if the header does
+ * not parse or the size is absent. zstd_get_frame_header() and the
+ * frame-parsing code behind it are part of the zstd decompressor that
+ * is already linked into any board with ZSTD enabled, so the call adds
+ * only the call site. The value is an allocation hint; the decoder
+ * stays authoritative during the actual decompression.
+ */
+static ulong bootm_zstd_uncompressed_size(const void *src, ulong len)
+{
+	zstd_frame_header hdr;
+	size_t ret;
+
+	ret = zstd_get_frame_header(&hdr, src, len);
+	if (zstd_is_error(ret) || ret > 0)
+		return 0;
+	if (hdr.frameContentSize == ZSTD_CONTENTSIZE_UNKNOWN ||
+	    hdr.frameContentSize == ZSTD_CONTENTSIZE_ERROR ||
+	    hdr.frameContentSize > ULONG_MAX)
+		return 0;
+	return (ulong)hdr.frameContentSize;
+}
+#endif
+
 static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 {
 	const struct image_info os = images->os;
@@ -654,17 +782,54 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	void *load_buf, *image_buf;
 	int err;
 
+	image_buf = map_sysmem(os.image_start, image_len);
+
 	/*
 	 * For a "noload" compressed kernel we need to allocate a buffer large
 	 * enough to decompress in to and use that as the load address now.
-	 * Allow up to 8x compression: this comfortably covers what zstd and xz
-	 * achieve on real kernels, with headroom for well-compressed payloads.
-	 * Use an alignment of 2MB since this might help arm64
+	 * When the compressed stream records its uncompressed size and that
+	 * value is within CONFIG_SYS_BOOTM_LEN, allocate exactly that.
+	 * Otherwise fall back to an 8x multiplier, which comfortably covers
+	 * what zstd and xz achieve on real kernels with headroom for
+	 * well-compressed payloads. Use an alignment of 2MB since this
+	 * might help arm64.
 	 */
 	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
 		phys_addr_t addr;
+		ulong hdr_size = 0;
 
-		decomp_len = ALIGN(image_len * 8, SZ_1M);
+		switch (os.comp) {
+#if CONFIG_IS_ENABLED(GZIP)
+		case IH_COMP_GZIP:
+			hdr_size = bootm_gzip_uncompressed_size(image_buf,
+								image_len);
+			break;
+#endif
+#if CONFIG_IS_ENABLED(LZMA)
+		case IH_COMP_LZMA:
+			hdr_size = bootm_lzma_uncompressed_size(image_buf,
+								image_len);
+			break;
+#endif
+#if CONFIG_IS_ENABLED(LZ4)
+		case IH_COMP_LZ4:
+			hdr_size = bootm_lz4_uncompressed_size(image_buf,
+							       image_len);
+			break;
+#endif
+#if CONFIG_IS_ENABLED(ZSTD)
+		case IH_COMP_ZSTD:
+			hdr_size = bootm_zstd_uncompressed_size(image_buf,
+								image_len);
+			break;
+#endif
+		default:
+			break;
+		}
+		if (hdr_size && hdr_size <= CONFIG_SYS_BOOTM_LEN)
+			decomp_len = ALIGN(hdr_size, SZ_1M);
+		else
+			decomp_len = ALIGN(image_len * 8, SZ_1M);
 		decomp_limit = BOOTM_DECOMP_LIMIT_PER_IMAGE;
 		err = lmb_alloc_mem(LMB_MEM_ALLOC_ANY, SZ_2M, &addr,
 				    decomp_len, LMB_NONE);
@@ -679,7 +844,6 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	}
 
 	load_buf = map_sysmem(load, 0);
-	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
 			   load_buf, image_buf, image_len,
 			   decomp_len, &load_end);
@@ -1033,11 +1197,21 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	 * Work through the states and see how far we get. We stop on
 	 * any error.
 	 */
-	if (states & BOOTM_STATE_START)
+	if (states & BOOTM_STATE_START) {
 		ret = bootm_start();
+		/*
+		 * bootm_start() zeroes the global images struct. Restore
+		 * the loader pointer so the storage-backed path works.
+		 */
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && bmi->imagemap)
+			images->imagemap = bmi->imagemap;
+	}
 
-	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
-		ret = bootm_pre_load(bmi->addr_img);
+	if (!ret && (states & BOOTM_STATE_PRE_LOAD)) {
+		/* Pre-load verification is not applicable to storage boot */
+		if (!IS_ENABLED(CONFIG_IMAGEMAP) || !images->imagemap)
+			ret = bootm_pre_load(bmi->addr_img);
+	}
 
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(bmi->cmd_name, bmi->addr_img);
@@ -1045,8 +1219,11 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
 		ulong img_addr;
 
-		img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
-			: image_load_addr;
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap)
+			img_addr = images->os.start;
+		else
+			img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
+				: image_load_addr;
 		ret = bootm_find_other(img_addr, bmi->conf_ramdisk,
 				       bmi->conf_fdt);
 	}
@@ -1145,11 +1322,24 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	}
 
 	/* Now run the OS! We hope this doesn't return */
-	if (!ret && (states & BOOTM_STATE_OS_GO))
+	if (!ret && (states & BOOTM_STATE_OS_GO)) {
+		/* Release storage backend before jumping - no return expected */
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+			imagemap_cleanup(images->imagemap);
+			images->imagemap = NULL;
+		}
+
 		ret = boot_selected_os(BOOTM_STATE_OS_GO, bmi, boot_fn);
+	}
 
 	/* Deal with any fallout */
 err:
+	/* Clean up imagemap on error (not reached on successful boot) */
+	if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+		imagemap_cleanup(images->imagemap);
+		images->imagemap = NULL;
+	}
+
 	if (iflag)
 		enable_interrupts();
 

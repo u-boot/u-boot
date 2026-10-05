@@ -18,13 +18,6 @@ struct zynqmp_reset_priv {
 	u32 nr_reset;
 };
 
-static int zynqmp_pm_reset_assert(const u32 reset,
-				  const enum zynqmp_pm_reset_action assert_flag)
-{
-	return xilinx_pm_request(PM_RESET_ASSERT, reset, assert_flag, 0, 0,
-				 0, 0, NULL);
-}
-
 static int zynqmp_reset_assert(struct reset_ctl *rst)
 {
 	struct zynqmp_reset_priv *priv = dev_get_priv(rst->dev);

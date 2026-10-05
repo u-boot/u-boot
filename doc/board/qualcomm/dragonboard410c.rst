@@ -21,26 +21,19 @@ Installation
 First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``dragonboard410c``::
 
   $ export CROSS_COMPILE=<aarch64 toolchain prefix>
-  $ make dragonboard410c_defconfig
+  $ make qcom_dragonboard410c_defconfig
   $ make
 
-This will build ``u-boot.elf`` in the configured output directory.
+This will build ``u-boot.mbn`` in the configured output directory.
 
 Although the DragonBoard 410c does not have secure boot set up by default,
-the firmware still expects firmware ELF images to be "signed". The signature
-does not provide any security in this case, but it provides the firmware with
-some required metadata.
+the firmware still expects firmware ELF images to be "signed". This is
+handled automatically with mkmbn (see :doc:`signing` for more details).
 
-To "sign" ``u-boot.elf`` you can use e.g. `qtestsign`_::
-
-  $ ./qtestsign.py aboot u-boot.elf
-
-Then install the resulting ``u-boot-test-signed.mbn`` to the ``aboot`` partition
-on your device, e.g. with ``fastboot flash aboot u-boot-test-signed.mbn``.
+Then install the resulting ``u-boot.mbn`` to the ``aboot`` partition
+on your device, e.g. with ``fastboot flash aboot u-boot.mbn``.
 
 U-Boot should be running after a reboot (``fastboot reboot``).
-
-.. _qtestsign: https://github.com/msm8916-mainline/qtestsign
 
 Usage
 -----

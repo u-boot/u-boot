@@ -5,4 +5,4 @@ F:	board/toradex/apalis-tk1/
 F:	board/toradex/common/
 F:	include/configs/apalis-tk1.h
 F:	configs/apalis-tk1_defconfig
-F:	arch/arm/dts/tegra124-apalis.dtb
+F:	arch/arm/dts/tegra124-apalis.dts

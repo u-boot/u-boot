@@ -1050,20 +1050,20 @@ static int nxp_fspi_of_to_plat(struct udevice *bus)
 #endif
 
 	fdt_addr_t iobase;
-	fdt_addr_t iobase_size;
+	fdt_size_t iobase_size;
 	fdt_addr_t ahb_addr;
-	fdt_addr_t ahb_size;
+	fdt_size_t ahb_size;
 
 	f->dev = bus;
 
-	iobase = devfdt_get_addr_size_name(bus, "fspi_base", &iobase_size);
+	iobase = dev_read_addr_size_name(bus, "fspi_base", &iobase_size);
 	if (iobase == FDT_ADDR_T_NONE) {
 		dev_err(bus, "fspi_base regs missing\n");
 		return -ENODEV;
 	}
 	f->iobase = map_physmem(iobase, iobase_size, MAP_NOCACHE);
 
-	ahb_addr = devfdt_get_addr_size_name(bus, "fspi_mmap", &ahb_size);
+	ahb_addr = dev_read_addr_size_name(bus, "fspi_mmap", &ahb_size);
 	if (ahb_addr == FDT_ADDR_T_NONE) {
 		dev_err(bus, "fspi_mmap regs missing\n");
 		return -ENODEV;

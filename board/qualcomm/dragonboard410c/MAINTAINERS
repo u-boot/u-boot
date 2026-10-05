@@ -4,5 +4,5 @@ R:	Sam Day <me@samcday.com>
 S:	Maintained
 F:	board/qualcomm/dragonboard410c/
 F:	include/configs/dragonboard410c.h
-F:	configs/dragonboard410c_defconfig
+F:	configs/qcom_dragonboard410c_defconfig
 F:	doc/board/qualcomm/dragonboard410c.rst

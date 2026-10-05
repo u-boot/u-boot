@@ -15,7 +15,6 @@ F:	arch/arm/dts/imx6dl-gw553x.dts
 F:	arch/arm/dts/imx6dl-gw560x.dts
 F:	arch/arm/dts/imx6dl-gw5903.dts
 F:	arch/arm/dts/imx6dl-gw5904.dts
-F:	arch/arm/dts/imx6dl-gw5905.dts
 F:	arch/arm/dts/imx6dl-gw5907.dts
 F:	arch/arm/dts/imx6dl-gw5910.dts
 F:	arch/arm/dts/imx6dl-gw5912.dts
@@ -30,7 +29,6 @@ F:	arch/arm/dts/imx6qdl-gw553x.dtsi
 F:	arch/arm/dts/imx6qdl-gw560x.dtsi
 F:	arch/arm/dts/imx6qdl-gw5903.dtsi
 F:	arch/arm/dts/imx6qdl-gw5904.dtsi
-F:	arch/arm/dts/imx6qdl-gw5905.dtsi
 F:	arch/arm/dts/imx6qdl-gw5907.dtsi
 F:	arch/arm/dts/imx6qdl-gw5910.dtsi
 F:	arch/arm/dts/imx6qdl-gw5912.dtsi
@@ -38,17 +36,13 @@ F:	arch/arm/dts/imx6qdl-gw5913.dtsi
 F:	arch/arm/dts/imx6q-gw51xx.dts
 F:	arch/arm/dts/imx6q-gw52xx.dts
 F:	arch/arm/dts/imx6q-gw53xx.dts
-F:	arch/arm/dts/imx6q-gw5400-a.dts
 F:	arch/arm/dts/imx6q-gw54xx.dts
 F:	arch/arm/dts/imx6q-gw551x.dts
 F:	arch/arm/dts/imx6q-gw552x.dts
 F:	arch/arm/dts/imx6q-gw553x.dts
 F:	arch/arm/dts/imx6q-gw560x.dts
-F:	arch/arm/dts/imx6q-gw5901.dts
-F:	arch/arm/dts/imx6q-gw5902.dts
 F:	arch/arm/dts/imx6q-gw5903.dts
 F:	arch/arm/dts/imx6q-gw5904.dts
-F:	arch/arm/dts/imx6q-gw5905.dts
 F:	arch/arm/dts/imx6q-gw5907.dts
 F:	arch/arm/dts/imx6q-gw5910.dts
 F:	arch/arm/dts/imx6q-gw5912.dts

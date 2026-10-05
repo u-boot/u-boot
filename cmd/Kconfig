@@ -300,8 +300,7 @@ menu "Boot commands"
 
 config CMD_BOOTD
 	bool "bootd"
-	depends on CMD_BOOTM
-	default y
+	default y if CMD_BOOTM
 	help
 	  Run the command stored in the environment "bootcmd", i.e.
 	  "bootd" does the same thing as "run bootcmd".
@@ -1911,7 +1910,7 @@ menu "Shell scripting commands"
 
 config CMD_C5_PL330_DMA
 	bool "Release Reset DMA Channels for PL330 Handshake"
-	depends on TARGET_SOCFPGA_CYCLONE5
+	depends on ARCH_SOCFPGA_CYCLONE5
 	help
 	  Provides access to Reset Manager Per2ModRst. Enables DMA
 	  channels for ARM PrimeCell PL330 via reset release.
@@ -1995,6 +1994,14 @@ config DHCP6_PXE_DHCP_OPTION
 config DHCP6_ENTERPRISE_ID
 	int "Enterprise ID to send in DHCPv6 Vendor Class Option"
 	default 0
+
+config DHCP6_RAPID_COMMIT
+	bool "Request Rapid Commit (2-message exchange) from DHCPv6 server"
+	default n
+	help
+	  Request the Rapid Commit option (option 14) in DHCPv6 Solicit
+	  messages to enable a 2-message exchange (Solicit-Reply) rather
+	  than the default 4-message exchange.
 
 endif
 
@@ -2195,14 +2202,6 @@ config IPV6_ROUTER_DISCOVERY
 	  Will automatically perform router solicitation on first IPv6
 	  network operation
 
-config CMD_ETHSW
-	bool "ethsw"
-	help
-	  Allow control of L2 Ethernet switch commands. These are supported
-	  by the vsc9953 Ethernet driver at present. Sub-commands allow
-	  operations such as enabling / disabling a port and
-	  viewing/maintaining the filtering database (FDB)
-
 config CMD_WOL
 	bool "wol"
 	help
@@ -2222,6 +2221,14 @@ config CMD_DNS
 	select DNS
 	help
 	  Lookup the IP of a hostname
+
+config CMD_ETHSW
+	bool "ethsw"
+	help
+	  Allow control of L2 Ethernet switch commands. These are supported
+	  by the vsc9953 Ethernet driver at present. Sub-commands allow
+	  operations such as enabling / disabling a port and
+	  viewing/maintaining the filtering database (FDB)
 
 config CMD_MII
 	bool "mii"

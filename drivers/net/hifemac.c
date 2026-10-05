@@ -435,7 +435,7 @@ static int hisi_femac_of_to_plat(struct udevice *dev)
 	}
 
 	priv->glb_base = dev_remap_addr_name(dev, "glb");
-	if (IS_ERR(priv->glb_base)) {
+	if (!priv->glb_base) {
 		dev_err(dev, "Failed to remap global address space\n");
 		return log_msg_ret("net", -EINVAL);
 	}

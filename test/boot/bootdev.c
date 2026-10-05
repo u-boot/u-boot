@@ -221,6 +221,8 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	/* Use the environment variable to override it */
 	ut_assertok(env_set("boot_targets", "mmc1 mmc2 usb"));
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	/* get the usb device which has a backing file (flash1.img) */
 	ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
@@ -237,6 +239,8 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	ut_assertok(env_set("boot_targets", NULL));
 	ut_assertok(bootflow_scan_first(NULL, "mmc", &iter, 0, &bflow));
 	ut_asserteq(2, iter.num_devs);
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	/* Now scan past mmc1 and make sure that only mmc0 shows up */
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
@@ -250,6 +254,8 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	ut_assertok(env_set("boot_targets", "mmc"));
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(2, iter.num_devs);
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	/* Now scan past mmc1 and make sure that only mmc0 shows up */
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
@@ -263,6 +269,8 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	ut_assertok(env_set("boot_targets", "mmc usb"));
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(2, iter.num_devs);
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	/*
 	 * Now scan past mmc1 and make sure that the 3 USB devices show up. The
@@ -299,6 +307,8 @@ static int bootdev_test_order_default(struct unit_test_state *uts)
 	ut_asserteq(2, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(3, iter.num_devs);
@@ -333,6 +343,8 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	/* get the usb device which has a backing file (flash1.img) */
 	ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(6, iter.num_devs);
@@ -354,6 +366,8 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	/* get the usb device which has a backing file (flash1.img) */
 	ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(7, iter.num_devs);

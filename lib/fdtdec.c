@@ -1845,6 +1845,13 @@ int fdtdec_setup(void)
 		}
 	}
 
+	/*
+	 * If we have bloblist being required to pass the FDT and we reach this
+	 * point, we have a problem and must exit.
+	 */
+	if (IS_ENABLED(CONFIG_BLOBLIST_PASSAGE_MANDATORY))
+		return ret;
+
 	/* Otherwise, the devicetree is typically appended to U-Boot */
 	if (ret) {
 		if (IS_ENABLED(CONFIG_OF_SEPARATE)) {

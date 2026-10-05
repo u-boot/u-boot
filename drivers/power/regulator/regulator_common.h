@@ -10,6 +10,7 @@
 #include <asm/gpio.h>
 
 struct regulator_common_plat {
+	struct gpio_dt_spec gpio_dt; /* parsed enable GPIO, requested in probe */
 	struct gpio_desc gpio; /* GPIO for regulator enable control */
 	unsigned int startup_delay_us;
 	unsigned int off_on_delay_us;
@@ -19,6 +20,8 @@ struct regulator_common_plat {
 int regulator_common_of_to_plat(struct udevice *dev,
 				struct regulator_common_plat *plat, const
 				char *enable_gpio_name);
+int regulator_common_probe(struct udevice *dev,
+			   struct regulator_common_plat *plat);
 int regulator_common_get_enable(const struct udevice *dev,
 	struct regulator_common_plat *plat);
 /*

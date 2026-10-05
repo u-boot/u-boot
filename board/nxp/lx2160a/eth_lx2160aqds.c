@@ -9,11 +9,20 @@
 #include <exports.h>
 #include <fsl-mc/fsl_mc.h>
 
+#include "serdes_split.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_RESET_PHY_R)
 void reset_phy(void)
 {
+	/*
+	 * Before the MC boots: it latches the live protocol-converter
+	 * configuration when it starts, so `hwconfig=serdes1:split` has to
+	 * be applied here and not later.
+	 */
+	lx2160a_serdes_apply_hwconfig();
+
 #if defined(CONFIG_FSL_MC_ENET)
 	mc_env_boot();
 #endif

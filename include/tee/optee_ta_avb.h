@@ -47,6 +47,7 @@
 
 /*
  * Reads a persistent value corresponding to the given name.
+ * Only reads as much of the value as will fit in the provided buffer.
  *
  * in	params[0].u.memref:	persistent value name
  * out	params[1].u.memref:	read persistent value buffer
@@ -60,5 +61,16 @@
  * in	params[1].u.memref:	persistent value buffer to write
  */
 #define TA_AVB_CMD_WRITE_PERSIST_VALUE	5
+
+/*
+ * Reads a persistent value corresponding to the given name.
+ * If the provided buffer is smaller than the value, returns
+ * TEE_ERROR_SHORT_BUFFER and sets the output buffer size to the true
+ * size of the value.
+ *
+ * in	params[0].memref:	persistent value name
+ * out	params[1].memref:	read persistent value buffer
+ */
+#define TA_AVB_CMD_READ_PERSIST_VALUE2	6
 
 #endif /* __TA_AVB_H */

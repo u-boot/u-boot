@@ -106,11 +106,11 @@ EOF
 	echo
 	echo "/* Macro for Config IO bit mapping */"
 	echo -n "#define CONFIG_IO_MACRO(NAME) "
-	echo "(((NAME ## _RTRIM & 0xff) << 19) | \\"
+	echo "(((NAME ## _RTRIM & 0x7) << 19) | \\"
 	echo "	((NAME ## _INPUT_BUF_EN & 0x3) << 17) | \\"
 	echo "	((NAME ## _WK_PU_EN & 0x1) << 16) | \\"
 	echo "	((NAME ## _PU_SLW_RT & 0x1) << 13) | \\"
-	echo "	((NAME ## _PU_DRV_STRG & 0xf) << 8) | \\"
+	echo "	((NAME ## _PU_DRV_STRG & 0x1f) << 8) | \\"
 	echo "	((NAME ## _PD_SLW_RT & 0x1) << 5) | \\"
 	echo "	(NAME ## _PD_DRV_STRG & 0x1f))"
 

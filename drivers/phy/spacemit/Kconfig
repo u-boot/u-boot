@@ -1,0 +1,11 @@
+config PHY_SPACEMIT_K1_PCIE
+	bool "Spacemit K1 PCIe PHY driver"
+	depends on PHY
+	help
+	  Support for the Spacemit K1 SoC PCIe and Combo (PCIe/USB3) PHYs.
+
+	  This driver handles both the combo PHY used for port A (which
+	  calibrates RX/TX termination values) and the PCIe-only PHYs for
+	  ports B and C.  The combo PHY must be enabled even if port A
+	  is not used for PCIe, because it provides calibration values
+	  required by the other ports.

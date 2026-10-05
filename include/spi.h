@@ -34,6 +34,8 @@ struct spinand_info;
 #define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
 #define SPI_TX_OCTAL	BIT(14)			/* transmit with 8 wires */
 #define SPI_RX_OCTAL	BIT(15)			/* receive with 8 wires */
+#define SPI_NO_TX	BIT(16)			/* no transmit wire */
+#define SPI_NO_RX	BIT(17)			/* no receive wire */
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec

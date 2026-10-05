@@ -16,7 +16,7 @@
 
 #define ESDHC_DEFAULT_ENVADDR	0x400
 
-int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+int mmc_get_env_addr(struct mmc *mmc, int copy, u64 *env_addr)
 {
 	u8 *tmp_buf;
 	u32 blklen, code_offset, code_len, n;

@@ -637,7 +637,7 @@ if test -n "$state_branch"
 then
 	echo "Saving rewrite state to $state_branch" 1>&2
 	for prefix in $state_prefixes ; do
-		state_blob=$(
+		if ! state_blob=$(
 			perl -e'opendir D, "../map" or die;
 				open H, "|-", "git hash-object -w --stdin" or die;
 				foreach (sort readdir(D)) {
@@ -648,6 +648,9 @@ then
 					print H "$_:$f\n" or die;
 				}
 				close(H) or die;' "$prefix" || die "Unable to save state")
+		then
+		    exit 1
+		fi
 		printf '100644 blob %s\tfilter_%s.map\n' "$state_blob" "$prefix" >> $tempdir/state-branch-tree
 	done
 	state_tree=$(cat $tempdir/state-branch-tree | git mktree)

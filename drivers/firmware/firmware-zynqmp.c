@@ -175,6 +175,30 @@ unsigned int zynqmp_firmware_version(void)
 	return pm_api_version;
 };
 
+int zynqmp_pm_reset_assert(const u32 reset,
+			   const enum zynqmp_pm_reset_action assert_flag)
+{
+	return xilinx_pm_request(PM_RESET_ASSERT, reset, assert_flag, 0, 0,
+				 0, 0, NULL);
+}
+
+int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
+{
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, 0, 0, ret_payload);
+	if (ret)
+		return ret;
+
+	if (idcode)
+		*idcode = ret_payload[1];
+	if (version)
+		*version = ret_payload[2];
+
+	return 0;
+}
+
 #if defined(CONFIG_ARCH_VERSAL2)
 /*
  * Poll the M-PHY TX/RX config-ready status until it settles or @timeout_us
@@ -490,6 +514,46 @@ u32 versal2_pmc_multi_boot(void)
 		return versal2_multi_boot_reg();
 
 	return zynqmp_pm_get_pmc_multi_boot_reg() & PMC_MULTI_BOOT_MASK;
+}
+#endif
+
+#if defined(CONFIG_ARCH_VERSAL_NET) || defined(CONFIG_ARCH_VERSAL2)
+static u32 zynqmp_pm_get_pmc_tap_reg(u32 offset)
+{
+	int ret;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_REG);
+	if (ret) {
+		printf("%s: IOCTL_READ_REG is not supported failed with error code: %d\n"
+		       , __func__, ret);
+		return 0;
+	}
+
+	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_TAP, IOCTL_READ_REG,
+				offset, 0, 0, 0, ret_payload);
+	if (ret) {
+		printf("%s: node 0x%x: pmc_tap offset 0x%x failed\n",
+		       __func__, PM_REGNODE_PMC_TAP, offset);
+		return 0;
+	}
+
+	return ret_payload[1];
+}
+
+u32 zynqmp_pm_get_pmc_tap_idcode(void)
+{
+	return zynqmp_pm_get_pmc_tap_reg(PMC_TAP_IDCODE_OFFSET);
+}
+
+u32 zynqmp_pm_get_pmc_tap_version(void)
+{
+	return zynqmp_pm_get_pmc_tap_reg(PMC_TAP_VERSION_OFFSET);
+}
+
+u32 zynqmp_pm_get_pmc_tap_usercode(void)
+{
+	return zynqmp_pm_get_pmc_tap_reg(PMC_TAP_USERCODE_OFFSET);
 }
 #endif
 

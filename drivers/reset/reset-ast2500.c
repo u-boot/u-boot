@@ -5,11 +5,11 @@
  */
 
 #include <dm.h>
+#include <errno.h>
 #include <log.h>
 #include <misc.h>
 #include <reset.h>
 #include <reset-uclass.h>
-#include <linux/err.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
 
@@ -78,7 +78,7 @@ static int ast2500_reset_probe(struct udevice *dev)
 	}
 
 	priv->scu = dev_read_addr_ptr(scu_dev);
-	if (IS_ERR_OR_NULL(priv->scu)) {
+	if (!priv->scu) {
 		debug("%s: invalid SCU base pointer\n", __func__);
 		return -EINVAL;
 	}

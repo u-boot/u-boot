@@ -82,7 +82,7 @@ config MBA7
 	imply CMD_USB
 	imply USB_STORAGE
 	imply PHYLIB
-	imply CONFIG_PHY_TI_DP83867
+	imply PHY_TI_DP83867
 	select MXC_UART
 	select DM_MMC
 	select DM_SPI

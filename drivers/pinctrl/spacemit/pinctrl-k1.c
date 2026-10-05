@@ -9,9 +9,11 @@
 #include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <dm/read.h>
+#include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/io.h>
+#include <regmap.h>
 
 /*
  * +---------+----------+-----------+--------+--------+----------+--------+
@@ -34,8 +36,23 @@
 #define PAD_PULLUP		BIT(14)
 #define PAD_PULL_EN		BIT(15)
 
-#define PIN_POWER_STATE_1V8		1800
-#define PIN_POWER_STATE_3V3		3300
+#define IO_PWR_DOMAIN_OFFSET	0x800
+
+#define IO_PWR_DOMAIN_GPIO2_Kx	0x0c
+#define IO_PWR_DOMAIN_GPIO3_K1	0x10
+#define IO_PWR_DOMAIN_MMC_Kx	0x1c
+#define IO_PWR_DOMAIN_QSPI_K1	0x20
+
+#define IO_PWR_DOMAIN_V18EN	BIT(2)
+
+#define APBC_ASFAR		0x50
+#define APBC_ASSAR		0x54
+
+#define APBC_ASFAR_AKEY		0xbaba
+#define APBC_ASSAR_AKEY		0xeb10
+
+#define PIN_POWER_STATE_1V8	1800
+#define PIN_POWER_STATE_3V3	3300
 
 enum spacemit_pin_io_type {
 	IO_TYPE_NONE = 0,
@@ -60,12 +77,14 @@ struct spacemit_pinctrl_data {
 	int (*get_pins)(struct udevice *dev);
 	int (*get_functions)(struct udevice *dev);
 	int (*get_io_type)(struct udevice *dev, unsigned int pin);
+	unsigned int (*pin_to_io_pd_offset)(unsigned int pin);
 };
 
 struct spacemit_pinctrl_priv {
 	void __iomem		*regs;
 	struct spacemit_pin_io	*io_pins;
 	int			nr_io_pins;
+	struct regmap		*regmap;
 };
 
 struct spacemit_pin_mux_config {
@@ -194,6 +213,28 @@ static int k1_get_io_type(struct udevice *dev, unsigned int selector)
 	else if (selector < 128)
 		return IO_TYPE_1V8;
 	return -EINVAL;
+}
+
+static unsigned int spacemit_k1_pin_to_io_pd_offset(unsigned int pin)
+{
+	unsigned int offset = 0;
+
+	switch (pin) {
+	case 47 ... 52:
+		offset = IO_PWR_DOMAIN_GPIO3_K1;
+		break;
+	case 75 ... 80:
+		offset = IO_PWR_DOMAIN_GPIO2_Kx;
+		break;
+	case 98 ... 103:
+		offset = IO_PWR_DOMAIN_QSPI_K1;
+		break;
+	case 104 ... 109:
+		offset = IO_PWR_DOMAIN_MMC_Kx;
+		break;
+	}
+
+	return offset;
 }
 
 /* use IO high level output current as the table */
@@ -386,35 +427,112 @@ static int spacemit_pinmux_set(struct udevice *dev, unsigned int pin,
 static int spacemit_pinmux_property_set(struct udevice *dev, u32 pinmux_group)
 {
 	u32 pin, mux;
+	int ret;
 
 	pin = spacemit_dt_get_pin(pinmux_group);
 	mux = spacemit_dt_get_pin_mux(pinmux_group);
-	return spacemit_pinmux_set(dev, pin, mux);
+	ret = spacemit_pinmux_set(dev, pin, mux);
+	if (ret < 0)
+		return ret;
+	return pin;
 }
 
 static const struct pinconf_param spacemit_pinconf_params[] = {
 	{ "bias-disable",	PIN_CONFIG_BIAS_DISABLE,	0 },
 	{ "bias-pull-down",	PIN_CONFIG_BIAS_PULL_DOWN,	1 },
 	{ "bias-pull-up",	PIN_CONFIG_BIAS_PULL_UP,	1 },
-	{ "drive-strength",	PIN_CONFIG_DRIVE_STRENGTH,	U32_MAX },
 	{ "power-source",	PIN_CONFIG_POWER_SOURCE,	U32_MAX },
+	{ "drive-strength",	PIN_CONFIG_DRIVE_STRENGTH,	U32_MAX },
 };
+
+static void spacemit_set_io_power_domain(struct udevice *dev,
+					 unsigned int pin,
+					 unsigned int io_type)
+{
+	struct spacemit_pinctrl_priv *priv = dev_get_priv(dev);
+	struct spacemit_pinctrl_data *data;
+	unsigned int offset;
+	u32 val = 0;
+
+	if (!priv->regmap)
+		return;
+
+	data = (struct spacemit_pinctrl_data *)dev_get_driver_data(dev);
+	if (!data || !data->pin_to_io_pd_offset)
+		return;
+
+	offset = data->pin_to_io_pd_offset(pin);
+	if (!offset)
+		return;
+
+	if (io_type == IO_TYPE_1V8)
+		val = IO_PWR_DOMAIN_V18EN;
+
+	regmap_write(priv->regmap, APBC_ASFAR, APBC_ASFAR_AKEY);
+	regmap_write(priv->regmap, APBC_ASSAR, APBC_ASSAR_AKEY);
+
+	writel(val, priv->regs + IO_PWR_DOMAIN_OFFSET + offset);
+}
+
+static enum spacemit_pin_io_type spacemit_get_pin_io_type(struct spacemit_pinctrl_priv *priv,
+							  unsigned int pin)
+{
+	int i;
+
+	for (i = 0; i < priv->nr_io_pins; i++)
+		if (priv->io_pins[i].pin == pin &&
+		    priv->io_pins[i].io_type != IO_TYPE_EXTERNAL)
+			return priv->io_pins[i].io_type;
+
+	return IO_TYPE_1V8;
+}
+
+static int spacemit_set_pin_power_source(struct udevice *dev, unsigned int pin,
+					 unsigned int power_source)
+{
+	struct spacemit_pinctrl_priv *priv = dev_get_priv(dev);
+	enum spacemit_pin_io_type io_type;
+	int i;
+
+	switch (power_source) {
+	case PIN_POWER_STATE_1V8:
+		io_type = IO_TYPE_1V8;
+		break;
+	case PIN_POWER_STATE_3V3:
+		io_type = IO_TYPE_3V3;
+		break;
+	default:
+		dev_err(dev, "Invalid power source (%d)\n", power_source);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < priv->nr_io_pins; i++) {
+		if (priv->io_pins[i].pin != pin)
+			continue;
+
+		priv->io_pins[i].io_type = io_type;
+		spacemit_set_io_power_domain(dev, pin, io_type);
+
+		return 0;
+	}
+
+	return 0;
+}
 
 static int spacemit_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 				unsigned int param, unsigned int argument)
 {
-	struct spacemit_pinctrl_data *data;
 	struct spacemit_pinctrl_priv *priv = dev_get_priv(dev);
+	struct spacemit_pinctrl_data *data;
+	enum spacemit_pin_io_type io_type;
 	void __iomem *addr;
-	u32 mask = 0;
-	unsigned int io_type;
+	u32 mask;
 	u8 ds;
-	bool found;
-	int i;
 
 	data = (struct spacemit_pinctrl_data *)dev_get_driver_data(dev);
 	if (!data || !data->pin_to_reg)
 		return -EINVAL;
+
 	addr = data->pin_to_reg(dev, pin_selector);
 	switch (param) {
 	case PIN_CONFIG_BIAS_DISABLE:
@@ -429,41 +547,99 @@ static int spacemit_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 		clrsetbits_le32(addr, mask, PAD_PULLUP | PAD_PULL_EN);
 		break;
 	case PIN_CONFIG_DRIVE_STRENGTH:
-		io_type = IO_TYPE_1V8;
-		for (i = 0; i < priv->nr_io_pins; i++) {
-			if (priv->io_pins[i].pin != pin_selector)
-				continue;
-			io_type = priv->io_pins[i].io_type;
-			break;
-		}
+		io_type = spacemit_get_pin_io_type(priv, pin_selector);
 		if (io_type != IO_TYPE_3V3 && io_type != IO_TYPE_1V8) {
 			dev_err(dev, "Invalid IO type (%d)\n", io_type);
 			return -EINVAL;
 		}
 		ds = spacemit_get_drive_strength(io_type, argument);
-		clrsetbits_le32(addr, PAD_DRIVE, ds);
+		clrsetbits_le32(addr, PAD_DRIVE, FIELD_PREP(PAD_DRIVE, ds));
 		break;
 	case PIN_CONFIG_POWER_SOURCE:
-		for (i = 0, found = false; i < priv->nr_io_pins; i++) {
-			if (priv->io_pins[i].pin != pin_selector)
-				continue;
-			if (argument == PIN_POWER_STATE_3V3) {
-				priv->io_pins[i].io_type = IO_TYPE_3V3;
-				found = true;
-			} else if (argument == PIN_POWER_STATE_1V8) {
-				priv->io_pins[i].io_type = IO_TYPE_1V8;
-				found = true;
-			}
-			break;
-		}
-		if (!found && argument != PIN_POWER_STATE_1V8) {
-			dev_err(dev, "Invalid power source (%d)\n", argument);
-			return -EINVAL;
-		}
-		break;
+		return spacemit_set_pin_power_source(dev, pin_selector, argument);
 	default:
 		return -EOPNOTSUPP;
 	}
+
+	return 0;
+}
+
+static int spacemit_pinctrl_apply_group(struct udevice *dev,
+					struct udevice *config)
+{
+	const struct pinconf_param *param;
+	const void *value;
+	u32 argument;
+	u32 pinmux;
+	int npins;
+	int len;
+	int ret;
+	int i, j;
+
+	ret = dev_read_size(config, "pinmux");
+	if (ret == -EINVAL)
+		return 0;
+	if (ret < 0 || ret % sizeof(pinmux))
+		return -EINVAL;
+	npins = ret / sizeof(pinmux);
+
+	for (i = 0; i < npins; i++) {
+		ret = dev_read_u32_index(config, "pinmux", i, &pinmux);
+		if (ret)
+			return ret;
+
+		ret = spacemit_pinmux_set(dev, spacemit_dt_get_pin(pinmux),
+					  spacemit_dt_get_pin_mux(pinmux));
+		if (ret)
+			return ret;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(spacemit_pinconf_params); i++) {
+		param = &spacemit_pinconf_params[i];
+		value = dev_read_prop(config, param->property, &len);
+		if (!value)
+			continue;
+
+		if (len >= sizeof(fdt32_t))
+			argument = fdt32_to_cpu(*(const fdt32_t *)value);
+		else
+			argument = param->default_value;
+
+		for (j = 0; j < npins; j++) {
+			ret = dev_read_u32_index(config, "pinmux", j,
+						 &pinmux);
+			if (ret)
+				return ret;
+
+			ret = spacemit_pinconf_set(dev,
+						   spacemit_dt_get_pin(pinmux),
+						   param->param, argument);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int spacemit_pinctrl_set_state(struct udevice *dev,
+				      struct udevice *config)
+{
+	struct udevice *child;
+	int ret;
+
+	ret = spacemit_pinctrl_apply_group(dev, config);
+	if (ret)
+		return ret;
+
+	for (device_find_first_child(config, &child);
+	     child;
+	     device_find_next_child(&child)) {
+		ret = spacemit_pinctrl_apply_group(dev, child);
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }
 
@@ -472,6 +648,7 @@ static int spacemit_pinctrl_probe(struct udevice *dev)
 	struct spacemit_pinctrl_data *data;
 	struct spacemit_pinctrl_priv *priv;
 	struct clk_bulk clks;
+	struct ofnode_phandle_args args;
 	size_t size;
 	int ret;
 
@@ -488,6 +665,19 @@ static int spacemit_pinctrl_probe(struct udevice *dev)
 	if (!priv->io_pins) {
 		dev_err(dev, "Fail to allocate memory\n");
 		return -ENOMEM;
+	}
+	ret = dev_read_phandle_with_args(dev, "spacemit,apbc",
+					 NULL, 0, 0, &args);
+	if (ret) {
+		dev_warn(dev, "no APBC phandle found, disable IO power domain switching\n");
+		priv->regmap = NULL;
+	} else {
+		ret = regmap_init_mem(args.node, &priv->regmap);
+		if (ret) {
+			dev_warn(dev, "failed to get APBC regmap,"
+				 " disable IO power domain switching\n");
+			priv->regmap = NULL;
+		}
 	}
 
 	ret = clk_get_bulk(dev, &clks);
@@ -516,6 +706,7 @@ static const struct spacemit_pinctrl_data k1_pinctrl_data = {
 	.get_pins	= k1_get_pins,
 	.get_functions	= k1_get_functions,
 	.get_io_type	= k1_get_io_type,
+	.pin_to_io_pd_offset = spacemit_k1_pin_to_io_pd_offset,
 };
 
 static const struct udevice_id spacemit_pinctrl_ids[] = {
@@ -530,7 +721,7 @@ static const struct pinctrl_ops spacemit_pinctrl_ops = {
 	.get_pin_name		= spacemit_get_pin_name,
 	.get_functions_count	= spacemit_get_functions_count,
 	.get_pin_muxing		= spacemit_get_pin_muxing,
-	.set_state		= pinctrl_generic_set_state,
+	.set_state		= spacemit_pinctrl_set_state,
 	.gpio_request_enable	= spacemit_pinctrl_request_gpio,
 	.gpio_disable_free	= spacemit_pinctrl_free_gpio,
 	.pinmux_set		= spacemit_pinmux_set,

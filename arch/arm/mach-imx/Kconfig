@@ -217,8 +217,9 @@ config SPL_IMX_ROMAPI_LOADADDR
 
 config IMX_DCD_ADDR
 	hex "DCD Blocks location on the image"
-	default 0x00910000 if !ARCH_MX7ULP
+	default 0x00911000 if ARCH_MX7
 	default 0x2f010000 if ARCH_MX7ULP
+	default 0x00910000
 	help
 	  Indicates where the Device Configuration Data, a binary table used by
 	  the ROM code to configure the device at early boot stage, is located.

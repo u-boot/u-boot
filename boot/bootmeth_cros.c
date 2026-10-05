@@ -369,6 +369,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	struct vb2_keyblock *hdr;
 	const char *uuid = NULL;
 	struct cros_priv *priv;
+	ulong body_offset;
 	int ret;
 
 	log_debug("starting, part=%x\n", bflow->part);
@@ -378,6 +379,31 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret) {
 		log_debug("- scan failed: err=%d\n", ret);
 		return log_msg_ret("scan", ret);
+	}
+
+	/*
+	 * Make sure that the preamble, which follows the keyblock, lies within
+	 * the data read by scan_part(), since keyblock_size comes from the
+	 * disk and cannot be trusted
+	 */
+	if (hdr->keyblock_size < sizeof(*hdr) ||
+	    hdr->keyblock_size > PROBE_SIZE - sizeof(*preamble)) {
+		log_debug("- invalid keyblock size %x\n", hdr->keyblock_size);
+		free(hdr);
+		return log_msg_ret("kblk", -ERANGE);
+	}
+	preamble = (void *)hdr + hdr->keyblock_size;
+
+	/*
+	 * The kernel body must start beyond the probed area, as
+	 * cros_read_kernel() requires; this also rejects a preamble_size
+	 * that wraps the 32-bit sum
+	 */
+	body_offset = hdr->keyblock_size + preamble->preamble_size;
+	if (body_offset < PROBE_SIZE) {
+		log_debug("- invalid body offset %lx\n", body_offset);
+		free(hdr);
+		return log_msg_ret("bod", -ERANGE);
 	}
 
 	priv = malloc(sizeof(struct cros_priv));
@@ -391,8 +417,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		  (ulong)map_to_sysmem(hdr));
 
 	/* Grab a few things from the preamble */
-	preamble = (void *)hdr + hdr->keyblock_size;
-	priv->body_offset = hdr->keyblock_size + preamble->preamble_size;
+	priv->body_offset = body_offset;
 	priv->part_start = info.start;
 
 	/* Now read everything we can learn about kernel */
@@ -405,6 +430,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret) {
 		free(priv->info_buf);
 		free(priv);
+		bflow->bootmeth_priv = NULL;
 		return log_msg_ret("inf", ret);
 	}
 	bflow->size = priv->body_size;

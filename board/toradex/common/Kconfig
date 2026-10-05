@@ -3,6 +3,7 @@
 
 menuconfig TDX_CFG_BLOCK
 	bool "Enable Toradex config block support"
+	select EVENT
 	select OF_BOARD_SETUP
 	select SYSINFO
 	help

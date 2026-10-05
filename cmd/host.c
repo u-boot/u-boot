@@ -5,6 +5,7 @@
 
 #include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <fs.h>
 #include <part.h>
 #include <sandbox_host.h>
@@ -175,6 +176,9 @@ static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 	}
 
+	if (argc >= 3)
+		return env_set_hex(argv[2], dev_seq(dev));
+
 	printf("%3s %12s %6s %-15s %s\n",
 	       "dev", "blocks", "blksz", "label", "path");
 	if (dev) {
@@ -264,6 +268,7 @@ U_BOOT_CMD(
 	"     -r = mark as removable\n"
 	"host unbind <label>     - unbind file from \"host\" device\n"
 	"host info [<label>]     - show device binding & info\n"
+	"host info <label> <var> - write device number to variable\n"
 	"host dev [<label>]      - set or retrieve the current host device\n"
 	"host commands use the \"hostfs\" device. The \"host\" device is used\n"
 	"with standard IO commands such as fatls or ext2load"

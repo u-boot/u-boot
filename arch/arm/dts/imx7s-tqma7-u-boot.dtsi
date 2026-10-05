@@ -16,27 +16,3 @@
 		nvmem-cell-names = "device_info";
 	};
 };
-
-&m24c64 {
-	nvmem-layout {
-		compatible = "fixed-layout";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		module_info: module-info@20 {
-			reg = <0x20 0x60>;
-		};
-	};
-};
-
-&soc {
-	bootph-pre-ram;
-};
-
-&aips1 {
-	bootph-pre-ram;
-};
-
-&aips3 {
-	bootph-pre-ram;
-};

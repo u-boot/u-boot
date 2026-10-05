@@ -532,8 +532,6 @@ static void get_rbf_image_info(struct rbf_info *rbf, u16 *buffer)
 
 		rbf->section = unknown;
 		break;
-
-		schedule();
 	}
 }
 

@@ -524,7 +524,7 @@ config DM_REGULATOR_TPS65941
 config DM_REGULATOR_SCMI
 	bool "Enable driver for SCMI voltage domain regulators"
 	depends on DM_REGULATOR
-	select SCMI_AGENT
+	depends on SCMI_FIRMWARE
 	help
 	  Enable this option if you want to support regulators exposed through
 	  the SCMI voltage domain protocol by a SCMI server.
@@ -563,6 +563,14 @@ config DM_REGULATOR_MT6357
 	  MediaTek MT6357 PMIC.
 	  This driver supports the control of different power rails of device
 	  through regulator interface.
+
+config DM_REGULATOR_MT6358
+	bool "Enable driver for MediaTek MT6358-family PMIC regulators"
+	depends on DM_REGULATOR && DM_PMIC_MTK_PWRAP
+	help
+	  Say y here to select this option to enable the power regulator path
+	  used by MT6358-family PMICs, including the MT6366 rail model used on
+	  MT8366 Genio 360.
 
 config DM_REGULATOR_MT6359
 	bool "Enable driver for MediaTek MT6359 PMIC regulators"

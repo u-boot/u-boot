@@ -14,6 +14,7 @@ Synopsis
     host bind [-r] <label> [<filename>]
     host unbind <label|seq>
     host info [<label|seq>]
+    host info <label|seq> <varname>
     host dev [<label|seq>]
 
 Description
@@ -60,6 +61,9 @@ host info
 ~~~~~~~~~
 
 Provides information about a particular host binding, or all of them.
+
+If a variable name <varname> is provided, the sequence number is written to
+the variable and no output is written to the console.
 
 
 host dev

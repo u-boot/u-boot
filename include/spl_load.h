@@ -63,6 +63,7 @@ static inline int _spl_load(struct spl_image_info *spl_image,
 		return spl_load_imx_container(spl_image, info, offset);
 
 	if (IS_ENABLED(CONFIG_SPL_LZMA) &&
+	    CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT) &&
 	    image_get_magic(header) == IH_MAGIC &&
 	    image_get_comp(header) == IH_COMP_LZMA) {
 		spl_image->flags |= SPL_COPY_PAYLOAD_ONLY;

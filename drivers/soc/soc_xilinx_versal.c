@@ -7,9 +7,8 @@
 
 #include <dm.h>
 #include <soc.h>
-#include <zynqmp_firmware.h>
-#include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 
 /*
  * v1 -> 0x10 - ES1
@@ -44,23 +43,15 @@ static const struct soc_ops soc_xilinx_versal_ops = {
 static int soc_xilinx_versal_probe(struct udevice *dev)
 {
 	struct soc_xilinx_versal_priv *priv = dev_get_priv(dev);
-	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u32 version;
 	int ret;
 
+	ret = xilinx_pm_get_chipid(NULL, &version);
+	if (ret)
+		return ret;
+
 	priv->family = versal_family;
-
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
-		ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0,
-					0, 0, ret_payload);
-		if (ret)
-			return ret;
-	} else {
-		ret_payload[2] = readl(VERSAL_PS_PMC_VERSION);
-		if (!ret_payload[2])
-			return -EINVAL;
-	}
-
-	priv->revision = ret_payload[2] >> VERSAL_PS_VER_SHIFT;
+	priv->revision = version >> VERSAL_PS_VER_SHIFT;
 
 	return 0;
 }

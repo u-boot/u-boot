@@ -5,5 +5,4 @@ S:	Maintained
 F:	board/intel/n5x-socdk/
 F:	include/configs/socfpga_n5x_socdk.h
 F:	configs/socfpga_n5x_defconfig
-F:	configs/socfpga_n5x_atf_defconfig
 F:	configs/socfpga_n5x_vab_defconfig

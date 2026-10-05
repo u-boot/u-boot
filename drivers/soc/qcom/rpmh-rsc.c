@@ -294,7 +294,7 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 	if (msg->wait_for_compl)
 		cmd_msgid |= CMD_MSGID_RESP_REQ;
 
-	cmd_complete = read_tcs_reg(drv, drv->regs[RSC_DRV_CMD_WAIT_FOR_CMPL], tcs_id);
+	cmd_complete = 0; //read_tcs_reg(drv, drv->regs[RSC_DRV_CMD_WAIT_FOR_CMPL], tcs_id);
 
 	for (i = 0, j = cmd_id; i < msg->num_cmds; i++, j++) {
 		cmd = &msg->cmds[i];
@@ -307,15 +307,18 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_ADDR], tcs_id, j, cmd->addr);
 		if (!msg->is_read)
 			write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_DATA], tcs_id, j, cmd->data);
-		debug("tcs(%d): [%s] cmd_id: %d: msgid: %#x addr: %#x data: %#x complete: %#x\n",
+		debug("tcs(%d): [%s] cmd_id: %d: msgid: %#x addr: %#x data: %#x read: %d\n",
 		      tcs_id, msg->state == RPMH_ACTIVE_ONLY_STATE ? "active" : "?", j, msgid,
-		      cmd->addr, cmd->data, cmd_complete);
+		      cmd->addr, cmd->data, msg->is_read);
 	}
 
-	cmd_enable |= read_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id);
 	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, cmd_enable);
 	/* U-Boot: Tell the DRV to wait for completion (?) so we can poll on DRV_STATUS */
 	/* This register applies to the entire TCS group not per command */
+	/*
+	 * FIXME: this seems to rather be a way to impose ordering on commands when multiple are
+	 * sent in a single TCS request, needs more testing.
+	 */
 	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_WAIT_FOR_CMPL], tcs_id, cmd_complete);
 }
 
@@ -344,12 +347,11 @@ static void __tcs_set_trigger(struct rsc_drv *drv, int tcs_id, bool trigger)
 	/*
 	 * HW req: Clear the DRV_CONTROL and enable TCS again
 	 * While clearing ensure that the AMC mode trigger is cleared
-	 * and then the mode enable is cleared.
+	 * U-Boot: keep AMC_MODE_ENABLE flag since clearing it might be
+	 * interrupting in-flight commands.
 	 */
 	enable = read_tcs_reg(drv, reg, tcs_id);
 	enable &= ~TCS_AMC_MODE_TRIGGER;
-	write_tcs_reg_sync(drv, reg, tcs_id, enable);
-	enable &= ~TCS_AMC_MODE_ENABLE;
 	write_tcs_reg_sync(drv, reg, tcs_id, enable);
 
 	if (trigger) {
@@ -388,10 +390,11 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	struct tcs_group *tcs;
 	int tcs_id, i = 0;
 	u32 val;
+	u32 addr;
 
 	tcs = get_tcs_for_msg(drv, msg);
-	if (IS_ERR_OR_NULL(tcs))
-		return 0;
+	if (IS_ERR(tcs))
+		return PTR_ERR(tcs);
 
 	/* U-Boot is single-threaded, always use the first TCS as we'll never conflict */
 	tcs_id = tcs->offset;
@@ -401,7 +404,6 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	}
 
 	tcs->req[tcs_id - tcs->offset] = msg;
-	generic_set_bit(tcs_id, drv->tcs_in_use);
 
 	/*
 	 * These two can be done after the lock is released because:
@@ -414,7 +416,18 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	__tcs_buffer_write(drv, tcs_id, 0, msg);
 	__tcs_set_trigger(drv, tcs_id, true);
 
-	/* U-Boot: Now wait for the TCS to be cleared, indicating that we're done. */
+	/*
+	 * U-Boot: Now wait for the status done flag and for the TCS to be cleared.
+	 * Just waiting for one of these isn't always enough. On reads we have to wait for
+	 * the status register to indicate that the response data is ready.
+	 */
+	for (i = 0; i < USEC_PER_SEC; i++) {
+		addr = readl_relaxed(drv->tcs_base + drv->regs[RSC_DRV_IRQ_STATUS]);
+		if (addr & BIT(tcs_id))
+			break;
+		udelay(1);
+	}
+
 	for (i = 0; i < USEC_PER_SEC; i++) {
 		val = read_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_STATUS], tcs_id, 0);
 		if (val & CMD_STATUS_COMPL)
@@ -422,18 +435,14 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 		udelay(1);
 	}
 
-	/* U-Boot: read the response now we know it's available */
+	/* U-Boot: read the response when it becomes available */
 	if (msg->is_read) {
 		msg->cmds[0].data = read_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_RESP_DATA], tcs_id, 0);
 		log_debug("data response: %#x\n", msg->cmds[0].data);
 	}
 
 	__tcs_set_trigger(drv, tcs_id, false);
-
-	/* Reclaim the TCS */
-	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, 0);
 	writel_relaxed(BIT(tcs_id), drv->tcs_base + drv->regs[RSC_DRV_IRQ_CLEAR]);
-	generic_clear_bit(tcs_id, drv->tcs_in_use);
 
 	if (i == USEC_PER_SEC) {
 		log_err("%s: error writing %#x to %d:%#x\n", drv->name,
@@ -564,6 +573,32 @@ static int rpmh_rsc_probe(struct udevice *dev)
 	return ret;
 }
 
+static int rpmh_rsc_remove(struct udevice *dev)
+{
+	struct rsc_drv *drv = dev_get_priv(dev);
+	struct tcs_group *tcs = &drv->tcs[ACTIVE_TCS];
+	u32 tcs_id = tcs->offset;
+
+	for (int i = 0; i < 10 && !read_tcs_reg(drv, drv->regs[RSC_DRV_STATUS], tcs_id); i++) {
+		if (i == 0)
+			printf("Waiting for TCS %d to be free...\n", tcs_id);
+		udelay(100);
+	}
+
+	/* Clean up for the OS! */
+	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_WAIT_FOR_CMPL], tcs_id, 0);
+
+	/* Clear the AMC enable bit for all TCS commands we used */
+	write_tcs_reg_sync(drv, drv->regs[RSC_DRV_CONTROL], tcs_id, 0);
+	/* Disable all commands for the single AMC we used */
+	write_tcs_reg_sync(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, 0);
+
+	/* Make sure IRQs are all clear too */
+	writel_relaxed(tcs->mask, drv->tcs_base + drv->regs[RSC_DRV_IRQ_CLEAR]);
+
+	return 0;
+}
+
 static const struct udevice_id qcom_rpmh_ids[] = {
 	{ .compatible = "qcom,rpmh-rsc" },
 	{ }
@@ -574,9 +609,10 @@ U_BOOT_DRIVER(qcom_rpmh_rsc) = {
 	.id		= UCLASS_MISC,
 	.priv_auto	= sizeof(struct rsc_drv),
 	.probe		= rpmh_rsc_probe,
+	.remove		= rpmh_rsc_remove,
 	.of_match	= qcom_rpmh_ids,
 	/* rpmh is under CLUSTER_PD which we don't support, so skip trying to enable PDs */
-	.flags		= DM_FLAG_DEFAULT_PD_CTRL_OFF,
+	.flags		= DM_FLAG_DEFAULT_PD_CTRL_OFF | DM_FLAG_OS_PREPARE,
 };
 
 MODULE_DESCRIPTION("Qualcomm Technologies, Inc. RPMh Driver");

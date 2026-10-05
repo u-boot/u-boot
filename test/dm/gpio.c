@@ -257,6 +257,45 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 DM_TEST(dm_test_gpio_opendrain_opensource,
 	UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
+/* Test parsing a GPIO in one phase and requesting it in another */
+static int dm_test_gpio_parse_request(struct unit_test_state *uts)
+{
+	struct gpio_dt_spec spec;
+	struct gpio_desc desc, chk;
+	struct udevice *dev;
+	const char *label;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	/* test2-gpios index 1 is a4: parsing alone must not claim it */
+	ut_assertok(dm_gpio_lookup_name("a4", &chk));
+	ut_assertok(gpio_parse_by_name(dev, "test2-gpios", 1, GPIOD_IS_OUT,
+				       &spec));
+	ut_asserteq(true, spec.present);
+	ut_asserteq(GPIOF_UNUSED, gpio_get_function(chk.dev, chk.offset,
+						    NULL));
+	ut_asserteq(0, sandbox_gpio_get_direction(chk.dev, chk.offset));
+
+	/* the request claims it with the label gpio_request_by_name() uses */
+	ut_assertok(gpio_request_parsed(dev, &spec, &desc));
+	ut_asserteq_ptr(chk.dev, desc.dev);
+	ut_asserteq(chk.offset, desc.offset);
+	ut_asserteq(GPIOF_OUTPUT, gpio_get_function(desc.dev, desc.offset,
+						    &label));
+	ut_asserteq_str("a-test.test2-gpios1", label);
+	ut_assertok(dm_gpio_free(dev, &desc));
+
+	/* a missing property parses and requests as -ENOENT */
+	ut_asserteq(-ENOENT,
+		    gpio_parse_by_name(dev, "no-such-gpios", 0, 0, &spec));
+	ut_asserteq(-ENOENT, gpio_request_parsed(dev, &spec, &desc));
+	ut_asserteq(false, dm_gpio_is_valid(&desc));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_parse_request, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
 /* Test that sandbox anonymous GPIOs work correctly */
 static int dm_test_gpio_anon(struct unit_test_state *uts)
 {
@@ -292,6 +331,8 @@ static int dm_test_gpio_requestf(struct unit_test_state *uts)
 	sandbox_gpio_set_value(dev, offset, 1);
 	ut_assertok(gpio_get_status(dev, offset, buf, sizeof(buf)));
 	ut_asserteq_str("b5: output: 1 [x] testing 1 hi", buf);
+
+	ut_assertok(gpio_free(gpio));
 
 	return 0;
 }
@@ -443,6 +484,75 @@ static int dm_test_gpio_get_dir_flags(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_gpio_get_dir_flags, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/*
+ * Test that gpio-delay correctly routes each consumer to its own wrapped
+ * real GPIO line. See gpio-delay-test in test.dts, which wraps gpio_a 9
+ * and gpio_a 18.
+ */
+#if IS_ENABLED(CONFIG_GPIO_DELAY)
+static int dm_test_gpio_delay(struct unit_test_state *uts)
+{
+	struct gpio_desc desc0, desc1, desc2, desc3;
+	struct udevice *dev, *gpio_a;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio_a));
+	ut_asserteq_str("base-gpios", gpio_a->name);
+
+	/*
+	 * Requesting both consumers must succeed. Before the offset was
+	 * propagated in gpio_delay_xlate(), both descriptors came back with
+	 * offset 0, so this second request would fail with -EBUSY as it
+	 * collided with the first consumer's already-claimed offset.
+	 */
+	ut_assertok(gpio_request_by_name(dev, "test6-gpios", 0, &desc0, 0));
+	ut_assertok(gpio_request_by_name(dev, "test6-gpios", 1, &desc1, 0));
+
+	ut_asserteq_ptr(desc0.dev, desc1.dev);
+	ut_asserteq(0, desc0.offset);
+	ut_asserteq(1, desc1.offset);
+
+	/*
+	 * A third consumer mapped to the same offset as the first must be
+	 * rejected as already requested.
+	 */
+	ut_asserteq(-EBUSY, gpio_request_by_name(dev, "test6-gpios", 2, &desc2,
+						 0));
+
+	/*
+	 * Drive each consumer to a different level and confirm the write
+	 * lands on its own wrapped real GPIO line, not the other one's.
+	 * gpio_a has no set_value op of its own (it implements set_flags),
+	 * so dm_gpio_set_value() routes through GPIOD_IS_OUT_ACTIVE.
+	 */
+	ut_assertok(dm_gpio_set_value(&desc0, 0));
+	ut_assertok(dm_gpio_set_value(&desc1, 1));
+	ut_asserteq(0, sandbox_gpio_get_flags(gpio_a, 9) & GPIOD_IS_OUT_ACTIVE);
+	ut_asserteq(GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_flags(gpio_a, 18) & GPIOD_IS_OUT_ACTIVE);
+
+	ut_assertok(dm_gpio_set_value(&desc0, 1));
+	ut_assertok(dm_gpio_set_value(&desc1, 0));
+	ut_asserteq(GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_flags(gpio_a, 9) & GPIOD_IS_OUT_ACTIVE);
+	ut_asserteq(0, sandbox_gpio_get_flags(gpio_a, 18) & GPIOD_IS_OUT_ACTIVE);
+
+	ut_assertok(dm_gpio_free(dev, &desc0));
+	ut_assertok(dm_gpio_free(dev, &desc1));
+
+	/*
+	 * An index beyond the wrapped GPIO count (2 here) must be rejected.
+	 * Before gpio_count was set from the "gpios" property, this bound
+	 * was checked against a hardcoded 32 and would have been let through.
+	 */
+	ut_asserteq(-EINVAL, gpio_request_by_name(dev, "test7-gpios", 0, &desc3,
+						  0));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_delay, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+#endif /* CONFIG_GPIO_DELAY */
 
 /* Test of gpio_get_acpi() */
 static int dm_test_gpio_get_acpi(struct unit_test_state *uts)

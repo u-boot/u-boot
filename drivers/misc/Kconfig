@@ -83,6 +83,15 @@ config GATEWORKS_SC
 	  boards to provide a boot watchdog, power control, temperature monitor,
 	  voltage ADCs, and EEPROM.
 
+config GXP_EEPROM
+	bool "HPE GXP EEPROM driver"
+	depends on MISC
+	select NVMEM
+	help
+	  Enable access to the memory-mapped system information area
+	  on HPE GXP BMC SoCs. This region contains board data such as
+	  MAC addresses, serial number, and part number.
+
 config QCOM_GENI
 	bool "Qualcomm Generic Interface (GENI) driver"
 	depends on MISC

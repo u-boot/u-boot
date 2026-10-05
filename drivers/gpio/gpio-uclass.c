@@ -397,8 +397,11 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 	int ret;
 
 	uc_priv = dev_get_uclass_priv(dev);
-	if (gpio_is_claimed(uc_priv, desc->offset))
+	if (gpio_is_claimed(uc_priv, desc->offset)) {
+		dev_dbg(dev, "gpio offset %u already claimed by '%s', requested label '%s'\n",
+			desc->offset, uc_priv->name[desc->offset], label);
 		return -EBUSY;
+	}
 	str = strdup(label);
 	if (!str)
 		return -ENOMEM;
@@ -1214,6 +1217,40 @@ int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
 {
 	return _gpio_request_by_name_nodev(node, list_name, index, desc, flags,
 					   index > 0);
+}
+
+int gpio_parse_by_name(struct udevice *dev, const char *list_name, int index,
+		       int flags, struct gpio_dt_spec *spec)
+{
+	int ret;
+
+	spec->present = false;
+	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0,
+					 index, &spec->args);
+	if (ret)
+		return ret;
+	spec->list_name = list_name;
+	spec->index = index;
+	spec->flags = flags;
+	spec->present = true;
+
+	return 0;
+}
+
+int gpio_request_parsed(struct udevice *dev, const struct gpio_dt_spec *spec,
+			struct gpio_desc *desc)
+{
+	struct ofnode_phandle_args args;
+
+	if (!spec->present) {
+		gpio_desc_init(desc, NULL, 0);
+		return -ENOENT;
+	}
+
+	args = spec->args;
+	return gpio_request_tail(0, ofnode_get_name(dev_ofnode(dev)), &args,
+				 spec->list_name, spec->index, desc, spec->flags,
+				 spec->index > 0, NULL);
 }
 
 int gpio_request_by_name(struct udevice *dev, const char *list_name, int index,

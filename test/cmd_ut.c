@@ -59,6 +59,7 @@ SUITE_DECL(env);
 SUITE_DECL(exit);
 SUITE_DECL(fdt);
 SUITE_DECL(fdt_overlay);
+SUITE_DECL(fit_cipher);
 SUITE_DECL(fit_verity);
 SUITE_DECL(font);
 SUITE_DECL(hush);
@@ -73,6 +74,7 @@ SUITE_DECL(optee);
 SUITE_DECL(pci_mps);
 SUITE_DECL(seama);
 SUITE_DECL(setexpr);
+SUITE_DECL(imagemap);
 SUITE_DECL(upl);
 
 static struct suite suites[] = {
@@ -88,6 +90,7 @@ static struct suite suites[] = {
 	SUITE(exit, "shell exit and variables"),
 	SUITE(fdt, "fdt command"),
 	SUITE(fdt_overlay, "device tree overlays"),
+	SUITE(fit_cipher, "FIT cipher bounds checks"),
 	SUITE(fit_verity, "FIT dm-verity cmdline generation"),
 	SUITE(font, "font command"),
 	SUITE(hush, "hush behaviour"),
@@ -102,6 +105,7 @@ static struct suite suites[] = {
 	SUITE(pci_mps, "PCI Express Maximum Payload Size"),
 	SUITE(seama, "seama command parameters loading and decoding"),
 	SUITE(setexpr, "setexpr command"),
+	SUITE(imagemap, "imagemap on-demand storage loading"),
 	SUITE(upl, "Universal payload support"),
 };
 

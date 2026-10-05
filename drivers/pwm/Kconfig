@@ -74,6 +74,14 @@ config PWM_MTK
 	  This PWM is found on MT7622, MT7623, and MT7629. It supports a
 	  programmable period and duty cycle.
 
+config PWM_MTK_DISP
+	bool "Enable support for MediaTek display PWM"
+	depends on ARCH_MEDIATEK
+	help
+	  This PWM is found on the display subsystem of several MediaTek
+	  SoCs (e.g. MT8183, MT8366). It is typically used to drive the
+	  backlight of a display panel.
+
 config PWM_ROCKCHIP
 	bool "Enable support for the Rockchip PWM"
 	depends on ARCH_ROCKCHIP

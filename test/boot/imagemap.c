@@ -1,0 +1,645 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Tests for imagemap framework (UCLASS_IMAGEMAP)
+ *
+ * Copyright (C) 2026 Daniel Golle <daniel@makrotopia.org>
+ */
+
+#include <dm.h>
+#include <blk.h>
+#include <imagemap.h>
+#include <mtd.h>
+#include <part.h>
+#include <ubi_uboot.h>
+#include <linux/err.h>
+#include <linux/mtd/mtd.h>
+#include <lmb.h>
+#include <mapmem.h>
+#include <malloc.h>
+#include <asm/cache.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
+#include <dm/root.h>
+#include <dm/uclass-internal.h>
+#include <test/test.h>
+#include <test/ut.h>
+
+#define IMAGEMAP_TEST(_name, _flags) \
+	UNIT_TEST(_name, _flags, imagemap)
+
+/* Synthetic image size used throughout the tests */
+#define IMAGE_SIZE	4096
+
+/**
+ * struct mock_priv - private data for the mock storage backend
+ *
+ * @image:	pointer to synthetic image data in RAM
+ * @image_size:	size of the synthetic image
+ * @read_count:	number of times .read() was called
+ * @last_off:	offset from the most recent .read() call
+ * @last_size:	size from the most recent .read() call
+ */
+struct mock_priv {
+	const void *image;
+	size_t image_size;
+	int read_count;
+	loff_t last_off;
+	ulong last_size;
+};
+
+static ulong mock_reader(struct spl_load_info *info, ulong sector,
+			 ulong count, void *buf)
+{
+	struct mock_priv *p = info->priv;
+
+	if (sector + count > p->image_size)
+		return 0;
+
+	memcpy(buf, (const char *)p->image + sector, count);
+	p->read_count++;
+	p->last_off = sector;
+	p->last_size = count;
+
+	return count;
+}
+
+U_BOOT_DRIVER(imagemap_mock) = {
+	.name		= "imagemap_mock",
+	.id		= UCLASS_IMAGEMAP,
+	.priv_auto	= sizeof(struct mock_priv),
+};
+
+/**
+ * create_mock_loader() - create a mock imagemap device for testing
+ *
+ * @image:	synthetic image buffer
+ * @image_size:	size of @image
+ * @devp:	on success, the new imagemap device
+ * Return: 0 on success, negative errno on failure
+ */
+static int create_mock_loader_bl(const void *image, size_t image_size,
+				 uint bl_len, struct udevice **devp)
+{
+	struct udevice *dev;
+	struct imagemap_priv *im;
+	struct mock_priv *priv;
+	int ret;
+
+	ret = device_bind_driver(dm_root(), "imagemap_mock",
+				 "imagemap-test", &dev);
+	if (ret)
+		return ret;
+
+	ret = device_probe(dev);
+	if (ret) {
+		device_unbind(dev);
+		return ret;
+	}
+
+	priv = dev_get_priv(dev);
+	priv->image = image;
+	priv->image_size = image_size;
+	priv->read_count = 0;
+
+	/* Point the imagemap's shared load-to-mem reader at the mock image */
+	im = dev_get_uclass_priv(dev);
+	spl_load_init(&im->info, mock_reader, priv, bl_len);
+
+	*devp = dev;
+
+	return 0;
+}
+
+static int create_mock_loader(const void *image, size_t image_size,
+			      struct udevice **devp)
+{
+	return create_mock_loader_bl(image, image_size, 1, devp);
+}
+
+/**
+ * get_mock_priv() - get mock private data from an imagemap device
+ */
+static struct mock_priv *get_mock_priv(struct udevice *dev)
+{
+	return dev_get_priv(dev);
+}
+
+/* Test: map() allocates, reads and records a region */
+static int imagemap_test_map_basic(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct imagemap_priv *priv;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	void *p;
+
+	/* Fill image with a recognisable pattern */
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+	priv = dev_get_uclass_priv(dev);
+
+	/* Map a 64-byte region at offset 0 */
+	p = imagemap_map(dev, 0, 64);
+	ut_assert(!IS_ERR(p));
+	ut_asserteq_mem(image, p, 64);
+	ut_asserteq(1, mock->read_count);
+	ut_asserteq(1, priv->regions.count);
+	ut_asserteq(0, (int)alist_get(&priv->regions, 0, struct imagemap_region)->img_offset);
+	ut_asserteq(64, (int)alist_get(&priv->regions, 0, struct imagemap_region)->size);
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_map_basic, 0);
+
+/* Test: map() returns cached pointer for already-mapped range */
+static int imagemap_test_map_cached(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	void *p1, *p2;
+
+	memset(image, 0xaa, IMAGE_SIZE);
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+
+	p1 = imagemap_map(dev, 0, 128);
+	ut_assert(!IS_ERR(p1));
+	ut_asserteq(1, mock->read_count);
+
+	/* Same range - should return same pointer, no new read */
+	p2 = imagemap_map(dev, 0, 128);
+	ut_asserteq_ptr(p1, p2);
+	ut_asserteq(1, mock->read_count);
+
+	/* Subset of the already-mapped range - still cached */
+	p2 = imagemap_map(dev, 0, 64);
+	ut_asserteq_ptr(p1, p2);
+	ut_asserteq(1, mock->read_count);
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_map_cached, 0);
+
+/* Test: map() returns correct offset within a larger region */
+static int imagemap_test_map_offset(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	void *p1, *p2;
+
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+
+	/* Map a 256-byte region starting at offset 0 */
+	p1 = imagemap_map(dev, 0, 256);
+	ut_assert(!IS_ERR(p1));
+
+	/* Request a sub-range within the previously mapped region */
+	p2 = imagemap_map(dev, 64, 64);
+	ut_assert(!IS_ERR(p2));
+	/* p2 should point 64 bytes into p1 */
+	ut_asserteq_ptr((char *)p1 + 64, p2);
+	ut_asserteq_mem(image + 64, p2, 64);
+	/* Only one read should have occurred */
+	ut_asserteq(1, mock->read_count);
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_map_offset, 0);
+
+/* Test: map() re-reads when extending a region to a larger size */
+static int imagemap_test_map_extend(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct imagemap_priv *priv;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	void *p1, *p2;
+
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+	priv = dev_get_uclass_priv(dev);
+
+	/* Initial small mapping */
+	p1 = imagemap_map(dev, 0, 64);
+	ut_assert(!IS_ERR(p1));
+	ut_asserteq(1, mock->read_count);
+
+	/* Request larger range at same base - should re-read (extend) */
+	p2 = imagemap_map(dev, 0, 256);
+	ut_assert(!IS_ERR(p2));
+	ut_asserteq(2, mock->read_count);
+	ut_asserteq_mem(image, p2, 256);
+
+	/* Region count should still be 1 (updated, not added) */
+	ut_asserteq(1, priv->regions.count);
+	ut_asserteq(256, (int)alist_get(&priv->regions, 0, struct imagemap_region)->size);
+
+	/*
+	 * Map a new region after the extend - it must not overlap the
+	 * extended first region. This is the exact pattern that bit us
+	 * on real hardware: FIT header at offset 0 extended from 64 to
+	 * 4096, then kernel payload at offset 4096 was allocated at
+	 * an address that overlapped the header, clobbering it.
+	 * With LMB allocation this cannot happen because each allocation
+	 * reserves distinct memory.
+	 */
+	{
+		void *p3 = imagemap_map(dev, 256, 128);
+		ulong p2_end = map_to_sysmem(p2) + 256;
+
+		ut_assert(!IS_ERR(p3));
+		ut_asserteq(2, priv->regions.count);
+		/* New region must not overlap the extended first region */
+		ut_assert(map_to_sysmem(p3) >= p2_end ||
+			  map_to_sysmem(p3) + 128 <= map_to_sysmem(p2));
+		ut_asserteq_mem(image + 256, p3, 128);
+	}
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_map_extend, 0);
+
+/* Test: map_to() reads to a specified address and records it */
+static int imagemap_test_map_to(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct imagemap_priv *priv;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	u8 dst[256];
+	void *p;
+
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+	priv = dev_get_uclass_priv(dev);
+
+	p = imagemap_map_to(dev, 128, 256, dst);
+	ut_assert(!IS_ERR(p));
+	ut_asserteq_ptr(dst, p);
+	ut_asserteq_mem(image + 128, dst, 256);
+	ut_asserteq(1, mock->read_count);
+	ut_asserteq(1, priv->regions.count);
+	ut_asserteq(128, (int)alist_get(&priv->regions, 0, struct imagemap_region)->img_offset);
+	ut_asserteq(256, (int)alist_get(&priv->regions, 0, struct imagemap_region)->size);
+	ut_asserteq_ptr(dst, alist_get(&priv->regions, 0, struct imagemap_region)->ram);
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_map_to, 0);
+
+/* Test: lookup() returns NULL for unmapped ranges */
+static int imagemap_test_lookup_miss(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u8 image[IMAGE_SIZE];
+	void *p;
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+
+	/* Nothing mapped yet - should return NULL */
+	p = imagemap_lookup(dev, 0, 64);
+	ut_assertnull(p);
+
+	/* Map a region at offset 0 */
+	ut_assert(!IS_ERR(imagemap_map(dev, 0, 64)));
+
+	/* Lookup within the mapped region - should succeed */
+	p = imagemap_lookup(dev, 0, 32);
+	ut_assertnonnull(p);
+
+	/* Lookup at a different offset - should miss */
+	p = imagemap_lookup(dev, 128, 32);
+	ut_assertnull(p);
+
+	/* Lookup extending beyond the mapped region - should miss */
+	p = imagemap_lookup(dev, 0, 128);
+	ut_assertnull(p);
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_lookup_miss, 0);
+
+/* Test: LMB reservations are made for map() allocations */
+static int imagemap_test_lmb_reserve(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u8 image[IMAGE_SIZE];
+	void *p1, *p2;
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+
+	/* Map 100 bytes - should be LMB reserved */
+	p1 = imagemap_map(dev, 0, 100);
+	ut_assert(!IS_ERR(p1));
+	ut_assert(lmb_is_reserved_flags(map_to_sysmem(p1), LMB_NONE));
+
+	/* Map another 200 bytes at a different offset */
+	p2 = imagemap_map(dev, 200, 200);
+	ut_assert(!IS_ERR(p2));
+	ut_assert(lmb_is_reserved_flags(map_to_sysmem(p2), LMB_NONE));
+
+	/* Regions must not overlap */
+	ut_assert(map_to_sysmem(p2) >= map_to_sysmem(p1) + 100 ||
+		  map_to_sysmem(p1) >= map_to_sysmem(p2) + 200);
+
+	/* Cleanup frees the LMB reservations */
+	imagemap_cleanup(dev);
+	ut_assert(!lmb_is_reserved_flags(map_to_sysmem(p1), LMB_NONE));
+	ut_assert(!lmb_is_reserved_flags(map_to_sysmem(p2), LMB_NONE));
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_lmb_reserve, 0);
+
+/* Test: cleanup() removes the device */
+static int imagemap_test_cleanup(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u8 image[IMAGE_SIZE];
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+
+	/* Map something so regions are not empty */
+	ut_assert(!IS_ERR(imagemap_map(dev, 0, 64)));
+
+	/* Cleanup should remove and unbind the device */
+	imagemap_cleanup(dev);
+
+	/* NULL cleanup should be safe */
+	imagemap_cleanup(NULL);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_cleanup, 0);
+
+/* Test: map() with multiple disjoint regions */
+static int imagemap_test_multi_region(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct imagemap_priv *priv;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	void *p1, *p2, *p3;
+
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+	priv = dev_get_uclass_priv(dev);
+
+	p1 = imagemap_map(dev, 0, 64);
+	ut_assert(!IS_ERR(p1));
+	p2 = imagemap_map(dev, 512, 128);
+	ut_assert(!IS_ERR(p2));
+	p3 = imagemap_map(dev, 1024, 256);
+	ut_assert(!IS_ERR(p3));
+
+	ut_asserteq(3, priv->regions.count);
+	ut_asserteq(3, mock->read_count);
+
+	/* Verify data in each region */
+	ut_asserteq_mem(image, p1, 64);
+	ut_asserteq_mem(image + 512, p2, 128);
+	ut_asserteq_mem(image + 1024, p3, 256);
+
+	/* Lookup each region */
+	ut_asserteq_ptr(p1, imagemap_lookup(dev, 0, 64));
+	ut_asserteq_ptr(p2, imagemap_lookup(dev, 512, 128));
+	ut_asserteq_ptr(p3, imagemap_lookup(dev, 1024, 256));
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_multi_region, 0);
+
+/* Test: read beyond image size returns error */
+static int imagemap_test_read_oob(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u8 image[IMAGE_SIZE];
+	void *p;
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+
+	/* Attempt to map beyond the end of the image */
+	p = imagemap_map(dev, IMAGE_SIZE - 32, 64);
+	ut_assert(IS_ERR(p));
+
+	/* map_to should also fail */
+	u8 dst[64];
+
+	p = imagemap_map_to(dev, IMAGE_SIZE - 32, 64, dst);
+	ut_assert(IS_ERR(p));
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_read_oob, 0);
+
+/*
+ * Test: block-addressed backend (bl_len > 1) still returns/places the
+ * wanted bytes byte-exact for unaligned offsets and multi-block ranges.
+ */
+static int imagemap_test_blocklen(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u8 image[IMAGE_SIZE];
+	u8 dst[1024];
+	void *p;
+
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader_bl(image, IMAGE_SIZE, 512, &dev));
+
+	/* map() at an unaligned offset returns byte-exact data */
+	p = imagemap_map(dev, 100, 200);
+	ut_assert(!IS_ERR(p));
+	ut_asserteq_mem(image + 100, p, 200);
+
+	/* map_to() places the payload byte-exact at dst (partial head only) */
+	p = imagemap_map_to(dev, 100, 200, dst);
+	ut_assert(!IS_ERR(p));
+	ut_asserteq_ptr(dst, p);
+	ut_asserteq_mem(image + 100, dst, 200);
+
+	/* map_to() spanning partial head + aligned middle + partial tail */
+	p = imagemap_map_to(dev, 500, 600, dst);
+	ut_assert(!IS_ERR(p));
+	ut_asserteq_ptr(dst, p);
+	ut_asserteq_mem(image + 500, dst, 600);
+
+	imagemap_cleanup(dev);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_blocklen, 0);
+
+#if CONFIG_IS_ENABLED(MTD_BLOCK)
+/*
+ * End-to-end: read a known pattern back from a bare (non-NAND) MTD
+ * partition through imagemap on the mtd_blk block device. Exercises the
+ * real path imagemap -> spl_load_region -> blk_dread -> mtd_blk_read ->
+ * mtd_read on the sandbox SPI-NOR (no mock).
+ */
+static int imagemap_test_mtd_blk(struct unit_test_state *uts)
+{
+	const ulong blks = 4, len = blks * 512;
+	struct udevice *blk = NULL, *dev, *imdev;
+	struct blk_desc *desc = NULL;
+	struct disk_partition info;
+	void *mapped;
+	u8 *wbuf;
+	int i;
+
+	/*
+	 * Probe the SPI-NOR (add_mtd_device() then binds its mtd_blk) and
+	 * parse its device-tree partitions.
+	 */
+	mtd_probe_devices();
+
+	/* Find the bound mtd_blk (a PART_TYPE_MTD block device) */
+	for (uclass_find_first_device(UCLASS_BLK, &dev); dev;
+	     uclass_find_next_device(&dev)) {
+		desc = dev_get_uclass_plat(dev);
+		if (desc->part_type == PART_TYPE_MTD) {
+			blk = dev;
+			break;
+		}
+	}
+	ut_assertnonnull(blk);
+	ut_assertok(device_probe(blk));
+	desc = dev_get_uclass_plat(blk);
+
+	/* Write a known pattern into the "nor-fit" partition */
+	ut_assert(part_get_info_by_name(desc, "nor-fit", &info) >= 1);
+	wbuf = malloc(len);
+	ut_assertnonnull(wbuf);
+	for (i = 0; i < len; i++)
+		wbuf[i] = (u8)(i * 5 + 1);
+	ut_asserteq(blks, blk_dwrite(desc, info.start, blks, wbuf));
+
+	/* Read it back through imagemap on the mtd_blk device */
+	ut_assertok(imagemap_create(blk, "nor-fit", 0, &imdev));
+	mapped = imagemap_map(imdev, 0, len);
+	ut_assert(!IS_ERR(mapped));
+	ut_asserteq_mem(wbuf, mapped, len);
+
+	imagemap_cleanup(imdev);
+	free(wbuf);
+
+	return 0;
+}
+IMAGEMAP_TEST(imagemap_test_mtd_blk, 0);
+#endif /* MTD_BLOCK */
+
+#if CONFIG_IS_ENABLED(MTD_UBI) && CONFIG_IS_ENABLED(UBI_BLOCK)
+/*
+ * End-to-end: attach UBI on the sandbox NAND, create a volume, write a
+ * known pattern and read it back through imagemap on the ubi_blk block
+ * device. Exercises imagemap -> spl_load_region -> blk_dread ->
+ * ubi_bread -> ubi_volume_read for real (no mock).
+ */
+static int imagemap_test_ubiblock(struct unit_test_state *uts)
+{
+	const ulong len = 4096;
+	struct udevice *blk = NULL, *dev, *imdev;
+	struct erase_info ei;
+	struct mtd_info *mtd;
+	void *mapped;
+	u8 *wbuf;
+	u64 off;
+	int i;
+
+	mtd_probe_devices();
+	mtd = get_mtd_device_nm("nand2");
+	ut_assert(!IS_ERR_OR_NULL(mtd));
+
+	/* Erase so UBI can format the (empty) clean chip */
+	for (off = 0; off < mtd->size; off += mtd->erasesize) {
+		if (mtd_block_isbad(mtd, off))
+			continue;
+		memset(&ei, 0, sizeof(ei));
+		ei.mtd = mtd;
+		ei.addr = off;
+		ei.len = mtd->erasesize;
+		ut_assertok(mtd_erase(mtd, &ei));
+	}
+	put_mtd_device(mtd);
+
+	/* Attach UBI by name; this binds the ubi_blk block device */
+	ut_assertok(ubi_part("nand2", NULL));
+	ut_assertok(ubi_create_vol("vol0", 0x10000, true, UBI_VOL_NUM_AUTO,
+				   false));
+
+	wbuf = malloc(len);
+	ut_assertnonnull(wbuf);
+	for (i = 0; i < len; i++)
+		wbuf[i] = (u8)(i * 7 + 3);
+	ut_assertok(ubi_volume_write("vol0", wbuf, 0, len));
+
+	/* Find the ubi_blk block device */
+	for (uclass_find_first_device(UCLASS_BLK, &dev); dev;
+	     uclass_find_next_device(&dev)) {
+		if (dev->driver == DM_DRIVER_GET(ubi_blk)) {
+			blk = dev;
+			break;
+		}
+	}
+	ut_assertnonnull(blk);
+	ut_assertok(device_probe(blk));
+
+	/* Read the volume back through imagemap and compare */
+	ut_assertok(imagemap_create(blk, "vol0", 0, &imdev));
+	mapped = imagemap_map(imdev, 0, len);
+	ut_assert(!IS_ERR(mapped));
+	ut_asserteq_mem(wbuf, mapped, len);
+
+	imagemap_cleanup(imdev);
+	free(wbuf);
+
+	return 0;
+}
+IMAGEMAP_TEST(imagemap_test_ubiblock, 0);
+#endif /* MTD_UBI && UBI_BLOCK */

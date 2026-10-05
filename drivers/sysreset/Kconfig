@@ -43,6 +43,20 @@ config VPL_SYSRESET
 
 if SYSRESET
 
+config SYSRESET_PRINT_RESETINFO
+	bool "Print reset information during boot"
+	default y if SANDBOX
+	default y if SYSRESET_MPC83XX
+	default y if SYSRESET_PSCI && ARCH_IMX9
+	default y if DM_PMIC_PCA9450
+	help
+	  Print information about the cause of the last reset during early
+	  boot, as reported by the get_status() method of the sysreset
+	  drivers. This requires probing all sysreset devices in
+	  board_init_f(), which costs boot time, so only enable it if at
+	  least one of the sysreset drivers in use actually implements
+	  get_status().
+
 config SYSRESET_CMD_RESET
 	bool "sysreset implementation of the reset command"
 	default y

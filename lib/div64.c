@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2003 Bernardo Innocenti <bernie@develer.com>
  *
@@ -27,9 +28,9 @@
 
 #ifndef __div64_32
 /*
- * Don't instrument this function as it may be called from tracing code, since
- * it needs to read the timer and this often requires calling do_div(), which
- * calls this function.
+ * U-Boot addition, not present upstream: don't instrument this function as it
+ * may be called from tracing code, since it needs to read the timer and this
+ * often requires calling do_div(), which calls this function.
  */
 uint32_t __attribute__((weak, no_instrument_function)) __div64_32(u64 *n,
 								  u32 base)
@@ -87,7 +88,7 @@ s64 div_s64_rem(s64 dividend, s32 divisor, s32 *remainder)
 EXPORT_SYMBOL(div_s64_rem);
 #endif
 
-/**
+/*
  * div64_u64_rem - unsigned 64bit divide with 64bit divisor and remainder
  * @dividend:	64bit dividend
  * @divisor:	64bit divisor
@@ -109,7 +110,7 @@ u64 div64_u64_rem(u64 dividend, u64 divisor, u64 *remainder)
 		quot = div_u64_rem(dividend, divisor, &rem32);
 		*remainder = rem32;
 	} else {
-		int n = 1 + fls(high);
+		int n = fls(high);
 		quot = div_u64(dividend >> n, divisor >> n);
 
 		if (quot != 0)
@@ -127,7 +128,7 @@ u64 div64_u64_rem(u64 dividend, u64 divisor, u64 *remainder)
 EXPORT_SYMBOL(div64_u64_rem);
 #endif
 
-/**
+/*
  * div64_u64 - unsigned 64bit divide with 64bit divisor
  * @dividend:	64bit dividend
  * @divisor:	64bit divisor
@@ -147,7 +148,7 @@ u64 div64_u64(u64 dividend, u64 divisor)
 	if (high == 0) {
 		quot = div_u64(dividend, divisor);
 	} else {
-		int n = 1 + fls(high);
+		int n = fls(high);
 		quot = div_u64(dividend >> n, divisor >> n);
 
 		if (quot != 0)
@@ -161,17 +162,17 @@ u64 div64_u64(u64 dividend, u64 divisor)
 EXPORT_SYMBOL(div64_u64);
 #endif
 
-/**
- * div64_s64 - signed 64bit divide with 64bit divisor
- * @dividend:	64bit dividend
- * @divisor:	64bit divisor
- */
 #ifndef div64_s64
 s64 div64_s64(s64 dividend, s64 divisor)
 {
 	s64 quot, t;
 
-	quot = div64_u64(abs(dividend), abs(divisor));
+	/*
+	 * Unlike Linux, U-Boot's abs() is not 64-bit safe: it evaluates its
+	 * argument as int when sizeof(x) != sizeof(long), so both operands
+	 * need abs64() here.
+	 */
+	quot = div64_u64(abs64(dividend), abs64(divisor));
 	t = (dividend ^ divisor) >> 63;
 
 	return (quot ^ t) - t;
@@ -185,8 +186,25 @@ EXPORT_SYMBOL(div64_s64);
  * Iterative div/mod for use when dividend is not expected to be much
  * bigger than divisor.
  */
+#ifndef iter_div_u64_rem
 u32 iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder)
 {
-	return __iter_div_u64_rem(dividend, divisor, remainder);
+	u32 ret = 0;
+
+	while (dividend >= divisor) {
+		/*
+		 * The following asm() prevents the compiler from
+		 * optimising this loop into a modulo operation.
+		 */
+		asm("" : "+rm"(dividend));
+
+		dividend -= divisor;
+		ret++;
+	}
+
+	*remainder = dividend;
+
+	return ret;
 }
 EXPORT_SYMBOL(iter_div_u64_rem);
+#endif

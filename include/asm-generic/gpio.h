@@ -574,6 +574,66 @@ int gpio_claim_vector(const int *gpio_num_array, const char *fmt);
 int gpio_request_by_name(struct udevice *dev, const char *list_name,
 			 int index, struct gpio_desc *desc, int flags);
 
+/**
+ * struct gpio_dt_spec - devicetree specification of a GPIO, not yet requested
+ *
+ * Filled by gpio_parse_by_name() from an of_to_plat() method, which must not
+ * probe other devices or claim the GPIO, and consumed by
+ * gpio_request_parsed() from the probe() method.
+ *
+ * @args: phandle arguments naming the controller node and the GPIO
+ * @list_name: name of the devicetree property that was parsed. Only the
+ *	pointer is kept, so the string must outlive the spec; callers pass
+ *	string literals
+ * @index: index of the GPIO in the property, kept for the request label
+ * @flags: GPIOD_... flags requested by the caller
+ * @present: true if the property exists and was parsed
+ */
+struct gpio_dt_spec {
+	struct ofnode_phandle_args args;
+	const char *list_name;
+	int index;
+	int flags;
+	bool present;
+};
+
+/**
+ * gpio_parse_by_name() - read a GPIO from the devicetree without requesting it
+ *
+ * This only reads the devicetree, so it is safe to call from an of_to_plat()
+ * method; the GPIO controller is neither probed nor touched. Request the GPIO
+ * in the probe() method with gpio_request_parsed().
+ *
+ * @dev:	Device requesting the GPIO
+ * @list_name:	Name of devicetree property containing the GPIO
+ * @index:	Index of the GPIO in the list of GPIOs
+ * @flags:	GPIOD_... flags to use when the GPIO is requested later
+ * @spec:	Returns the parsed specification
+ * Return: 0 if OK, -ENOENT if the property is missing, other -ve on error
+ */
+int gpio_parse_by_name(struct udevice *dev, const char *list_name, int index,
+		       int flags, struct gpio_dt_spec *spec);
+
+/**
+ * gpio_request_parsed() - request a GPIO parsed by gpio_parse_by_name()
+ *
+ * This does the second half of gpio_request_by_name(): resolve the
+ * controller, claim the GPIO and apply the direction flags. Call it from the
+ * probe() method. The request label is the same one gpio_request_by_name()
+ * would have used.
+ *
+ * A spec whose property was missing is deliberately accepted and answered
+ * with -ENOENT, with @desc left invalid, so a caller with an optional GPIO
+ * need not check @present first and can simply tolerate -ENOENT.
+ *
+ * @dev:	Device requesting the GPIO (used for the request label)
+ * @spec:	Specification returned by gpio_parse_by_name()
+ * @desc:	Returns the GPIO description, ready for use
+ * Return: 0 if OK, -ENOENT if @spec holds no GPIO, other -ve on error
+ */
+int gpio_request_parsed(struct udevice *dev, const struct gpio_dt_spec *spec,
+			struct gpio_desc *desc);
+
 /* gpio_request_by_line_name - Locate and request a GPIO by line name
  *
  * Request a GPIO using the offset of the provided line name in the

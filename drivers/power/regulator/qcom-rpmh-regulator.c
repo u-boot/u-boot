@@ -161,6 +161,7 @@ struct rpmh_vreg {
 	u32				addr;
 	const struct rpmh_vreg_hw_data	*hw_data;
 	bool				always_wait_for_ack;
+	struct udevice			*supply;
 
 	int				enabled;
 	bool				bypassed;
@@ -382,6 +383,24 @@ static int rpmh_regulator_set_enable_state(struct udevice *rdev,
 	debug("%s: set_enable %d (current %d)\n", rdev->name, enable,
 	      vreg->enabled);
 
+	if (vreg->enabled <= 0 && !enable)
+		return 0;
+	if (vreg->enabled >= 1 && enable) {
+		vreg->enabled++;
+		return 0;
+	}
+
+	if (vreg->supply) {
+		debug("%s: set supply %s enable state %d\n",
+		      rdev->name, vreg->supply->name, enable);
+		ret = regulator_set_enable(vreg->supply, enable);
+		if (ret < 0) {
+			debug("%s: failed to set supply %s enable state %d: %d\n",
+			      rdev->name, vreg->supply->name, enable, ret);
+			return ret;
+		}
+	}
+
 	if (vreg->mode != -EINVAL) {
 		ret = rpmh_regulator_vrm_set_mode_bypass(vreg, vreg->mode, vreg->bypassed);
 		if (ret < 0)
@@ -397,8 +416,11 @@ static int rpmh_regulator_set_enable_state(struct udevice *rdev,
 	}
 
 	ret = rpmh_regulator_send_request(vreg, &cmd, enable);
-	if (!ret)
-		vreg->enabled = enable;
+	if (!ret) {
+		if (vreg->enabled < 0)
+			vreg->enabled = 0;
+		vreg->enabled += enable ? 1 : -1;
+	}
 
 	return ret;
 }
@@ -874,6 +896,8 @@ static int rpmh_regulator_probe(struct udevice *dev)
 	const struct rpmh_vreg_init_data *init_data;
 	struct rpmh_vreg *priv;
 	struct dm_regulator_uclass_plat *plat_data;
+	int ret;
+	char name[32] = { 0 };
 
 	init_data = (const struct rpmh_vreg_init_data *)dev_get_driver_data(dev);
 	priv = dev_get_priv(dev);
@@ -885,6 +909,13 @@ static int rpmh_regulator_probe(struct udevice *dev)
 		dev_err(dev, "Failed to read RPMh address for %s\n", dev->name);
 		return -ENODEV;
 	}
+
+	strlcpy(name, init_data->supply_name, sizeof(name));
+	strlcat(name, "-supply", sizeof(name));
+	ret = device_get_supply_regulator(dev->parent, name, &priv->supply);
+	if (ret)
+		dev_warn(dev, "Failed to get supply regulator %s for %s: %d\n",
+		       init_data->supply_name, dev->name, ret);
 
 	priv->hw_data = init_data->hw_data;
 	priv->enabled = -EINVAL;

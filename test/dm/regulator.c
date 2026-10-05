@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
+#include <asm/gpio.h>
 #include <dm/root.h>
 #include <dm/util.h>
 #include <dm/test.h>
@@ -194,6 +195,63 @@ static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_power_regulator_set_get_current, UTF_SCAN_FDT);
+
+/* Reading the platform data must leave the pin untouched, probe claims it */
+static int check_gpio_claimed_in_probe(struct unit_test_state *uts,
+				       struct udevice *dev, struct gpio_desc *chk)
+{
+	ut_assertok(device_of_to_plat(dev));
+	ut_asserteq(GPIOF_UNUSED, gpio_get_function(chk->dev, chk->offset,
+						    NULL));
+	ut_asserteq(0, sandbox_gpio_get_direction(chk->dev, chk->offset));
+
+	ut_assertok(device_probe(dev));
+	ut_asserteq(GPIOF_OUTPUT, gpio_get_function(chk->dev, chk->offset,
+						    NULL));
+	ut_assert(sandbox_gpio_get_direction(chk->dev, chk->offset) > 0);
+
+	return 0;
+}
+
+/* The fixed regulator must claim its enable GPIO in probe, not before */
+static int dm_test_power_regulator_fixed_enable_gpio(struct unit_test_state *uts)
+{
+	struct gpio_desc chk;
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device_by_name(UCLASS_REGULATOR,
+					       "fixed-gpio-reg", &dev));
+	ut_assertok(dm_gpio_lookup_name("c8", &chk));
+	ut_assertok(check_gpio_claimed_in_probe(uts, dev, &chk));
+
+	ut_assertok(regulator_set_enable(dev, true));
+	ut_asserteq(1, sandbox_gpio_get_value(chk.dev, chk.offset));
+	ut_assertok(regulator_set_enable(dev, false));
+	ut_asserteq(0, sandbox_gpio_get_value(chk.dev, chk.offset));
+
+	return 0;
+}
+DM_TEST(dm_test_power_regulator_fixed_enable_gpio, UTF_SCAN_FDT);
+
+/* The gpio regulator must claim its voltage GPIO in probe, not before */
+static int dm_test_power_regulator_gpio_value_gpio(struct unit_test_state *uts)
+{
+	struct gpio_desc chk;
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device_by_name(UCLASS_REGULATOR, "gpio-reg",
+					       &dev));
+	ut_assertok(dm_gpio_lookup_name("c9", &chk));
+	ut_assertok(check_gpio_claimed_in_probe(uts, dev, &chk));
+
+	ut_assertok(regulator_set_value(dev, 3300000));
+	ut_asserteq(1, sandbox_gpio_get_value(chk.dev, chk.offset));
+	ut_assertok(regulator_set_value(dev, 1800000));
+	ut_asserteq(0, sandbox_gpio_get_value(chk.dev, chk.offset));
+
+	return 0;
+}
+DM_TEST(dm_test_power_regulator_gpio_value_gpio, UTF_SCAN_FDT);
 
 /* Test regulator set and get Enable method */
 static int dm_test_power_regulator_set_get_enable(struct unit_test_state *uts)

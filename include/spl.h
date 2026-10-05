@@ -346,14 +346,14 @@ typedef ulong (*spl_load_reader)(struct spl_load_info *load, ulong sector,
  *
  * @read: Function to call to read from the device
  * @priv: Private data for the device
- * @bl_len: Block length for reading in bytes
+ * @bl_len: Block length in bytes (CONFIG_SPL_LOAD_BLOCK, CONFIG_IMAGEMAP)
  * @phase: Image phase to load
  * @no_fdt_update: true to update the FDT with any loadables that are loaded
  */
 struct spl_load_info {
 	spl_load_reader read;
 	void *priv;
-#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) || CONFIG_IS_ENABLED(IMAGEMAP)
 	u16 bl_len;
 #endif
 #if CONFIG_IS_ENABLED(BOOTMETH_VBE)
@@ -364,7 +364,7 @@ struct spl_load_info {
 
 static inline int spl_get_bl_len(struct spl_load_info *info)
 {
-#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) || CONFIG_IS_ENABLED(IMAGEMAP)
 	return info->bl_len;
 #else
 	return 1;
@@ -373,7 +373,7 @@ static inline int spl_get_bl_len(struct spl_load_info *info)
 
 static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
 {
-#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) || CONFIG_IS_ENABLED(IMAGEMAP)
 	info->bl_len = bl_len;
 #else
 	if (bl_len != 1)
@@ -427,6 +427,36 @@ static inline void spl_load_init(struct spl_load_info *load,
 	spl_set_bl_len(load, bl_len);
 	xpl_set_phase(load, IH_PHASE_NONE);
 	xpl_set_fdt_update(load, true);
+}
+
+/**
+ * spl_load_region() - Read a block-aligned region into a buffer
+ *
+ * Reads @size bytes starting at @offset from the device described by @info
+ * into @dst, rounding the read down/up to the device block length so that
+ * block media are read on their native boundaries. On byte-addressed media
+ * (bl_len == 1) every alignment folds to identity.
+ *
+ * @info:	information about the device to read from
+ * @offset:	byte offset on the device of the first wanted byte
+ * @size:	number of wanted bytes
+ * @dst:	buffer to read the block-aligned region into
+ * Return:	on success, the number of leading padding bytes in @dst that
+ *		precede the wanted data (0 on byte media); a negative error
+ *		number on failure.
+ */
+static inline long spl_load_region(struct spl_load_info *info, loff_t offset,
+				   ulong size, void *dst)
+{
+	ulong bl_len = spl_get_bl_len(info);
+	ulong overhead = offset & (bl_len - 1);
+	loff_t roff = ALIGN_DOWN(offset, bl_len);
+	ulong rsize = ALIGN(size + overhead, bl_len);
+
+	if (info->read(info, roff, rsize, dst) < rsize)
+		return -EIO;
+
+	return overhead;
 }
 
 /*
@@ -595,18 +625,24 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
 
 /**
  * spl_mmc_boot_partition() - MMC partition to load U-Boot from.
+ * @mmc:		Initialized MMC device
  * @boot_device:	ID of the device which the MMC driver wants to load
  *			U-Boot from.
  *
- * This function should return the partition number which the SPL
- * should load U-Boot from (on the given boot_device) when
- * CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is set.
+ * Called in fixed-number or dynamic mode after any Falcon attempt. The
+ * incoming hardware area is not necessarily the user area. The hook must
+ * leave the image area selected for loading and any configured filesystem
+ * fallback; the loader does not restore it. It may run for each MMC attempt.
  *
- * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ * The default returns the configured partition, or -ENOSYS with
+ * CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC. In dynamic mode,
+ * zero or a negative error aborts this MMC attempt without filesystem
+ * fallback; SPL may still try other boot devices.
+ *
+ * Return: Partition number (positive in dynamic mode), or a negative error.
  */
-int spl_mmc_boot_partition(const u32 boot_device);
+int spl_mmc_boot_partition(struct mmc *mmc, const u32 boot_device);
 
-struct mmc;
 /**
  * default_spl_mmc_emmc_boot_partition() - eMMC boot partition to load U-Boot from.
  * mmc:			Pointer for the mmc device structure
@@ -972,7 +1008,8 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
  * @param spl_image	Image data filled in by loading process
  * @param bootdev	Describes which device to load from
  * @param filename	Name of file to load (in FS mode)
- * @param raw_part	Partition to load from (in RAW mode)
+ * @param raw_part	Partition to load from (in RAW mode), or -1 to call
+ *			spl_mmc_boot_partition() in fixed-number or dynamic mode
  * @param raw_sect	Sector to load from (in RAW mode)
  *
  * Return: 0 on success, otherwise error code

@@ -285,7 +285,7 @@ static int geni_i2c_xfer(struct udevice *bus, struct i2c_msg msgs[], int num)
 	}
 
 	if (ret) {
-		if (ret == -ETIMEDOUT) {
+		if (ret == -ETIMEDOUT || ret == -EREMOTEIO) {
 			u32 status;
 
 			writel(M_GENI_CMD_ABORT, geni->base + SE_GENI_M_CMD_CTRL_REG);

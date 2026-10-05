@@ -39,6 +39,7 @@ struct wget_ctx {
 	ulong content_len;
 	ulong hash_count;
 	enum done_state done;
+	bool aborted;
 };
 
 static void wget_lwip_fill_info(struct pbuf *hdr, u16_t hdr_len, u32_t hdr_cont_len)
@@ -229,6 +230,10 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 		ctx->done = FAILURE;
 		return;
 	}
+	if (httpc_result == HTTPC_RESULT_LOCAL_ABORT && ctx->aborted) {
+		ctx->done = FAILURE;
+		return;
+	}
 
 	if (httpc_result != HTTPC_RESULT_OK) {
 		log_err("\nHTTP client error %d\n", httpc_result);
@@ -293,13 +298,15 @@ static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct 
 #endif
 
 static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
-			       struct udevice *udev, struct netif *netif)
+			       struct net_lwip_ctx *net)
 {
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
+	struct altcp_tls_config *tls_config = NULL;
 	altcp_allocator_t tls_allocator;
 #endif
 	httpc_connection_t conn;
 	httpc_state_t *state;
+	err_t err;
 	int ret;
 
 	/* if URL with hostname init dns */
@@ -348,11 +355,11 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 			printf("HTTPS connections not authenticated\n");
 		}
 		tls_allocator.alloc = &altcp_tls_alloc;
-		tls_allocator.arg =
-			altcp_tls_create_config_client(ca, ca_sz,
-						       ctx->server_name);
+		tls_config = altcp_tls_create_config_client(ca, ca_sz,
+							    ctx->server_name);
+		tls_allocator.arg = tls_config;
 
-		if (!tls_allocator.arg) {
+		if (!tls_config) {
 			log_err("error: Cannot create a TLS connection\n");
 			return -ENODEV;
 		}
@@ -363,33 +370,44 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 
 	conn.result_fn = httpc_result_cb;
 	conn.headers_done_fn = httpc_headers_done_cb;
-	if (httpc_get_file_dns(ctx->server_name, ctx->port, ctx->path, &conn,
-			       httpc_recv_cb, ctx, &state)) {
-		return -ENODEV;
+	err = httpc_get_file_dns(ctx->server_name, ctx->port, ctx->path, &conn,
+				 httpc_recv_cb, ctx, &state);
+	if (err) {
+		ret = -ENODEV;
+		goto out;
 	}
 
 	errno = 0;
 
 	while (!ctx->done) {
-		net_lwip_rx(udev, netif);
-		if (ctrlc())
+		net_lwip_poll();
+		if (!ctx->done && ctrlc()) {
+			ctx->aborted = true;
+			httpc_abort(state);
 			break;
+		}
 	}
 
-	if (ctx->done == SUCCESS)
-		return 0;
+	if (ctx->done == SUCCESS) {
+		ret = 0;
+	} else {
+		if (errno == EPERM && !wget_info->silent)
+			printf("Certificate verification failed\n");
+		ret = -errno ?: -EIO;
+	}
 
-	if (errno == EPERM && !wget_info->silent)
-		printf("Certificate verification failed\n");
-
-	return -errno ?: -EIO;
+out:
+#if CONFIG_IS_ENABLED(WGET_HTTPS)
+	if (tls_config)
+		altcp_tls_free_config(tls_config);
+#endif
+	return ret;
 }
 
 int wget_do_request(ulong dst_addr, char *uri)
 {
-	struct udevice *udev;
+	struct net_lwip_ctx net = {};
 	struct wget_ctx ctx;
-	struct netif *netif;
 	bool is_https;
 	int ret;
 
@@ -401,30 +419,22 @@ int wget_do_request(ulong dst_addr, char *uri)
 	ctx.start_time = 0;
 	ctx.content_len = 0;
 	ctx.hash_count = 0;
+	ctx.aborted = false;
 
 	ret = parse_url(uri, ctx.server_name, &ctx.port, &ctx.path, &is_https);
 	if (ret)
 		return ret;
 
-	ret = net_lwip_eth_start();
+	ret = net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT);
 	if (ret)
 		return ret;
 
 	if (!wget_info)
 		wget_info = &default_wget_info;
 
-	udev = eth_get_dev();
+	ret = wget_handle_request(&ctx, is_https, &net);
 
-	netif = net_lwip_new_netif(udev);
-	if (!netif) {
-		net_lwip_eth_stop();
-		return -ENODEV;
-	}
-
-	ret = wget_handle_request(&ctx, is_https, udev, netif);
-
-	net_lwip_remove_netif(netif);
-	net_lwip_eth_stop();
+	net_lwip_stop(&net);
 
 	return ret;
 }

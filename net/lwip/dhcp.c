@@ -11,7 +11,6 @@
 #include <lwip/apps/sntp.h>
 #include <lwip/dhcp.h>
 #include <lwip/dns.h>
-#include <lwip/timeouts.h>
 #include <net.h>
 #include <time.h>
 
@@ -22,33 +21,22 @@
 static char boot_file_name[DHCP_BOOT_FILE_LEN];
 #endif
 
-static void call_lwip_dhcp_fine_tmr(void *ctx)
-{
-	dhcp_fine_tmr();
-	sys_timeout(DHCP_FINE_TIMER_MSECS, call_lwip_dhcp_fine_tmr, NULL);
-}
-
-static int dhcp_loop(struct udevice *udev)
+static int dhcp_loop(struct net_lwip_ctx *net)
 {
 	char ipstr[] = "ipaddr\0\0\0";
 	char maskstr[] = "netmask\0\0\0";
 	char gwstr[] = "gatewayip\0\0\0";
 	const ip_addr_t *ntpserverip;
 	unsigned long start;
-	struct netif *netif;
 	struct dhcp *dhcp;
-	bool bound;
+	bool bound = false;
 	int idx;
 
-	idx = dev_seq(udev);
+	idx = dev_seq(net->dev);
 	if (idx < 0 || idx > 99) {
 		log_err("unexpected idx %d\n", idx);
 		return CMD_RET_FAILURE;
 	}
-
-	netif = net_lwip_new_netif_noip(udev);
-	if (!netif)
-		return CMD_RET_FAILURE;
 
 	/*
 	 * Request the DHCP stack to parse and store the NTP servers for
@@ -59,15 +47,13 @@ static int dhcp_loop(struct udevice *udev)
 
 	start = get_timer(0);
 
-	if (dhcp_start(netif))
+	if (dhcp_start(net->netif))
 		return CMD_RET_FAILURE;
-
-	call_lwip_dhcp_fine_tmr(NULL);
 
 	/* Wait for DHCP to complete */
 	do {
-		net_lwip_rx(udev, netif);
-		bound = dhcp_supplied_address(netif);
+		net_lwip_poll();
+		bound = dhcp_supplied_address(net->netif);
 		if (bound)
 			break;
 		if (ctrlc()) {
@@ -77,14 +63,10 @@ static int dhcp_loop(struct udevice *udev)
 		mdelay(1);
 	} while (get_timer(start) < DHCP_TIMEOUT_MS);
 
-	sys_untimeout(call_lwip_dhcp_fine_tmr, NULL);
-
-	if (!bound) {
-		net_lwip_remove_netif(netif);
+	if (!bound)
 		return CMD_RET_FAILURE;
-	}
 
-	dhcp = netif_dhcp_data(netif);
+	dhcp = netif_dhcp_data(net->netif);
 
 	env_set("bootfile", dhcp->boot_file_name);
 
@@ -123,26 +105,18 @@ static int dhcp_loop(struct udevice *udev)
 	printf("DHCP client bound to address %pI4 (%lu ms)\n",
 	       &dhcp->offered_ip_addr, get_timer(start));
 
-	net_lwip_remove_netif(netif);
 	return CMD_RET_SUCCESS;
 }
 
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct net_lwip_ctx net = {};
 	int ret;
-	struct udevice *dev;
 
-	if (net_lwip_eth_start() < 0)
+	if (net_lwip_start(&net, NET_LWIP_ADDR_NONE))
 		return CMD_RET_FAILURE;
 
-	dev = eth_get_dev();
-	if (!dev) {
-		log_err("No network device\n");
-		ret = CMD_RET_FAILURE;
-		goto out;
-	}
-
-	ret = dhcp_loop(dev);
+	ret = dhcp_loop(&net);
 	if (ret)
 		goto out;
 
@@ -156,7 +130,14 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	ret = CMD_RET_SUCCESS;
 
 out:
-	net_lwip_eth_stop();
+	if (net.netif) {
+		if (dhcp_supplied_address(net.netif))
+			dhcp_stop_without_release(net.netif);
+		else
+			dhcp_release_and_stop(net.netif);
+		dhcp_cleanup(net.netif);
+	}
+	net_lwip_stop(&net);
 
 	return ret;
 }

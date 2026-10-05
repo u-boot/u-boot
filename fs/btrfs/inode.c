@@ -362,9 +362,11 @@ int btrfs_read_extent_inline(struct btrfs_path *path,
 			     struct btrfs_file_extent_item *fi, char *dest)
 {
 	struct extent_buffer *leaf = path->nodes[0];
+	struct btrfs_fs_info *fs_info = leaf->fs_info;
 	int slot = path->slots[0];
 	char *cbuf = NULL;
 	char *dbuf = NULL;
+	u32 dbuf_size;
 	u32 csize;
 	u32 dsize;
 	int ret;
@@ -380,8 +382,17 @@ int btrfs_read_extent_inline(struct btrfs_path *path,
 
 	/* Compressed extent, prepare the compressed and data buffer */
 	dsize = btrfs_file_extent_ram_bytes(leaf, fi);
+	/*
+	 * The kernel compresses an inline extent as a whole block, zero-filling
+	 * the tail past EOF, so the stream can decompress to more than
+	 * ram_bytes.  zstd's one-shot API rejects a destination that cannot
+	 * hold the entire frame, so give the decompressor a full block and copy
+	 * only ram_bytes back out.  An inline extent never spans more than one
+	 * block, which bounds the allocation.
+	 */
+	dbuf_size = max_t(u32, dsize, fs_info->sectorsize);
 	cbuf = malloc(csize);
-	dbuf = malloc(dsize);
+	dbuf = malloc(dbuf_size);
 	if (!cbuf || !dbuf) {
 		ret = -ENOMEM;
 		goto out;
@@ -389,7 +400,7 @@ int btrfs_read_extent_inline(struct btrfs_path *path,
 	read_extent_buffer(leaf, cbuf, btrfs_file_extent_inline_start(fi),
 			   csize);
 	ret = btrfs_decompress(btrfs_file_extent_compression(leaf, fi),
-			       cbuf, csize, dbuf, dsize);
+			       cbuf, csize, dbuf, dbuf_size);
 	if (ret < 0) {
 		ret = -EIO;
 		goto out;

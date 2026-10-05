@@ -341,25 +341,27 @@ So the above example is adjusted to look like this::
 
 You can see that we have added hashes for all images (since they are no
 longer signed), and a signature to each configuration. In the above example,
-mkimage will sign configurations/conf-1, the kernel and fdt that are
-pointed to by the configuration (/images/kernel-1, /images/kernel-1/hash-1,
-/images/fdt-1, /images/fdt-1/hash-1) and the root structure of the image
-(so that it isn't possible to add or remove root nodes). The signature is
-written into /configurations/conf-1/signature-1/value. It can easily be
-verified later even if the FIT has been signed with other keys in the
-meantime.
+mkimage will sign configurations/conf-1, every image referenced by that
+configuration (kernel, fdt, ramdisk, firmware, loadables, etc.) and the root
+structure of the image (so that it isn't possible to add or remove root
+nodes). The signature is written into
+/configurations/conf-1/signature-1/value. It can easily be verified later
+even if the FIT has been signed with other keys in the meantime.
 
 
 Details
 -------
 The signature node contains a property ('hashed-nodes') which lists all the
-nodes that the signature was made over.  The signer (mkimage) writes this
-property as a record of what was included in the hash.  During verification,
+nodes that the signature was made over. The signer (mkimage) writes this
+property as a record of what was included in the hash. During verification,
 however, U-Boot does not read 'hashed-nodes'. Instead it rebuilds the node
 list from the configuration's own image references (kernel, fdt, ramdisk,
-etc.), since 'hashed-nodes' is not itself covered by the signature. The
-rebuilt list always includes the root node, the configuration node, each
-referenced image node and its hash, cipher and dm-verity subnodes.
+firmware, loadables, etc.), since 'hashed-nodes' is not itself covered by the
+signature. The rebuilt list always includes the root node, the configuration
+node, each referenced image node and its hash, cipher and dm-verity subnodes.
+Current mkimage uses the same rule when signing configurations. The older
+'sign-images' property is not required and is not used to limit the signed
+image list. Every referenced image must have at least one hash subnode.
 
 The image is walked in order and each tag processed as follows:
 

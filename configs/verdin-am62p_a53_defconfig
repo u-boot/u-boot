@@ -35,12 +35,11 @@ CONFIG_BOOTDELAY=1
 CONFIG_OF_BOARD_SETUP_EXTENDED=y
 CONFIG_BOOTCOMMAND="bootflow scan -b"
 CONFIG_USE_PREBOOT=y
-CONFIG_PREBOOT="test -n \"${fdtfile}\" || setenv fdtfile k3-am62p5-verdin-${variant}-${fdt_board}.dtb"
+CONFIG_PREBOOT="test -n \"${fdtfile}\" || setenv fdtfile k3-am62p5-verdin-wifi-${fdt_board}.dtb"
 CONFIG_LOG=y
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_DISPLAY_BOARDINFO_LATE=y
 # CONFIG_BOARD_INIT is not set
-CONFIG_BOARD_LATE_INIT=y
 CONFIG_SPL_MAX_SIZE=0x80000
 CONFIG_SPL_SYS_REPORT_STACK_F_USAGE=y
 CONFIG_SPL_BOARD_INIT=y

@@ -61,6 +61,8 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
+	arch_cpu_init();
+
 	/* Need dm_init() to run before any SCMI calls can be made. */
 	spl_early_init();
 
@@ -68,8 +70,6 @@ void board_init_f(ulong dummy)
 	ret = imx9_probe_mu();
 	if (ret)
 		hang(); /* if MU not probed, nothing can output, just hang here */
-
-	arch_cpu_init();
 
 	preloader_console_init();
 

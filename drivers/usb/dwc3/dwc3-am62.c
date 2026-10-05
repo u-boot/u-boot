@@ -46,7 +46,7 @@ static void dwc3_ti_am62_glue_configure(struct udevice *dev, int index,
 	struct ofnode_phandle_args args;
 
 	usbss = dev_remap_addr_index(dev, 0);
-	if (IS_ERR(usbss)) {
+	if (!usbss) {
 		dev_err(dev, "can't map IOMEM resource\n");
 		return;
 	}

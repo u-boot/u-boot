@@ -7,6 +7,7 @@
 
 #include <dm.h>
 #include <clk.h>
+#include <errno.h>
 #include <miiphy.h>
 #include <dm/device_compat.h>
 #include <linux/io.h>
@@ -70,13 +71,11 @@ static int hisi_femac_mdio_write(struct udevice *dev, int addr, int devad, int r
 static int hisi_femac_mdio_of_to_plat(struct udevice *dev)
 {
 	struct hisi_femac_mdio_data *data = dev_get_priv(dev);
-	int ret;
 
 	data->membase = dev_remap_addr(dev);
-	if (IS_ERR(data->membase)) {
-		ret = PTR_ERR(data->membase);
-		dev_err(dev, "Failed to remap base addr %d\n", ret);
-		return log_msg_ret("mdio", ret);
+	if (!data->membase) {
+		dev_err(dev, "Failed to remap base addr\n");
+		return log_msg_ret("mdio", -EINVAL);
 	}
 
 	// clk is optional

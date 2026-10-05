@@ -187,6 +187,7 @@ static int msm_sdc_probe(struct udevice *dev)
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
 	struct reset_ctl bcr_rst;
+	struct blk_desc *bdesc;
 	u32 caps;
 	int ret;
 
@@ -249,6 +250,13 @@ static int msm_sdc_probe(struct udevice *dev)
 	ret = mmc_of_parse(dev, &plat->cfg);
 	if (ret)
 		return ret;
+
+	if (plat->cfg.host_caps & MMC_CAP_NONREMOVABLE) {
+		bdesc = mmc_get_blk_desc(&plat->mmc);
+		if (!bdesc)
+			return -ENODEV;
+		bdesc->removable = 0;
+	}
 
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;

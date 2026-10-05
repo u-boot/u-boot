@@ -68,26 +68,6 @@ static int extlinux_get_state_desc(struct udevice *dev, char *buf, int maxsize)
 	return 0;
 }
 
-static int extlinux_getfile(struct pxe_context *ctx, const char *file_path,
-			    char *file_addr, enum bootflow_img_t type,
-			    ulong *sizep)
-{
-	struct extlinux_info *info = ctx->userdata;
-	ulong addr;
-	int ret;
-
-	addr = simple_strtoul(file_addr, NULL, 16);
-
-	/* Allow up to 1GB */
-	*sizep = 1 << 30;
-	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
-				 type, sizep);
-	if (ret)
-		return log_msg_ret("read", ret);
-
-	return 0;
-}
-
 static int extlinux_check(struct udevice *dev, struct bootflow_iter *iter)
 {
 	int ret;

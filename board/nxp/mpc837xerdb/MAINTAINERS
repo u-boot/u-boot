@@ -4,4 +4,3 @@ S:	Maintained
 F:	board/nxp/mpc837xerdb/
 F:	include/configs/MPC837XERDB.h
 F:	configs/MPC837XERDB_defconfig
-F:	configs/MPC837XERDB_SLAVE_defconfig

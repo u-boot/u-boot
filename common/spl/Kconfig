@@ -194,6 +194,7 @@ config SPL_SHOW_ERRORS
 config SPL_BINMAN_SYMBOLS
 	bool "Declare binman symbols in SPL"
 	depends on SPL_FRAMEWORK && BINMAN
+	default n if MTK_GENIO_BOOT_IMAGES
 	default y
 	help
 	  This enables use of symbols in SPL which refer to other entries in
@@ -237,6 +238,18 @@ config SPL_HANDOFF
 	  used to pass information like the size of SDRAM from SPL to U-Boot
 	  proper. Also SPL can receive information from TPL in the same place
 	  if that is enabled.
+
+config SPL_REMAKE_ELF_LDSCRIPT
+	string "Linker script for SPL ELF"
+	depends on SPL_REMAKE_ELF
+	default "arch/u-boot-elf.lds"
+	help
+	  This allows specifying a linker script that will be used to re-wrap
+	  the SPL binary into an ELF.
+
+	  Some platforms (e.g. at least Qualcomm) use the ELF format in creative
+	  ways, including in the bootrom. For such platforms, you can change
+	  the default linker script to a platform-specific one.
 
 config SPL_LDSCRIPT
 	string "Linker script for the SPL stage"
@@ -574,7 +587,20 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	  raw mode. U-Boot will be loaded from the first partition of this
 	  type to be found.
 
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC
+	bool "MMC raw mode: by board-selected partition"
+	select SPL_LOAD_BLOCK
+	select SPL_PARTITIONS
+	help
+	  Select the partition at runtime instead of using a fixed number.
+	  The board must implement spl_mmc_boot_partition().
+
 endchoice
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_ANY_PARTITION
+	def_bool SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION || \
+		 SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE || \
+		 SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	hex "Address on the MMC to load U-Boot from"

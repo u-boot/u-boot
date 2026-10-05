@@ -107,6 +107,8 @@ static int octeontx_wdt_remove(struct udevice *dev)
 static int octeontx_wdt_probe(struct udevice *dev)
 {
 	struct octeontx_wdt *priv = dev_get_priv(dev);
+	struct wdt_uc_plat *plat = dev_get_uclass_plat(dev);
+	u64 clk_rate;
 	int ret;
 
 	priv->reg = dev_remap_addr(dev);
@@ -132,6 +134,20 @@ static int octeontx_wdt_probe(struct udevice *dev)
 		ret = clk_enable(&priv->clk);
 		if (ret)
 			return ret;
+
+		clk_rate = clk_get_rate(&priv->clk);
+	} else {
+		clk_rate = gd->bus_clk;
+	}
+
+	/*
+	 * WDOG_LEN is a 16-bit field counting in configured steps, so the
+	 * largest timeout the hardware can represent is (0xffff << 8) steps.
+	 */
+	if (!IS_ERR_VALUE(clk_rate) && clk_rate) {
+		u64 max_cycles = ((u64)0xffff << 8) << priv->data->timer_shift;
+
+		plat->max_timeout_ms = (max_cycles * 1000) / clk_rate;
 	}
 
 	return 0;

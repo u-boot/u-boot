@@ -9,6 +9,7 @@
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <div64.h>
+#include <errno.h>
 #include <generic-phy.h>
 #include <linux/kernel.h>
 #include <linux/iopoll.h>
@@ -625,8 +626,8 @@ static int inno_dsidphy_probe(struct udevice *dev)
 	inno->pdata = (const struct inno_video_phy_plat_data *)dev_get_driver_data(dev);
 
 	inno->phy_base = dev_read_addr_ptr(dev);
-	if (IS_ERR(inno->phy_base))
-		return PTR_ERR(inno->phy_base);
+	if (!inno->phy_base)
+		return -EINVAL;
 
 	inno->ref_clk = devm_clk_get(dev, "ref");
 	if (IS_ERR(inno->ref_clk)) {

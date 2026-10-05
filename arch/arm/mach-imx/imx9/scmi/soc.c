@@ -12,6 +12,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/ele_api.h>
 #include <asm/setup.h>
+#include <asm/system.h>
 #include <dm/uclass.h>
 #include <dm/device.h>
 #include <dm/ofnode.h>
@@ -317,6 +318,8 @@ static struct mm_region imx9_mem_map[] = {
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
 #endif
+#if IS_ENABLED(CONFIG_XPL_BUILD)
+	/* Avoid speculative access to OCRAM in u-boot */
 	{
 		/* OCRAM */
 		.virt = 0x20480000UL,
@@ -324,7 +327,9 @@ static struct mm_region imx9_mem_map[] = {
 		.size = 0xA0000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_OUTER_SHARE
-	}, {
+	},
+#endif
+	{
 		/* AIPS */
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
@@ -353,6 +358,15 @@ static struct mm_region imx9_mem_map[] = {
 		.virt = 0x100000000UL,
 		.phys = 0x100000000UL,
 		.size = PHYS_SDRAM_2_SIZE,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE
+	}, {
+#endif
+#if defined(CFG_SYS_SECURE_SDRAM_SIZE) && IS_ENABLED(CONFIG_XPL_BUILD)
+		/* Secure DRAM */
+		.virt = CFG_SYS_SECURE_SDRAM_BASE,
+		.phys = CFG_SYS_SECURE_SDRAM_BASE,
+		.size = CFG_SYS_SECURE_SDRAM_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_OUTER_SHARE
 	}, {
@@ -388,7 +402,9 @@ static struct mm_region imx9_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_OUTER_SHARE
 	}, {
-		/* empty entry to split table entry 5 if needed when TEEs are used */
+		/* empty entry to split table entry of DRAM1 if needed when TEEs are used,
+		 * or use by early MMU in SPL or board_f phase
+		 */
 		0,
 	}, {
 		/* List terminator */
@@ -422,6 +438,9 @@ void enable_caches(void)
 	 */
 	int entry = imx9_find_dram_entry_in_mem_map();
 	u64 attrs = imx9_mem_map[entry].attrs;
+
+	dcache_disable();
+	gd->arch.tlb_fillptr = 0;
 
 	while (i < CONFIG_NR_DRAM_BANKS &&
 	       entry < ARRAY_SIZE(imx9_mem_map)) {
@@ -582,6 +601,124 @@ phys_size_t get_effective_memsize(void)
 	} else {
 		return PHYS_SDRAM_SIZE;
 	}
+}
+
+/* Allow board to override for specific address */
+__weak unsigned long board_spl_mmu_tlb_base(void)
+{
+#if defined(CFG_SYS_SECURE_SDRAM_BASE)
+	return CFG_SYS_SECURE_SDRAM_BASE;
+#else
+	return 0;
+#endif
+}
+
+__weak unsigned long board_early_mmu_tlb_base(void)
+{
+	return CFG_SYS_SDRAM_BASE;
+}
+
+/*
+ * Initialize the MMU and activate dcache in early stage of u-boot or SPL
+ */
+static void early_enable_dcache(void)
+{
+	u64 pgtable_size;
+	unsigned long tlb_addr;
+	int i, e = -1;
+
+	if (CONFIG_IS_ENABLED(SYS_ICACHE_OFF) || CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	/* Skip enable dcache if SPL early init is called.
+	 * User should move arch_cpu_init before spl_early_init
+	 */
+	if (gd->flags & GD_FLG_SPL_EARLY_INIT)
+		return;
+
+	pgtable_size = PGTABLE_SIZE;
+	if (pgtable_size > SZ_2M) /* Must fit within the 2MB */
+		return;
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
+		tlb_addr = board_spl_mmu_tlb_base();
+	else
+		tlb_addr = board_early_mmu_tlb_base();
+
+	if (!tlb_addr)
+		return;
+
+	/* Because DDR size is unknown at this phase, to avoid speculative access and prefetch,
+	 * set early MMU table to have DDR mapped as device memory, but with low 64MB set to normal
+	 * memory to cover u-boot, early malloc and stack (CFG_SYS_INIT_RAM_ADDR).
+	 */
+	for (i = 0; i < ARRAY_SIZE(imx9_mem_map) - 1; i++) {
+		if (imx9_mem_map[i].phys == CFG_SYS_SDRAM_BASE ||
+		    imx9_mem_map[i].phys == 0x100000000UL)
+			imx9_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE);
+		else if (imx9_mem_map[i].phys == 0 && imx9_mem_map[i].size == 0) {
+			/* Use the empty slot reserved in imx9_mem_map */
+			imx9_mem_map[i].phys = PHYS_SDRAM;
+			imx9_mem_map[i].virt = PHYS_SDRAM;
+			imx9_mem_map[i].size = SZ_64M;
+			imx9_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+						PTE_BLOCK_OUTER_SHARE;
+			e = i;
+		}
+	}
+
+	if (e == -1)
+		return;
+
+	gd->arch.tlb_size = pgtable_size;
+	gd->arch.tlb_addr = tlb_addr;
+
+	dcache_enable();
+
+	/* Recovery the imx9_mem_map which will be used by u-boot board_r phase */
+	imx9_mem_map[e].phys = 0;
+	imx9_mem_map[e].virt = 0;
+	imx9_mem_map[e].size = 0;
+	imx9_mem_map[e].attrs = 0;
+
+	for (i = 0; i < ARRAY_SIZE(imx9_mem_map) - 1; i++) {
+		if (imx9_mem_map[i].phys == CFG_SYS_SDRAM_BASE ||
+		    imx9_mem_map[i].phys == 0x100000000UL)
+			imx9_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+						PTE_BLOCK_OUTER_SHARE;
+	}
+}
+
+/* Update early MMU table with actual DDR got from SM via SCMI */
+static void update_early_mmu_table(void)
+{
+	phys_size_t effective_sz;
+
+	if (CONFIG_IS_ENABLED(SYS_ICACHE_OFF) || CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	if (!gd->arch.tlb_addr)
+		return;
+
+	/* Remap u-boot effective size to normal memory */
+	effective_sz = get_effective_memsize();
+	if (effective_sz <= SZ_64M)
+		return;
+
+	mmu_change_region_attr(PHYS_SDRAM + SZ_64M, effective_sz - SZ_64M,
+			       PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
+			       PTE_BLOCK_OUTER_SHARE		|
+			       PTE_TYPE_VALID);
+}
+
+void spl_board_prepare_for_boot(void)
+{
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
+	icache_disable();
+	invalidate_icache_all();
+
+	dcache_disable();
+#endif
 }
 
 static inline u64 ether_addr_to_u64(const u8 *addr)
@@ -1078,6 +1215,16 @@ static int gpio_available(const char *nodes_path)
 
 int arch_cpu_init(void)
 {
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
+	icache_enable();
+	early_enable_dcache();
+#endif
+	return 0;
+}
+
+/* arch init which depends on DM init completion */
+static void arch_init_post_dm_f(void)
+{
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
 		ofnode node;
 
@@ -1103,7 +1250,7 @@ int arch_cpu_init(void)
 #endif
 	}
 
-	return 0;
+	update_early_mmu_table();
 }
 
 int imx9_probe_mu(void)
@@ -1140,11 +1287,14 @@ int imx9_probe_mu(void)
 	if (gd->flags & GD_FLG_RELOC)
 		return 0;
 
+	flush_dcache_range((ulong)&info, (ulong)&info + sizeof(struct ele_get_info_data));
 	ret = ele_get_info(&info, &res);
 	if (ret)
 		return ret;
 
 	set_cpu_info(&info);
+
+	arch_init_post_dm_f();
 
 	return 0;
 }

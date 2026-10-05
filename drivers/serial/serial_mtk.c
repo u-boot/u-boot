@@ -213,11 +213,15 @@ static int _mtk_serial_pending(struct mtk_serial_priv *priv, bool input)
 static int mtk_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mtk_serial_priv *priv = dev_get_priv(dev);
-	u32 clk_rate;
+	ulong clk_rate;
 
-	clk_rate = clk_get_rate(&priv->clk);
-	if (IS_ERR_VALUE(clk_rate) || clk_rate == 0)
+	if (clk_valid(&priv->clk)) {
+		clk_rate = clk_get_rate(&priv->clk);
+		if (IS_ERR_VALUE(clk_rate) || clk_rate == 0)
+			return (int)clk_rate ?: -EINVAL;
+	} else {
 		clk_rate = priv->fixed_clk_rate;
+	}
 
 	_mtk_serial_setbrg(priv, baudrate, clk_rate);
 
@@ -256,8 +260,7 @@ static int mtk_serial_probe(struct udevice *dev)
 	writel(UART_FCRVAL, &priv->regs->fcr);
 
 	clk_enable(&priv->clk);
-	if (priv->clk_bus.dev)
-		clk_enable(&priv->clk_bus);
+	clk_enable(&priv->clk_bus);
 
 	return 0;
 }
@@ -266,6 +269,7 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 {
 	struct mtk_serial_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
+	ulong clk_rate;
 	int err;
 
 	addr = dev_read_addr(dev);
@@ -282,10 +286,10 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 			return -EINVAL;
 		}
 	} else {
-		err = clk_get_rate(&priv->clk);
-		if (IS_ERR_VALUE(err)) {
+		clk_rate = clk_get_rate(&priv->clk);
+		if (IS_ERR_VALUE(clk_rate)) {
 			dev_err(dev, "invalid baud clock\n");
-			return -EINVAL;
+			return clk_rate;
 		}
 	}
 

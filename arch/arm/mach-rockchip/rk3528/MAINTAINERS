@@ -4,6 +4,12 @@ S:	Maintained
 F:	arch/arm/dts/rk3528-generic*
 F:	configs/generic-rk3528_defconfig
 
+HINLINK-H28K-RK3528
+M:	Chukun Pan <amadeus@jmu.edu.cn>
+S:	Maintained
+F:	arch/arm/dts/rk3528-hinlink-h28k*
+F:	configs/hinlink-h28k-rk3528_defconfig
+
 NANOPI-ZERO2-RK3528
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained

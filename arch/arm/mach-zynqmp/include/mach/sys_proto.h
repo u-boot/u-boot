@@ -59,5 +59,7 @@ void zynqmp_timer_setup(void);
 /* Direct MMIO accessors (EL3/SPL or no-firmware path) */
 int zynqmp_mmio_rawread(const u32 address, u32 *value);
 int zynqmp_mmio_rawwrite(const u32 address, const u32 mask, const u32 value);
+/* Overridable chip ID accessor: weak MMIO default, firmware override */
+int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */

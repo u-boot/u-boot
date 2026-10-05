@@ -122,7 +122,7 @@ static int display_text_info(void)
 	return 0;
 }
 
-#ifdef CONFIG_SYSRESET
+#ifdef CONFIG_SYSRESET_PRINT_RESETINFO
 static int print_resetinfo(void)
 {
 	struct udevice *dev;
@@ -903,8 +903,10 @@ static int initf_upl(void)
 		return 0;
 
 	upl = malloc(sizeof(struct upl));
-	if (upl)
-		ret = upl_read_handoff(upl, oftree_default());
+	if (!upl)
+		return -ENOMEM;
+
+	ret = upl_read_handoff(upl, oftree_default());
 	if (ret) {
 		printf("UPL handoff: read failure (err=%dE)\n", ret);
 		return ret;
@@ -963,7 +965,7 @@ static void initcall_run_f(void)
 	INITCALL(display_options);	/* say that we are here */
 	INITCALL(display_text_info);	/* show debugging info if required */
 	INITCALL(checkcpu);
-#if CONFIG_IS_ENABLED(SYSRESET)
+#if CONFIG_IS_ENABLED(SYSRESET_PRINT_RESETINFO)
 	INITCALL(print_resetinfo);
 #endif
 	/* display cpu info (and speed) */

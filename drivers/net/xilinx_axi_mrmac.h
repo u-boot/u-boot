@@ -11,14 +11,26 @@
 #ifndef __XILINX_AXI_MRMAC_H
 #define __XILINX_AXI_MRMAC_H
 
+#include <net.h>
+#include <linux/build_bug.h>
+
 #define MIN_PKT_SIZE	60
 
 /* MRMAC needs atleast two buffer descriptors for Tx/Rx to work.
  * Otherwise MRMAC will drop the packets. So, have atleast two Tx and
  * two Rx bd's.
+ *
+ * Tx keeps the minimum because send() waits for the transfer to
+ * complete, so a deeper Tx ring would never hold more than one frame.
+ * Rx matches the number of packets eth_rx() retires in one call, so a
+ * full batch can be taken from the ring without hardware dropping a
+ * frame for want of a free descriptor.
  */
 #define TX_DESC		2
-#define RX_DESC		2
+#define RX_DESC		ETH_PACKETS_BATCH_RECV
+
+static_assert(TX_DESC >= 2, "MRMAC needs at least two Tx descriptors");
+static_assert(RX_DESC >= 2, "MRMAC needs at least two Rx descriptors");
 
 /* MRMAC platform data structure */
 struct axi_mrmac_plat {
@@ -34,9 +46,11 @@ struct axi_mrmac_priv {
 	struct mcdma_common_regs *s2mm_cmn;
 	struct mcdma_chan_reg *mcdma_tx;
 	struct mcdma_chan_reg *mcdma_rx;
-	struct mcdma_bd *tx_bd[TX_DESC];
-	struct mcdma_bd *rx_bd[RX_DESC];
+	struct mcdma_bd *tx_bd;	/* Base of the contiguous Tx BD ring */
+	struct mcdma_bd *rx_bd;	/* Base of the contiguous Rx BD ring */
 	u8 *txminframe;		/* Pointer to hold min length Tx frame(60) */
+	u8 *rx_buf;		/* Driver-owned RX buffer pool (RX_DESC * PKTSIZE_ALIGN) */
+	u32 rx_bd_idx;		/* Next Rx descriptor to consume: 0 .. RX_DESC-1 */
 	u32 mrmac_rate;		/* Speed to configure(Read from DT 10G/25G..) */
 };
 

@@ -139,11 +139,11 @@ config VPL_HASH
 	  this option to build system-specific drivers for hash acceleration
 	  as part of a VPL build.
 
-config VPL_I2C_SUPPORT
+config VPL_I2C
 	bool "Support I2C in VPL"
-	default y if SPL_I2C_SUPPORT
+	default y if SPL_I2C
 	help
-	  Enable support for the I2C bus in VPL. Vee SPL_I2C_SUPPORT for
+	  Enable support for the I2C bus in VPL. See SPL_I2C for
 	  details.
 
 config VPL_MMC
@@ -176,9 +176,9 @@ config VPL_MMC_WRITE
 	help
 	  Enable write access to MMC and SD Cards in VPL
 
-config VPL_PCH_SUPPORT
+config VPL_PCH
 	bool "Support PCH drivers"
-	default y if TPL_PCH_SUPPORT
+	default y if TPL_PCH
 	help
 	  Enable support for PCH (Platform Controller Hub) devices in VPL.
 	  These are used to set up GPIOs and the SPI peripheral early in

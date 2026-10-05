@@ -39,6 +39,22 @@ struct udevice;
 #define PWR_ON_BIT		BIT(2)
 #define PWR_ON_2ND_BIT		BIT(3)
 #define PWR_CLK_DIS_BIT		BIT(4)
+#define PWR_SRAM_CLKISO_BIT	BIT(5)
+#define PWR_SRAM_ISOINT_B_BIT	BIT(6)
+
+/*
+ * Domain capabilities, matching the semantics of the MTK_SCPD_* flags in the
+ * Linux driver. The values are this driver's own: only the handful of flags
+ * U-Boot has a use for are defined, so they are packed from bit 0 rather than
+ * carrying Linux's numbering.
+ *
+ * SRAM_ISO:		the domain's SRAM sits behind an isolation cell that
+ *			has to be released separately once it is powered.
+ * SRAM_PDN_INVERTED:	@sram_pdn_bits is active low, so the bit is set to
+ *			power the SRAM up rather than cleared.
+ */
+#define MTK_SCPD_SRAM_ISO		BIT(0)
+#define MTK_SCPD_SRAM_PDN_INVERTED	BIT(1)
 
 #define PWR_STATUS_CONN		BIT(1)
 #define PWR_STATUS_DISP		BIT(3)
@@ -68,13 +84,20 @@ struct mtk_scpsys_bus_prot_data {
 	u32 bus_prot_mask;
 	u32 bus_prot_set;
 	u32 bus_prot_clr;
+	u32 bus_prot_sta_mask;
 	u32 bus_prot_sta;
 	bool bus_prot_reg_update;
 	bool ignore_clr_ack;
+	/*
+	 * Release this protection before the subsys clocks are enabled and
+	 * re-apply it after they are disabled, instead of the other way round.
+	 */
+	bool subclk;
 };
 
 struct mtk_scp_domain_data {
 	u32 sta_mask;
+	u32 caps;
 	int ctl_offs;
 	u32 sram_pdn_bits;
 	u32 sram_pdn_ack_bits;
@@ -111,17 +134,31 @@ struct mtk_scpsys {
 	struct mtk_scp_domain *domains;
 };
 
-#define _BUS_PROT(_mask, _set, _clr, _sta, _update, _ignore) {	\
+#define _BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, _update, _ignore, _subclk) { \
 	.bus_prot_mask = (_mask),				\
 	.bus_prot_set = (_set),					\
 	.bus_prot_clr = (_clr),					\
+	.bus_prot_sta_mask = (_sta_mask),			\
 	.bus_prot_sta = (_sta),					\
 	.bus_prot_reg_update = (_update),			\
 	.ignore_clr_ack = (_ignore),				\
+	.subclk = (_subclk),					\
 }
 
 #define BUS_PROT_WR(_mask, _set, _clr, _sta)			\
-	_BUS_PROT(_mask, _set, _clr, _sta, false, false)
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, false, false)
+
+#define BUS_PROT_WR_IGN(_mask, _set, _clr, _sta)		\
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true, false)
+
+#define BUS_PROT_WR_IGN_SUBCLK(_mask, _set, _clr, _sta)		\
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true, true)
+
+#define BUS_PROT_WR_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
+	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, false, false)
+
+#define BUS_PROT_WR_IGN_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
+	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, true, false)
 
 int mtk_scpsys_probe(struct udevice *dev);
 int mtk_power_controller_probe(struct udevice *dev);

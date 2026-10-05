@@ -9,3 +9,6 @@ obj-y += dollar.o
 endif
 obj-y += list.o
 obj-y += loop.o
+ifdef CONFIG_HUSH_MODERN_PARSER
+obj-y += modern.o
+endif

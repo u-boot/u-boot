@@ -103,38 +103,6 @@ void ft_board_setup_ex(void *blob, struct bd_info *bd)
 }
 #endif
 
-static void select_dt_from_module_version(void)
-{
-	char variant[32];
-	char *env_variant = env_get("variant");
-	int is_wifi = 0;
-
-	if (IS_ENABLED(CONFIG_TDX_CFG_BLOCK)) {
-		/*
-		 * If we have a valid config block and it says we are a module with
-		 * Wi-Fi/Bluetooth make sure we use the -wifi device tree.
-		 */
-		is_wifi = (tdx_hw_tag.prodid == VERDIN_AM62PQ_2G_WIFI_BT_IT);
-	}
-
-	if (is_wifi)
-		strlcpy(&variant[0], "wifi", sizeof(variant));
-	else
-		strlcpy(&variant[0], "nonwifi", sizeof(variant));
-
-	if (!env_variant || strcmp(variant, env_variant)) {
-		printf("Setting variant to %s\n", variant);
-		env_set("variant", variant);
-	}
-}
-
-int board_late_init(void)
-{
-	select_dt_from_module_version();
-
-	return 0;
-}
-
 #if IS_ENABLED(CONFIG_XPL_BUILD)
 void spl_perform_board_fixups(struct spl_image_info *spl_image)
 {

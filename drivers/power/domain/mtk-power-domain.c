@@ -9,6 +9,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/iopoll.h>
 #include <dm/device_compat.h>
@@ -47,6 +48,7 @@ static int _scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd
 				      void __iomem *reg)
 {
 	u32 val = 0, mask = bpd->bus_prot_mask;
+	u32 sta_mask = bpd->bus_prot_sta_mask;
 
 	if (!mask)
 		return 0;
@@ -56,13 +58,15 @@ static int _scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd
 	else
 		writel(mask, reg + bpd->bus_prot_set);
 
-	return readl_poll_timeout(reg + bpd->bus_prot_sta, val, (val & mask) == mask, 1000);
+	return readl_poll_timeout(reg + bpd->bus_prot_sta, val,
+				  (val & sta_mask) == sta_mask, 1000);
 }
 
 static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
 				       void __iomem *reg)
 {
 	u32 val = 0, mask = bpd->bus_prot_mask;
+	u32 sta_mask = bpd->bus_prot_sta_mask;
 
 	if (!mask)
 		return 0;
@@ -75,15 +79,19 @@ static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bp
 	if (bpd->ignore_clr_ack)
 		return 0;
 
-	return readl_poll_timeout(reg + bpd->bus_prot_sta, val, !(val & mask), 1000);
+	return readl_poll_timeout(reg + bpd->bus_prot_sta, val,
+				  !(val & sta_mask), 1000);
 }
 
 static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
-				     int bpd_size, void __iomem *reg)
+				     int bpd_size, void __iomem *reg, bool subclk)
 {
 	int ret, i;
 
 	for (i = 0; i < bpd_size; i++) {
+		if (bpd[i].subclk != subclk)
+			continue;
+
 		ret = _scpsys_bus_protect_enable(&bpd[i], reg);
 		if (ret)
 			return ret;
@@ -93,11 +101,14 @@ static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
 }
 
 static int scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
-				      int bpd_size, void __iomem *reg)
+				      int bpd_size, void __iomem *reg, bool subclk)
 {
 	int i, ret;
 
 	for (i = bpd_size - 1; i >= 0; i--) {
+		if (bpd[i].subclk != subclk)
+			continue;
+
 		ret = _scpsys_bus_protect_disable(&bpd[i], reg);
 		if (ret)
 			return ret;
@@ -185,16 +196,44 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 	val |= PWR_RST_B_BIT;
 	writel(val, ctl_addr);
 
+	/*
+	 * Some domains split the bus protection policy in two: one part has to
+	 * be released before the subsys clocks are enabled and the rest after.
+	 */
+	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					 infracfg, true);
+	if (ret < 0)
+		return ret;
+
 	ret = clk_enable_bulk(&domain->subsys_clks);
 	if (ret)
 		return ret;
 
-	val &= ~data->sram_pdn_bits;
-	writel(val, ctl_addr);
-
-	ret = readl_poll_timeout(ctl_addr, tmp, !(tmp & pdn_ack), 100);
+	/*
+	 * An inverted sram_pdn bit is set, not cleared, to power the SRAM up,
+	 * and the ack is then expected to read back as all ones.
+	 */
+	if (data->caps & MTK_SCPD_SRAM_PDN_INVERTED) {
+		val |= data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp,
+					 (tmp & pdn_ack) == pdn_ack, 100);
+	} else {
+		val &= ~data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp, !(tmp & pdn_ack), 100);
+	}
 	if (ret < 0)
 		return ret;
+
+	/* Release the SRAM isolation now that it is powered */
+	if (data->caps & MTK_SCPD_SRAM_ISO) {
+		val |= PWR_SRAM_ISOINT_B_BIT;
+		writel(val, ctl_addr);
+		udelay(1);
+		val &= ~PWR_SRAM_CLKISO_BIT;
+		writel(val, ctl_addr);
+	}
 
 	if (data->bus_prot_mask) {
 		ret = mtk_infracfg_clear_bus_protection(infracfg,
@@ -202,7 +241,8 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 		if (ret)
 			return ret;
 	}
-	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA, infracfg);
+	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					 infracfg, false);
 	if (ret < 0)
 		return ret;
 
@@ -239,21 +279,42 @@ static int mtk_scpsys_power_off(struct power_domain *power_domain)
 			return ret;
 	}
 
-	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA, infracfg);
+	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					infracfg, false);
 	if (ret < 0)
 		return ret;
 
 	val = readl(ctl_addr);
-	val |= data->sram_pdn_bits;
-	writel(val, ctl_addr);
 
-	ret = readl_poll_timeout(ctl_addr, tmp, (tmp & pdn_ack) == pdn_ack,
-				 100);
+	/* Isolate the SRAM again before powering it down */
+	if (data->caps & MTK_SCPD_SRAM_ISO) {
+		val |= PWR_SRAM_CLKISO_BIT;
+		writel(val, ctl_addr);
+		udelay(1);
+		val &= ~PWR_SRAM_ISOINT_B_BIT;
+		writel(val, ctl_addr);
+	}
+
+	if (data->caps & MTK_SCPD_SRAM_PDN_INVERTED) {
+		val &= ~data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp, !(tmp & pdn_ack), 100);
+	} else {
+		val |= data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp,
+					 (tmp & pdn_ack) == pdn_ack, 100);
+	}
 	if (ret < 0)
 		return ret;
 
 	ret = clk_disable_bulk(&domain->subsys_clks);
 	if (ret)
+		return ret;
+
+	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					infracfg, true);
+	if (ret < 0)
 		return ret;
 
 	val |= PWR_ISO_BIT;
@@ -368,11 +429,6 @@ static int mtk_scpsys_add_one_domain(struct udevice *dev, ofnode node, int paren
 			return PTR_ERR(regmap);
 
 		domain->infracfg = regmap_get_range(regmap, 0);
-
-		/* enable Infra DCM */
-		if (domain->infracfg)
-			setbits_le32(domain->infracfg + INFRA_TOPDCM_CTRL,
-				     DCM_TOP_EN);
 	}
 
 	num_clks = ofnode_read_string_count(node, "clock-names");

@@ -11,6 +11,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <div64.h>
 #include <linux/delay.h>
+#include <linux/math64.h>
 
 static struct rockchip_pll_rate_table rockchip_auto_table;
 
@@ -166,34 +167,43 @@ rockchip_pll_clk_set_by_auto(ulong fin_hz,
 	return rate_table;
 }
 
-static u32
-rockchip_rk3588_pll_k_get(u32 m, u32 p, u32 s, u64 fin_hz, u64 fvco)
+/*
+ * 2250 MHz <= Fvco <= 4500 MHz
+ * For Fvco > 3 GHz: period jitter +-1% frac PLL, +-0.75% int PLL
+ * For Fvco < 3 GHz: period jitter +-2% frac PLL, +-1.50% int PLL
+ * Fvco = ((m + k / 65536) * Fin) / p
+ * Fout = ((m + k / 65536) * Fin) / (p * 2^s)
+ * Fref = Fin / p
+ * -32768 <= k <= 32767 (only available in frac PLLs, not int PLLs)
+ */
+static void
+rockchip_rk3588_pll_k_get(struct rockchip_pll_rate_table *rate_table, u64 fref, u64 fvco)
 {
-	u64 fref, fout, ffrac;
-	u32 k = 0;
+	u64 ffrac;
+	int k;
 
-	fref = fin_hz / p;
-	ffrac = fvco - (m * fref);
-	fout = ffrac * 65536;
-	k = fout / fref;
+	ffrac = fvco - (rate_table->m) * fref;
+	k = ffrac * 65536 / fref;
 	if (k > 32767) {
-		fref = fin_hz / p;
-		ffrac = ((m + 1) * fref) - fvco;
-		fout = ffrac * 65536;
-		k = ((fout * 10 / fref) + 7) / 10;
-		if (k > 32767)
-			k = 0;
-		else
-			k = ~k + 1;
+		/*
+		 * The requested rate is closer to the next integer multiplier
+		 * m, so pick it and use a negative fractional coefficient k
+		 */
+		rate_table->m += 1;
+		ffrac = (rate_table->m) * fref - fvco;
+		/*
+		 * Round up to avoid overshooting requested rate for negative k
+		 */
+		k = -(int)DIV64_U64_ROUND_UP(ffrac * 65536, fref);
 	}
-	return k;
+	rate_table->k = k;
 }
 
 static struct rockchip_pll_rate_table *
 rockchip_rk3588_pll_frac_by_auto(unsigned long fin_hz, unsigned long fout_hz)
 {
 	struct rockchip_pll_rate_table *rate_table = &rockchip_auto_table;
-	u32 p, m, s, k;
+	u32 p, m, s;
 	u64 fvco;
 
 	for (s = 0; s <= 6; s++) {
@@ -204,18 +214,13 @@ rockchip_rk3588_pll_frac_by_auto(unsigned long fin_hz, unsigned long fout_hz)
 			for (m = 64; m <= 1023; m++) {
 				if ((fvco >= m * fin_hz / p) &&
 				    (fvco < (m + 1) * fin_hz / p)) {
-					k = rockchip_rk3588_pll_k_get(m, p, s,
-								      fin_hz,
-								      fvco);
-					if (!k)
-						continue;
 					rate_table->p = p;
+					rate_table->m = m;
 					rate_table->s = s;
-					rate_table->k = k;
-					if (k > 32767)
-						rate_table->m = m + 1;
-					else
-						rate_table->m = m;
+
+					rockchip_rk3588_pll_k_get(rate_table,
+								  fin_hz / p,
+								  fvco);
 					return rate_table;
 				}
 			}
@@ -556,9 +561,10 @@ static int rk3588_pll_set_rate(struct rockchip_pll_clock *pll,
 static ulong rk3588_pll_get_rate(struct rockchip_pll_clock *pll,
 				 void __iomem *base, ulong pll_id)
 {
-	u32 m, p, s, k;
+	u32 m, p, s;
 	u32 con = 0, shift, mode;
-	u64 rate, postdiv;
+	u64 rate;
+	s16 k;
 
 	con = readl(base + pll->mode_offset);
 	shift = pll->mode_shift;
@@ -585,25 +591,7 @@ static ulong rk3588_pll_get_rate(struct rockchip_pll_clock *pll,
 
 		rate = OSC_HZ / p;
 		rate *= m;
-		if (k & BIT(15)) {
-			/* fractional mode */
-			u64 frac_rate64;
-
-			k = (~(k - 1)) & RK3588_PLLCON2_K_MASK;
-			frac_rate64 = OSC_HZ * k;
-			postdiv = p;
-			postdiv *= 65536;
-			do_div(frac_rate64, postdiv);
-			rate -= frac_rate64;
-		} else {
-			/* fractional mode */
-			u64 frac_rate64 = OSC_HZ * k;
-
-			postdiv = p;
-			postdiv *= 65536;
-			do_div(frac_rate64, postdiv);
-			rate += frac_rate64;
-		}
+		rate += div_s64((s64)OSC_HZ * k, p * 65536);
 		rate = rate >> s;
 		return rate;
 	case RKCLK_PLL_MODE_DEEP:

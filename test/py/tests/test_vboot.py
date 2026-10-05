@@ -195,7 +195,7 @@ def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
         if options:
             args += options.split(' ')
         ubman.log.action('%s: Sign images' % sha_algo)
-        utils.run_and_log(ubman, args)
+        return utils.run_and_log(ubman, args)
 
     def sign_fit_dtb(sha_algo, options, dtb):
         """Sign the FIT
@@ -323,7 +323,14 @@ def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
         run_bootm(sha_algo, 'unsigned config', '%s+ OK' % ('sha256' if algo_arg else sha_algo), True)
 
         # Sign images with our dev keys
-        sign_fit(sha_algo, sign_options)
+        sign_output = sign_fit(sha_algo, sign_options)
+        if sha_algo == 'sha1' and not padding:
+            assert "'sign-images' is ignored" in sign_output
+            hashed_nodes = utils.run_and_log(
+                ubman, ['fdtget', '-t', 's', fit, sig_node,
+                        'hashed-nodes']).split()
+            assert '/images/firmware' in hashed_nodes
+            assert '/images/firmware/hash-1' in hashed_nodes
         run_bootm(sha_algo, 'signed config', 'dev+', True)
 
         ubman.log.action('%s: Check signed config on the host' % sha_algo)

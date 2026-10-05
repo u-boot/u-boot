@@ -291,7 +291,7 @@ enum {
 	CLK_PAD_AUD_ADC_EXT,
 };
 
-static ulong ext_clock_rates[] = {
+static const ulong ext_clock_rates[] = {
 	[CLK_PAD_CLK32K] = 32000,
 	[CLK_PAD_CLK26M] = 26 * MHZ,
 	[CLK_PAD_ULPOSC] = 260 * MHZ,
@@ -1124,7 +1124,7 @@ static const struct mtk_parent ecc_parents[] = {
 			      _mux_clr_ofs, _shift, _width, _gate,		\
 			      _upd_ofs, _upd, CLK_MUX_SETCLR_UPD)
 
-const struct mtk_composite top_muxes[] = {
+static const struct mtk_composite top_muxes[] = {
 	/* CLK_CFG_0 */
 	MUX_CLR_SET_UPD(CLK_TOP_AXI_SEL, axi_parents, CLK_CFG_0, CLK_CFG_0_SET,
 			CLK_CFG_0_CLR, 0, 3, CLK_CFG_UPDATE, TOP_MUX_AXI_SHIFT),

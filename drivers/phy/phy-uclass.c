@@ -85,6 +85,20 @@ static int phy_alloc_counts(struct phy *phy, struct udevice *supply)
 	return 0;
 }
 
+static int phy_uclass_post_bind(struct udevice *dev)
+{
+	/*
+	 * The uclass dereferences the driver operations unconditionally,
+	 * so refuse to bind a driver which does not provide any.
+	 */
+	if (!phy_dev_ops(dev)) {
+		dev_err(dev, "PHY driver has no ops\n");
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
 static int phy_uclass_pre_probe(struct udevice *dev)
 {
 	struct list_head *uc_priv = dev_get_uclass_priv(dev);
@@ -552,6 +566,7 @@ int generic_shutdown_phy(struct phy *phy)
 UCLASS_DRIVER(phy) = {
 	.id		= UCLASS_PHY,
 	.name		= "phy",
+	.post_bind	= phy_uclass_post_bind,
 	.pre_probe	= phy_uclass_pre_probe,
 	.pre_remove	= phy_uclass_pre_remove,
 	.per_device_auto = sizeof(struct list_head),

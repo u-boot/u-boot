@@ -20,7 +20,10 @@
 #include <mtd.h>
 #include <nand.h>
 #include <onenand_uboot.h>
+#include <dm/device.h>
 #include <dm/devres.h>
+#include <dm/root.h>
+#include <dm/uclass-internal.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/err.h>
@@ -670,6 +673,29 @@ int ubi_detach(void)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(UBI_BLOCK)
+static void ubi_blk_bind_once(void)
+{
+	struct udevice *dev;
+
+	/*
+	 * A single ubi_blk device serves all volumes of the attached UBI
+	 * device, the volume being selected through the block descriptor's
+	 * hwpart. Bind one when UBI is attached -- unless a previous attach
+	 * already did -- parented to the MTD device UBI sits on.
+	 */
+	for (uclass_find_first_device(UCLASS_BLK, &dev); dev;
+	     uclass_find_next_device(&dev)) {
+		if (dev->driver == DM_DRIVER_GET(ubi_blk))
+			return;
+	}
+
+	ubi_bind(ubi && ubi->mtd && ubi->mtd->dev ? ubi->mtd->dev : dm_root());
+}
+#else
+static inline void ubi_blk_bind_once(void) { }
+#endif
+
 int ubi_part(const char *part_name, const char *vid_header_offset)
 {
 	struct mtd_info *mtd;
@@ -698,6 +724,7 @@ int ubi_part(const char *part_name, const char *vid_header_offset)
 	}
 
 	ubi = ubi_devices[0];
+	ubi_blk_bind_once();
 
 	return 0;
 }

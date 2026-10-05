@@ -546,6 +546,7 @@ config TARGET_PCM058
 	select DM
 	select OF_CONTROL
 	imply CMD_DM
+	imply OF_UPSTREAM
 
 config TARGET_PCL063
 	bool "PHYTEC PCL063 (phyCORE-i.MX6UL)"

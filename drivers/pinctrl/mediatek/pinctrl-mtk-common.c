@@ -19,7 +19,6 @@
 
 #include "pinctrl-mtk-common.h"
 
-#if CONFIG_IS_ENABLED(PINCONF)
 /**
  * struct mtk_drive_desc - the structure that holds the information
  *			    of the driving current
@@ -45,7 +44,6 @@ static const struct mtk_drive_desc mtk_drive[] = {
 	[DRV_GRP3] = { 2, 8, 2, 2 },
 	[DRV_GRP4] = { 2, 16, 2, 1 },
 };
-#endif
 
 static const char *mtk_pinctrl_dummy_name = "_dummy";
 
@@ -223,7 +221,6 @@ static int mtk_hw_get_value(struct udevice *dev, int pin, int field,
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(PINCONF)
 static int mtk_get_pin_io_type(struct udevice *dev, int pin,
 			       struct mtk_io_type_desc *io_type)
 {
@@ -265,12 +262,6 @@ static int mtk_pinconf_get(struct udevice *dev, u32 pin, char *buf, size_t size)
 
 	return pos;
 }
-#else
-static int mtk_pinconf_get(struct udevice *dev, u32 pin, char *buf, size_t size)
-{
-	return 0;
-}
-#endif
 
 static int mtk_get_groups_count(struct udevice *dev)
 {
@@ -378,7 +369,6 @@ static int mtk_pinmux_group_set(struct udevice *dev,
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(PINCONF)
 static const struct pinconf_param mtk_conf_params[] = {
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
@@ -757,7 +747,6 @@ int mtk_pinconf_get_pu_pd_rsel(struct udevice *dev, u32 pin, char *buf, size_t s
 
 	return pos + scnprintf(buf + pos, size - pos, " RSEL:%d", rsel);
 }
-#endif
 
 static int mtk_pinctrl_pinmux_property_set(struct udevice *dev, u32 pinmux_group)
 {
@@ -779,12 +768,10 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 	.get_function_name = mtk_get_function_name,
 	.pinmux_set = mtk_pinmux_set,
 	.pinmux_group_set = mtk_pinmux_group_set,
-#if CONFIG_IS_ENABLED(PINCONF)
 	.pinconf_num_params = ARRAY_SIZE(mtk_conf_params),
 	.pinconf_params = mtk_conf_params,
 	.pinconf_set = mtk_pinconf_set,
 	.pinconf_group_set = mtk_pinconf_group_set,
-#endif
 	.set_state = pinctrl_generic_set_state,
 	.pinmux_property_set = mtk_pinctrl_pinmux_property_set,
 };

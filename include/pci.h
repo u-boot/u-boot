@@ -1152,6 +1152,32 @@ int pci_generic_mmap_write_config(
 	enum pci_size_t size);
 
 /**
+ * pci_generic_mmap_write_config32() - Generic helper for writing to
+ * memory-mapped PCI configuration space that only supports 32-bit accesses.
+ * @bus: Pointer to the PCI bus
+ * @addr_f: Callback for calculating the config space address
+ * @bdf: Identifies the PCI device to access
+ * @offset: The offset into the device's configuration space
+ * @value: The value to write
+ * @size: Indicates the size of access to perform
+ *
+ * Like pci_generic_mmap_write_config(), but for host bridges whose
+ * configuration space does not decode 8-bit or 16-bit accesses correctly.
+ * Accesses narrower than 32 bits are promoted to a 32-bit
+ * read-modify-write of the word containing @offset.
+ *
+ * Return: 0 on success, else -EINVAL
+ */
+int pci_generic_mmap_write_config32(
+	const struct udevice *bus,
+	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
+		      void **addrp),
+	pci_dev_t bdf,
+	uint offset,
+	ulong value,
+	enum pci_size_t size);
+
+/**
  * pci_generic_mmap_read_config() - Generic helper for reading from
  * memory-mapped PCI configuration space.
  * @bus: Pointer to the PCI bus

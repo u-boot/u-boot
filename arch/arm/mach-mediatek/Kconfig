@@ -207,8 +207,47 @@ config SYS_CONFIG_NAME
 config MTK_BROM_HEADER_INFO
 	string
 	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629
-	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183 || TARGET_MT8188 || TARGET_MT8189 || TARGET_MT8195
+	default "media=emmc;arm64=1" if TARGET_MT8188
+	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183 || TARGET_MT8189 || TARGET_MT8195
 	default "lk=1" if TARGET_MT7623
+
+config MTK_GENIO_BOOT_IMAGES
+	bool "Build MediaTek firmware images"
+	depends on TARGET_MT8188 && SPL
+	select BINMAN
+	select MTK_GENIO_IMAGE_CONTRACT
+	help
+	  Enable binman to assemble the MediaTek BootROM image and firmware
+	  FIT from U-Boot and external platform firmware components.
+
+config MTK_GENIO_IMAGE_CONTRACT
+	bool
+
+if MTK_GENIO_IMAGE_CONTRACT
+
+config MTK_GENIO_BROM_LOAD_ADDR
+	hex "BootROM payload load address"
+	default 0x201000 if TARGET_MT8188
+	help
+	  Address at which the MediaTek BootROM loads and enters the external
+	  DDR loader.
+
+config MTK_GENIO_DDR_LOADER_SIZE
+	hex "DDR-loader image region size"
+	default 0x4b000 if TARGET_MT8188
+	help
+	  Size reserved for the external DDR loader at the start of the
+	  BootROM payload. This is also the offset of U-Boot SPL and must match
+	  the offset used by the loader when copying SPL to DRAM.
+
+config MTK_GENIO_BL31_LOAD_ADDR
+	hex "BL31 load and entry address"
+	default 0x54601000 if TARGET_MT8188
+	help
+	  Address at which SPL loads and enters BL31. This must match the
+	  platform firmware's link address and secure-memory layout.
+
+endif
 
 config MTK_TZ_MOVABLE
 	select ARCH_MISC_INIT

@@ -45,3 +45,48 @@ config SYS_CONFIG_NAME
 	default "lx2162aqds"
 
 endif
+
+if TARGET_NBXV3
+
+config SYS_BOARD
+	default "lx2160a"
+
+config SYS_VENDOR
+	default "nxp"
+
+config SYS_SOC
+	default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+	default "nbxv3"
+
+config NBXV3_DM_EVENT
+	bool
+	default y
+	select DM_EVENT
+
+config NBXV3_PMBUS
+	bool
+	default y
+	select PMBUS
+	select CMD_PMBUS
+	select DM_REGULATOR
+	select DM_REGULATOR_PMBUS_HELPER
+	select DM_REGULATOR_MPQ8785
+	select DM_REGULATOR_PMBUS_GENERIC
+	select CMD_REGULATOR
+
+config NBXV3_DPLL
+	bool
+	default y
+	select SPI
+	select DM_SPI
+	select FSL_DSPI
+
+config NBXV3_FAN
+	bool
+	default y
+	select DM_REGULATOR
+	select DM_REGULATOR_FIXED
+
+endif

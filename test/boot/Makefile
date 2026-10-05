@@ -18,6 +18,7 @@ ifdef CONFIG_UT_DM
 obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += image_fdt.o
 endif
 endif
+obj-$(CONFIG_$(PHASE_)FIT_CIPHER) += fit_cipher.o
 obj-$(CONFIG_$(PHASE_)FIT_VERITY) += fit_verity.o
 obj-$(CONFIG_MEASURED_BOOT) += measurement.o
 
@@ -27,3 +28,5 @@ endif
 obj-$(CONFIG_BOOTMETH_VBE) += vbe_fixup.o
 
 obj-$(CONFIG_UPL) += upl.o
+
+obj-$(CONFIG_IMAGEMAP) += imagemap.o

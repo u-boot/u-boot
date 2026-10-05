@@ -532,6 +532,8 @@ The per chip quirks that carry over:
   flag for this case.
 * ``mps,vout-fb-divider-ratio-permille`` DT property maps to
   ``VOUT_SCALE_LOOP`` write at probe time.
+* ``mps,auto-probe`` the chip decodes its PMBus address using a scan
+  to find ``MFR_ID = "MPS"``. Ignore ``reg``.
 
 The quirks that do not carry over:
 
@@ -560,7 +562,7 @@ Decision tree:
    non default coefficients), an alert can't be decoded (chip has
    vendor specific status bits), AVS is needed (the boot path has
    to actively trim VOUT before kernel handoff), or the chip has an
-   ADDR-pin auto promotion / VID coercion / vendor register quirk.
+   address scan / VID coercion / vendor register quirk.
 
 DT alignment with Linux
 -----------------------
@@ -585,44 +587,6 @@ Multi rail/multi page chips (e.g. ISL68137 with seven outputs)
 declare each rail as a child regulator node with ``reg = <page>``;
 each child binds as a UCLASS_REGULATOR with that PMBus PAGE setting
 applied at every read/write.
-
-Common pitfalls
----------------
-
-These have all bitten contributors during nbxv3 bring up; record them
-here so the next port doesn't repeat them.
-
-* VOUT_MODE/DIRECT format confusion. Most generic PMBus call
-  sites assume LINEAR16. Several MPS chips report VOUT in DIRECT
-  format with chip specific m/b/R after a single VOUT_MODE read,
-  the same chip read at the same address produces different
-  numbers depending on the format the driver applies. Always read
-  ``VOUT_MODE`` at probe time and switch the decoder accordingly.
-  Linux's per chip ``identify()`` callbacks document the exact
-  rules; copy them rather than guessing.
-* SMBus block read protocol. Some I2C controllers strict check
-  block read transactions: the master must read the length byte
-  first, then reissue the read for the payload. Over reading a
-  fixed length and ignoring the length byte works on lenient
-  controllers but errors on strict ones. ``pmbus_read_string()``
-  does the two stage read; use it.
-* I2C bus number stability. ``uclass_get_device_by_seq()``
-  uses the DT alias index (``i2c0`` -> ``UCLASS_I2C`` seq 0) when
-  aliases are declared, otherwise falls back to probe order which
-  varies with which controllers are enabled in the defconfig.
-  Always declare DT aliases for I2C buses you reference by index.
-* ADDR-pin auto addressessing. Some chips (notably MPS parts) decode
-  their PMBus 7-bit address from an external resistor divider on
-  ADDR_VBOOT. The "default" address in the datasheet is the
-  factory fused slot; a board with a different divider or a die
-  with a different revision can land in another window. If the
-  driver hardcodes the default and the board side scan finds the
-  chip in another window, auto promote the working address rather
-  than failing the probe.
-* MFR string byte order. Most PMBus chips return ``MFR_ID``
-  characters in human order. Some MPS personalities reverse them.
-  Pass ``reverse_bytes=true`` to ``pmbus_read_string()`` for those;
-  spec compliant chips pass false.
 
 References
 ----------

@@ -1220,9 +1220,13 @@ static int cpsw_eth_of_to_plat_switch(struct udevice *dev,
 	data->mac_control = GMII_EN;
 
 	eth_ports_node = ofnode_find_subnode(dev_ofnode(dev), "ethernet-ports");
-	data->slaves = ofnode_get_child_count(eth_ports_node);
+
+	data->slaves = 0;
+	ofnode_for_each_subnode(subnode, eth_ports_node)
+		if (ofnode_is_enabled(subnode))
+			data->slaves++;
 	if (!data->slaves) {
-		pr_err("cpsw: No ethernet-ports defined\n");
+		pr_err("cpsw: No enabled ethernet-ports defined\n");
 		return -EINVAL;
 	}
 
@@ -1233,6 +1237,9 @@ static int cpsw_eth_of_to_plat_switch(struct udevice *dev,
 	ofnode_for_each_subnode(subnode, eth_ports_node) {
 		struct ofnode_phandle_args args;
 		u32 port_id;
+
+		if (!ofnode_is_enabled(subnode))
+			continue;
 
 		ret = ofnode_read_u32(subnode, "reg", &port_id);
 		if (ret || !port_id || port_id > data->slaves) {

@@ -1217,14 +1217,14 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 	int ret;
 	struct clk hclk;
 
-	priv->regs = devfdt_get_addr_index_ptr(bus, 0);
+	priv->regs = dev_read_addr_index_ptr(bus, 0);
 	if (!priv->regs) {
 		dev_err(bus, "wrong ctrl base\n");
 		return -EINVAL;
 	}
 
 	plat->ahb_base =
-		(uintptr_t)devfdt_get_addr_size_index_ptr(bus, 1, &plat->ahb_sz);
+		(uintptr_t)dev_read_addr_size_index_ptr(bus, 1, &plat->ahb_sz);
 	if (!plat->ahb_base) {
 		dev_err(bus, "wrong AHB base\n");
 		return -EINVAL;

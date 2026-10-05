@@ -5,13 +5,23 @@
 
 #include <dm.h>
 #include <env.h>
+#include <fdtdec.h>
+#include <i2c.h>
+#include <image.h>
 #include <log.h>
 #include <spl_gpio.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 
 #include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
+
+#define ROC_PC_MP8859_BUS	"i2c@ff160000"
+#define ROC_PC_MP8859_ADDR	0x66
+#define ROC_PC_PLUS_FDTFILE	"rockchip/rk3399-roc-pc-plus.dtb"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_XPL_BUILD
 
@@ -54,4 +64,36 @@ void led_setup(void)
 	spl_gpio_output(gpio0, GPIO(BANK_B, 5), 1);
 }
 
+static bool is_roc_pc_plus(void)
+{
+	struct udevice *bus, *dev;
+
+	if (!(CONFIG_IS_ENABLED(I2C) && CONFIG_IS_ENABLED(DM_I2C)))
+		return false;
+
+	if (uclass_get_device_by_name(UCLASS_I2C, ROC_PC_MP8859_BUS, &bus))
+		return false;
+
+	return dm_i2c_probe(bus, ROC_PC_MP8859_ADDR, 0, &dev);
+}
+
+int board_fit_config_name_match(const char *name)
+{
+	if (is_roc_pc_plus())
+		return strcmp(name, ROC_PC_PLUS_FDTFILE);
+
+	return strcmp(name, CONFIG_DEFAULT_FDT_FILE);
+}
+
 #endif
+
+int rk_board_late_init(void)
+{
+	if (!fdt_node_check_compatible(gd->fdt_blob, 0,
+				       "firefly,roc-rk3399-pc-plus"))
+		env_set("fdtfile", ROC_PC_PLUS_FDTFILE);
+	else
+		env_set("fdtfile", CONFIG_DEFAULT_FDT_FILE);
+
+	return 0;
+}

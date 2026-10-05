@@ -308,6 +308,50 @@ config REGEX
 	  regex support to some commands, for example "env grep" and
 	  "setexpr".
 
+config LIB_QRCODE
+	bool "Enable QR code generator library"
+	help
+	  Enables the Nayuki QR Code generator library (qrcodegen).
+	  This provides functions to encode arbitrary text or binary
+	  data into a QR Code symbol that can then be rendered to a
+	  framebuffer or printed as ASCII art. Useful for displaying
+	  links, serial numbers, or recovery URLs from the bootloader.
+
+	  Imported from https://github.com/nayuki/QR-Code-generator
+
+config LIB_QRCODE_MAX_VERSION
+	int "Maximum QR code version supported (1..40)"
+	depends on LIB_QRCODE
+	range 1 40
+	default 40
+	help
+	  Maximum QR code "version" the library is built to support, in
+	  the range 1..40. The version determines both the maximum payload
+	  capacity and the static scratch-buffer size demanded of callers:
+
+	    qrcodegen_BUFFER_LEN_FOR_VERSION(N) bytes per buffer,
+	    growing quadratically (N=20 -> ~370 B, N=30 -> ~810 B,
+	    N=40 -> ~1430 B per buffer; callers typically need two).
+
+	  Lower this if you only need to encode short payloads such as
+	  pairing tokens or short URLs and want to reclaim the static
+	  buffer footprint. The default of 40 matches upstream Nayuki.
+
+config LIB_QRCODE_GZIP
+	bool "Allow gzip pre-compression of QR code payloads"
+	depends on LIB_QRCODE
+	depends on GZIP_COMPRESSED
+	help
+	  When a payload does not fit in the configured maximum QR code
+	  version, transparently gzip-compress it and re-encode in binary
+	  mode with a four-byte magic header ("QRGZ"), so the scanner side
+	  knows to decompress.
+
+	  Useful for diagnostic / state-dump QR codes where the raw payload
+	  is highly compressible (printable text, log fragments) but would
+	  not otherwise fit a small QR symbol. The plain (uncompressed)
+	  encoder remains the first attempt; this just adds a fallback.
+
 choice
 	prompt "Pseudo-random library support type"
 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
@@ -1314,7 +1358,7 @@ config SPL_LMB_ARCH_MEM_MAP
 config LMB_LIMIT_DMA_BELOW_RAM_TOP
 	bool
 	depends on LMB
-	default y if ARCH_BCM283X || ARCH_ROCKCHIP || STARFIVE_JH7110
+	default y if ARCH_BCM283X || ARCH_MVEBU || ARCH_ROCKCHIP || STARFIVE_JH7110
 	help
 	  Some architectures can not DMA above ram_top boundary,
 	  which is after 4 GiB or 32-bit boundary too. Limit the

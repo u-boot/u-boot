@@ -154,6 +154,7 @@ build all platforms in a single job:
       . /tmp/venv/bin/activate;
       pip install -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt
+        -r board/qualcomm/requirements.txt
         setuptools
     - ret=0;
       if read q p < /sys/fs/cgroup/cpu.max 2>/dev/null && [ "$q" != max ]; then
@@ -191,11 +192,11 @@ docs:
     - make htmldocs KDOC_WERROR=1
     - make infodocs
 
-# ensure all configs have MAINTAINERS entries
-Check for configs without MAINTAINERS entry:
+Check all configs are in MAINTAINERS and validate MAINTAINERS:
   extends: .testsuites
   script:
     - ./tools/buildman/buildman --maintainer-check
+    - ./scripts/check_maintainers_files.sh
 
 # Ensure host tools build
 Build allyesconfig, tools-only and envtools:

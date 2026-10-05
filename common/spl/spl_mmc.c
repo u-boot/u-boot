@@ -106,18 +106,14 @@ static int spl_mmc_find_device(struct mmc **mmcp, int mmc_dev)
 	return 0;
 }
 
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) || \
-    defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE)
-static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
-					struct spl_boot_device *bootdev,
-					struct mmc *mmc, int partition,
-					unsigned long sector)
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_ANY_PARTITION
+static int spl_mmc_select_partition(struct mmc *mmc, const u32 boot_device,
+				    int *partition)
 {
-	struct disk_partition info;
-	int ret;
-
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
-	int type_part;
+	struct disk_partition info;
+	int type_part, ret;
+
 	/* Only support MBR so DOS_ENTRY_NUMBERS */
 	for (type_part = 1; type_part <= DOS_ENTRY_NUMBERS; type_part++) {
 		ret = part_get_info(mmc_get_blk_desc(mmc), type_part, &info);
@@ -125,11 +121,40 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 			continue;
 		if (info.sys_ind ==
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE) {
-			partition = type_part;
+			*partition = type_part;
 			break;
 		}
 	}
+
+	return 0;
+#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC)
+	int ret;
+
+	if (*partition != -1)
+		return 0;
+
+	*partition = spl_mmc_boot_partition(mmc, boot_device);
+	if (*partition > 0)
+		return 0;
+
+	ret = *partition < 0 ? *partition : -EINVAL;
+	printf("spl: partition selection failed: %d\n", ret);
+	return ret;
+#else
+	if (*partition == -1)
+		*partition = spl_mmc_boot_partition(mmc, boot_device);
+
+	return 0;
 #endif
+}
+
+static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
+					struct spl_boot_device *bootdev,
+					struct mmc *mmc, int partition,
+					unsigned long sector)
+{
+	struct disk_partition info;
+	int ret;
 
 	ret = part_get_info(mmc_get_blk_desc(mmc), partition, &info);
 	if (ret) {
@@ -300,10 +325,15 @@ u32 __weak spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 	return MMCSD_MODE_RAW;
 }
 
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-int __weak spl_mmc_boot_partition(const u32 boot_device)
+#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) || \
+	defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC)
+int __weak spl_mmc_boot_partition(struct mmc *mmc, const u32 boot_device)
 {
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION;
+#else
+	return -ENOSYS;
+#endif
 }
 #endif
 
@@ -429,8 +459,10 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 						spl_mmc_raw_uboot_offset(part));
 		if (!ret)
 			return 0;
-#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) || \
-      defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE)
+#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_ANY_PARTITION)
+		ret = spl_mmc_select_partition(mmc, bootdev->boot_device, &raw_part);
+		if (ret)
+			return ret;
 		ret = mmc_load_image_raw_partition(spl_image, bootdev,
 						   mmc, raw_part,
 						   raw_sect);
@@ -459,17 +491,19 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev)
 {
+	int raw_part = 0;
+
+	if (IS_ENABLED(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) ||
+	    IS_ENABLED(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC))
+		raw_part = -1;
+
 	return spl_mmc_load(spl_image, bootdev,
 #ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 			    CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
 #else
 			    NULL,
 #endif
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
-			    spl_mmc_boot_partition(bootdev->boot_device),
-#else
-			    0,
-#endif
+			    raw_part,
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 			    CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #else
