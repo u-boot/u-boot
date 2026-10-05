@@ -86,6 +86,9 @@ static int mmux_read(struct udevice *ch, int addr, int devad,
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
 	int err;
 
+	if (!parent_mdio)
+		return -ENODEV;
+
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
@@ -104,6 +107,9 @@ static int mmux_write(struct udevice *ch, int addr, int devad,
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
 	int err;
 
+	if (!parent_mdio)
+		return -ENODEV;
+
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
@@ -120,6 +126,9 @@ static int mmux_reset(struct udevice *ch)
 	struct udevice *mux = ch->parent;
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
 	int err;
+
+	if (!parent_mdio)
+		return -ENODEV;
 
 	/* reset is optional, if it's not implemented just exit */
 	if (!mdio_get_ops(parent_mdio)->reset)
