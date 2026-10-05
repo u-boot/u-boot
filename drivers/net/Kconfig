@@ -30,6 +30,7 @@ config DM_MDIO
 
 config DM_MDIO_MUX
 	bool "Enable Driver Model for MDIO MUX devices"
+	select DM_EVENT
 	depends on DM_MDIO
 	help
 	  Enable driver model for MDIO MUX devices
