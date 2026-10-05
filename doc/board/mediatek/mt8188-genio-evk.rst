@@ -36,7 +36,8 @@ followed by U-Boot SPL. The DDR loader initializes DRAM, copies the fixed
 ``CONFIG_MTK_GENIO_DDR_LOADER_SIZE`` to ``CONFIG_SPL_TEXT_BASE`` and enters
 SPL at EL3 with exceptions masked.
 
-SPL reads a FIT image from partition 1 of the eMMC user area. The FIT contains
+By default, SPL reads a FIT image from partition 1 of the eMMC user area.
+Optional firmware A/B selection is described below. The FIT contains
 Arm Trusted Firmware-A (BL31), OP-TEE (BL32), U-Boot proper (BL33) and the
 U-Boot control devicetree. It is an ordinary, directly parseable FIT whose
 first word is the FDT magic; the complete FIT container must not be compressed.
@@ -252,12 +253,12 @@ Image                Destination
 ===================  ================================================
 
 The standard Genio 510 and Genio 700 partition layouts name GPT partition 1
-``bootloaders``. SPL selects the partition by number through
+``bootloaders``. By default, SPL selects the partition by number through
 ``CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION``; it does not locate it by name.
 
 Writing an invalid image to eMMC boot0 can make the board unbootable. Preserve
 the platform recovery path and any backup bootloader partition while testing.
-Selection of a backup partition is not implemented by this SPL configuration.
+Selection of a backup partition requires the optional firmware A/B support.
 
 Using Genio Tools
 ~~~~~~~~~~~~~~~~~
@@ -279,3 +280,81 @@ Genio Tools uses the default bootstrap from the image directory. Keep
 ``bootloaders_b`` unchanged until the new images have been tested. Add
 ``--dry-run`` to check the selected files and partitions without accessing the
 board.
+
+Firmware A/B in SPL
+-------------------
+
+``CONFIG_SPL_MTK_FIRMWARE_AB`` enables A/B selection for the firmware loaded
+by SPL from eMMC. It is disabled by default. Enable it only with an updater
+that activates firmware slots and a service that confirms successful boots.
+After selecting the board defconfig, enable it with::
+
+   $ scripts/config --file "${KBUILD_OUTPUT}/.config" \
+         --disable SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION \
+         --enable SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC \
+         --disable SPL_RAW_IMAGE_SUPPORT \
+         --disable SPL_LEGACY_IMAGE_FORMAT \
+         --enable SPL_MTK_FIRMWARE_AB
+   $ make olddefconfig
+
+Install a complete ``bootloaders.img`` FIT in each of the ``bootloaders``
+(slot A) and ``bootloaders_b`` (slot B) GPT partitions. The ``misc`` partition
+stores the selected slot and boot-attempt counters. When migrating from BL2,
+replace the FIP images in both slots with FIT images. To verify signed
+firmware, also follow `Signed bootloader FIT`_; A/B selection does not enable
+signature verification. Both slot images must then be signed with a key
+trusted by the installed SPL.
+
+The DDR loader and SPL in boot0 are shared by both firmware slots.
+
+With SPL installed in the standard RITY eMMC layout, the boot flow is::
+
+              BootROM
+                 |
+                 v
+   +---------------------------+     +---------------------------+
+   | boot0                     |     | boot1                     |
+   | DDR loader -> SPL         |     | U-Boot environment        |
+   | shared by slots A and B   |     | not a firmware slot       |
+   +-------------+-------------+     +---------------------------+
+                 |
+                 v
+   +-------------------------------------------------------------+
+   | eMMC user area (GPT partitions)                             |
+   |                                                             |
+   |   +-----------------------------------------------------+   |
+   |   | misc                                                |   |
+   |   | Selected firmware slot and boot-attempt counters    |   |
+   |   +-------------------------+---------------------------+   |
+   |                             |                               |
+   |                     select A or B                           |
+   |              +--------------+--------------+                |
+   |              v                             v                |
+   |   +-----------------------+   +-------------------------+   |
+   |   | bootloaders (slot A)  |   | bootloaders_b (slot B)  |   |
+   |   | FIT: BL31, BL32, BL33 |   | FIT: BL31, BL32, BL33   |   |
+   |   +-----------------------+   +-------------------------+   |
+   +-------------------------------------------------------------+
+
+Firmware updates and rollback
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use an updater and boot-success service compatible with MediaTek firmware
+A/B metadata:
+
+1. Write and verify the new FIT in the inactive slot.
+2. Activate that slot for trial booting.
+3. After booting and completing the required health checks, mark the booted
+   slot successful.
+
+A newly activated trial slot has eight boot attempts. Without confirmation,
+even a working image eventually exhausts its attempts. SPL then selects the
+other slot on the following boot, provided that slot has attempts remaining
+or was previously marked successful. Blank metadata initially selects slot A.
+
+A failed FIT load or verification stops the current boot. Configure a watchdog
+or another reset mechanism if unattended retries are required. Keep a working
+download/recovery path for exhausted slots or damaged metadata, including
+damage caused by an interrupted metadata update. A slot already marked
+successful is no longer subject to trial retries; a later failure of that
+image requires recovery.

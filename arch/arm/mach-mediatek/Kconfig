@@ -221,6 +221,23 @@ config MTK_BROM_HEADER_INFO
 	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8366 || TARGET_MT8183 || TARGET_MT8189 || TARGET_MT8195
 	default "lk=1" if TARGET_MT7623
 
+config SPL_MTK_FIRMWARE_AB
+	bool "MediaTek firmware A/B boot in SPL"
+	depends on TARGET_MT8188 && SPL_MMC && SPL_LOAD_FIT && SPL_BLK
+	depends on !SPL_RAW_IMAGE_SUPPORT && !SPL_LEGACY_IMAGE_FORMAT
+	depends on SPL_EFI_PARTITION
+	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC
+	depends on !SPL_OS_BOOT && !SPL_FS_FAT && !SPL_FS_EXT4
+	depends on !SPL_FS_SQUASHFS && !SPL_RAM_SUPPORT && !SUPPORT_EMMC_BOOT
+	select SPL_CRC32
+	select SPL_MMC_WRITE
+	help
+	  Select firmware FITs from the bootloaders and bootloaders_b GPT
+	  partitions using MediaTek A/B metadata in misc. Track trial boots
+	  and switch slots when retries are exhausted.
+
+	  An updater and a boot-success owner must maintain the metadata.
+
 config MTK_GENIO_BOOT_IMAGES
 	bool "Build MediaTek firmware images"
 	depends on TARGET_MT8188 && SPL
