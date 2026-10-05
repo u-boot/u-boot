@@ -6,6 +6,7 @@
  */
 
 #include <asm/io.h>
+#include <div64.h>
 #include <dm/device.h>
 #include <dm/fdtaddr.h>
 #include <dm/read.h>
@@ -91,7 +92,18 @@ static int sbsa_gwdt_expire_now(struct udevice *dev, ulong flags)
 
 static int sbsa_gwdt_probe(struct udevice *dev)
 {
+	struct wdt_uc_plat *plat = dev_get_uclass_plat(dev);
+	u32 clk = get_tbclk();
+
 	debug("%s: Probing wdt%u (sbsa-gwdt)\n", __func__, dev_seq(dev));
+
+	/*
+	 * WOR is 32-bit and the timeout is (WOR value * 2) ticks,
+	 * so the largest timeout the hardware can represent is
+	 * (U32_MAX * 2) ticks.
+	 */
+	if (clk)
+		plat->max_timeout_ms = lldiv((u64)U32_MAX * 2 * 1000, clk);
 
 	return 0;
 }

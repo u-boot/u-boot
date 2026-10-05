@@ -38,6 +38,8 @@ struct sandbox_spi_info {
 	struct udevice *emul;
 };
 
+#define SANDBOX_WDT_MAX_TIMEOUT_MS	30000
+
 struct sandbox_wdt_info {
 	unsigned long long counter;
 	uint reset_count;

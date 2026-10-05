@@ -119,17 +119,25 @@ int initr_watchdog(void)
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
+	struct wdt_uc_plat *plat = dev_get_uclass_plat(dev);
+	u64 req_timeout_ms = timeout_ms;
 	int ret;
 
 	if (!ops->start)
 		return -ENOSYS;
+	/* Clamp to max timeout if reported by driver */
+	if (plat->max_timeout_ms && timeout_ms > plat->max_timeout_ms)
+		timeout_ms = plat->max_timeout_ms;
 
 	ret = ops->start(dev, timeout_ms, flags);
 	if (ret == 0) {
 		struct wdt_priv *priv = dev_get_uclass_priv(dev);
-		char str[16];
+		char svc_str[16];
+		char req_str[32];
+		u32 req_s = lldiv(req_timeout_ms, 1000);
+		u32 tout_s = lldiv(timeout_ms, 1000);
 
-		memset(str, 0, 16);
+		svc_str[0] = '\0';
 		if (IS_ENABLED(CONFIG_WATCHDOG)) {
 			if (priv->running)
 				cyclic_unregister(&priv->cyclic);
@@ -139,13 +147,24 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 					priv->reset_period * 1000,
 					dev->name);
 
-			snprintf(str, 16, "every %ldms", priv->reset_period);
+			snprintf(svc_str, sizeof(svc_str), "every %ldms",
+				 priv->reset_period);
 		}
 
 		priv->running = true;
-		printf("WDT:   Started %s with%s servicing %s (%ds timeout)\n",
+
+		/*
+		 * If the requested timeout was clamped, note the value
+		 * when it differs at whole-second resolution. Sub-second
+		 * rounding is ignored to avoid noise.
+		 */
+		req_str[0] = '\0';
+		if (req_s != tout_s)
+			snprintf(req_str, sizeof(req_str), ", requested %ds", req_s);
+
+		printf("WDT:   Started %s with%s servicing %s (%ds timeout%s)\n",
 		       dev->name, IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
-		       str, (u32)lldiv(timeout_ms, 1000));
+		       svc_str, tout_s, req_str);
 	}
 
 	return ret;
@@ -262,10 +281,31 @@ static int wdt_pre_probe(struct udevice *dev)
 	return 0;
 }
 
+/*
+ * The cyclic_info that wdt_start() registered lives inside this device's uclass
+ * private data, which device_free() releases as soon as the device is removed.
+ * Take it off the cyclic list first, or the next schedule() walks a freed node
+ * and calls through whatever has since been allocated over it.
+ */
+static int wdt_pre_remove(struct udevice *dev)
+{
+	struct wdt_priv *priv = dev_get_uclass_priv(dev);
+
+	if (!IS_ENABLED(CONFIG_WATCHDOG) || !priv || !priv->running)
+		return 0;
+
+	cyclic_unregister(&priv->cyclic);
+	priv->running = false;
+
+	return 0;
+}
+
 UCLASS_DRIVER(wdt) = {
 	.id			= UCLASS_WDT,
 	.name			= "watchdog",
 	.flags			= DM_UC_FLAG_SEQ_ALIAS,
 	.pre_probe		= wdt_pre_probe,
+	.pre_remove		= wdt_pre_remove,
 	.per_device_auto	= sizeof(struct wdt_priv),
+	.per_device_plat_auto	= sizeof(struct wdt_uc_plat),
 };
