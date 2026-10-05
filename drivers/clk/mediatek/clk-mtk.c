@@ -512,7 +512,7 @@ static void mtk_pll_set_rate_regs(struct mtk_clk_priv *priv, u32 id,
  * @freq:	The desired target frequency
  */
 static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
-			       u32 *pcw, u32 *postdiv, u32 freq)
+			       u32 *pcw, u32 *postdiv, ulong freq)
 {
 	const struct mtk_pll_data *pll;
 	const struct mtk_parent *parent = &priv->tree->pll_parent;
