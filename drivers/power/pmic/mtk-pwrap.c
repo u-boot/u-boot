@@ -887,6 +887,7 @@ static const struct pmic_wrapper_type pwrap_mt8365 = {
 static const struct udevice_id mtk_pwrap_ids[] = {
 	{ .compatible = "mediatek,mt8195-pwrap", .data = (ulong)&pwrap_mt8195 },
 	{ .compatible = "mediatek,mt8365-pwrap", .data = (ulong)&pwrap_mt8365 },
+	{ .compatible = "mediatek,mt8366-pwrap", .data = (ulong)&pwrap_mt8195 },
 	{ }
 };
 
