@@ -547,25 +547,6 @@ static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
 	return 0;
 }
 
-static ulong mtk_clk_set_rate(struct clk *clk, ulong rate)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	u32 pcw = 0;
-	u32 postdiv;
-	int ret;
-
-	if (!mtk_clk_id_is_pll(priv->tree, clk->id))
-		return -EINVAL;
-
-	ret = mtk_pll_calc_values(priv, clk, &pcw, &postdiv, rate);
-	if (ret)
-		return ret;
-
-	mtk_pll_set_rate_regs(priv, clk->id, pcw, postdiv);
-
-	return 0;
-}
-
 static ulong mtk_pll_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
@@ -590,6 +571,25 @@ static ulong mtk_pll_get_rate(struct clk *clk)
 	pcw &= GENMASK(pll->pcwbits - 1, 0);
 
 	return __mtk_pll_recalc_rate(pll, xtal_rate, pcw, postdiv);
+}
+
+static ulong mtk_clk_set_rate(struct clk *clk, ulong rate)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	u32 pcw = 0;
+	u32 postdiv;
+	int ret;
+
+	if (!mtk_clk_id_is_pll(priv->tree, clk->id))
+		return -EINVAL;
+
+	ret = mtk_pll_calc_values(priv, clk, &pcw, &postdiv, rate);
+	if (ret)
+		return ret;
+
+	mtk_pll_set_rate_regs(priv, clk->id, pcw, postdiv);
+
+	return mtk_pll_get_rate(clk);
 }
 
 static int mtk_pll_enable(void __iomem *base, const struct mtk_pll_data *pll)
