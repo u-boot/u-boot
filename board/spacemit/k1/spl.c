@@ -389,7 +389,8 @@ void ddr_early_init(void)
 	src = (void __iomem *)pos;
 	dst = (void __iomem *)(DDR_FIRMWARE_BASE);
 	log_info("DDR firmware: [0x%lx]:0x%x, size:0x%lx\n", pos, readl(src), size);
-	memcpy((u8 *)dst, (u8 *)src, size);
+	/* The appended firmware may overlap its fixed execution address. */
+	memmove((u8 *)dst, (u8 *)src, size);
 	size = round_up(size, 64);
 	/*
 	 * Ensure the just-written DDR firmware bytes are observable in the
