@@ -505,27 +505,21 @@ static void mtk_pll_set_rate_regs(struct mtk_clk_priv *priv, u32 id,
 
 /**
  * mtk_pll_calc_values - calculate good values for a given input frequency.
- * @priv:	The mtk priv struct
- * @id:		The clk id
+ * @pll:	The PLL data
+ * @xtal_rate:	The PLL input (reference) frequency
  * @pcw:	The pcw value (output)
  * @postdiv:	The post divider (output)
  * @freq:	The desired target frequency
  */
-static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
-			       u32 *pcw, u32 *postdiv, ulong freq)
+static void mtk_pll_calc_values(const struct mtk_pll_data *pll,
+				ulong xtal_rate, u32 *pcw, u32 *postdiv,
+				ulong freq)
 {
-	const struct mtk_pll_data *pll;
-	const struct mtk_parent *parent = &priv->tree->pll_parent;
-	unsigned long xtal_rate, fmin;
+	unsigned long fmin;
 	u64 _pcw;
 	int ibits;
 	u32 val;
 
-	xtal_rate = mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
-	if (IS_ERR_VALUE(xtal_rate))
-		return xtal_rate;
-
-	pll = &priv->tree->plls[clk->id];
 	fmin = pll->fmin ? pll->fmin : 1000 * MHZ;
 
 	if (freq > pll->fmax)
@@ -543,8 +537,6 @@ static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
 	do_div(_pcw, xtal_rate);
 
 	*pcw = (u32)_pcw;
-
-	return 0;
 }
 
 static ulong mtk_pll_get_rate(struct clk *clk)
@@ -576,17 +568,20 @@ static ulong mtk_pll_get_rate(struct clk *clk)
 static ulong mtk_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_parent *parent = &priv->tree->pll_parent;
+	ulong xtal_rate;
 	u32 pcw = 0;
 	u32 postdiv;
-	int ret;
 
 	if (!mtk_clk_id_is_pll(priv->tree, clk->id))
 		return -EINVAL;
 
-	ret = mtk_pll_calc_values(priv, clk, &pcw, &postdiv, rate);
-	if (ret)
-		return ret;
+	xtal_rate = mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
+	if (IS_ERR_VALUE(xtal_rate))
+		return xtal_rate;
 
+	mtk_pll_calc_values(&priv->tree->plls[clk->id], xtal_rate, &pcw,
+			    &postdiv, rate);
 	mtk_pll_set_rate_regs(priv, clk->id, pcw, postdiv);
 
 	return mtk_pll_get_rate(clk);
