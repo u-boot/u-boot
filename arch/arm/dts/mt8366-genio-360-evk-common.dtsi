@@ -74,8 +74,8 @@
 	};
 
 	/*
-	 * Panel VDD and IOVCC rails are switched by the same enable GPIO,
-	 * so both -supply properties on the panel node point at this one
+	 * Panel VDD and IOVCC rails are switched by the same enable GPIO, so
+	 * the -supply properties on the panel node all point at this one
 	 * regulator instead of duplicating the GPIO across two nodes. This
 	 * works as long as we don't care what the voltage is. Technically,
 	 * there are two separate regulators though.
@@ -140,6 +140,7 @@
 		pinctrl-0 = <&panel0_pins_default>;
 		backlight = <&backlight_lcd0>;
 		vdd-supply = <&regulator_dsi0_lcm>;
+		vddp-supply = <&regulator_dsi0_lcm>;
 		iovcc-supply = <&regulator_dsi0_lcm>;
 		status = "okay";
 
