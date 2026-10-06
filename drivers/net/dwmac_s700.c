@@ -56,6 +56,9 @@ U_BOOT_DRIVER(dwmac_s700) = {
 	.id     = UCLASS_ETH,
 	.of_match = dwmac_s700_ids,
 	.of_to_plat = dwmac_s700_of_to_plat,
+#if IS_ENABLED(CONFIG_DM_MDIO)
+	.bind		= dw_dm_mdio_bind,
+#endif
 	.probe  = dwmac_s700_probe,
 	.ops    = &designware_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),

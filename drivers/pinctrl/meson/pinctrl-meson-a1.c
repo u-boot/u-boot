@@ -856,11 +856,22 @@ static const struct udevice_id meson_a1_pinctrl_match[] = {
 	{ },
 };
 
+static int meson_a1_pinctrl_probe(struct udevice *dev)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	int ret = meson_pinctrl_probe(dev);
+
+	/* Drive-strength registers are combined with GPIO registers */
+	if (!ret)
+		priv->reg_ds = priv->reg_gpio;
+	return ret;
+}
+
 U_BOOT_DRIVER(meson_a1_pinctrl) = {
 	.name	= "meson-a1-pinctrl",
 	.id	= UCLASS_PINCTRL,
 	.of_match = of_match_ptr(meson_a1_pinctrl_match),
-	.probe = meson_pinctrl_probe,
+	.probe = meson_a1_pinctrl_probe,
 	.priv_auto = sizeof(struct meson_pinctrl),
 	.ops = &meson_axg_pinctrl_ops,
 };
