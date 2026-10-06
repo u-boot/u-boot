@@ -55,6 +55,41 @@
 		enable-active-high;
 	};
 
+	backlight_lcd0: backlight-lcd0 {
+		compatible = "pwm-backlight";
+		pwms = <&disp_pwm0 0 500000>;
+		brightness-levels = <0 1023>;
+		num-interpolated-steps = <1023>;
+		default-brightness-level = <576>;
+	};
+
+	reg_dsi0_vdd: regulator-dsi0-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "dsi0-vdd";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi0_vdd_pins>;
+		gpio = <&pio 87 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_dsi0_vddp: regulator-dsi0-vddp {
+		compatible = "regulator-fixed";
+		regulator-name = "dsi0-vddp";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi0_vddp_pins>;
+		gpio = <&pio 24 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_dsi0_iovcc: regulator-dsi0-iovcc {
+		compatible = "regulator-fixed";
+		regulator-name = "dsi0-iovcc";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi0_iovcc_pins>;
+		gpio = <&pio 58 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
 	firmware {
 		optee {
 			compatible = "linaro,optee-tz";
@@ -115,6 +150,56 @@
 	status = "okay";
 };
 
+&disp_ovl0_4l {
+	status = "okay";
+};
+
+&disp_pwm0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&disp_pwm0_pins>;
+	status = "okay";
+};
+
+&disp_rdma0 {
+	status = "okay";
+};
+
+&dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	panel@0 {
+		compatible = "startek,kd070fhfid078", "himax,hx8279";
+		reg = <0>;
+		reset-gpios = <&pio 25 GPIO_ACTIVE_HIGH>;
+		enable-gpios = <&pio 13 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel0_pins>;
+		backlight = <&backlight_lcd0>;
+		vdd-supply = <&reg_dsi0_vdd>;
+		vddp-supply = <&reg_dsi0_vddp>;
+		iovcc-supply = <&reg_dsi0_iovcc>;
+		status = "okay";
+
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+
+	port {
+		dsi0_out: endpoint {
+			remote-endpoint = <&panel0_in>;
+		};
+	};
+};
+
+&mipi_tx_config0 {
+	status = "okay";
+};
+
 &mmc0 {
 	bus-width = <8>;
 	max-frequency = <200000000>;
@@ -153,6 +238,10 @@
 	regulator-always-on;
 };
 
+&mutex0 {
+	status = "okay";
+};
+
 &nor_flash {
 	pinctrl-names = "default";
 	pinctrl-0 = <&nor_pins>;
@@ -169,6 +258,42 @@
 };
 
 &pio {
+	disp_pwm0_pins: disp-pwm0-pins {
+		pins {
+			pinmux = <PINMUX_GPIO29__FUNC_DISP_PWM0>;
+			output-high;
+		};
+	};
+
+	dsi0_iovcc_pins: dsi0-iovcc-pins {
+		pins {
+			pinmux = <PINMUX_GPIO58__FUNC_GPIO58>;
+			output-low;
+		};
+	};
+
+	dsi0_vdd_pins: dsi0-vdd-pins {
+		pins {
+			pinmux = <PINMUX_GPIO87__FUNC_GPIO87>;
+			output-low;
+		};
+	};
+
+	dsi0_vddp_pins: dsi0-vddp-pins {
+		pins {
+			pinmux = <PINMUX_GPIO24__FUNC_GPIO24>;
+			output-low;
+		};
+	};
+
+	panel0_pins: panel0-pins {
+		pins {
+			pinmux = <PINMUX_GPIO13__FUNC_GPIO13>,
+				 <PINMUX_GPIO25__FUNC_GPIO25>;
+			output-high;
+		};
+	};
+
 	mmc0_default_pins: mmc0-default-pins {
 		pins-clk {
 			pinmux = <PINMUX_GPIO162__FUNC_MSDC0_CLK>;
@@ -365,6 +490,14 @@
 			bias-disable;
 		};
 	};
+};
+
+&smi_disp_common {
+	status = "okay";
+};
+
+&smi_larb0 {
+	status = "okay";
 };
 
 &pmic {
