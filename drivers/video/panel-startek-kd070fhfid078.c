@@ -90,6 +90,7 @@ struct stk078_panel {
 	struct mipi_dsi_device *dsi;
 	struct udevice *iovcc;
 	struct udevice *vdd;
+	struct udevice *vddp;
 	struct udevice *backlight;
 };
 
@@ -219,16 +220,32 @@ static int stk078_panel_enable_backlight(struct udevice *dev)
 		dm_gpio_set_value(stk->enable_gpio, 0);
 	mdelay(10);
 
-	ret = regulator_enable(stk->vdd);
-	if (ret < 0) {
-		dev_err(dev, "enable vdd failed: %d\n", ret);
-		goto out_detach;
+	/*
+	 * VDDP and IOVCC must both be up at least 1 ms before DCDC_EN (the
+	 * enable GPIO). VDD only powers the backlight, so it comes last.
+	 * Boards that switch all three supplies from a single regulator simply
+	 * see the later regulator_enable() calls as reference counts.
+	 */
+	if (stk->vddp) {
+		ret = regulator_enable(stk->vddp);
+		if (ret < 0) {
+			dev_err(dev, "enable vddp failed: %d\n", ret);
+			goto out_detach;
+		}
 	}
 
 	ret = regulator_enable(stk->iovcc);
 	if (ret < 0) {
 		dev_err(dev, "enable iovcc failed: %d\n", ret);
-		goto out_vdd;
+		goto out_vddp;
+	}
+
+	mdelay(10);
+
+	ret = regulator_enable(stk->vdd);
+	if (ret < 0) {
+		dev_err(dev, "enable vdd failed: %d\n", ret);
+		goto out_iovcc;
 	}
 
 	mdelay(15);
@@ -241,25 +258,28 @@ static int stk078_panel_enable_backlight(struct udevice *dev)
 	ret = stk078_panel_init(stk);
 	if (ret < 0) {
 		dev_err(dev, "panel init sequence failed: %d\n", ret);
-		goto out_iovcc;
+		goto out_vdd;
 	}
 
 	ret = backlight_enable(stk->backlight);
 	if (ret < 0) {
 		dev_err(dev, "enable backlight failed: %d\n", ret);
-		goto out_iovcc;
+		goto out_vdd;
 	}
 
 	return 0;
 
-out_iovcc:
+out_vdd:
 	dm_gpio_set_value(stk->reset_gpio, 0);
 	udelay(100);
 	if (stk->enable_gpio)
 		dm_gpio_set_value(stk->enable_gpio, 0);
-	regulator_disable(stk->iovcc);
-out_vdd:
 	regulator_disable(stk->vdd);
+out_iovcc:
+	regulator_disable(stk->iovcc);
+out_vddp:
+	if (stk->vddp)
+		regulator_disable(stk->vddp);
 out_detach:
 	mipi_dsi_detach(dsi);
 
@@ -280,6 +300,18 @@ static int stk078_panel_add(struct udevice *dev)
 	ret = device_get_supply_regulator(dev, "vdd-supply", &stk->vdd);
 	if (ret) {
 		dev_err(dev, "Failed to get vdd regulator: %d\n", ret);
+		return ret;
+	}
+
+	/*
+	 * vddp-supply is optional only for compatibility with device trees
+	 * that predate it.
+	 */
+	ret = device_get_supply_regulator(dev, "vddp-supply", &stk->vddp);
+	if (ret == -ENOENT) {
+		stk->vddp = NULL;
+	} else if (ret) {
+		dev_err(dev, "Failed to get vddp regulator: %d\n", ret);
 		return ret;
 	}
 
