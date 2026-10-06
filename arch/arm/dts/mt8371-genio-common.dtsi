@@ -55,15 +55,6 @@
 		enable-active-high;
 	};
 
-	usb_p4_vbus: regulator@4 {
-		compatible = "regulator-fixed";
-		regulator-name = "p4_vbus";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		gpio = <&pio 87 0>;
-		enable-active-high;
-	};
-
 	firmware {
 		optee {
 			compatible = "linaro,optee-tz";
@@ -401,7 +392,6 @@
 };
 
 &xhci4{
-	vbus-supply = <&usb_p4_vbus>;
 	status = "okay";
 };
 
