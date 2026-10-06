@@ -823,6 +823,13 @@ config SYS_NS16550
 	  be used. It can be a constant or a function to get clock, eg,
 	  get_serial_clock().
 
+config NS16550_CLK_ENABLE
+	bool "Enable NS16550 clocks during probe"
+	depends on SYS_NS16550 && DM_SERIAL && CLK
+	help
+	  Enable all UART clocks before register access.
+	  Select this when firmware does not enable the UART clock gates.
+
 config NS16550_DYNAMIC
 	bool "Allow NS16550 to be configured at runtime"
 	depends on SYS_NS16550

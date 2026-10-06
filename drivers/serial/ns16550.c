@@ -516,6 +516,15 @@ int ns16550_serial_probe(struct udevice *dev)
 	if (!ret)
 		reset_deassert_bulk(&reset_bulk);
 
+	if (IS_ENABLED(CONFIG_NS16550_CLK_ENABLE) &&
+	    CONFIG_IS_ENABLED(CLK)) {
+		struct clk_bulk clk_bulk;
+
+		ret = clk_get_bulk(dev, &clk_bulk);
+		if (!ret)
+			clk_enable_bulk(&clk_bulk);
+	}
+
 	com_port->plat = dev_get_plat(dev);
 	ns16550_init(com_port, -1);
 
