@@ -74,7 +74,7 @@ struct mtk_smi_larb_priv {
 	unsigned int enable_count;
 };
 
-/* the MT8366 larbs are the MT8188 IP */
+/* the MT8189 and MT8366 larbs are the MT8188 IP */
 static const struct mtk_smi_larb_data mt8188_larb_data = {
 	.port_sec_ctl = true,
 };
@@ -149,6 +149,7 @@ static int mtk_smi_common_probe(struct udevice *dev)
 }
 
 static const struct udevice_id mtk_smi_common_ids[] = {
+	{ .compatible = "mediatek,mt8189-smi-common" },
 	{ .compatible = "mediatek,mt8365-smi-common" },
 	{ .compatible = "mediatek,mt8366-smi-common" },
 	{ }
@@ -277,6 +278,10 @@ static const struct udevice_id mtk_smi_larb_ids[] = {
 	},
 	{
 		.compatible = "mediatek,mt8188-smi-larb",
+		.data = (ulong)&mt8188_larb_data,
+	},
+	{
+		.compatible = "mediatek,mt8189-smi-larb",
 		.data = (ulong)&mt8188_larb_data,
 	},
 	{

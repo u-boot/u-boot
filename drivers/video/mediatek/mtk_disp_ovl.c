@@ -234,6 +234,11 @@ static const struct mtk_disp_ovl_data mt8366_ovl_driver_data = {
 
 static const struct udevice_id mtk_disp_ovl_ids[] = {
 	{
+		/* the MT8189 OVL is the MT8366 one */
+		.compatible = "mediatek,mt8189-disp-ovl",
+		.data = (ulong)&mt8366_ovl_driver_data,
+	},
+	{
 		.compatible = "mediatek,mt8192-disp-ovl",
 		.data = (ulong)&mt8192_ovl_driver_data,
 	},

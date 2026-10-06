@@ -145,10 +145,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CLK_HS_EXIT		       GENMASK(23, 16)
 
 /*
- * mt8183-style shadow control. The MT8366 follows the downstream mt8188
- * data, which has none, unlike the upstream Linux mt8188 one (at 0xc00).
+ * Shadow control, at 0x190 on the mt8183 and at 0xc00 on the mt8188 and
+ * mt8189, as in Linux. It is not used on the MT8366.
  */
 #define DSI_SHADOW_DEBUG	0x190
+#define DSI_SHADOW_DEBUG_MT8188	0xc00
 #define FORCE_COMMIT		       BIT(0)
 #define BYPASS_SHADOW		       BIT(1)
 
@@ -267,6 +268,17 @@ static const struct mtk_dsi_data mt8366_dsi_data = {
 	.path_len = ARRAY_SIZE(mt8366_dsi_path),
 	.ddp_connect = mt8366_ddp_ovl_to_dsi,
 	.cmdq_long_packet_ctl = true,
+	.vm_cmdq_off = 0x200,
+	.host_cmdq_off = 0xd00,
+};
+
+/* the MT8189 path and mmsys muxes are the MT8366 ones */
+static const struct mtk_dsi_data mt8189_dsi_data = {
+	.path = mt8366_dsi_path,
+	.path_len = ARRAY_SIZE(mt8366_dsi_path),
+	.ddp_connect = mt8366_ddp_ovl_to_dsi,
+	.cmdq_long_packet_ctl = true,
+	.shadow_dbg_off = DSI_SHADOW_DEBUG_MT8188,
 	.vm_cmdq_off = 0x200,
 	.host_cmdq_off = 0xd00,
 };
@@ -1029,7 +1041,7 @@ static int mtk_dsi_probe(struct udevice *dev)
 	/*
 	 * Unlike the components above, the mutex has no alias in the MT8365
 	 * device tree, so take the first device bound to its driver, as Linux
-	 * does when the "mutex" alias is missing. Both SoCs supported here
+	 * does when the "mutex" alias is missing. All the SoCs supported here
 	 * have a single mutex node; a SoC with more than one mmsys would need
 	 * the mutex sitting next to this DSI to be singled out.
 	 */
@@ -1161,6 +1173,10 @@ static int mtk_dsi_bind(struct udevice *dev)
 }
 
 static const struct udevice_id mtk_dsi_ids[] = {
+	{
+		.compatible = "mediatek,mt8189-dsi",
+		.data = (ulong)&mt8189_dsi_data,
+	},
 	{
 		.compatible = "mediatek,mt8365-dsi",
 		.data = (ulong)&mt8365_dsi_data,

@@ -74,6 +74,14 @@
 #define MT8366_MUTEX_MOD_DISP_RDMA0	4
 #define MT8366_MUTEX_MOD_DISP_DSI0	13
 
+/* the MT8189 matches the MT8366, except for where the DSI sits in MOD0 */
+#define MT8189_MUTEX_SOF_DSI0		1
+#define MT8189_MUTEX_EOF_DSI0		(MT8189_MUTEX_SOF_DSI0 << 7)
+
+#define MT8189_MUTEX_MOD_DISP_OVL0	0
+#define MT8189_MUTEX_MOD_DISP_RDMA0	4
+#define MT8189_MUTEX_MOD_DISP_DSI0	22
+
 /**
  * struct mtk_disp_mutex_data - per-SoC mutex data
  * @dsi_mod: MOD0 bits of the components of the OVL -> DSI pipeline
@@ -132,6 +140,13 @@ static const struct mtk_disp_mutex_data mt8366_mutex_data = {
 	.dsi_sof = MT8366_MUTEX_EOF_DSI0 | MT8366_MUTEX_SOF_DSI0,
 };
 
+static const struct mtk_disp_mutex_data mt8189_mutex_data = {
+	.dsi_mod = MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_OVL0) |
+		   MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_RDMA0) |
+		   MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_DSI0),
+	.dsi_sof = MT8189_MUTEX_EOF_DSI0 | MT8189_MUTEX_SOF_DSI0,
+};
+
 int mtk_disp_mutex_ovl_dsi_enable(struct udevice *dev)
 {
 	struct mtk_disp_mutex_priv *mutex = dev_get_priv(dev);
@@ -169,6 +184,10 @@ static int mtk_disp_mutex_probe(struct udevice *dev)
 static const struct udevice_id mtk_disp_mutex_ids[] = {
 	{
 		.compatible = "mediatek,mt8188-disp-mutex",
+	},
+	{
+		.compatible = "mediatek,mt8189-disp-mutex",
+		.data = (ulong)&mt8189_mutex_data,
 	},
 	{
 		.compatible = "mediatek,mt8365-disp-mutex",
