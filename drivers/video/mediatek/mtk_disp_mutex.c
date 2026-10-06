@@ -76,11 +76,13 @@
 
 /**
  * struct mtk_disp_mutex_data - per-SoC mutex data
- * @ovl_dsi_enable: set up the mutex of the OVL -> DSI pipeline
+ * @dsi_mod: MOD0 bits of the components of the OVL -> DSI pipeline
+ * @dsi_sof: start and end-of-frame selectors of the DSI
  * @no_clk: the mutex has no clock of its own
  */
 struct mtk_disp_mutex_data {
-	void (*ovl_dsi_enable)(struct udevice *dev);
+	u32 dsi_mod;
+	u32 dsi_sof;
 	bool no_clk;
 };
 
@@ -111,39 +113,23 @@ void mt8188_mutex_config_hdmi(struct udevice *dev)
 	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_HDMI_ID), MUTEX_EN);
 }
 
-static void mt8365_mutex_ovl_dsi_enable(struct udevice *dev)
-{
-	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DSI_ID),
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_OVL0) |
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_RDMA0) |
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_COLOR0) |
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_CCORR) |
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_AAL) |
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_GAMMA) |
-			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_DITHER));
-	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DSI_ID),
-			    MT8365_MUTEX_EOF_DSI0 | MT8365_MUTEX_SOF_DSI0);
-	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DSI_ID), MUTEX_EN);
-}
-
-static void mt8366_mutex_ovl_dsi_enable(struct udevice *dev)
-{
-	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DSI_ID),
-			    MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_OVL0) |
-			    MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_RDMA0) |
-			    MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_DSI0));
-	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DSI_ID),
-			    MT8366_MUTEX_EOF_DSI0 | MT8366_MUTEX_SOF_DSI0);
-	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DSI_ID), MUTEX_EN);
-}
-
 static const struct mtk_disp_mutex_data mt8365_mutex_data = {
-	.ovl_dsi_enable = mt8365_mutex_ovl_dsi_enable,
+	.dsi_mod = MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_OVL0) |
+		   MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_RDMA0) |
+		   MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_COLOR0) |
+		   MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_CCORR) |
+		   MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_AAL) |
+		   MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_GAMMA) |
+		   MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_DITHER),
+	.dsi_sof = MT8365_MUTEX_EOF_DSI0 | MT8365_MUTEX_SOF_DSI0,
 	.no_clk = true,
 };
 
 static const struct mtk_disp_mutex_data mt8366_mutex_data = {
-	.ovl_dsi_enable = mt8366_mutex_ovl_dsi_enable,
+	.dsi_mod = MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_OVL0) |
+		   MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_RDMA0) |
+		   MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_DSI0),
+	.dsi_sof = MT8366_MUTEX_EOF_DSI0 | MT8366_MUTEX_SOF_DSI0,
 };
 
 int mtk_disp_mutex_ovl_dsi_enable(struct udevice *dev)
@@ -155,7 +141,11 @@ int mtk_disp_mutex_ovl_dsi_enable(struct udevice *dev)
 		return -EOPNOTSUPP;
 	}
 
-	mutex->data->ovl_dsi_enable(dev);
+	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DSI_ID),
+			    mutex->data->dsi_mod);
+	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DSI_ID),
+			    mutex->data->dsi_sof);
+	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DSI_ID), MUTEX_EN);
 
 	return 0;
 }
