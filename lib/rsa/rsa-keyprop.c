@@ -681,6 +681,10 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 	for (i = 0; i < rsa_key.n_sz && !rsa_key.n[i]; i++)
 		;
 	(*prop)->num_bits = (rsa_key.n_sz - i) * 8;
+	if (!(*prop)->num_bits) {
+		ret = -EINVAL;
+		goto out;
+	}
 	(*prop)->modulus = malloc(rsa_key.n_sz - i);
 	if (!(*prop)->modulus) {
 		ret = -ENOMEM;
