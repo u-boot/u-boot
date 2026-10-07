@@ -181,8 +181,7 @@
 			"led 1 on ; "		/* Top RED */		\
 			"run ubi_ubi ; "				\
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
-		"fi\0"							\
-		"socfpga_legacy_reset_compat=1\0"
+		"fi\0"
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
