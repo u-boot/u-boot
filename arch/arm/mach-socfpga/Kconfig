@@ -35,6 +35,18 @@ config SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE
 	bool "Allow non-FIT VAB signed images"
 	depends on SOCFPGA_SECURE_VAB_AUTH
 
+config SOCFPGA_DISTRO_BOOT_QSPI
+	bool "Append QSPI to distro boot targets (boot_targets)"
+	depends on CMD_SF
+	default y if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	help
+	  When enabled, socfpga_common.h adds QSPI to the distro boot
+	  device list and defines bootcmd_qspi (run qspiload; run
+	  qspiboot). The board header must supply qspiload and qspiboot
+	  in the default environment (for example via
+	  SOCFPGA_BOOT_SETTINGS). Disable on boards that enable CMD_SF
+	  for a small SPI flash or a layout incompatible with that flow.
+
 config SPL_SIZE_LIMIT
 	default 0x10000 if ARCH_SOCFPGA_GEN5
 
