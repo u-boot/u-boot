@@ -250,7 +250,7 @@ static int fdt_property_file(struct image_tool_params *params,
 		goto err;
 	}
 
-	ret = fdt_property_placeholder(fdt, "data", sbuf.st_size, &ptr);
+	ret = fdt_property_placeholder(fdt, name, sbuf.st_size, &ptr);
 	if (ret)
 		goto err;
 	ret = read(fd, ptr, sbuf.st_size);

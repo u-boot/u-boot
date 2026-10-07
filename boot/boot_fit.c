@@ -41,12 +41,12 @@ static int fdt_offset(const void *fit)
 		return -EINVAL;
 	}
 
-	fdt_offset = fdt_getprop_u32(fit, fdt_node, "data-offset");
+	fdt_offset = fdt_getprop_u32(fit, fdt_node, FIT_DATA_OFFSET_PROP);
 
 	if (fdt_offset == FDT_ERROR)
 		return -ENOENT;
 
-	fdt_len = fdt_getprop_u32(fit, fdt_node, "data-size");
+	fdt_len = fdt_getprop_u32(fit, fdt_node, FIT_DATA_SIZE_PROP);
 
 	if (fdt_len < 0)
 		return fdt_len;
