@@ -1,0 +1,5 @@
+config NET_9P
+	bool "9P2000.L protocol support"
+	help
+	  This enables support for the 9P network protocol (9P2000.L).
+	  It implements the core 9P2000.L client and protocol handling.

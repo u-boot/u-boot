@@ -237,6 +237,8 @@ endif   # if NET_LEGACY
 
 source "net/lwip/Kconfig"
 
+source "net/9p/Kconfig"
+
 config BOOTDEV_ETH
 	bool "Enable bootdev for ethernet"
 	depends on BOOTSTD

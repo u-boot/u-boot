@@ -1,0 +1,8 @@
+config FS_9P
+	bool "9P filesystem support"
+	depends on NET_9P
+	help
+	  This provides support for the 9P2000.L filesystem.
+
+	  To use this filesystem, you also need to enable a 9P
+	  transport driver.

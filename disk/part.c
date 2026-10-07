@@ -480,6 +480,22 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	}
 #endif
 
+#if IS_ENABLED(CONFIG_FS_9P)
+	/*
+	 * Special-case a pseudo block device "9p", to allow access to the
+	 * 9P filesystem.
+	 */
+	if (!strcmp(ifname, "9p")) {
+		strcpy((char *)info->type, BOOT_PART_TYPE);
+		if (dev_part_str)
+			strlcpy((char *)info->name, dev_part_str, sizeof(info->name));
+		else
+			strcpy((char *)info->name, "9P filesystem");
+
+		return 0;
+	}
+#endif
+
 #if IS_ENABLED(CONFIG_CMD_UBIFS) && !IS_ENABLED(CONFIG_XPL_BUILD)
 	/*
 	 * Special-case ubi, ubi goes through a mtd, rather than through

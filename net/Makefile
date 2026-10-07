@@ -49,3 +49,4 @@ obj-y += net-common.o
 endif
 
 obj-$(CONFIG_NET_LWIP) += lwip/
+obj-$(CONFIG_NET_9P) += 9p/

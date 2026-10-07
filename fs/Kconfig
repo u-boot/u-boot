@@ -26,4 +26,6 @@ source "fs/squashfs/Kconfig"
 
 source "fs/erofs/Kconfig"
 
+source "fs/9p/Kconfig"
+
 endmenu

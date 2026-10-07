@@ -26,5 +26,6 @@ obj-$(CONFIG_CMD_UBIFS) += ubifs/
 obj-$(CONFIG_CMD_ZFS) += zfs/
 obj-$(CONFIG_FS_SQUASHFS) += squashfs/
 obj-$(CONFIG_FS_EROFS) += erofs/
+obj-$(CONFIG_FS_9P) += 9p/
 endif
 obj-y += fs_internal.o

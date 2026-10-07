@@ -109,6 +109,7 @@ enum uclass_id {
 	UCLASS_PANEL,		/* Display panel, such as an LCD */
 	UCLASS_PANEL_BACKLIGHT,	/* Backlight controller for panel */
 	UCLASS_PARTITION,	/* Logical disk partition device */
+	UCLASS_9P,		/* 9P protocol transport */
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_EP,		/* PCI endpoint device */

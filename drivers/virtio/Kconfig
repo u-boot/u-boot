@@ -77,4 +77,11 @@ config VIRTIO_RNG
 	help
 	  This is the virtual random number generator driver. It can be used
 	  with QEMU based targets.
+
+config VIRTIO_9P
+	bool "virtio 9P transport driver"
+	depends on VIRTIO && NET_9P
+	help
+	  This enables the 9P transport driver over virtio.
+	  It can be used with QEMU based targets.
 endmenu

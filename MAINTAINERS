@@ -50,6 +50,18 @@ so much easier [Ed]
 Maintainers List (try to look for most precise areas first)
 
 		-----------------------------------
+9PFS
+M:	Kuan-Wei Chiu <visitorckw@gmail.com>
+S:	Maintained
+F:	doc/develop/pytest/test_9p.rst
+F:	doc/usage/filesystems/9p.rst
+F:	drivers/virtio/virtio_9p.c
+F:	fs/9p/
+F:	include/9p.h
+F:	include/9pfs.h
+F:	net/9p/
+F:	test/py/tests/test_9p.py
+
 ACPI
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
