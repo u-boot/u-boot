@@ -93,6 +93,15 @@ config TARGET_IMX93_9X9_QSB
 	select REGMAP
 	select SYSCON
 
+config TARGET_IMX91_9X9_QSB
+	bool "imx91_9x9_qsb"
+	select OF_BOARD_FIXUP
+	select IMX91
+	select IMX9_LPDDR4X
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
+
 config TARGET_IMX93_11X11_EVK
 	bool "imx93_11x11_evk"
 	select OF_BOARD_FIXUP
@@ -223,6 +232,7 @@ config TARGET_IMX952_EVK
 endchoice
 
 source "board/nxp/imx91_evk/Kconfig"
+source "board/nxp/imx91_qsb/Kconfig"
 source "board/nxp/imx91_frdm/Kconfig"
 source "board/nxp/imx93_evk/Kconfig"
 source "board/nxp/imx93_frdm/Kconfig"

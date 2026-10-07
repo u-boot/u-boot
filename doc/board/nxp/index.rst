@@ -12,6 +12,7 @@ NXP Semiconductors
    imx8mq_evk
    imx8qxp_mek
    imx8ulp_evk
+   imx91_9x9_qsb
    imx91_11x11_evk
    imx91_11x11_frdm
    imx93_9x9_qsb
