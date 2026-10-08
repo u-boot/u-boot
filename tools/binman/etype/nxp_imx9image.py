@@ -51,21 +51,23 @@ class Entry_nxp_imx9image(Entry_mkimage):
 
                 if key.startswith('image') and isinstance(value, list) and len(value) == 3:
                     file = value[1]
-                    image_path = os.path.join(tools.get_output_dir(), value[1])
-                    value[1] = image_path
-                    combined = ' '.join(map(str, value))
-
-                    if file in external_files and not os.path.exists(value[1]):
-                        print(f"file '{image_path}' does not exist. flash.bin may be not-functional.")
+                    if file in external_files:
+                        value[1] = tools.get_input_filename(file, allow_missing=True)
+                        if not value[1]:
+                            print(f"file '{file}' does not exist. flash.bin may be not-functional.")
+                            continue
                     else:
-                        f.write(f'image {combined}\n')
+                        value[1] = os.path.join(tools.get_output_dir(), file)
+
+                    combined = ' '.join(map(str, value))
+                    f.write(f'image {combined}\n')
                 elif isinstance(value, str):
                     if key.startswith('append'):
-                        file_path = os.path.join(tools.get_output_dir(), value)
-                        if os.path.exists(file_path):
+                        file_path = tools.get_input_filename(value, allow_missing=True)
+                        if file_path:
                             f.write(f'append {file_path}\n')
                         else:
-                            print(f"file '{file_path}' does not exist. flash.bin may be not-functional.")
+                            print(f"file '{value}' does not exist. flash.bin may be not-functional.")
                     else:
                         f.write(f'{formatted_key} {value}\n')
                 elif isinstance(value, bool):

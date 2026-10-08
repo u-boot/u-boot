@@ -67,6 +67,7 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
     Properties / Entry arguments:
         - nxp,loader-address - loader address (SPL text base)
         - nxp,srk-table - full path to SRK_1_2_3_4_table.bin
+        - nxp,srk-index - index of the key in the SRK table, default is 0
         - nxp,csf-crt - full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem
         - nxp,img-crt - full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem
         - nxp,fast-auth - enable fast authentication method
@@ -85,6 +86,8 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         self.srk_table = os.getenv(
             'SRK_TABLE', fdt_util.GetString(self._node, 'nxp,srk-table',
                                             'SRK_1_2_3_4_table.bin'))
+        self.srk_index = os.getenv(
+            'SRK_INDEX', fdt_util.GetInt(self._node, 'nxp,srk-index', 0))
         self.fast_auth = fdt_util.GetBool(self._node, 'nxp,fast-auth')
         if not self.fast_auth:
             self.csf_crt = os.getenv(
@@ -169,6 +172,7 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         # Load configuration template and modify keys of interest
         config.read_string(CSF_CONFIG_TEMPLATE)
         config['Install SRK']['File']  = f'"{self.srk_table}"'
+        config['Install SRK']['Source index'] = f'{self.srk_index}'
         if not self.fast_auth:
             config.remove_section('Install NOCAK')
             config['Install CSFK']['File'] = f'"{self.csf_crt}"'

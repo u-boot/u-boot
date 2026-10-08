@@ -804,6 +804,9 @@ init:
 	pamu_enable();
 #endif
 
+	if (IS_ENABLED(CONFIG_FSL_CAAM_RNG_SELF_TEST))
+		rng_self_test();
+
 	if (get_rng_vid(caam->sec) >= 4) {
 		if (rng_init(sec_idx, caam->sec) < 0) {
 			printf("SEC%u:  RNG instantiation failed\n", sec_idx);

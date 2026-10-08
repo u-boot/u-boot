@@ -161,6 +161,13 @@ config TARGET_PHYCORE_IMX93
 	select OF_BOARD_FIXUP
 	select OF_BOARD_SETUP
 
+config TARGET_IMX95_NAVQ
+	bool "imx95_navq"
+	select OF_BOARD_FIXUP
+	select IMX95
+	imply BOOTSTD_BOOTCOMMAND
+	imply BOOTSTD_FULL
+
 config TARGET_IMX95_19X19_EVK
 	bool "imx95_19x19_evk"
 	select OF_BOARD_FIXUP
@@ -232,6 +239,7 @@ source "board/phytec/phycore_imx91_93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 source "board/nxp/imx94_evk/Kconfig"
 source "board/nxp/imx95_evk/Kconfig"
+source "board/nxp/imx95_navq/Kconfig"
 source "board/nxp/imx95_frdm/Kconfig"
 source "board/toradex/aquila-imx95/Kconfig"
 source "board/toradex/smarc-imx95/Kconfig"

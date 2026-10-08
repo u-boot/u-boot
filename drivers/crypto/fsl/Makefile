@@ -9,3 +9,4 @@ obj-$(CONFIG_RSA_FREESCALE_EXP) += fsl_rsa.o
 obj-$(CONFIG_$(PHASE_)FSL_CAAM_RNG) += rng.o
 obj-$(CONFIG_FSL_DCP_RNG) += dcp_rng.o
 obj-$(CONFIG_FSL_MFGPROT) += fsl_mfgprot.o
+obj-$(CONFIG_FSL_CAAM_RNG_SELF_TEST) += rng_self_test.o
