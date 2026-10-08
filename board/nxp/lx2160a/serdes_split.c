@@ -12,6 +12,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/immap_lsch3.h>
 #include <asm/arch/soc.h>		/* gur_in32() picks the GUR endianness */
+#include <fsl-mc/fsl_mc.h>
 #include <linux/bitmap.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -523,6 +524,12 @@ void lx2160a_serdes_apply_hwconfig(void)
 
 	if (mode->is_active(srds_base(FSL_SRDS_1)))
 		return;
+
+	if (IS_ENABLED(CONFIG_FSL_MC_ENET) && get_mc_boot_status() != -1) {
+		printf("lx2160a serdes: the MC is already running, serdes1:%s not applied\n",
+		       mode->name);
+		return;
+	}
 
 	sd1_enter(mode);
 }
