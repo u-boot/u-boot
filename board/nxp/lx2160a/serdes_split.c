@@ -515,7 +515,13 @@ void lx2160a_serdes_apply_hwconfig(void)
 		return;
 
 	mode = sd1_mode_find(arg, len);
-	if (!mode || mode->is_active(srds_base(FSL_SRDS_1)))
+	if (!mode) {
+		printf("lx2160a serdes: unknown hwconfig serdes1:%.*s, ignored\n",
+		       (int)len, arg);
+		return;
+	}
+
+	if (mode->is_active(srds_base(FSL_SRDS_1)))
 		return;
 
 	sd1_enter(mode);
