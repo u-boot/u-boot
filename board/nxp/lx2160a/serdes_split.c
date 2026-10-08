@@ -616,6 +616,53 @@ static int sd1_enter_40g4x10g(unsigned long base)
 	return err ? err : ret;
 }
 
+/*
+ * 1x100GE + 4x10G: dpmac.2 stays 100GE on LNA-LND at 25.78125 Gbaud on PLLF,
+ * and LNE-LNH become four XFI ports, dpmac.3-6, at 10.3125 Gbaud on PLLS.
+ *
+ * Note: it is the only mode that runs SD1 on both PLLs Slow and Fast !
+ */
+#define M100G_PCCE		SPLIT_PCCE	/* E100Gb kept (lanes 0-3) */
+
+static bool sd1_is_100g4x10g(unsigned long base)
+{
+	u32 pccc = in_le32((void __iomem *)SRDS_PCCC(base));
+	u32 pcce = in_le32((void __iomem *)SRDS_PCCE(base));
+
+	return PCCE_E100GB_CFG(pcce) != 0 && PCCE_E100GA_CFG(pcce) == 0 &&
+	       (pccc & 0xffff) == 0x9999;
+}
+
+static int sd1_enter_100g4x10g(unsigned long base)
+{
+	unsigned long lanes = SD1_LNE_LNH;
+	int m, ret, err;
+
+	ret = sd1_plls_up(base);
+	if (ret)
+		return ret;
+
+	/* Halt only the port that moves. */
+	ret = sd1_halt_port(base, lanes);
+	if (ret == -EINVAL)
+		return ret;
+
+	for_each_set_bit(m, &lanes, SRDS_LANES) {
+		out_le32((void __iomem *)SRDS_LNmGCR0(base, m), XFI_GCR0);
+		out_le32((void __iomem *)SRDS_LNmTGCR0(base, m), SLOW_LANE_GCR);
+		out_le32((void __iomem *)SRDS_LNmRGCR0(base, m), SLOW_LANE_GCR);
+	}
+
+	out_le32((void __iomem *)SRDS_PCCE(base), M100G_PCCE);
+	out_le32((void __iomem *)SRDS_PCCC(base), XFI_PCCC);
+
+	/* As in 40g4x10g, only the lanes that moved are reset. */
+	sd1_reset_req(base, lanes);
+	err = sd1_reset_wait(base, lanes);
+
+	return err ? err : ret;
+}
+
 static const struct sd1_mode sd1_modes[] = {
 	{
 		.name = "2x100g",
@@ -642,6 +689,13 @@ static const struct sd1_mode sd1_modes[] = {
 		.from = "2x40g",
 		.is_active = sd1_is_40g4x10g,
 		.enter = sd1_enter_40g4x10g,
+	},
+	{
+		.name = "100g4x10g",
+		.desc = "1x 100GE + 4x 10G",
+		.from = "2x100g",
+		.is_active = sd1_is_100g4x10g,
+		.enter = sd1_enter_100g4x10g,
 	},
 };
 
