@@ -264,7 +264,7 @@ static void print_rcw_view(int sd)
 #define SPLIT_PCCE		0x00000100	/* E100Ga off, E100Gb on   */
 #define SPLIT_PCCD		0x11110000	/* E25Ga..E25Gd on         */
 
-#define SPLIT_POLL_US		10000		/* NXP waits ~100 cycles   */
+#define SRDS_POLL_US		10000		/* NXP waits ~100 cycles   */
 
 static bool srds1_split_state(unsigned long base)
 {
@@ -298,7 +298,7 @@ static bool srds1_is_unsplit(unsigned long base)
  */
 static int poll_clear(unsigned long reg, u32 bit)
 {
-	int us = SPLIT_POLL_US;
+	int us = SRDS_POLL_US;
 
 	while (us--) {
 		if (!(in_le32((void __iomem *)reg) & bit))
@@ -352,7 +352,7 @@ int lx2160a_serdes1_split(void)
 	if (poll_clear(SRDS_LNmTRSTCTL(base, master), RSTCTL_HLT_REQ) ||
 	    poll_clear(SRDS_LNmRRSTCTL(base, master), RSTCTL_HLT_REQ)) {
 		printf("lx2160a serdes: LN%c did not halt within %d us, continuing\n",
-		       'A' + master, SPLIT_POLL_US);
+		       'A' + master, SRDS_POLL_US);
 		ret = -ETIMEDOUT;
 	}
 
@@ -381,7 +381,7 @@ int lx2160a_serdes1_split(void)
 		if (poll_clear(SRDS_LNmTRSTCTL(base, m), RSTCTL_RST_REQ) ||
 		    poll_clear(SRDS_LNmRRSTCTL(base, m), RSTCTL_RST_REQ)) {
 			printf("lx2160a serdes: LN%c reset did not complete within %d us\n",
-			       'A' + m, SPLIT_POLL_US);
+			       'A' + m, SRDS_POLL_US);
 			ret = -ETIMEDOUT;
 			continue;
 		}
