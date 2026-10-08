@@ -18,8 +18,8 @@ void reset_phy(void)
 {
 	/*
 	 * Before the MC boots: it latches the live protocol-converter
-	 * configuration when it starts, so `hwconfig=serdes1:split` has to
-	 * be applied here and not later.
+	 * configuration when it starts, so `hwconfig=serdes1:<mode>` has
+	 * to be applied here and not later.
 	 */
 	lx2160a_serdes_apply_hwconfig();
 

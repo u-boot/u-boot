@@ -25,7 +25,7 @@ bool lx2160a_serdes1_is_split(void);
 int lx2160a_serdes1_split(void);
 
 /*
- * Apply `hwconfig=serdes1:split` if the board's environment asks for it.
+ * Apply `hwconfig=serdes1:100g4x25g` if the board's environment asks for it.
  * Boards call this from reset_phy(), before mc_env_boot().
  */
 void lx2160a_serdes_apply_hwconfig(void);
