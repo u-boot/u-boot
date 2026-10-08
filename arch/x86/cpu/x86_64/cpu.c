@@ -10,6 +10,7 @@
 #include <asm/cpu.h>
 #include <asm/global_data.h>
 #include <asm/processor-flags.h>
+#include <asm/u-boot-x86.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,11 +49,28 @@ static void setup_sse_features(void)
 	: : "i" (X86_CR4_OSFXSR | X86_CR4_OSXMMEXCPT) : "eax");
 }
 
+static void setup_identity(void)
+{
+	char vendor_name[13];
+	int vendor;
+	int cpuid_level;
+
+	cpuid_level = x86_get_vendor_name(vendor_name);
+	vendor = x86_vendor_name_to_id(vendor_name);
+	if (vendor == X86_VENDOR_UNKNOWN)
+		gd->arch.x86_vendor = X86_VENDOR_ANY;
+	else
+		gd->arch.x86_vendor = vendor;
+	if (cpuid_level >= 0x00000001)
+		gd->arch.x86_device = cpuid_eax(0x00000001);
+	else
+		gd->arch.x86_device = 0x0;
+	gd->arch.has_mtrr = true;
+}
+
 int x86_cpu_reinit_f(void)
 {
-	/* set the vendor to Intel so that native_calibrate_tsc() works */
-	gd->arch.x86_vendor = X86_VENDOR_INTEL;
-	gd->arch.has_mtrr = true;
+	setup_identity();
 	if (IS_ENABLED(CONFIG_X86_HARDFP))
 		setup_sse_features();
 

@@ -68,6 +68,22 @@ void cpu_reinit_fpu(void);
  */
 int x86_cpu_vendor_info(char *name);
 
+/**
+ * x86_get_vendor_name() - Read CPUID leaf 0 and return vendor string
+ *
+ * @name: 13-byte area to hold the returned NUL-terminated string
+ * Return: Maximum standard CPUID leaf from EAX
+ */
+int x86_get_vendor_name(char *name);
+
+/**
+ * x86_vendor_name_to_id() - Decode a CPUID vendor string to enum value
+ *
+ * @name: 12-byte CPUID vendor string (optionally NUL-terminated)
+ * Return: One of X86_VENDOR_* values, or X86_VENDOR_UNKNOWN if unknown
+ */
+int x86_vendor_name_to_id(const char *name);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*
