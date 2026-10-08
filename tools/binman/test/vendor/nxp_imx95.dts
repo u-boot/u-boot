@@ -20,6 +20,7 @@
 			container;
 			image0 = "a55", "bl31.bin", "0x8a200000";
 			image1 = "a55", "image.bin", "0x90200000";
+			image2 = "m33", "m33_image.bin", "0x1ffc0000";
 		};
 	};
 };

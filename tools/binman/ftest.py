@@ -8200,11 +8200,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         image_path = os.path.join(testdir, 'image.bin')
         with open(image_path, 'w') as f:
             pass
-        container_path = os.path.join(testdir, 'mx95b0-ahab-container.img')
-        with open(container_path, 'w') as f:
-            f.write(bytes([0x87]).decode('latin1') * 32768)
+        self._MakeInputFile('mx95b0-ahab-container.img', bytes([0x87] * 32768))
         with terminal.capture():
             self._DoTestFile('vendor/nxp_imx95.dts', output_dir=testdir)
+
+        fname = tools.get_output_filename('u-boot-container.cfgout')
+        with open(fname, 'r') as fd:
+            data = fd.read()
+            self.assertRegex(data, "append .*/mx95b0-ahab-container.img\n")
 
     def testFitSignSimple(self):
         """Test that image with FIT and signature nodes can be signed"""
