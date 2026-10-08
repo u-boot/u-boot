@@ -15,6 +15,13 @@ config SPL_DM_RNG
 
 if DM_RNG
 
+config RNG_AIROHA
+	bool "Airoha True Random Number Generator support"
+	depends on ARCH_AIROHA
+	help
+	  Enable support for the True Random Number Generator (TRNG) found
+	  on Airoha EN7581/AN7581 SoCs.
+
 config RNG_MESON
 	bool "Amlogic Meson Random Number Generator support"
 	depends on ARCH_MESON
