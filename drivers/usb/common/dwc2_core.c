@@ -129,3 +129,48 @@ int dwc2_flush_rx_fifo(struct dwc2_core_regs *regs)
 
 	return 0;
 }
+
+static unsigned int dwc2_op_mode(struct dwc2_core_regs *regs)
+{
+	return FIELD_GET(GHWCFG2_OP_MODE_MASK, readl(&regs->global_regs.ghwcfg2));
+}
+
+/* Returns true if the controller is capable of DRD. */
+static bool dwc2_hw_is_otg(struct dwc2_core_regs *regs)
+{
+	unsigned int op_mode = dwc2_op_mode(regs);
+
+	return (op_mode == GHWCFG2_OP_MODE_HNP_SRP_CAPABLE) ||
+		(op_mode == GHWCFG2_OP_MODE_SRP_ONLY_CAPABLE) ||
+		(op_mode == GHWCFG2_OP_MODE_NO_HNP_SRP_CAPABLE);
+}
+
+/*
+ * dwc2_iddig_filter_enabled() - Returns true if the IDDIG debounce
+ * filter is enabled.
+ */
+bool dwc2_iddig_filter_enabled(struct dwc2_core_regs *regs)
+{
+	u32 snpsid;
+
+	if (!dwc2_hw_is_otg(regs))
+		return false;
+
+	/* Check if core configuration includes the IDDIG filter. */
+	if (!FIELD_GET(GHWCFG4_IDDIG_FILT_EN, readl(&regs->global_regs.ghwcfg4)))
+		return false;
+
+	/*
+	 * Check if the IDDIG debounce filter is bypassed. Available
+	 * in core version >= 3.10a.
+	 */
+	snpsid = readl(&regs->global_regs.gsnpsid);
+	if (FIELD_GET(GSNPSID_VER_MASK, snpsid) >= 0x310a) {
+		u32 gotgctl = readl(&regs->global_regs.gotgctl);
+
+		if (gotgctl & GOTGCTL_DBNCE_FLTR_BYPASS)
+			return false;
+	}
+
+	return true;
+}

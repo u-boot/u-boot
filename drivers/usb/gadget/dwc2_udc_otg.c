@@ -1150,6 +1150,9 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 		}
 	}
 
+	if (dwc2_iddig_filter_enabled(usbotg_reg))
+		mdelay(100);
+
 	ret = dwc2_udc_probe(plat);
 	if (ret)
 		return ret;
