@@ -572,6 +572,50 @@ static int sd1_enter_2x40g(unsigned long base)
 	return err ? err : ret;
 }
 
+/*
+ * 1x40GE + 4x10G: dpmac.2 stays 40GE on LNA-LND, LNE-LNH become
+ * 4xXFI ports, dpmac.3-6.
+ * An XFI lane is a 40GE lane that is its own port master:
+ * same PROTO_SEL and width, same PLLS and rate.
+ *
+ *   XFI   LNmGCR0 = 0x00000052   LNmTGCR0 = 0x10000000
+ *   40GE  LNmGCR0 = 0x00010052   LNmTGCR0 = 0x10000000  (but its master)
+ *                        ^ PORT_LN0_B
+ */
+#define XFI_GCR0		0x00000052	/* as 40GE, but own port master */
+#define X10G_PCCE		0x01000000	/* E40Gb kept (lanes 0-3) */
+#define XFI_PCCC		0x88889999	/* XFI converters for lanes 4-7 */
+
+static bool sd1_is_40g4x10g(unsigned long base)
+{
+	u32 pccc = in_le32((void __iomem *)SRDS_PCCC(base));
+	u32 pcce = in_le32((void __iomem *)SRDS_PCCE(base));
+
+	return PCCE_E40GB_CFG(pcce) != 0 && PCCE_E40GA_CFG(pcce) == 0 &&
+	       (pccc & 0xffff) == 0x9999;
+}
+
+static int sd1_enter_40g4x10g(unsigned long base)
+{
+	unsigned long lanes = SD1_LNE_LNH;
+	int m, ret, err;
+
+	ret = sd1_halt_port(base, lanes);
+	if (ret == -EINVAL)
+		return ret;
+
+	for_each_set_bit(m, &lanes, SRDS_LANES)
+		out_le32((void __iomem *)SRDS_LNmGCR0(base, m), XFI_GCR0);
+
+	out_le32((void __iomem *)SRDS_PCCE(base), X10G_PCCE);
+	out_le32((void __iomem *)SRDS_PCCC(base), XFI_PCCC);
+
+	sd1_reset_req(base, lanes);
+	err = sd1_reset_wait(base, lanes);
+
+	return err ? err : ret;
+}
+
 static const struct sd1_mode sd1_modes[] = {
 	{
 		.name = "2x100g",
@@ -591,6 +635,13 @@ static const struct sd1_mode sd1_modes[] = {
 		.from = "2x100g",
 		.is_active = sd1_is_2x40g,
 		.enter = sd1_enter_2x40g,
+	},
+	{
+		.name = "40g4x10g",
+		.desc = "1x 40GE + 4x 10G",
+		.from = "2x40g",
+		.is_active = sd1_is_40g4x10g,
+		.enter = sd1_enter_40g4x10g,
 	},
 };
 
