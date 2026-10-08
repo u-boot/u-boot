@@ -55,3 +55,21 @@ Requirements
 * The operating system must also be configured to use the memory regions
   specified in the U-Boot device-tree in order to make use of the event
   log.
+
+Starting the TPM without measured boot
+--------------------------------------
+
+Measured boot starts the TPM as a side effect, but only on the boot paths
+listed above. A plain booti/bootm without CONFIG_MEASURED_BOOT, or a boot
+which does not go through the EFI subsystem, leaves the chip uninitialised
+and the operating system has to start it itself. Some kernels report this as
+an error.
+
+CONFIG_TPM_AUTOSTART runs the same startup and self-test sequence as the
+'tpm autostart' command from an EVT_LAST_STAGE_INIT handler, independently of
+the boot path, the environment and any boot script. When no TPM device is
+found the startup is skipped, so a board which shares one binary between
+variants with and without a TPM fitted can enable it safely.
+
+Note that a full self-test can take a noticeable amount of time on a TPMv2,
+which is added to every boot even when the TPM is not used afterwards.

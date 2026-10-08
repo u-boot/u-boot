@@ -59,6 +59,7 @@ obj-$(CONFIG_$(PHASE_)OF_LIVE) += of_live.o
 obj-$(CONFIG_$(PHASE_)TPM) += tpm-common.o
 ifeq ($(CONFIG_$(PHASE_)TPM),y)
 obj-$(CONFIG_TPM) += tpm_api.o
+obj-$(CONFIG_TPM_AUTOSTART) += tpm_autostart.o
 obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
 obj-$(CONFIG_EFI_TCG2_PROTOCOL) += tpm_tcg2.o

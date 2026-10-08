@@ -339,4 +339,14 @@ static inline bool tpm_is_v2(struct udevice *dev)
  */
 u32 tpm_auto_start(struct udevice *dev);
 
+/**
+ * tpm_autostart_init() - start up the first TPM, if there is one
+ *
+ * This is run from EVT_LAST_STAGE_INIT when CONFIG_TPM_AUTOSTART is enabled.
+ * Errors are reported as warnings.
+ *
+ * Return: 0 if OK or if there is no TPM, -ve on error
+ */
+int tpm_autostart_init(void);
+
 #endif /* __TPM_API_H */
