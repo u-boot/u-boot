@@ -614,7 +614,8 @@ static void sd1_print_pcc(unsigned long base)
 	       in_le32((void __iomem *)SRDS_PCCE(base)));
 }
 
-static int sd1_enter(const struct sd1_mode *mode)
+static int sd1_enter(const struct sd1_mode *mode,
+		     const struct sd1_mode *target, int depth)
 {
 	unsigned long base = srds_base(FSL_SRDS_1);
 	const struct sd1_mode *from = NULL;
@@ -623,16 +624,22 @@ static int sd1_enter(const struct sd1_mode *mode)
 	if (mode->is_active(base))
 		return 0;
 
-	if (mode->from)
-		from = sd1_mode_find(mode->from, strlen(mode->from));
-
-	if (!mode->enter || !from || !from->is_active(base)) {
+	if (!mode->enter) {
 		printf("lx2160a serdes: serdes1:%s needs SD1 to be %s, it is not (",
-		       mode->name, from ? from->desc : mode->desc);
+		       target->name, mode->desc);
 		sd1_print_pcc(base);
 		printf("), refusing\n");
 		return -EINVAL;
 	}
+
+	if (mode->from)
+		from = sd1_mode_find(mode->from, strlen(mode->from));
+	if (!from || depth >= ARRAY_SIZE(sd1_modes))
+		return -EINVAL;
+
+	ret = sd1_enter(from, target, depth + 1);
+	if (ret)
+		return ret;
 
 	ret = mode->enter(base);
 	if (!mode->is_active(base)) {
@@ -679,7 +686,7 @@ void lx2160a_serdes_apply_hwconfig(void)
 		return;
 	}
 
-	sd1_enter(mode);
+	sd1_enter(mode, mode, 0);
 }
 
 #endif /* CONFIG_ARCH_LX2160A */
