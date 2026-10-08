@@ -12,6 +12,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/immap_lsch3.h>
 #include <asm/arch/soc.h>		/* gur_in32() picks the GUR endianness */
+#include <linux/bitmap.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/delay.h>
@@ -251,8 +252,7 @@ static void print_rcw_view(int sd)
  * This is NXP's e100g1_split.rcw sequence, moved from the PBI into
  * U-Boot.
  */
-#define SPLIT_FIRST_LANE	4	/* LNE */
-#define SPLIT_LAST_LANE		7	/* LNH */
+#define SD1_LNE_LNH		GENMASK(7, 4)
 
 /*
  * PROTO_SEL=11010b (25G/50G/100G, shared) + IF_WIDTH=100b (40-bit),
@@ -309,73 +309,74 @@ static int poll_clear(unsigned long reg, u32 bit)
 	return -ETIMEDOUT;
 }
 
-int lx2160a_serdes1_split(void)
+static int sd1_port_master(unsigned long base, unsigned long lanes)
 {
-	unsigned long base = srds_base(FSL_SRDS_1);
-	int m, master = -1, ret = 0;
+	int m, master = -1;
 
-	if (srds1_split_state(base)) {
-		debug("lx2160a serdes: SD1 already split, nothing to do\n");
-		return 0;
-	}
-
-	if (!srds1_is_unsplit(base)) {
-		printf("lx2160a serdes: SD1 is in neither the split nor the unsplit state (PCCD=%08x PCCE=%08x), refusing\n",
-		       in_le32((void __iomem *)SRDS_PCCD(base)),
-		       in_le32((void __iomem *)SRDS_PCCE(base)));
-		return -EINVAL;
-	}
-
-	/*
-	 * Halt. "Halt only has meaning on the master source
-	 * clock lane of a port (LNmGCR0[PORT_LN0_B]=0)". Lanes E-H are one
-	 * 100G port at this point, so exactly one of them is the master and
-	 * the other three requests are ignored. Issue all four anyway
-	 * (that is what NXP's sequence does) but only wait on the lane
-	 * where the bit can actually clear.
-	 */
-	for (m = SPLIT_FIRST_LANE; m <= SPLIT_LAST_LANE; m++) {
+	for_each_set_bit(m, &lanes, SRDS_LANES)
 		if (!(in_le32((void __iomem *)SRDS_LNmGCR0(base, m)) &
 		      GCR0_PORT_LN0_B))
 			master = m;
+
+	if (master < 0)
+		printf("lx2160a serdes: no master lane among LN%c-LN%c, refusing\n",
+		       'A' + (int)__ffs(lanes), 'A' + (int)__fls(lanes));
+
+	return master;
+}
+
+/*
+ * Halt the port made of @lanes.
+ *
+ * "Halt only has meaning on the master source clock lane of a port
+ * (LNmGCR0[PORT_LN0_B]=0)", so the request goes to every lane, as
+ * NXP's sequence does, and only the master is waited on:
+ * it is the one lane where the bit can clear.
+ *
+ *  -EINVAL means nothing was touched
+ *  -ETIMEDOUT is only a warning
+ */
+static int sd1_halt_port(unsigned long base, unsigned long lanes)
+{
+	int m, master = sd1_port_master(base, lanes);
+
+	if (master < 0)
+		return -EINVAL;
+
+	for_each_set_bit(m, &lanes, SRDS_LANES) {
 		out_le32((void __iomem *)SRDS_LNmTRSTCTL(base, m),
 			 RSTCTL_HLT_REQ);
 		out_le32((void __iomem *)SRDS_LNmRRSTCTL(base, m),
 			 RSTCTL_HLT_REQ);
-	}
-
-	if (master < 0) {
-		printf("lx2160a serdes: no master lane among LNE-LNH, refusing\n");
-		return -EINVAL;
 	}
 
 	if (poll_clear(SRDS_LNmTRSTCTL(base, master), RSTCTL_HLT_REQ) ||
 	    poll_clear(SRDS_LNmRRSTCTL(base, master), RSTCTL_HLT_REQ)) {
 		printf("lx2160a serdes: LN%c did not halt within %d us, continuing\n",
 		       'A' + master, SRDS_POLL_US);
-		ret = -ETIMEDOUT;
+		return -ETIMEDOUT;
 	}
 
-	/*
-	 * Reconfigure while halted: four one-lane ports instead of one
-	 * four-lane port. Everything else about the lane is unchanged.
-	 */
-	for (m = SPLIT_FIRST_LANE; m <= SPLIT_LAST_LANE; m++)
-		out_le32((void __iomem *)SRDS_LNmGCR0(base, m), SPLIT_GCR0);
+	return 0;
+}
 
-	/* Re-point the protocol converters. */
-	out_le32((void __iomem *)SRDS_PCCE(base), SPLIT_PCCE);
-	out_le32((void __iomem *)SRDS_PCCD(base), SPLIT_PCCD);
+static void sd1_reset_req(unsigned long base, unsigned long lanes)
+{
+	int m;
 
-	/* Reset. Every lane is its own master now, so all four count. */
-	for (m = SPLIT_FIRST_LANE; m <= SPLIT_LAST_LANE; m++) {
+	for_each_set_bit(m, &lanes, SRDS_LANES) {
 		out_le32((void __iomem *)SRDS_LNmTRSTCTL(base, m),
 			 RSTCTL_RST_REQ);
 		out_le32((void __iomem *)SRDS_LNmRRSTCTL(base, m),
 			 RSTCTL_RST_REQ);
 	}
+}
 
-	for (m = SPLIT_FIRST_LANE; m <= SPLIT_LAST_LANE; m++) {
+static int sd1_reset_wait(unsigned long base, unsigned long lanes)
+{
+	int m, ret = 0;
+
+	for_each_set_bit(m, &lanes, SRDS_LANES) {
 		u32 t, r;
 
 		if (poll_clear(SRDS_LNmTRSTCTL(base, m), RSTCTL_RST_REQ) ||
@@ -394,6 +395,49 @@ int lx2160a_serdes1_split(void)
 			ret = -EIO;
 		}
 	}
+
+	return ret;
+}
+
+int lx2160a_serdes1_split(void)
+{
+	unsigned long base = srds_base(FSL_SRDS_1);
+	unsigned long lanes = SD1_LNE_LNH;
+	int m, ret, err;
+
+	if (srds1_split_state(base)) {
+		debug("lx2160a serdes: SD1 already split, nothing to do\n");
+		return 0;
+	}
+
+	if (!srds1_is_unsplit(base)) {
+		printf("lx2160a serdes: SD1 is in neither the split nor the unsplit state (PCCD=%08x PCCE=%08x), refusing\n",
+		       in_le32((void __iomem *)SRDS_PCCD(base)),
+		       in_le32((void __iomem *)SRDS_PCCE(base)));
+		return -EINVAL;
+	}
+
+	/* Lanes E-H are one 100G port at this point. */
+	ret = sd1_halt_port(base, lanes);
+	if (ret == -EINVAL)
+		return ret;
+
+	/*
+	 * Reconfigure while halted: four one-lane ports instead of one
+	 * four-lane port. Everything else about the lane is unchanged.
+	 */
+	for_each_set_bit(m, &lanes, SRDS_LANES)
+		out_le32((void __iomem *)SRDS_LNmGCR0(base, m), SPLIT_GCR0);
+
+	/* Re-point the protocol converters. */
+	out_le32((void __iomem *)SRDS_PCCE(base), SPLIT_PCCE);
+	out_le32((void __iomem *)SRDS_PCCD(base), SPLIT_PCCD);
+
+	/* Reset. Every lane is its own master now, so all four count. */
+	sd1_reset_req(base, lanes);
+	err = sd1_reset_wait(base, lanes);
+	if (err)
+		ret = err;
 
 	if (!srds1_split_state(base)) {
 		printf("lx2160a serdes: split did not take (PCCD=%08x PCCE=%08x)\n",
