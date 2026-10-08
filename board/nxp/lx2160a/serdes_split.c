@@ -449,23 +449,6 @@ static int do_lx2160_serdes(struct cmd_tbl *cmdtp, int flag,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	if (!strcmp(argv[1], "split")) {
-#if !defined(CONFIG_ARCH_LX2160A)
-		printf("no 100GE on SerDes 1 to split on this SoC\n");
-		return CMD_RET_FAILURE;
-#else
-		if (argc != 2)
-			return CMD_RET_USAGE;
-		if (lx2160a_serdes1_is_split()) {
-			printf("SD1 is already split, nothing to do\n");
-			return CMD_RET_SUCCESS;
-		}
-		if (lx2160a_serdes1_split())
-			return CMD_RET_FAILURE;
-		return CMD_RET_SUCCESS;
-#endif
-	}
-
 	if (strcmp(argv[1], "status"))
 		return CMD_RET_USAGE;
 
@@ -487,16 +470,6 @@ static int do_lx2160_serdes(struct cmd_tbl *cmdtp, int flag,
 	return do_serdes_status(sd);
 }
 
-#if defined(CONFIG_ARCH_LX2160A)
-#define SPLIT_CMD_HELP							\
-	"lx2160_serdes split\n"						\
-	"    - split Lynx 28G SD1 100GE.1 (lanes LNE-LNH) into 4x 25G.\n"	\
-	"      Runs before the MC starts. To make it permanent on a board\n"	\
-	"      that needs it: setenv hwconfig serdes1:split && saveenv"
-#else
-#define SPLIT_CMD_HELP ""
-#endif
-
 U_BOOT_CMD(
 	lx2160_serdes, 3, 0, do_lx2160_serdes,
 	"inspect the LX2160A 28G-Lynx SerDes protocol configuration",
@@ -505,5 +478,4 @@ U_BOOT_CMD(
 	"      per-lane port grouping and protocol (LNmGCR0), next to the\n"
 	"      protocol number the RCW latched.\n"
 	"      No argument prints all three SerDes."
-	SPLIT_CMD_HELP
 );
