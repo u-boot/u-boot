@@ -246,8 +246,16 @@ static void print_rcw_view(int sd)
 
 #if defined(CONFIG_ARCH_LX2160A)
 
+struct sd1_mode {
+	const char *name;			/* hwconfig serdes1:<name> */
+	const char *desc;
+	const char *from;
+	bool (*is_active)(unsigned long base);
+	int (*enter)(unsigned long base);
+};
+
 /*
- * The split itself.
+ * 1x100GE + 4x25G
  *
  * This is NXP's e100g1_split.rcw sequence, moved from the PBI into
  * U-Boot.
@@ -266,7 +274,7 @@ static void print_rcw_view(int sd)
 
 #define SRDS_POLL_US		10000		/* NXP waits ~100 cycles   */
 
-static bool srds1_split_state(unsigned long base)
+static bool sd1_is_100g4x25g(unsigned long base)
 {
 	u32 pccd = in_le32((void __iomem *)SRDS_PCCD(base));
 	u32 pcce = in_le32((void __iomem *)SRDS_PCCE(base));
@@ -276,12 +284,7 @@ static bool srds1_split_state(unsigned long base)
 	       PCCD_E25G_CFG(pccd, 2) && PCCD_E25G_CFG(pccd, 3);
 }
 
-bool lx2160a_serdes1_is_split(void)
-{
-	return srds1_split_state(srds_base(FSL_SRDS_1));
-}
-
-static bool srds1_is_unsplit(unsigned long base)
+static bool sd1_is_2x100g(unsigned long base)
 {
 	u32 pccd = in_le32((void __iomem *)SRDS_PCCD(base));
 	u32 pcce = in_le32((void __iomem *)SRDS_PCCE(base));
@@ -399,23 +402,10 @@ static int sd1_reset_wait(unsigned long base, unsigned long lanes)
 	return ret;
 }
 
-int lx2160a_serdes1_split(void)
+static int sd1_enter_100g4x25g(unsigned long base)
 {
-	unsigned long base = srds_base(FSL_SRDS_1);
 	unsigned long lanes = SD1_LNE_LNH;
 	int m, ret, err;
-
-	if (srds1_split_state(base)) {
-		debug("lx2160a serdes: SD1 already split, nothing to do\n");
-		return 0;
-	}
-
-	if (!srds1_is_unsplit(base)) {
-		printf("lx2160a serdes: SD1 is in neither the split nor the unsplit state (PCCD=%08x PCCE=%08x), refusing\n",
-		       in_le32((void __iomem *)SRDS_PCCD(base)),
-		       in_le32((void __iomem *)SRDS_PCCE(base)));
-		return -EINVAL;
-	}
 
 	/* Lanes E-H are one 100G port at this point. */
 	ret = sd1_halt_port(base, lanes);
@@ -436,36 +426,99 @@ int lx2160a_serdes1_split(void)
 	/* Reset. Every lane is its own master now, so all four count. */
 	sd1_reset_req(base, lanes);
 	err = sd1_reset_wait(base, lanes);
-	if (err)
-		ret = err;
 
-	if (!srds1_split_state(base)) {
-		printf("lx2160a serdes: split did not take (PCCD=%08x PCCE=%08x)\n",
-		       in_le32((void __iomem *)SRDS_PCCD(base)),
-		       in_le32((void __iomem *)SRDS_PCCE(base)));
-		return -EIO;
+	return err ? err : ret;
+}
+
+static const struct sd1_mode sd1_modes[] = {
+	{
+		.name = "2x100g",
+		.desc = "2x 100GE",
+		.is_active = sd1_is_2x100g,
+	},
+	{
+		.name = "100g4x25g",
+		.desc = "1x 100GE + 4x 25G",
+		.from = "2x100g",
+		.is_active = sd1_is_100g4x25g,
+		.enter = sd1_enter_100g4x25g,
+	},
+};
+
+static const struct sd1_mode *sd1_mode_find(const char *name, size_t len)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(sd1_modes); i++)
+		if (strlen(sd1_modes[i].name) == len &&
+		    !strncmp(sd1_modes[i].name, name, len))
+			return &sd1_modes[i];
+
+	return NULL;
+}
+
+static void sd1_print_pcc(unsigned long base)
+{
+	printf("PCCC=%08x PCCD=%08x PCCE=%08x",
+	       in_le32((void __iomem *)SRDS_PCCC(base)),
+	       in_le32((void __iomem *)SRDS_PCCD(base)),
+	       in_le32((void __iomem *)SRDS_PCCE(base)));
+}
+
+static int sd1_enter(const struct sd1_mode *mode)
+{
+	unsigned long base = srds_base(FSL_SRDS_1);
+	const struct sd1_mode *from = NULL;
+	int ret;
+
+	if (mode->is_active(base))
+		return 0;
+
+	if (mode->from)
+		from = sd1_mode_find(mode->from, strlen(mode->from));
+
+	if (!mode->enter || !from || !from->is_active(base)) {
+		printf("lx2160a serdes: serdes1:%s needs SD1 to be %s, it is not (",
+		       mode->name, from ? from->desc : mode->desc);
+		sd1_print_pcc(base);
+		printf("), refusing\n");
+		return -EINVAL;
 	}
 
-	printf("lx2160a serdes: SD1 100GE.1 split into 4x 25G%s\n",
+	ret = mode->enter(base);
+	if (!mode->is_active(base)) {
+		printf("lx2160a serdes: SD1 is not %s (", mode->desc);
+		sd1_print_pcc(base);
+		printf("), stopping\n");
+		return ret ? ret : -EIO;
+	}
+
+	printf("lx2160a serdes: SD1 now %s%s\n", mode->desc,
 	       ret ? " (with warnings above)" : "");
 
-	return ret;
+	return 0;
 }
 
 /*
- *   setenv hwconfig serdes1:100g4x25g
+ *   setenv hwconfig serdes1:<mode>
  *
- * Idempotent: a board whose PBI already split SD1 skip it too.
+ * Idempotent: a board whose PBI already configured SD1 skips it.
  */
 void lx2160a_serdes_apply_hwconfig(void)
 {
-	if (!hwconfig_sub("serdes1", "100g4x25g"))
+	const struct sd1_mode *mode;
+	const char *arg;
+	size_t len;
+
+	arg = hwconfig_arg("serdes1", &len);
+	if (!arg)
 		return;
 
-	if (lx2160a_serdes1_is_split())
+	mode = sd1_mode_find(arg, len);
+	if (!mode || mode->is_active(srds_base(FSL_SRDS_1)))
 		return;
 
-	lx2160a_serdes1_split();
+	sd1_enter(mode);
 }
 
 #endif /* CONFIG_ARCH_LX2160A */
