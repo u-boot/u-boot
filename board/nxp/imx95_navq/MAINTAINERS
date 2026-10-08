@@ -1,0 +1,6 @@
+i.MX95 NAVQ BOARD
+M:	Elena Popa <elena.popa@nxp.com>
+S:	Maintained
+F:	board/nxp/imx95_navq/
+F:	include/configs/imx95_navq.h
+F:	configs/imx95_navq_defconfig
