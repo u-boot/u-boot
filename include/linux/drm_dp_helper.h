@@ -67,7 +67,9 @@
 # define DP_ENHANCED_FRAME_CAP		    (1 << 7)
 
 #define DP_MAX_DOWNSPREAD                   0x003
+# define DP_MAX_DOWNSPREAD_0_5		    (1 << 0)
 # define DP_NO_AUX_HANDSHAKE_LINK_TRAINING  (1 << 6)
+# define DP_TPS4_SUPPORTED		    (1 << 7) /* 1.4 */
 
 #define DP_NORP                             0x004
 
@@ -98,6 +100,7 @@
 
 #define DP_EDP_CONFIGURATION_CAP            0x00d   /* XXX 1.2? */
 #define DP_TRAINING_AUX_RD_INTERVAL         0x00e   /* XXX 1.2? */
+# define DP_TRAINING_AUX_RD_MASK	    0x7f    /* 1.3 */
 
 /* Multiple stream transport */
 #define DP_FAUX_CAP			    0x020   /* 1.2 */
@@ -152,6 +155,7 @@
 # define DP_LINK_BW_1_62		    0x06
 # define DP_LINK_BW_2_7			    0x0a
 # define DP_LINK_BW_5_4			    0x14    /* 1.2 */
+# define DP_LINK_BW_8_1			    0x1e    /* 1.4 */
 
 #define DP_LANE_COUNT_SET	            0x101
 # define DP_LANE_COUNT_MASK		    0x0f
@@ -162,6 +166,7 @@
 # define DP_TRAINING_PATTERN_1		    1
 # define DP_TRAINING_PATTERN_2		    2
 # define DP_TRAINING_PATTERN_3		    3	    /* 1.2 */
+# define DP_TRAINING_PATTERN_4		    7	    /* 1.4 */
 # define DP_TRAINING_PATTERN_MASK	    0x3
 
 # define DP_LINK_QUAL_PATTERN_DISABLE	    (0 << 2)
@@ -400,6 +405,13 @@
 #define MODE_I2C_WRITE	2
 #define MODE_I2C_READ	4
 #define MODE_I2C_STOP	8
+
+/* DPCD 0x000 - 0x00e: the receiver capability field */
+#define DP_RECEIVER_CAP_SIZE		0xf
+/* DPCD 0x202 - 0x207: lane status, align status and adjust requests */
+#define DP_LINK_STATUS_SIZE		6
+/* An AUX transaction carries at most 16 bytes of payload */
+#define DP_AUX_MAX_PAYLOAD_BYTES	16
 
 /* Rest of file omitted as it is not used in U-Boot */
 
