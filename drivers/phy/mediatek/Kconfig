@@ -1,5 +1,15 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+config PHY_MTK_DP
+	bool "MediaTek DisplayPort PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	depends on ARM64
+	help
+	  Support for the embedded DisplayPort TX PHY found on MediaTek SoCs
+	  such as the MT8189. The PHY provides the main link lanes and the
+	  AUX channel to the eDP transmitter.
+
 config PHY_MTK_HDMI
 	bool "MediaTek HDMI-PHY Driver"
 	depends on PHY
