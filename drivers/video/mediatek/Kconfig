@@ -34,6 +34,12 @@ config VIDEO_MEDIATEK_DSI
 	  pipeline (overlay, RDMA and, on the SoCs having one, the colour
 	  pipeline) to scan out the U-Boot framebuffer to a DSI panel.
 
+# DVO output stage, the eDP path's replacement for the DPI/DP_INTF block
+config VIDEO_MEDIATEK_DVO
+	bool
+	select MISC
+	select VIDEO_MEDIATEK_DISP_COMP
+
 config VIDEO_MEDIATEK_HDMI
 	bool "Video HDMI Support for MediaTek SoCs"
 	depends on VIDEO && ARCH_MEDIATEK
