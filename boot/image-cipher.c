@@ -94,8 +94,8 @@ static int fit_image_setup_decrypt(struct image_cipher_info *info,
 		return -1;
 	}
 
-	info->iv = fdt_getprop(fit, cipher_noffset, "iv", NULL);
-	info->ivname = fdt_getprop(fit, cipher_noffset, "iv-name-hint", NULL);
+	info->iv = fdt_getprop(fit, cipher_noffset, FIT_IV_PROP, NULL);
+	info->ivname = fdt_getprop(fit, cipher_noffset, FIT_IV_HINT, NULL);
 
 	if (!info->iv && !info->ivname) {
 		printf("Can't get IV or IV name\n");
@@ -144,7 +144,7 @@ static int fit_image_setup_decrypt(struct image_cipher_info *info,
 
 	/* read iv */
 	if (!info->iv) {
-		info->iv = fdt_getprop(fdt, noffset, "iv", NULL);
+		info->iv = fdt_getprop(fdt, noffset, FIT_IV_PROP, NULL);
 		if (!info->iv) {
 			printf("Can't get IV in cipher node '%s'\n", node_path);
 			return -1;
