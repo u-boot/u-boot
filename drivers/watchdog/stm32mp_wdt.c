@@ -140,7 +140,7 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 		writel(KR_KEY_EWA, priv->base + IWDG_KR);
 		rlr = readl(priv->base + IWDG_RLR);
 		writel(rlr, priv->base + IWDG_RLR);
-		ret = readl_poll_timeout(priv->base + IWDG_SR, sr, sr & SR_RVU,
+		ret = readl_poll_timeout(priv->base + IWDG_SR, sr, !(sr & SR_RVU),
 					 TIMEOUT_US);
 		if (!ret)
 			wdt_set_force_autostart(dev);
