@@ -8,7 +8,7 @@
 config VIDEO_MEDIATEK_DISP_COMP
 	bool
 
-# mmsys routing and display RDMA, used by the DSI path
+# mmsys routing, overlay and display RDMA, shared by the DSI and eDP paths
 config VIDEO_MEDIATEK_DISP_PIPELINE
 	bool
 
