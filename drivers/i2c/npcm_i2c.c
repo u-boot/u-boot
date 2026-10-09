@@ -14,6 +14,7 @@
 #define NPCM_I2C_TIMEOUT_MS		10
 #define NPCM7XX_I2CSEGCTL_INIT_VAL	0x0333F000
 #define NPCM8XX_I2CSEGCTL_INIT_VAL	0x9333F000
+#define NPCM_I2CSEGCTL_SEG_MASK		0x3
 
 /* SCLFRQ min/max field values  */
 #define SCLFRQ_MIN		10
@@ -112,6 +113,8 @@ struct npcm_i2c_bus {
 	u32 freq;
 	bool started;
 };
+
+static const u8 npcm_i2csegctl_shift[] = {0, 2, 4, 6, 8, 10, 26, 29};
 
 static void npcm_dump_regs(struct npcm_i2c_bus *bus)
 {
@@ -213,7 +216,7 @@ static void npcm_i2c_reset(struct npcm_i2c_bus *bus)
 {
 	struct npcm_i2c_regs *reg = bus->reg;
 
-	debug("%s: module %d\n", __func__, bus->num);
+	printf("%s: module %d\n", __func__, bus->num);
 	/* disable & enable SMB moudle */
 	clrbits_8(&reg->ctl2, SMBCTL2_ENABLE);
 	setbits_8(&reg->ctl2, SMBCTL2_ENABLE);
@@ -248,7 +251,7 @@ static void npcm_i2c_recovery(struct npcm_i2c_bus *bus, u32 addr)
 	val = readb(&reg->ctl3);
 	/* Skip recovery, bus not stucked */
 	if ((val & SMBCTL3_SCL_LVL) && (val & SMBCTL3_SDA_LVL))
-		return;
+		goto reset;
 
 	printf("Performing I2C bus %d recovery...\n", bus->num);
 	/* SCL/SDA are not releaed, perform recovery */
@@ -279,6 +282,7 @@ static void npcm_i2c_recovery(struct npcm_i2c_bus *bus, u32 addr)
 	} else {
 		printf("Fail to recover I2C bus %d\n", bus->num);
 	}
+reset:
 	npcm_i2c_reset(bus);
 }
 
@@ -511,7 +515,7 @@ static int npcm_i2c_xfer(struct udevice *dev,
 	if (bus->started)
 		npcm_i2c_send_stop(bus, true);
 
-	if (err)
+	if (err && err != I2C_ERR_NACK)
 		npcm_i2c_recovery(bus, msg->addr);
 
 	return ret;
@@ -558,12 +562,20 @@ static int npcm_i2c_set_bus_speed(struct udevice *dev,
 	return npcm_i2c_init_clk(bus, speed);
 }
 
+static int npcm_i2c_deblock(struct udevice *dev)
+{
+	npcm_i2c_recovery(dev_get_priv(dev), 0);
+
+	return 0;
+}
+
 static int npcm_i2c_probe(struct udevice *dev)
 {
 	struct npcm_i2c_bus *bus = dev_get_priv(dev);
 	struct npcm_gcr *gcr = (struct npcm_gcr *)NPCM_GCR_BA;
 	struct npcm_i2c_regs *reg;
 	u32 i2csegctl_val = dev_get_driver_data(dev);
+	u32 segment;
 	struct clk clk;
 	int ret;
 
@@ -590,6 +602,16 @@ static int npcm_i2c_probe(struct udevice *dev)
 	}
 
 	/* set initial i2csegctl value */
+	if (IS_ENABLED(CONFIG_ARCH_NPCM8XX)) {
+		i2csegctl_val = readl(&gcr->i2csegctl);
+		i2csegctl_val |= NPCM8XX_I2CSEGCTL_INIT_VAL;
+		if (bus->num < 8) {
+			segment = dev_read_u32_default(dev, "nuvoton,i2c-segment", 0);
+			segment &= NPCM_I2CSEGCTL_SEG_MASK;
+			i2csegctl_val |= (segment << npcm_i2csegctl_shift[bus->num]);
+		}
+	}
+
 	writel(i2csegctl_val, &gcr->i2csegctl);
 
 	/* enable SMB module */
@@ -613,6 +635,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 static const struct dm_i2c_ops nuvoton_i2c_ops = {
 	.xfer		    = npcm_i2c_xfer,
 	.set_bus_speed	= npcm_i2c_set_bus_speed,
+	.deblock	= npcm_i2c_deblock,
 };
 
 static const struct udevice_id nuvoton_i2c_of_match[] = {
