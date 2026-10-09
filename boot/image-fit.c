@@ -1044,7 +1044,7 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
 	const fdt32_t *val;
 	int len;
 
-	val = fdt_getprop(fit, noffset, "data-size-unciphered", &len);
+	val = fdt_getprop(fit, noffset, FIT_DATA_SIZE_UNCIPHERED_PROP, &len);
 	if (!val)
 		return -ENOENT;
 

@@ -96,14 +96,14 @@ static int fit_cipher_test_data_size_unciphered_len(struct unit_test_state *uts)
 
 	img = fdt_add_subnode(fit, images, "kernel");
 	ut_assert(img >= 0);
-	ut_assertok(fdt_setprop(fit, img, "data-size-unciphered",
+	ut_assertok(fdt_setprop(fit, img, FIT_DATA_SIZE_UNCIPHERED_PROP,
 				&truncated, sizeof(truncated)));
 
 	ret = fit_image_get_data_size_unciphered(fit, img, &data_size);
 	ut_asserteq(-EINVAL, ret);
 
 	/* a correctly sized property still works */
-	ut_assertok(fdt_setprop(fit, img, "data-size-unciphered",
+	ut_assertok(fdt_setprop(fit, img, FIT_DATA_SIZE_UNCIPHERED_PROP,
 				&valid, sizeof(valid)));
 	ut_assertok(fit_image_get_data_size_unciphered(fit, img, &data_size));
 	ut_asserteq(0x100, data_size);
