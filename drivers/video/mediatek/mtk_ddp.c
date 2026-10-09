@@ -66,6 +66,7 @@
 #define MT8366_COMP_OUT_CROSSBAR4_MOUT_EN		0xd80
 #define MT8366_COMP_OUT_CROSSBAR_MOUT_MASK			GENMASK(5, 0)
 #define MT8366_MOUT_COMP_OUT_CROSSBAR4_TO_DISP_DSI0		BIT(0)
+#define MT8366_MOUT_COMP_OUT_CROSSBAR4_TO_DISP_DVO0		BIT(1)
 
 static void mtk_ddp_mask(void __iomem *base, u32 offset, u32 val, u32 mask)
 {
@@ -97,7 +98,11 @@ void mt8365_ddp_ovl_to_dsi(void __iomem *mmsys_base)
 		     MT8365_DSI0_SEL_IN_DITHER, MT8365_DISP_MS_IN_OUT_MASK);
 }
 
-void mt8366_ddp_ovl_to_dsi(void __iomem *mmsys_base)
+/*
+ * OVL0 -> RDMA0 -> COMP_OUT_CROSSBAR4 -> @sink, where @sink is one of the
+ * MT8366_MOUT_COMP_OUT_CROSSBAR4_TO_* bits.
+ */
+static void mt8366_ddp_ovl_to_crossbar4(void __iomem *mmsys_base, u32 sink)
 {
 	/* OVL0 -> RDMA0 */
 	mtk_ddp_mask(mmsys_base, MT8366_DISP_OVL0_BGCLR_MOUT_EN,
@@ -109,14 +114,25 @@ void mt8366_ddp_ovl_to_dsi(void __iomem *mmsys_base)
 		     MT8366_SEL_IN_DISP_RDMA0_FROM_DISP_OVL0_OUT0_MOUT,
 		     MT8366_DISP_RDMA_SEL_IN_MASK);
 
-	/* RDMA0 -> COMP_OUT_CROSSBAR4 -> DSI0 */
+	/* RDMA0 -> COMP_OUT_CROSSBAR4 -> sink */
 	mtk_ddp_mask(mmsys_base, MT8366_DISP_RDMA0_RSZ0_SOUT_SEL,
 		     MT8366_SOUT_DISP_RDMA0_RSZ0_TO_OVL_PQ_OUT_CROSSBAR1,
 		     MT8366_OVL_PQ_OUT_CROSSBAR_MOUT_MASK);
 	mtk_ddp_mask(mmsys_base, MT8366_OVL_PQ_OUT_CROSSBAR1_MOUT_EN,
 		     MT8366_MOUT_OVL_PQ_OUT_CROSSBAR1_TO_COMP_OUT_CROSSBAR4,
 		     MT8366_OVL_PQ_OUT_CROSSBAR_MOUT_MASK);
-	mtk_ddp_mask(mmsys_base, MT8366_COMP_OUT_CROSSBAR4_MOUT_EN,
-		     MT8366_MOUT_COMP_OUT_CROSSBAR4_TO_DISP_DSI0,
+	mtk_ddp_mask(mmsys_base, MT8366_COMP_OUT_CROSSBAR4_MOUT_EN, sink,
 		     MT8366_COMP_OUT_CROSSBAR_MOUT_MASK);
+}
+
+void mt8366_ddp_ovl_to_dsi(void __iomem *mmsys_base)
+{
+	mt8366_ddp_ovl_to_crossbar4(mmsys_base,
+				    MT8366_MOUT_COMP_OUT_CROSSBAR4_TO_DISP_DSI0);
+}
+
+void mt8366_ddp_ovl_to_dvo(void __iomem *mmsys_base)
+{
+	mt8366_ddp_ovl_to_crossbar4(mmsys_base,
+				    MT8366_MOUT_COMP_OUT_CROSSBAR4_TO_DISP_DVO0);
 }

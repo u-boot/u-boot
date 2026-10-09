@@ -27,4 +27,13 @@ void mt8365_ddp_ovl_to_dsi(void __iomem *mmsys_base);
  */
 void mt8366_ddp_ovl_to_dsi(void __iomem *mmsys_base);
 
+/**
+ * mt8366_ddp_ovl_to_dvo() - route the MT8366 mmsys muxes from the OVL to the DVO
+ * @mmsys_base: mmsys config register window
+ *
+ * Take the mt8366_ddp_ovl_to_dsi() path up to the output crossbar, which
+ * selects the DVO instead of the DSI.
+ */
+void mt8366_ddp_ovl_to_dvo(void __iomem *mmsys_base);
+
 #endif /* _MTK_DDP_H */
