@@ -179,7 +179,21 @@
 							 <&mmsys CLK_MM_SMI_LARB>;
 						clock-names = "disp", "ss-disp";
 						mediatek,infracfg = <&infracfg_ao>;
-						#power-domain-cells = <0>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+						#power-domain-cells = <1>;
+
+						power-domain@MT8189_POWER_DOMAIN_DP_TX {
+							reg = <MT8189_POWER_DOMAIN_DP_TX>;
+							#address-cells = <1>;
+							#size-cells = <0>;
+							#power-domain-cells = <1>;
+
+							power-domain@MT8189_POWER_DOMAIN_EDP_TX_DORMANT {
+								reg = <MT8189_POWER_DOMAIN_EDP_TX_DORMANT>;
+								#power-domain-cells = <0>;
+							};
+						};
 					};
 				};
 
@@ -399,7 +413,7 @@
 			reg = <0 0x10001000 0 0x1000>;
 		};
 
-		clock-controller@1000c000 {
+		apmixedsys_clk: clock-controller@1000c000 {
 			compatible = "mediatek,mt8189-apmixedsys", "syscon";
 			reg = <0 0x1000c000 0 0x1000>;
 			#clock-cells = <1>;
@@ -816,6 +830,24 @@
 			status = "disabled";
 		};
 
+		edp_tx: edp-tx@11b72000 {
+			compatible = "mediatek,mt8189-edp-tx";
+			reg = <0 0x11b72000 0 0x12000>;
+			interrupts = <GIC_SPI 380 IRQ_TYPE_LEVEL_HIGH 0>;
+			power-domains = <&spm MT8189_POWER_DOMAIN_EDP_TX_DORMANT>;
+			phys = <&edp_phy>;
+			max-linkrate-mhz = <5400>;
+			status = "disabled";
+		};
+
+		edp_phy: phy@11e10000 {
+			compatible = "mediatek,mt8189-edp-phy";
+			reg = <0 0x11e10000 0 0x1500>;
+			power-domains = <&spm MT8189_POWER_DOMAIN_EDP_TX_DORMANT>;
+			#phy-cells = <0>;
+			status = "disabled";
+		};
+
 		mutex0: mutex@14001000 {
 			compatible = "mediatek,mt8189-disp-mutex";
 			reg = <0 0x14001000 0 0x1000>;
@@ -876,6 +908,18 @@
 				 <&mmsys CLK_MMSYS_1_DISP_DSI0>,
 				 <&mipi_tx_config0>;
 			clock-names = "engine", "digital", "hs";
+			status = "disabled";
+		};
+
+		disp_dvo0: dvo@14017000 {
+			compatible = "mediatek,mt8189-edp-dvo";
+			reg = <0 0x14017000 0 0x1000>;
+			interrupts = <GIC_SPI 325 IRQ_TYPE_LEVEL_HIGH 0>;
+			power-domains = <&spm MT8189_POWER_DOMAIN_DISP>;
+			clocks = <&mmsys CLK_MMSYS_1_DISP_DVO>,
+				 <&mmsys CLK_MMSYS_0_DISP_DVO>,
+				 <&apmixedsys_clk CLK_APMIXED_TVDPLL2>;
+			clock-names = "pixel", "engine", "pll";
 			status = "disabled";
 		};
 
