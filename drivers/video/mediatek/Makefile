@@ -22,6 +22,8 @@ obj-$(CONFIG_VIDEO_MEDIATEK_DSI) += mtk_disp_aal.o \
 
 obj-$(CONFIG_VIDEO_MEDIATEK_DVO) += mtk_dvo.o
 
+obj-$(CONFIG_VIDEO_MEDIATEK_EDP) += mtk_edp.o
+
 obj-$(CONFIG_VIDEO_MEDIATEK_HDMI) += \
 	mtk_disp_merge.o \
 	mtk_disp_padding.o \
