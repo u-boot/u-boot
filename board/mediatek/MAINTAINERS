@@ -1,13 +1,12 @@
 MT8189/MT8371/MT8391 EVK
 M:	Macpaul Lin <macpaul.lin@mediatek.com>
 S:	Maintained
-F:	arch/arm/dts/mt8371-genio-520-evk-u-boot.dtsi
-F:	arch/arm/dts/mt8371-genio-common-u-boot.dtsi
-F:	arch/arm/dts/mt8371-genio-common-ufs.dtso
-F:	arch/arm/dts/mt8391-genio-720-evk-u-boot.dtsi
+F:	arch/arm/dts/mt8189*
+F:	arch/arm/dts/mt8371-genio-*
+F:	arch/arm/dts/mt8391-genio-*
 F:	configs/mt8189.config
-F:	configs/mt8371_genio_520_evk_defconfig
-F:	configs/mt8391_genio_720_evk_defconfig
+F:	configs/mt8371_genio_*
+F:	configs/mt8391_genio_*
 
 MT8365 EVK
 M:	Julien Masson <jmasson@baylibre.com>
