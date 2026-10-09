@@ -209,6 +209,9 @@ void qcom_set_serialno(void)
 	const char *cmdline;
 	char serial[32];
 
+	if (env_get("serial#"))
+		return;
+
 	if (!qcom_socinfo_init())
 		return;
 
