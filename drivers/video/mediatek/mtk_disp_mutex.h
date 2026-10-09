@@ -29,4 +29,15 @@ void mt8188_mutex_config_hdmi(struct udevice *dev);
  */
 int mtk_disp_mutex_ovl_dsi_enable(struct udevice *dev);
 
+/**
+ * mtk_disp_mutex_ovl_dvo_enable() - set up the mutex of the DVO pipeline
+ * @dev: mmsys mutex device
+ *
+ * Put all the components of the OVL -> DVO pipeline under one mutex
+ * instance, and start and end their frames on the DVO ones.
+ *
+ * Return: 0 on success, -EOPNOTSUPP if the mutex has no DVO pipeline
+ */
+int mtk_disp_mutex_ovl_dvo_enable(struct udevice *dev);
+
 #endif /* _MTK_DISP_MUTEX_H */

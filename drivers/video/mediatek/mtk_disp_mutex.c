@@ -51,8 +51,11 @@
 #define MT8188_MUTEX_MOD_DISP1_DISP_MIXER	30
 #define MT8188_MUTEX_MOD_DISP1_DPI1		38
 
-/* The MT8365 and MT8366 DSI pipelines use instance 0 of the mmsys mutex */
-#define MUTEX_DSI_ID		0
+/*
+ * The MT8365 and MT8366 DSI pipelines, and the MT8189 DSI and DVO ones, use
+ * instance 0 of the mmsys mutex
+ */
+#define MUTEX_DISP_ID		0
 
 /* the MT8365 shifts the end-of-frame selector by 6 instead of 7 */
 #define MT8365_MUTEX_SOF_DSI0		1
@@ -82,15 +85,26 @@
 #define MT8189_MUTEX_MOD_DISP_RDMA0	4
 #define MT8189_MUTEX_MOD_DISP_DSI0	22
 
+/* the DVO output stage replaces the DSI on the eDP path of the same mmsys */
+#define MT8189_MUTEX_SOF_DVO0		5
+#define MT8189_MUTEX_EOF_DVO0		(MT8189_MUTEX_SOF_DVO0 << 7)
+
+#define MT8189_MUTEX_MOD_DISP_DVO0	21
+
 /**
  * struct mtk_disp_mutex_data - per-SoC mutex data
  * @dsi_mod: MOD0 bits of the components of the OVL -> DSI pipeline
  * @dsi_sof: start and end-of-frame selectors of the DSI
+ * @dvo_mod: MOD0 bits of the components of the OVL -> DVO pipeline, 0 on
+ *	     the SoCs without a DVO output stage
+ * @dvo_sof: start and end-of-frame selectors of the DVO
  * @no_clk: the mutex has no clock of its own
  */
 struct mtk_disp_mutex_data {
 	u32 dsi_mod;
 	u32 dsi_sof;
+	u32 dvo_mod;
+	u32 dvo_sof;
 	bool no_clk;
 };
 
@@ -145,22 +159,43 @@ static const struct mtk_disp_mutex_data mt8189_mutex_data = {
 		   MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_RDMA0) |
 		   MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_DSI0),
 	.dsi_sof = MT8189_MUTEX_EOF_DSI0 | MT8189_MUTEX_SOF_DSI0,
+	.dvo_mod = MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_OVL0) |
+		   MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_RDMA0) |
+		   MUTEX_MOD_BIT(MT8189_MUTEX_MOD_DISP_DVO0),
+	.dvo_sof = MT8189_MUTEX_EOF_DVO0 | MT8189_MUTEX_SOF_DVO0,
 };
+
+static void mtk_disp_mutex_enable(struct udevice *dev, u32 mod, u32 sof)
+{
+	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DISP_ID), mod);
+	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DISP_ID), sof);
+	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DISP_ID), MUTEX_EN);
+}
 
 int mtk_disp_mutex_ovl_dsi_enable(struct udevice *dev)
 {
 	struct mtk_disp_mutex_priv *mutex = dev_get_priv(dev);
 
-	if (!mutex->data) {
+	if (!mutex->data || !mutex->data->dsi_mod) {
 		dev_err(dev, "no DSI pipeline on this mutex\n");
 		return -EOPNOTSUPP;
 	}
 
-	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DSI_ID),
-			    mutex->data->dsi_mod);
-	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DSI_ID),
-			    mutex->data->dsi_sof);
-	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DSI_ID), MUTEX_EN);
+	mtk_disp_mutex_enable(dev, mutex->data->dsi_mod, mutex->data->dsi_sof);
+
+	return 0;
+}
+
+int mtk_disp_mutex_ovl_dvo_enable(struct udevice *dev)
+{
+	struct mtk_disp_mutex_priv *mutex = dev_get_priv(dev);
+
+	if (!mutex->data || !mutex->data->dvo_mod) {
+		dev_err(dev, "no DVO pipeline on this mutex\n");
+		return -EOPNOTSUPP;
+	}
+
+	mtk_disp_mutex_enable(dev, mutex->data->dvo_mod, mutex->data->dvo_sof);
 
 	return 0;
 }
