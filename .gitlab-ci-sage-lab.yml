@@ -19,8 +19,6 @@
     - git clone --depth=1 https://git.u-boot-project.org/u-boot/u-boot-test-hooks /tmp/uboot-test-hooks
     - ln -s sage /tmp/uboot-test-hooks/bin/`hostname`
     - ln -s sage /tmp/uboot-test-hooks/py/`hostname`
-    - export LG_ENV="/tmp/uboot-test-hooks/bin/sage/labgrid-sage-env.yaml";
-      export LG_COORDINATOR=172.17.0.1:20408
     # Prepare python environment
     - python3 -m venv /tmp/venv;
       . /tmp/venv/bin/activate;
@@ -28,7 +26,8 @@
         -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
         labgrid==25.0.1 setuptools
     # Acquire and turn on the exporter.
-    - labgrid-client reserve --wait board=${LABGRID_EXPORTER} &&
+    - export LG_ENV="/tmp/uboot-test-hooks/bin/sage/${LABGRID_EXPORTER}-env.yaml" &&
+      labgrid-client reserve --wait board=${LABGRID_EXPORTER} &&
       labgrid-client -p ${LABGRID_EXPORTER} acquire &&
       labgrid-client -p ${LABGRID_EXPORTER} power on
     # Prepare ssh
@@ -51,7 +50,8 @@
         --board ${TEST_PY_BD} ${OVERRIDE} -T 4;
       RC=`echo $?`;
     # Wait for the exporter to have the device ready
-    - while test `labgrid-client resources |
+    - export LG_ENV="/tmp/uboot-test-hooks/bin/sage/${LG_PLACE}-env.yaml";
+      while test `labgrid-client resources |
         grep -q ${LABGRID_EXPORTER}/${LG_PLACE}/; echo $?` -ne 0; do sleep 1;
       done
     # Fingerprint the exporter
@@ -71,7 +71,8 @@
     # Release and power off everything.
     - labgrid-client -p ${LG_PLACE} power off
     - labgrid-client -p ${LG_PLACE} release
-    - labgrid-client -p ${LABGRID_EXPORTER} ssh sudo poweroff && sleep 15 &&
+    - export LG_ENV="/tmp/uboot-test-hooks/bin/sage/${LABGRID_EXPORTER}-env.yaml" &&
+      labgrid-client -p ${LABGRID_EXPORTER} ssh sudo poweroff && sleep 15 &&
       labgrid-client -p ${LABGRID_EXPORTER} power off
     - labgrid-client -p ${LABGRID_EXPORTER} release
     - exit $RC
