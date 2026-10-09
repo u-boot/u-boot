@@ -18,10 +18,12 @@
 #define MT8183_PLL_FMIN		(1500UL * MHZ)
 
 enum {
+	CLK_PAD_CLK32K,
 	CLK_PAD_CLK26M,
 };
 
 static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK32K] = 32000,
 	[CLK_PAD_CLK26M] = 26 * MHZ,
 };
 
@@ -683,6 +685,14 @@ static const struct mtk_gate_regs infra3_cg_regs = {
 		.flags = CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN,		\
 	}
 
+#define GATE_INFRA3_EXT(_id, _parent, _shift) {		\
+		.id = _id,						\
+		.parent = _parent,					\
+		.regs = &infra3_cg_regs,				\
+		.shift = _shift,					\
+		.flags = CLK_GATE_SETCLR | CLK_PARENT_EXT,		\
+	}
+
 static const struct mtk_gate infra_clks[] = {
 	/* INFRA0 */
 	GATE_INFRA0(CLK_INFRA_PMIC_TMR, CLK_TOP_MUX_AXI, 0),
@@ -737,11 +747,9 @@ static const struct mtk_gate infra_clks[] = {
 	GATE_INFRA1(CLK_INFRA_CCIF_MD, CLK_TOP_MUX_AXI, 26),
 	GATE_INFRA1(CLK_INFRA_DXCC_SEC_CORE, CLK_TOP_MUX_DXCC, 27),
 	GATE_INFRA1(CLK_INFRA_DXCC_AO, CLK_TOP_MUX_DXCC, 28),
-	GATE_INFRA1(CLK_INFRA_DEVMPU_BCLK, CLK_TOP_MUX_AXI, 30),
 	GATE_INFRA1(CLK_INFRA_DRAMC_F26M, CLK_TOP_CLK26M, 31),
 	/* INFRA2 */
 	GATE_INFRA2(CLK_INFRA_IRTX, CLK_TOP_CLK26M, 0),
-	GATE_INFRA2(CLK_INFRA_USB, CLK_TOP_MUX_USB_TOP, 1),
 	GATE_INFRA2(CLK_INFRA_DISP_PWM, CLK_TOP_MUX_AXI, 2),
 	GATE_INFRA2(CLK_INFRA_CLDMA_BCLK, CLK_TOP_MUX_AXI, 3),
 	GATE_INFRA2(CLK_INFRA_AUDIO_26M_BCLK, CLK_TOP_CLK26M, 4),
@@ -754,7 +762,9 @@ static const struct mtk_gate infra_clks[] = {
 	GATE_INFRA2(CLK_INFRA_UNIPRO_TICK, CLK_TOP_MUX_FUFS, 12),
 	GATE_INFRA2(CLK_INFRA_UFS_MP_SAP_BCLK, CLK_TOP_MUX_FUFS, 13),
 	GATE_INFRA2(CLK_INFRA_MD32_BCLK, CLK_TOP_MUX_AXI, 14),
+	GATE_INFRA2(CLK_INFRA_SSPM, CLK_TOP_MUX_SSPM, 15),
 	GATE_INFRA2(CLK_INFRA_UNIPRO_MBIST, CLK_TOP_MUX_AXI, 16),
+	GATE_INFRA2(CLK_INFRA_SSPM_BUS_HCLK, CLK_TOP_MUX_AXI, 17),
 	GATE_INFRA2(CLK_INFRA_I2C5, CLK_TOP_MUX_I2C, 18),
 	GATE_INFRA2(CLK_INFRA_I2C5_ARBITER, CLK_TOP_MUX_I2C, 19),
 	GATE_INFRA2(CLK_INFRA_I2C5_IMM, CLK_TOP_MUX_I2C, 20),
@@ -772,10 +782,15 @@ static const struct mtk_gate infra_clks[] = {
 	GATE_INFRA3(CLK_INFRA_MSDC0_SELF, CLK_TOP_MUX_MSDC50_0, 0),
 	GATE_INFRA3(CLK_INFRA_MSDC1_SELF, CLK_TOP_MUX_MSDC50_0, 1),
 	GATE_INFRA3(CLK_INFRA_MSDC2_SELF, CLK_TOP_MUX_MSDC50_0, 2),
+	GATE_INFRA3(CLK_INFRA_SSPM_26M_SELF, CLK_TOP_CLK26M, 3),
+	GATE_INFRA3_EXT(CLK_INFRA_SSPM_32K_SELF, CLK_PAD_CLK32K, 4),
 	GATE_INFRA3(CLK_INFRA_UFS_AXI, CLK_TOP_MUX_AXI, 5),
 	GATE_INFRA3(CLK_INFRA_I2C6, CLK_TOP_MUX_I2C, 6),
 	GATE_INFRA3(CLK_INFRA_AP_MSDC0, CLK_TOP_MUX_MSDC50_0_HCLK, 7),
 	GATE_INFRA3(CLK_INFRA_MD_MSDC0, CLK_TOP_MUX_MSDC50_0_HCLK, 8),
+	/* out of bank order: array index must match ID */
+	GATE_INFRA2(CLK_INFRA_USB, CLK_TOP_MUX_USB_TOP, 1),
+	GATE_INFRA1(CLK_INFRA_DEVMPU_BCLK, CLK_TOP_MUX_AXI, 30),
 	GATE_INFRA3(CLK_INFRA_CCIF2_AP, CLK_TOP_MUX_AXI, 16),
 	GATE_INFRA3(CLK_INFRA_CCIF2_MD, CLK_TOP_MUX_AXI, 17),
 	GATE_INFRA3(CLK_INFRA_CCIF3_AP, CLK_TOP_MUX_AXI, 18),
@@ -787,30 +802,17 @@ static const struct mtk_gate infra_clks[] = {
 	GATE_INFRA3(CLK_INFRA_FBIST2FPC, CLK_TOP_MUX_MSDC50_0, 24),
 };
 
-static const struct mtk_clk_tree mt8183_infracfg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infra_clks,
-	.num_gates = ARRAY_SIZE(infra_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8183_infracfg_tree, infra_clks);
 
-static const struct udevice_id mt8183_apmixed_compat[] = {
+static const struct udevice_id mt8183_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8183-apmixedsys",
 		.data = (ulong)&mt8183_apmixed_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8183_topckgen_compat[] = {
 	{
 		.compatible = "mediatek,mt8183-topckgen",
 		.data = (ulong)&mt8183_topckgen_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8183_infracfg_compat[] = {
 	{
 		.compatible = "mediatek,mt8183-infracfg",
 		.data = (ulong)&mt8183_infracfg_tree,
@@ -818,32 +820,12 @@ static const struct udevice_id mt8183_infracfg_compat[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(mt8183_clk_apmixedsys) = {
-	.name = "mt8183-apmixedsys",
+U_BOOT_DRIVER(mt8183_clk) = {
+	.name = "mt8183-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8183_apmixed_compat,
+	.of_match = mt8183_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_apmixedsys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8183_clk_topckgen) = {
-	.name = "mt8183-topckgen",
-	.id = UCLASS_CLK,
-	.of_match = mt8183_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8183_clk_infracfg) = {
-	.name = "mt8183-infracfg",
-	.id = UCLASS_CLK,
-	.of_match = mt8183_infracfg_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

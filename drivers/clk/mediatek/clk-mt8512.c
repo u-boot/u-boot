@@ -815,37 +815,19 @@ static const struct mtk_clk_tree mt8512_topckgen_clk_tree = {
 	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static const struct mtk_clk_tree mt8512_topckgen_cg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = top_clks,
-	.num_gates = ARRAY_SIZE(top_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8512_topckgen_cg_tree, top_clks);
 
-static const struct mtk_clk_tree mt8512_infracfg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infra_clks,
-	.num_gates = ARRAY_SIZE(infra_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8512_infracfg_tree, infra_clks);
 
-static const struct udevice_id mt8512_apmixed_compat[] = {
+static const struct udevice_id mt8512_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8512-apmixedsys",
 		.data = (ulong)&mt8512_apmixed_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8512_topckgen_compat[] = {
 	{
 		.compatible = "mediatek,mt8512-topckgen",
 		.data = (ulong)&mt8512_topckgen_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id of_match_mt8512_clk_gate[] = {
 	{
 		.compatible = "mediatek,mt8512-topckgen-cg",
 		.data = (ulong)&mt8512_topckgen_cg_tree,
@@ -857,32 +839,12 @@ static const struct udevice_id of_match_mt8512_clk_gate[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(mt8512_clk_apmixedsys) = {
-	.name = "mt8512-apmixedsys",
+U_BOOT_DRIVER(mt8512_clk) = {
+	.name = "mt8512-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8512_apmixed_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto	= sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_apmixedsys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8512_clk_topckgen) = {
-	.name = "mt8512-topckgen",
-	.id = UCLASS_CLK,
-	.of_match = mt8512_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto	= sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8512_clk_gate) = {
-	.name = "mt8512-clk-gate",
-	.id = UCLASS_CLK,
-	.of_match = of_match_mt8512_clk_gate,
+	.of_match = mt8512_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

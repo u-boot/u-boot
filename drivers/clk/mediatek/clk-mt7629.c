@@ -748,7 +748,7 @@ U_BOOT_DRIVER(mt7629_clk_apmixedsys) = {
 	.of_match = mt7629_apmixed_compat,
 	.probe = mt7629_apmixedsys_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_apmixedsys_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -758,7 +758,7 @@ U_BOOT_DRIVER(mt7629_clk_topckgen) = {
 	.of_match = mt7629_topckgen_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -768,7 +768,7 @@ U_BOOT_DRIVER(mt7629_clk_infracfg) = {
 	.of_match = of_match_mt7629_infracfg,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -779,7 +779,7 @@ U_BOOT_DRIVER(mt7629_clk_ethsys) = {
 	.probe = mtk_clk_probe,
 	.bind = mt7629_ethsys_bind,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 };
 
 U_BOOT_DRIVER(mt7629_clk) = {
@@ -788,5 +788,5 @@ U_BOOT_DRIVER(mt7629_clk) = {
 	.of_match = of_match_mt7629_clk,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 };

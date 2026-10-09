@@ -1191,12 +1191,7 @@ static const struct mtk_gate infracfg_ao_reg_clks[] = {
 	GATE_INFRACFG_AO_REG6(CLK_INFRACFG_AO_REGP_NFIECC_B, CLK_TOP_NFI_BCLK_SEL, 24),
 };
 
-static const struct mtk_clk_tree infracfg_ao_reg_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infracfg_ao_reg_clks,
-	.num_gates = ARRAY_SIZE(infracfg_ao_reg_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, infracfg_ao_reg_clks_tree, infracfg_ao_reg_clks);
 
 static const struct mtk_gate_regs impc_cg_regs = {
 	.set_ofs = 0xe08,
@@ -1219,12 +1214,7 @@ static const struct mtk_gate impc_clks[] = {
 	GATE_IMPC(CLK_IMPC_I2C9, CLK_TOP_I2CP_SEL, 7),
 };
 
-static const struct mtk_clk_tree impc_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = impc_clks,
-	.num_gates = ARRAY_SIZE(impc_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, impc_clks_tree, impc_clks);
 
 static const struct mtk_gate_regs impe_cg_regs = {
 	.set_ofs = 0xe08,
@@ -1241,12 +1231,7 @@ static const struct mtk_gate impe_clks[] = {
 	GATE_IMPE(CLK_IMPE_I2C4, CLK_TOP_I2C_SEL, 1),
 };
 
-static const struct mtk_clk_tree impe_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = impe_clks,
-	.num_gates = ARRAY_SIZE(impe_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, impe_clks_tree, impe_clks);
 
 static const struct mtk_gate_regs mm0_cg_regs = {
 	.set_ofs = 0x100,
@@ -1321,12 +1306,7 @@ static const struct mtk_gate mm_clks[] = {
 	GATE_MM1E(CLK_MM_32K, CLK_PAD_CLK32K, 19),
 };
 
-static const struct mtk_clk_tree mm_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = mm_clks,
-	.num_gates = ARRAY_SIZE(mm_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mm_clks_tree, mm_clks);
 
 static const struct mtk_gate_regs dptx_phyd_sifslv_dig_glb_cg_regs = {
 	.set_ofs = 0x8,
@@ -1343,12 +1323,8 @@ static const struct mtk_gate dptx_phyd_sifslv_dig_glb_clks[] = {
 				      CLK_PAD_CLK26M, 0),
 };
 
-static const struct mtk_clk_tree dptx_phyd_sifslv_dig_glb_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = dptx_phyd_sifslv_dig_glb_clks,
-	.num_gates = ARRAY_SIZE(dptx_phyd_sifslv_dig_glb_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, dptx_phyd_sifslv_dig_glb_clks_tree,
+		  dptx_phyd_sifslv_dig_glb_clks);
 
 static const struct mtk_gate_regs epdsys_config0_cg_regs = {
 	.set_ofs = 0x100,
@@ -1396,12 +1372,7 @@ static const struct mtk_gate epdsys_config_clks[] = {
 	GATE_EPDSYS_CONFIG1(CLK_EPDSYS_DPI0_MM, CLK_TOP_EPD_SEL, 1),
 };
 
-static const struct mtk_clk_tree epdsys_config_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = epdsys_config_clks,
-	.num_gates = ARRAY_SIZE(epdsys_config_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, epdsys_config_clks_tree, epdsys_config_clks);
 
 static const struct mtk_gate_regs vde23_cg_regs = {
 	.set_ofs = 0x8,
@@ -1417,12 +1388,7 @@ static const struct mtk_gate vdec_gcon_clks[] = {
 	GATE_VDE23(CLK_VDE2_LARB1_CKEN, CLK_TOP_VDEC_SEL, 0),
 };
 
-static const struct mtk_clk_tree vdec_gcon_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = vdec_gcon_clks,
-	.num_gates = ARRAY_SIZE(vdec_gcon_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, vdec_gcon_clks_tree, vdec_gcon_clks);
 
 static const struct mtk_gate_regs ipe_cg_regs = {
 	.set_ofs = 0x4,
@@ -1444,12 +1410,7 @@ static const struct mtk_gate ipesys_clks[] = {
 	GATE_IPE(CLK_IPE_GALS, CLK_TOP_IPE_SEL, 8),
 };
 
-static const struct mtk_clk_tree ipesys_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = ipesys_clks,
-	.num_gates = ARRAY_SIZE(ipesys_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, ipesys_clks_tree, ipesys_clks);
 
 static const struct mtk_gate_regs cam_m_cg_regs = {
 	.set_ofs = 0x4,
@@ -1481,22 +1442,13 @@ static const struct mtk_gate camsys_main_clks[] = {
 	GATE_CAM_M(CLK_CAM_M_PDA, CLK_TOP_CAM_SEL, 21),
 };
 
-static const struct mtk_clk_tree camsys_main_clks_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = camsys_main_clks,
-	.num_gates = ARRAY_SIZE(camsys_main_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, camsys_main_clks_tree, camsys_main_clks);
 
-static const struct udevice_id mt8366_apmixed_compat[] = {
+static const struct udevice_id mt8366_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8366-apmixedsys",
 		.data = (ulong)&mt8366_apmixed_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8366_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8366-topckgen",
 		.data = (ulong)&mt8366_topckgen_tree,
@@ -1540,22 +1492,12 @@ static const struct udevice_id mt8366_clk_compat[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(mt8366_clk_apmixedsys) = {
-	.name = "mt8366-apmixedsys",
-	.id = UCLASS_CLK,
-	.of_match = mt8366_apmixed_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_apmixedsys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
 U_BOOT_DRIVER(mt8366_clk) = {
 	.name = "mt8366-clk",
 	.id = UCLASS_CLK,
 	.of_match = mt8366_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

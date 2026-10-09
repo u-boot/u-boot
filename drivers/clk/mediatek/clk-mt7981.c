@@ -692,7 +692,7 @@ U_BOOT_DRIVER(mt7981_clk_apmixedsys) = {
 	.of_match = mt7981_fixed_pll_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_fixed_pll_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -702,7 +702,7 @@ U_BOOT_DRIVER(mt7981_clk_topckgen) = {
 	.of_match = mt7981_topckgen_compat,
 	.probe = mt7981_topckgen_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -720,7 +720,7 @@ U_BOOT_DRIVER(mt7981_clk_infracfg) = {
 	.of_match = mt7981_infracfg_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_infrasys_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -784,7 +784,7 @@ U_BOOT_DRIVER(mt7981_clk_sgmiisys) = {
 	.of_match = of_match_mt7981_sgmiisys,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 };
 
 /* ethsys */
@@ -843,5 +843,5 @@ U_BOOT_DRIVER(mt7981_clk_ethsys) = {
 	.probe = mtk_clk_probe,
 	.bind = mt7981_ethsys_bind,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 };

@@ -754,63 +754,102 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR6(CLK_IFR_SSUSB_XHCI, CLK_TOP_SSUSB_XHCI_SEL, 11),
 };
 
-static const struct mtk_clk_tree mt8365_infracfg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = ifr_clks,
-	.num_gates = ARRAY_SIZE(ifr_clks),
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8365_infracfg_tree, ifr_clks);
+
+/* mmsys */
+static const struct mtk_gate_regs mm0_cg_regs = {
+	.set_ofs = 0x104,
+	.clr_ofs = 0x108,
+	.sta_ofs = 0x100,
 };
 
-static const struct udevice_id mt8365_apmixed_compat[] = {
+static const struct mtk_gate_regs mm1_cg_regs = {
+	.set_ofs = 0x114,
+	.clr_ofs = 0x118,
+	.sta_ofs = 0x110,
+};
+
+#define GATE_MM0(_id, _parent, _shift)			\
+	GATE_FLAGS(_id, _parent, &mm0_cg_regs, _shift,	\
+		   CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+
+#define GATE_MM1(_id, _parent, _shift)			\
+	GATE_FLAGS(_id, _parent, &mm1_cg_regs, _shift,	\
+		   CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+
+#define GATE_MM1_EXT(_id, _parent, _shift)		\
+	GATE_FLAGS(_id, _parent, &mm1_cg_regs, _shift,	\
+		   CLK_GATE_SETCLR | CLK_PARENT_EXT)
+
+static const struct mtk_gate mm_clks[] = {
+	/* MM0 */
+	GATE_MM0(CLK_MM_MM_MDP_RDMA0, CLK_TOP_MM_SEL, 0),
+	GATE_MM0(CLK_MM_MM_MDP_CCORR0, CLK_TOP_MM_SEL, 1),
+	GATE_MM0(CLK_MM_MM_MDP_RSZ0, CLK_TOP_MM_SEL, 2),
+	GATE_MM0(CLK_MM_MM_MDP_RSZ1, CLK_TOP_MM_SEL, 3),
+	GATE_MM0(CLK_MM_MM_MDP_TDSHP0, CLK_TOP_MM_SEL, 4),
+	GATE_MM0(CLK_MM_MM_MDP_WROT0, CLK_TOP_MM_SEL, 5),
+	GATE_MM0(CLK_MM_MM_MDP_WDMA0, CLK_TOP_MM_SEL, 6),
+	GATE_MM0(CLK_MM_MM_DISP_OVL0, CLK_TOP_MM_SEL, 7),
+	GATE_MM0(CLK_MM_MM_DISP_OVL0_2L, CLK_TOP_MM_SEL, 8),
+	GATE_MM0(CLK_MM_MM_DISP_RSZ0, CLK_TOP_MM_SEL, 9),
+	GATE_MM0(CLK_MM_MM_DISP_RDMA0, CLK_TOP_MM_SEL, 10),
+	GATE_MM0(CLK_MM_MM_DISP_WDMA0, CLK_TOP_MM_SEL, 11),
+	GATE_MM0(CLK_MM_MM_DISP_COLOR0, CLK_TOP_MM_SEL, 12),
+	GATE_MM0(CLK_MM_MM_DISP_CCORR0, CLK_TOP_MM_SEL, 13),
+	GATE_MM0(CLK_MM_MM_DISP_AAL0, CLK_TOP_MM_SEL, 14),
+	GATE_MM0(CLK_MM_MM_DISP_GAMMA0, CLK_TOP_MM_SEL, 15),
+	GATE_MM0(CLK_MM_MM_DISP_DITHER0, CLK_TOP_MM_SEL, 16),
+	GATE_MM0(CLK_MM_MM_DSI0, CLK_TOP_MM_SEL, 17),
+	GATE_MM0(CLK_MM_MM_DISP_RDMA1, CLK_TOP_MM_SEL, 18),
+	GATE_MM0(CLK_MM_MM_MDP_RDMA1, CLK_TOP_MM_SEL, 19),
+	GATE_MM0(CLK_MM_DPI0_DPI0, CLK_TOP_DPI0_SEL, 20),
+	GATE_MM0(CLK_MM_MM_FAKE, CLK_TOP_MM_SEL, 21),
+	GATE_MM0(CLK_MM_MM_SMI_COMMON, CLK_TOP_MM_SEL, 22),
+	GATE_MM0(CLK_MM_MM_SMI_LARB0, CLK_TOP_MM_SEL, 23),
+	GATE_MM0(CLK_MM_MM_SMI_COMM0, CLK_TOP_MM_SEL, 24),
+	GATE_MM0(CLK_MM_MM_SMI_COMM1, CLK_TOP_MM_SEL, 25),
+	GATE_MM0(CLK_MM_MM_CAM_MDP, CLK_TOP_MM_SEL, 26),
+	GATE_MM0(CLK_MM_MM_SMI_IMG, CLK_TOP_MM_SEL, 27),
+	GATE_MM0(CLK_MM_MM_SMI_CAM, CLK_TOP_MM_SEL, 28),
+	GATE_MM0(CLK_MM_IMG_IMG_DL_RELAY, CLK_TOP_MM_SEL, 29),
+	GATE_MM0(CLK_MM_IMG_IMG_DL_ASYNC_TOP, CLK_TOP_MM_SEL, 30),
+	GATE_MM0(CLK_MM_DSI0_DIG_DSI, CLK_TOP_DSI0_LNTC_DSICK, 31),
+	/* MM1 */
+	GATE_MM1_EXT(CLK_MM_26M_HRTWT, CLK_PAD_CLK26M, 0),
+	GATE_MM1(CLK_MM_MM_DPI0, CLK_TOP_MM_SEL, 1),
+	GATE_MM1(CLK_MM_LVDSTX_PXL, CLK_TOP_VPLL_DPIX, 2),
+	GATE_MM1(CLK_MM_LVDSTX_CTS, CLK_TOP_LVDSTX_CLKDIG_CTS, 3),
+};
+
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8365_mmsys_tree, mm_clks);
+
+static const struct udevice_id mt8365_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-apmixedsys",
 		.data = (ulong)&mt8365_apmixed_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8365_topckgen_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-topckgen",
 		.data = (ulong)&mt8365_topckgen_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8365_infracfg_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-infracfg",
 		.data = (ulong)&mt8365_infracfg_tree,
 	},
+	{
+		.compatible = "mediatek,mt8365-mmsys",
+		.data = (ulong)&mt8365_mmsys_tree,
+	},
 	{ }
 };
 
-U_BOOT_DRIVER(mt8365_clk_apmixedsys) = {
-	.name = "mt8365-apmixedsys",
+U_BOOT_DRIVER(mt8365_clk) = {
+	.name = "mt8365-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8365_apmixed_compat,
+	.of_match = mt8365_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_apmixedsys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8365_clk_topckgen) = {
-	.name = "mt8365-topckgen",
-	.id = UCLASS_CLK,
-	.of_match = mt8365_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8365_clk_infracfg) = {
-	.name = "mt8365-infracfg",
-	.id = UCLASS_CLK,
-	.of_match = mt8365_infracfg_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

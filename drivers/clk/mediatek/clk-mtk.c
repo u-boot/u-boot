@@ -69,13 +69,8 @@ static struct udevice *mtk_clk_tree_get_provider(enum mtk_clk_tree_type type)
 
 	uclass_foreach_dev(dev, uc) {
 		const struct mtk_clk_tree *tree;
-		const void *ops;
 
-		ops = dev_get_driver_ops(dev);
-		if (ops != &mtk_clk_apmixedsys_ops &&
-		    ops != &mtk_clk_fixed_pll_ops &&
-		    ops != &mtk_clk_topckgen_ops &&
-		    ops != &mtk_clk_infrasys_ops)
+		if (dev_get_driver_ops(dev) != &mtk_clk_ops)
 			continue;
 
 		tree = (const void *)dev_get_driver_data(dev);
@@ -155,7 +150,8 @@ static bool mtk_clk_id_is_pll(const struct mtk_clk_tree *tree, int mapped_id)
 
 static bool mtk_clk_id_is_fclk(const struct mtk_clk_tree *tree, int mapped_id)
 {
-	return tree->fclks && mapped_id < tree->num_fclks;
+	return tree->fclks && mapped_id >= tree->fclks_offs &&
+	       mapped_id < tree->fclks_offs + tree->num_fclks;
 }
 
 static bool mtk_clk_id_is_fdiv(const struct mtk_clk_tree *tree, int mapped_id)
@@ -176,8 +172,21 @@ static bool mtk_clk_id_is_gate(const struct mtk_clk_tree *tree, int mapped_id)
 	       mapped_id < tree->gates_offs + tree->num_gates;
 }
 
-static int mtk_dummy_enable(struct clk *clk)
+static int mtk_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 {
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	int ret;
+
+	ret = mtk_common_clk_of_xlate(clk, args, tree);
+	if (ret)
+		return ret;
+
+	if (!mtk_clk_id_is_pll(tree, clk->id) && !mtk_clk_id_is_fclk(tree, clk->id) &&
+	    !mtk_clk_id_is_fdiv(tree, clk->id) && !mtk_clk_id_is_mux(tree, clk->id) &&
+	    !mtk_clk_id_is_gate(tree, clk->id))
+		return -ENOENT;
+
 	return 0;
 }
 
@@ -424,25 +433,7 @@ static void mtk_clk_print_mux_parents(struct mtk_clk_priv *priv,
 }
 #endif
 
-/* apmixedsys functions */
-
-static const int mtk_apmixedsys_of_xlate(struct clk *clk,
-					 struct ofnode_phandle_args *args)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	/* apmixedsys only uses plls and gates. */
-	if (!mtk_clk_id_is_pll(tree, clk->id) && !mtk_clk_id_is_gate(tree, clk->id))
-		return -ENOENT;
-
-	return 0;
-}
+/* PLL functions */
 
 static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
 					   u32 fin, u32 pcw, int postdiv)
@@ -556,7 +547,7 @@ static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
 	return 0;
 }
 
-static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
+static ulong mtk_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	u32 pcw = 0;
@@ -575,21 +566,14 @@ static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
 	return 0;
 }
 
-static ulong mtk_apmixedsys_get_rate(struct clk *clk)
+static ulong mtk_pll_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_parent *parent;
 	const struct mtk_pll_data *pll;
-	const struct mtk_gate *gate;
 	unsigned long xtal_rate;
 	u32 postdiv;
 	u32 pcw;
-
-	/* GATE handling */
-	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-		return mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
-	}
 
 	parent = &priv->tree->pll_parent;
 	xtal_rate = mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
@@ -608,123 +592,52 @@ static ulong mtk_apmixedsys_get_rate(struct clk *clk)
 	return __mtk_pll_recalc_rate(pll, xtal_rate, pcw, postdiv);
 }
 
-static int mtk_apmixedsys_enable(struct clk *clk)
+static int mtk_pll_enable(void __iomem *base, const struct mtk_pll_data *pll)
 {
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_pll_data *pll;
-	const struct mtk_gate *gate;
 	u32 r;
 
-	/* GATE handling */
-	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-		return mtk_gate_enable(priv->base, gate);
-	}
-
-	pll = &priv->tree->plls[clk->id];
-
-	r = readl(priv->base + pll->pwr_reg) | CON0_PWR_ON;
-	writel(r, priv->base + pll->pwr_reg);
+	r = readl(base + pll->pwr_reg) | CON0_PWR_ON;
+	writel(r, base + pll->pwr_reg);
 	udelay(1);
 
-	r = readl(priv->base + pll->pwr_reg) & ~CON0_ISO_EN;
-	writel(r, priv->base + pll->pwr_reg);
+	r = readl(base + pll->pwr_reg) & ~CON0_ISO_EN;
+	writel(r, base + pll->pwr_reg);
 	udelay(1);
 
-	r = readl(priv->base + pll->reg + REG_CON0);
+	r = readl(base + pll->reg + REG_CON0);
 	r |= pll->en_mask;
-	writel(r, priv->base + pll->reg + REG_CON0);
+	writel(r, base + pll->reg + REG_CON0);
 
 	udelay(20);
 
 	if (pll->flags & CLK_PLL_HAVE_RST_BAR) {
-		r = readl(priv->base + pll->reg + REG_CON0);
+		r = readl(base + pll->reg + REG_CON0);
 		r |= pll->rst_bar_mask;
-		writel(r, priv->base + pll->reg + REG_CON0);
+		writel(r, base + pll->reg + REG_CON0);
 	}
 
 	return 0;
 }
 
-static int mtk_apmixedsys_disable(struct clk *clk)
+static int mtk_pll_disable(void __iomem *base, const struct mtk_pll_data *pll)
 {
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_pll_data *pll;
-	const struct mtk_gate *gate;
 	u32 r;
 
-	/* GATE handling */
-	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-		return mtk_gate_disable(priv->base, gate);
-	}
-
-	pll = &priv->tree->plls[clk->id];
-
 	if (pll->flags & CLK_PLL_HAVE_RST_BAR) {
-		r = readl(priv->base + pll->reg + REG_CON0);
+		r = readl(base + pll->reg + REG_CON0);
 		r &= ~pll->rst_bar_mask;
-		writel(r, priv->base + pll->reg + REG_CON0);
+		writel(r, base + pll->reg + REG_CON0);
 	}
 
-	r = readl(priv->base + pll->reg + REG_CON0);
+	r = readl(base + pll->reg + REG_CON0);
 	r &= ~CON0_BASE_EN;
-	writel(r, priv->base + pll->reg + REG_CON0);
+	writel(r, base + pll->reg + REG_CON0);
 
-	r = readl(priv->base + pll->pwr_reg) | CON0_ISO_EN;
-	writel(r, priv->base + pll->pwr_reg);
+	r = readl(base + pll->pwr_reg) | CON0_ISO_EN;
+	writel(r, base + pll->pwr_reg);
 
-	r = readl(priv->base + pll->pwr_reg) & ~CON0_PWR_ON;
-	writel(r, priv->base + pll->pwr_reg);
-
-	return 0;
-}
-
-#if CONFIG_IS_ENABLED(CMD_CLK)
-static void mtk_apmixedsys_dump(struct udevice *dev)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	u32 i;
-
-	for (i = 0; i < tree->num_plls; i++) {
-		const struct mtk_pll_data *pll = &tree->plls[i];
-
-		printf("[PLL%u] DT: %u", i, pll->id);
-		mtk_clk_print_mapped_id(pll->id, i, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i);
-		printf("\n");
-	}
-
-	for (i = 0; i < tree->num_gates; i++) {
-		const struct mtk_gate *gate = &tree->gates[i];
-
-		printf("[GATE%u] DT: %u", i, gate->id);
-		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i + tree->gates_offs);
-		mtk_clk_print_single_parent(gate->parent, gate->flags);
-		printf("\n");
-	}
-}
-#endif
-
-/* topckgen functions */
-
-static const int mtk_topckgen_of_xlate(struct clk *clk,
-				       struct ofnode_phandle_args *args)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	/* topckgen only uses fclks, fdivs, muxes and gates. */
-	if (!mtk_clk_id_is_fclk(tree, clk->id) && !mtk_clk_id_is_fdiv(tree, clk->id) &&
-	    !mtk_clk_id_is_mux(tree, clk->id) && !mtk_clk_id_is_gate(tree, clk->id))
-		return -ENOENT;
+	r = readl(base + pll->pwr_reg) & ~CON0_PWR_ON;
+	writel(r, base + pll->pwr_reg);
 
 	return 0;
 }
@@ -739,7 +652,7 @@ static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
 	return rate;
 }
 
-static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
+static ulong mtk_factor_get_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
@@ -752,16 +665,19 @@ static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 	return mtk_factor_recalc_rate(fdiv, rate);
 }
 
-static ulong mtk_topckgen_get_rate(struct clk *clk)
+static ulong mtk_clk_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_clk_tree *tree = priv->tree;
 
+	if (mtk_clk_id_is_pll(tree, clk->id))
+		return mtk_pll_get_rate(clk);
+
 	if (mtk_clk_id_is_fclk(tree, clk->id))
-		return tree->fclks[clk->id].rate;
+		return tree->fclks[clk->id - tree->fclks_offs].rate;
 
 	if (mtk_clk_id_is_fdiv(tree, clk->id))
-		return mtk_topckgen_get_factor_rate(clk, clk->id - tree->fdivs_offs);
+		return mtk_factor_get_rate(clk, clk->id - tree->fdivs_offs);
 
 	if (mtk_clk_id_is_mux(tree, clk->id))
 		return mtk_clk_mux_get_rate(clk, clk->id - tree->muxes_offs);
@@ -775,91 +691,91 @@ static ulong mtk_topckgen_get_rate(struct clk *clk)
 	return -ENOENT;
 }
 
-static int mtk_clk_mux_enable(struct clk *clk)
+static int mtk_clk_mux_enable(void __iomem *base,
+			      const struct mtk_composite *mux)
 {
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_composite *mux;
 	u32 val;
 
-	if (!mtk_clk_id_is_mux(priv->tree, clk->id))
-		return 0;
-
-	mux = &priv->tree->muxes[clk->id - priv->tree->muxes_offs];
 	if (mux->gate_shift < 0)
 		return 0;
 
 	/* enable clock gate */
 	if (mux->flags & CLK_MUX_SETCLR_UPD) {
 		val = BIT(mux->gate_shift);
-		writel(val, priv->base + mux->mux_clr_reg);
+		writel(val, base + mux->mux_clr_reg);
 	} else {
-		val = readl(priv->base + mux->gate_reg);
+		val = readl(base + mux->gate_reg);
 		val &= ~BIT(mux->gate_shift);
-		writel(val, priv->base + mux->gate_reg);
+		writel(val, base + mux->gate_reg);
 	}
 
 	if (mux->flags & CLK_MUX_DOMAIN_SCPSYS) {
 		/* enable scpsys clock off control */
-		writel(SCP_ARMCK_OFF_EN, priv->base + CLK_SCP_CFG0);
+		writel(SCP_ARMCK_OFF_EN, base + CLK_SCP_CFG0);
 		writel(SCP_AXICK_DCM_DIS_EN | SCP_AXICK_26M_SEL_EN,
-		       priv->base + CLK_SCP_CFG1);
+		       base + CLK_SCP_CFG1);
 	}
 
 	return 0;
 }
 
-static int mtk_topckgen_enable(struct clk *clk)
+static int mtk_clk_mux_disable(void __iomem *base,
+			       const struct mtk_composite *mux)
 {
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-
-	if (mtk_clk_id_is_gate(tree, clk->id)) {
-		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
-
-		return mtk_gate_enable(priv->base, gate);
-	}
-
-	return mtk_clk_mux_enable(clk);
-}
-
-static int mtk_clk_mux_disable(struct clk *clk)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_composite *mux;
 	u32 val;
 
-	if (!mtk_clk_id_is_mux(priv->tree, clk->id))
-		return 0;
-
-	mux = &priv->tree->muxes[clk->id - priv->tree->muxes_offs];
 	if (mux->gate_shift < 0)
 		return 0;
 
 	/* disable clock gate */
 	if (mux->flags & CLK_MUX_SETCLR_UPD) {
 		val = BIT(mux->gate_shift);
-		writel(val, priv->base + mux->mux_set_reg);
+		writel(val, base + mux->mux_set_reg);
 	} else {
-		val = readl(priv->base + mux->gate_reg);
+		val = readl(base + mux->gate_reg);
 		val |= BIT(mux->gate_shift);
-		writel(val, priv->base + mux->gate_reg);
+		writel(val, base + mux->gate_reg);
 	}
 
 	return 0;
 }
 
-static int mtk_topckgen_disable(struct clk *clk)
+static int mtk_clk_enable(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_clk_tree *tree = priv->tree;
 
-	if (mtk_clk_id_is_gate(tree, clk->id)) {
-		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
+	if (mtk_clk_id_is_pll(tree, clk->id))
+		return mtk_pll_enable(priv->base, &tree->plls[clk->id]);
 
-		return mtk_gate_disable(priv->base, gate);
-	}
+	if (mtk_clk_id_is_mux(tree, clk->id))
+		return mtk_clk_mux_enable(priv->base,
+					  &tree->muxes[clk->id - tree->muxes_offs]);
 
-	return mtk_clk_mux_disable(clk);
+	if (mtk_clk_id_is_gate(tree, clk->id))
+		return mtk_gate_enable(priv->base,
+				       &tree->gates[clk->id - tree->gates_offs]);
+
+	return 0;
+}
+
+static int mtk_clk_disable(struct clk *clk)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+
+	if (mtk_clk_id_is_pll(tree, clk->id))
+		return mtk_pll_disable(priv->base, &tree->plls[clk->id]);
+
+	if (mtk_clk_id_is_mux(tree, clk->id))
+		return mtk_clk_mux_disable(priv->base,
+					   &tree->muxes[clk->id - tree->muxes_offs]);
+
+	if (mtk_clk_id_is_gate(tree, clk->id))
+		return mtk_gate_disable(priv->base,
+					&tree->gates[clk->id - tree->gates_offs]);
+
+	return 0;
 }
 
 static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
@@ -885,18 +801,27 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 }
 
 #if CONFIG_IS_ENABLED(CMD_CLK)
-static void mtk_topckgen_dump(struct udevice *dev)
+static void mtk_clk_dump(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
 	const struct mtk_clk_tree *tree = priv->tree;
 	u32 i;
 
+	for (i = 0; i < tree->num_plls; i++) {
+		const struct mtk_pll_data *pll = &tree->plls[i];
+
+		printf("[PLL%u] DT: %u", i, pll->id);
+		mtk_clk_print_mapped_id(pll->id, i, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i);
+		printf("\n");
+	}
+
 	for (i = 0; i < tree->num_fclks; i++) {
 		const struct mtk_fixed_clk *fclk = &tree->fclks[i];
 
 		printf("[FCLK%u] DT: %u", i, fclk->id);
-		mtk_clk_print_mapped_id(fclk->id, i, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i);
+		mtk_clk_print_mapped_id(fclk->id, i + tree->fclks_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->fclks_offs);
 		mtk_clk_print_single_parent(fclk->parent, fclk->flags);
 		printf("\n");
 	}
@@ -933,167 +858,15 @@ static void mtk_topckgen_dump(struct udevice *dev)
 }
 #endif
 
-/* infrasys functions */
-
-static const int mtk_infrasys_of_xlate(struct clk *clk,
-				       struct ofnode_phandle_args *args)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	/* ifrasys only uses fdivs, muxes and gates. */
-	if (!mtk_clk_id_is_fdiv(tree, clk->id) && !mtk_clk_id_is_mux(tree, clk->id) &&
-	    !mtk_clk_id_is_gate(tree, clk->id))
-		return -ENOENT;
-
-	return 0;
-}
-
-static int mtk_clk_infrasys_enable(struct clk *clk)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate;
-
-	/* MUX handling */
-	if (!mtk_clk_id_is_gate(priv->tree, clk->id))
-		return mtk_clk_mux_enable(clk);
-
-	gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-	return mtk_gate_enable(priv->base, gate);
-}
-
-static int mtk_clk_infrasys_disable(struct clk *clk)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate;
-
-	/* MUX handling */
-	if (!mtk_clk_id_is_gate(priv->tree, clk->id))
-		return mtk_clk_mux_disable(clk);
-
-	gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-	return mtk_gate_disable(priv->base, gate);
-}
-
-static ulong mtk_infrasys_get_factor_rate(struct clk *clk, u32 off)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
-	ulong rate;
-
-	rate = mtk_find_parent_rate(priv, clk, fdiv->parent, fdiv->flags);
-	if (IS_ERR_VALUE(rate))
-		return rate;
-
-	return mtk_factor_recalc_rate(fdiv, rate);
-}
-
-static ulong mtk_infrasys_get_rate(struct clk *clk)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	ulong rate;
-
-	if (mtk_clk_id_is_fclk(priv->tree, clk->id)) {
-		rate = priv->tree->fclks[clk->id].rate;
-	} else if (mtk_clk_id_is_fdiv(priv->tree, clk->id)) {
-		rate = mtk_infrasys_get_factor_rate(clk, clk->id -
-						    priv->tree->fdivs_offs);
-	/* No gates defined or ID is a MUX */
-	} else if (!mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		rate = mtk_clk_mux_get_rate(clk, clk->id - priv->tree->muxes_offs);
-	/* Only valid with muxes + gates implementation */
-	} else {
-		const struct mtk_gate *gate;
-
-		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-
-		rate = mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
-	}
-
-	return rate;
-}
-
-#if CONFIG_IS_ENABLED(CMD_CLK)
-static void mtk_infrasys_dump(struct udevice *dev)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	u32 i;
-
-	for (i = 0; i < tree->num_fdivs; i++) {
-		const struct mtk_fixed_factor *fdiv = &tree->fdivs[i];
-
-		printf("[FDIV%u] DT: %u", i, fdiv->id);
-		mtk_clk_print_mapped_id(fdiv->id, i + tree->fdivs_offs, tree->id_offs_map);
-		mtk_clk_print_single_parent(fdiv->parent, fdiv->flags);
-		printf(", Mult: %u, Div: %u\n", fdiv->mult, fdiv->div);
-	}
-
-	for (i = 0; i < tree->num_muxes; i++) {
-		const struct mtk_composite *mux = &tree->muxes[i];
-
-		printf("[MUX%u] DT: %u", i, mux->id);
-		mtk_clk_print_mapped_id(mux->id, i + tree->muxes_offs, tree->id_offs_map);
-		mtk_clk_print_mux_parents(priv, mux);
-		printf("\n");
-	}
-
-	for (i = 0; i < tree->num_gates; i++) {
-		const struct mtk_gate *gate = &tree->gates[i];
-
-		printf("[GATE%u] DT: %u", i, gate->id);
-		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
-		mtk_clk_print_single_parent(gate->parent, gate->flags);
-		printf("\n");
-	}
-}
-#endif
-
-const struct clk_ops mtk_clk_apmixedsys_ops = {
-	.of_xlate = mtk_apmixedsys_of_xlate,
-	.enable = mtk_apmixedsys_enable,
-	.disable = mtk_apmixedsys_disable,
-	.set_rate = mtk_apmixedsys_set_rate,
-	.get_rate = mtk_apmixedsys_get_rate,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_apmixedsys_dump,
-#endif
-};
-
-const struct clk_ops mtk_clk_fixed_pll_ops = {
-	.of_xlate = mtk_topckgen_of_xlate,
-	.enable = mtk_dummy_enable,
-	.disable = mtk_dummy_enable,
-	.get_rate = mtk_topckgen_get_rate,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_topckgen_dump,
-#endif
-};
-
-const struct clk_ops mtk_clk_topckgen_ops = {
-	.of_xlate = mtk_topckgen_of_xlate,
-	.enable = mtk_topckgen_enable,
-	.disable = mtk_topckgen_disable,
-	.get_rate = mtk_topckgen_get_rate,
+const struct clk_ops mtk_clk_ops = {
+	.of_xlate = mtk_clk_of_xlate,
+	.enable = mtk_clk_enable,
+	.disable = mtk_clk_disable,
+	.set_rate = mtk_clk_set_rate,
+	.get_rate = mtk_clk_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
 #if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_topckgen_dump,
-#endif
-};
-
-const struct clk_ops mtk_clk_infrasys_ops = {
-	.of_xlate = mtk_infrasys_of_xlate,
-	.enable = mtk_clk_infrasys_enable,
-	.disable = mtk_clk_infrasys_disable,
-	.get_rate = mtk_infrasys_get_rate,
-	.set_parent = mtk_common_clk_set_parent,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_infrasys_dump,
+	.dump = mtk_clk_dump,
 #endif
 };
 
