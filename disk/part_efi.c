@@ -67,7 +67,7 @@ static char *print_efiname(gpt_entry *pte)
 	int i;
 	for (i = 0; i < PARTNAME_SZ; i++) {
 		u8 c;
-		c = pte->partition_name[i] & 0xff;
+		c = le16_to_cpu(pte->partition_name[i]) & 0xff;
 		c = (c && !isprint(c)) ? '.' : c;
 		name[i] = c;
 	}
@@ -377,10 +377,10 @@ static int set_protective_mbr(struct blk_desc *desc)
 			MSDOS_MBR_BOOT_CODE_SIZE);
 
 	/* Append signature */
-	p_mbr->signature = MSDOS_MBR_SIGNATURE;
+	p_mbr->signature = cpu_to_le16(MSDOS_MBR_SIGNATURE);
 	p_mbr->partition_record[0].sys_ind = EFI_PMBR_OSTYPE_EFI_GPT;
-	p_mbr->partition_record[0].start_sect = 1;
-	p_mbr->partition_record[0].nr_sects = (u32)desc->lba - 1;
+	p_mbr->partition_record[0].start_sect = cpu_to_le32(1);
+	p_mbr->partition_record[0].nr_sects = cpu_to_le32((u32)desc->lba - 1);
 
 	/* Write MBR sector to the MMC device */
 	if (blk_dwrite(desc, 0, 1, p_mbr) != 1) {
@@ -465,10 +465,10 @@ int gpt_fill_pte(struct blk_desc *desc,
 	char *str_type_guid;
 	unsigned char *bin_type_guid;
 #endif
-	size_t hdr_start = gpt_h->my_lba;
+	size_t hdr_start = le64_to_cpu(gpt_h->my_lba);
 	size_t hdr_end = hdr_start + 1;
 
-	size_t pte_start = gpt_h->partition_entry_lba;
+	size_t pte_start = le64_to_cpu(gpt_h->partition_entry_lba);
 	size_t pte_end = pte_start + gpt_pte_blocks(desc, gpt_h);
 
 	for (i = 0; i < parts; i++) {
@@ -560,7 +560,8 @@ int gpt_fill_pte(struct blk_desc *desc,
 
 		for (k = 0; k < min(dosname_len, efiname_len); k++)
 			gpt_e[i].partition_name[k] =
-				(efi_char16_t)(partitions[i].name[k]);
+				cpu_to_le16((efi_char16_t)
+					    (partitions[i].name[k]));
 
 		debug("%s: name: %s offset[%d]: 0x" LBAF
 		      " size[%d]: 0x" LBAF "\n",
@@ -854,7 +855,7 @@ int gpt_verify_partitions(struct blk_desc *desc,
 	gpt_e = *gpt_pte;
 
 	for (i = 0; i < parts; i++) {
-		if (i == gpt_head->num_partition_entries) {
+		if (i == le32_to_cpu(gpt_head->num_partition_entries)) {
 			pr_err("More partitions than allowed!\n");
 			return -1;
 		}
@@ -880,7 +881,7 @@ int gpt_verify_partitions(struct blk_desc *desc,
 		      (unsigned long long)gpt_part_size,
 		      (unsigned long long)partitions[i].size);
 
-		if (le64_to_cpu(gpt_part_size) != partitions[i].size) {
+		if (gpt_part_size != partitions[i].size) {
 			/* We do not check the extend partition size */
 			if ((i == parts - 1) && (partitions[i].size == 0))
 				continue;
