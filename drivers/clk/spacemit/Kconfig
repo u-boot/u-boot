@@ -16,8 +16,17 @@ if CLK_SPACEMIT
 config CLK_SPACEMIT_K1
 	bool "SpacemiT K1 clock support"
 	select CLK_CCF
+	select RESET_SPACEMIT_K1
 	help
 	  This enables support clock driver for Spacemit K1 SoC.
+	  It's based on Common Clock Framework.
+
+config CLK_SPACEMIT_K3
+	bool "SpacemiT K3 clock support"
+	select CLK_CCF
+	select RESET_SPACEMIT_K3
+	help
+	  This enables support clock driver for Spacemit K3 SoC.
 	  It's based on Common Clock Framework.
 
 endif

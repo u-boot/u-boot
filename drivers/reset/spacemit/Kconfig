@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config RESET_SPACEMIT_COMMON
+	bool
+	select DM_RESET
+	help
+	  Common reset controller infrastructure for SpacemiT SoCs.
+	  Shared by the K1 and K3 reset drivers.
+
+config RESET_SPACEMIT_K1
+	bool "SpacemiT K1 reset support"
+	select RESET_SPACEMIT_COMMON
+	help
+	  Reset controller for SpacemiT K1 (MPMU/APBC/APMU/APBC2).
+	  Bound from the K1 CCU/syscon devices.
+
+config RESET_SPACEMIT_K3
+	bool "SpacemiT K3 reset support"
+	select RESET_SPACEMIT_COMMON
+	help
+	  Reset controller for SpacemiT K3 (MPMU/APBC/APMU/DCIU).
+	  Bound from the K3 CCU/syscon devices.

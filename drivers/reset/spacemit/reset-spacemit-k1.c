@@ -7,46 +7,19 @@
  * Copyright (C) 2026 RISCstar Ltd.
  */
 
-#include <asm/io.h>
 #include <dm.h>
-#include <dm/device-internal.h>
-#include <dm/lists.h>
 #include <dt-bindings/clock/spacemit,k1-syscon.h>
 #include <linux/bitops.h>
-#include <malloc.h>
-#include <reset-uclass.h>
 #include <soc/spacemit/k1-reset.h>
 #include <soc/spacemit/k1-syscon.h>
 
-/* ===================================================================
- * Per-syscon reset signal tables.
- *
- * Indexed by the kernel-side per-syscon-local IDs from
- * <dt-bindings/clock/spacemit,k1-syscon.h>. Each entry is
- * (offset, assert_mask, deassert_mask): bits in assert_mask are set
- * when the reset line is asserted; bits in deassert_mask are set when
- * deasserted; the union (assert_mask | deassert_mask) is the set of
- * bits the controller will overwrite on each transition.
- *
- * Layout mirrors the kernel-side K1 reset driver.
- * ===================================================================
- */
+#include "reset-spacemit-common.h"
 
-struct spacemit_k1_reset_data {
-	u32 offset;
-	u32 assert_mask;
-	u32 deassert_mask;
-};
-
-#define RESET_DATA(o, a, d) {					\
-	.offset = (o), .assert_mask = (a), .deassert_mask = (d)	\
-}
-
-static const struct spacemit_k1_reset_data k1_mpmu_resets[] = {
+static const struct spacemit_reset_data k1_mpmu_resets[] = {
 	[RESET_WDT]	= RESET_DATA(MPMU_WDTPCR,		BIT(2), 0),
 };
 
-static const struct spacemit_k1_reset_data k1_apbc_resets[] = {
+static const struct spacemit_reset_data k1_apbc_resets[] = {
 	[RESET_UART0]	= RESET_DATA(APBC_UART1_CLK_RST,	BIT(2), 0),
 	[RESET_UART2]	= RESET_DATA(APBC_UART2_CLK_RST,	BIT(2), 0),
 	[RESET_UART3]	= RESET_DATA(APBC_UART3_CLK_RST,	BIT(2), 0),
@@ -100,7 +73,7 @@ static const struct spacemit_k1_reset_data k1_apbc_resets[] = {
 	[RESET_CAN0]	= RESET_DATA(APBC_CAN0_CLK_RST,		BIT(2), 0),
 };
 
-static const struct spacemit_k1_reset_data k1_apmu_resets[] = {
+static const struct spacemit_reset_data k1_apmu_resets[] = {
 	[RESET_CCIC_4X]		= RESET_DATA(APMU_CCIC_CLK_RES_CTRL,	0, BIT(1)),
 	[RESET_CCIC1_PHY]	= RESET_DATA(APMU_CCIC_CLK_RES_CTRL,	0, BIT(2)),
 	[RESET_SDH_AXI]		= RESET_DATA(APMU_SDH0_CLK_RES_CTRL,	0, BIT(0)),
@@ -156,7 +129,7 @@ static const struct spacemit_k1_reset_data k1_apmu_resets[] = {
 	[RESET_MC]		= RESET_DATA(APMU_PMUA_MC_CTRL,		0, BIT(0)),
 };
 
-static const struct spacemit_k1_reset_data k1_apbc2_resets[] = {
+static const struct spacemit_reset_data k1_apbc2_resets[] = {
 	[RESET_APBC2_UART1]	= RESET_DATA(APBC2_UART1_CLK_RST,	BIT(2), 0),
 	[RESET_APBC2_SSP2]	= RESET_DATA(APBC2_SSP2_CLK_RST,	BIT(2), 0),
 	[RESET_APBC2_TWSI3]	= RESET_DATA(APBC2_TWSI3_CLK_RST,	BIT(2), 0),
@@ -166,89 +139,22 @@ static const struct spacemit_k1_reset_data k1_apbc2_resets[] = {
 	[RESET_APBC2_GPIO]	= RESET_DATA(APBC2_GPIO_CLK_RST,	BIT(2), 0),
 };
 
-/* ===================================================================
- * Driver
- * ===================================================================
- */
 
-struct spacemit_k1_reset_priv {
-	void __iomem *base;
-	const struct spacemit_k1_reset_data *table;
-	size_t table_size;
-};
-
-static int spacemit_k1_reset_xfer(struct reset_ctl *rst, bool assert)
-{
-	struct spacemit_k1_reset_priv *priv = dev_get_priv(rst->dev);
-	const struct spacemit_k1_reset_data *e;
-	u32 v;
-
-	if (rst->id >= priv->table_size)
-		return -EINVAL;
-
-	e = &priv->table[rst->id];
-	if (e->assert_mask == 0 && e->deassert_mask == 0)
-		return -EINVAL;	/* not owned by this syscon */
-
-	v = readl(priv->base + e->offset);
-	v &= ~(e->assert_mask | e->deassert_mask);
-	v |= assert ? e->assert_mask : e->deassert_mask;
-	writel(v, priv->base + e->offset);
-
-	return 0;
-}
-
-static int spacemit_k1_reset_assert(struct reset_ctl *rst)
-{
-	return spacemit_k1_reset_xfer(rst, true);
-}
-
-static int spacemit_k1_reset_deassert(struct reset_ctl *rst)
-{
-	return spacemit_k1_reset_xfer(rst, false);
-}
-
-static int spacemit_k1_reset_request(struct reset_ctl *rst)
-{
-	struct spacemit_k1_reset_priv *priv = dev_get_priv(rst->dev);
-
-	return rst->id < priv->table_size ? 0 : -EINVAL;
-}
-
-static const struct reset_ops spacemit_k1_reset_ops = {
-	.request	= spacemit_k1_reset_request,
-	.rst_assert	= spacemit_k1_reset_assert,
-	.rst_deassert	= spacemit_k1_reset_deassert,
-};
-
-static int spacemit_k1_reset_probe(struct udevice *dev)
-{
-	struct spacemit_k1_reset_priv *priv = dev_get_priv(dev);
-
-	priv->base = (void __iomem *)dev_remap_addr(dev);
-	if (!priv->base)
-		return -ENODEV;
-
-	return 0;
-}
 
 U_BOOT_DRIVER(spacemit_k1_reset) = {
 	.name		= "spacemit_k1_reset",
 	.id		= UCLASS_RESET,
-	.ops		= &spacemit_k1_reset_ops,
-	.probe		= spacemit_k1_reset_probe,
-	.priv_auto	= sizeof(struct spacemit_k1_reset_priv),
+	.ops		= &spacemit_reset_ops,
+	.probe		= spacemit_reset_probe,
+	.priv_auto	= sizeof(struct spacemit_reset_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };
 
 int spacemit_k1_reset_bind(struct udevice *parent,
 			   enum spacemit_k1_reset_syscon syscon)
 {
-	struct spacemit_k1_reset_priv *priv;
-	struct udevice *rst_dev;
-	const struct spacemit_k1_reset_data *table;
+	const struct spacemit_reset_data *table;
 	size_t table_size;
-	int ret;
 
 	switch (syscon) {
 	case SPACEMIT_K1_RESET_MPMU:
@@ -271,19 +177,5 @@ int spacemit_k1_reset_bind(struct udevice *parent,
 		return -EINVAL;
 	}
 
-	ret = device_bind_driver_to_node(parent, "spacemit_k1_reset", "reset",
-					 dev_ofnode(parent), &rst_dev);
-	if (ret)
-		return ret;
-
-	priv = malloc(sizeof(*priv));
-	if (!priv) {
-		device_unbind(rst_dev);
-		return -ENOMEM;
-	}
-	priv->table = table;
-	priv->table_size = table_size;
-	dev_set_priv(rst_dev, priv);
-
-	return 0;
+	return spacemit_reset_bind(parent, "spacemit_k1_reset", table, table_size);
 }
