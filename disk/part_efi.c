@@ -391,10 +391,23 @@ static int set_protective_mbr(struct blk_desc *desc)
 	return 0;
 }
 
+/**
+ * gpt_pte_blocks() - number of blocks taken up by a partition entry array
+ *
+ * @desc:	block device descriptor
+ * @gpt_h:	GPT header describing the array
+ * Return: number of blocks the array occupies on @desc
+ */
+static u32 gpt_pte_blocks(struct blk_desc *desc, const gpt_header *gpt_h)
+{
+	return DIV_ROUND_UP(le32_to_cpu(gpt_h->num_partition_entries) *
+			    le32_to_cpu(gpt_h->sizeof_partition_entry),
+			    desc->blksz);
+}
+
 int write_gpt_table(struct blk_desc *desc, gpt_header *gpt_h, gpt_entry *gpt_e)
 {
-	const int pte_blk_cnt = BLOCK_CNT((gpt_h->num_partition_entries
-					   * sizeof(gpt_entry)), desc);
+	const int pte_blk_cnt = gpt_pte_blocks(desc, gpt_h);
 	u32 calc_crc32;
 
 	debug("max lba: %x\n", (u32)desc->lba);
@@ -456,9 +469,7 @@ int gpt_fill_pte(struct blk_desc *desc,
 	size_t hdr_end = hdr_start + 1;
 
 	size_t pte_start = gpt_h->partition_entry_lba;
-	size_t pte_end = pte_start +
-		gpt_h->num_partition_entries * gpt_h->sizeof_partition_entry /
-		desc->blksz;
+	size_t pte_end = pte_start + gpt_pte_blocks(desc, gpt_h);
 
 	for (i = 0; i < parts; i++) {
 		/* partition starting lba */
@@ -485,7 +496,9 @@ int gpt_fill_pte(struct blk_desc *desc,
 		gpt_e[i].starting_lba = cpu_to_le64(start);
 
 		if (offset > (last_usable_lba + 1)) {
-			log_debug("Partitions layout exceeds disk size\n");
+			log_debug("Partitions layout exceeds disk size: "
+				  LBAFU " > " LBAFU "\n",
+				  offset, last_usable_lba + 1);
 			return -E2BIG;
 		}
 		/* partition ending lba */
@@ -607,18 +620,29 @@ static uint32_t partition_entries_offset(struct blk_desc *desc)
 int gpt_fill_header(struct blk_desc *desc, gpt_header *gpt_h, char *str_guid,
 		    int parts_count)
 {
+	u32 pte_sectors;
+
 	gpt_h->signature = cpu_to_le64(GPT_HEADER_SIGNATURE_UBOOT);
 	gpt_h->revision = cpu_to_le32(GPT_HEADER_REVISION_V1);
 	gpt_h->header_size = cpu_to_le32(sizeof(gpt_header));
+	gpt_h->num_partition_entries = cpu_to_le32(GPT_ENTRY_NUMBERS);
+	gpt_h->sizeof_partition_entry = cpu_to_le32(sizeof(gpt_entry));
+
+	/*
+	 * Number of blocks occupied by the partition entry array. For the
+	 * default of 128 entries that is 32 blocks on 512-byte sectors, but
+	 * only 4 blocks on 4096-byte sectors.
+	 */
+	pte_sectors = gpt_pte_blocks(desc, gpt_h);
+
 	gpt_h->my_lba = cpu_to_le64(1);
 	gpt_h->alternate_lba = cpu_to_le64(desc->lba - 1);
-	gpt_h->last_usable_lba = cpu_to_le64(desc->lba - 34);
+	/* Reserve space for backup GPT header (1) + backup partition entries */
+	gpt_h->last_usable_lba = cpu_to_le64(desc->lba - pte_sectors - 2);
 	gpt_h->partition_entry_lba =
 		cpu_to_le64(partition_entries_offset(desc));
 	gpt_h->first_usable_lba =
-		cpu_to_le64(le64_to_cpu(gpt_h->partition_entry_lba) + 32);
-	gpt_h->num_partition_entries = cpu_to_le32(GPT_ENTRY_NUMBERS);
-	gpt_h->sizeof_partition_entry = cpu_to_le32(sizeof(gpt_entry));
+		cpu_to_le64(le64_to_cpu(gpt_h->partition_entry_lba) + pte_sectors);
 	gpt_h->header_crc32 = 0;
 	gpt_h->partition_entry_array_crc32 = 0;
 
@@ -750,8 +774,7 @@ static void restore_primary_gpt_header(gpt_header *gpt_h, struct blk_desc *desc)
 static int write_one_gpt_table(struct blk_desc *desc, gpt_header *gpt_h,
 			       gpt_entry *gpt_e)
 {
-	const int pte_blk_cnt = BLOCK_CNT((gpt_h->num_partition_entries
-					   * sizeof(gpt_entry)), desc);
+	const int pte_blk_cnt = gpt_pte_blocks(desc, gpt_h);
 	lbaint_t start;
 	int ret = 0;
 
