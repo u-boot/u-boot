@@ -338,6 +338,7 @@ def test_gpt_write(state_disk_image, ubman):
 def test_gpt_write_part_type(state_disk_image, ubman):
     """Test the gpt command with part type uuid."""
 
+    ubman.run_command('host bind 0 ' + state_disk_image.path)
     output = ubman.run_command('gpt write host 0 "name=part1,type=data,size=1M;name=part2,size=512K,type=system;name=part3,size=65536,type=u-boot-env;name=part4,size=65536,type=375a56f7-d6c9-4e81-b5f0-09d41ca89efe;name=part5,size=-,type=linux"')
     assert 'Writing GPT: success!' in output
     output = ubman.run_command('part list host 0')
