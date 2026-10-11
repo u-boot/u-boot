@@ -1842,7 +1842,7 @@ static ulong rk3576_uart_set_rate(struct rk3576_clk_priv *priv,
 		div = DIV_ROUND_UP(priv->gpll_hz, rate);
 	} else if (!(priv->cpll_hz % rate)) {
 		clk_src = CLK_UART_SEL_CPLL;
-		div = DIV_ROUND_UP(priv->gpll_hz, rate);
+		div = DIV_ROUND_UP(priv->cpll_hz, rate);
 	} else if (!(rk3576_uart_frac_get_rate(priv, CLK_UART_FRAC_0) % rate)) {
 		clk_src = CLK_UART_SEL_FRAC0;
 		div = DIV_ROUND_UP(rk3576_uart_frac_get_rate(priv, CLK_UART_FRAC_0), rate);
