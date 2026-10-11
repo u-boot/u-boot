@@ -690,7 +690,7 @@ static ulong rk3576_adc_set_clk(struct rk3576_clk_priv *priv,
 		} else {
 			src_clk_div = DIV_ROUND_UP(priv->gpll_hz, rate);
 			assert(src_clk_div - 1 <= 255);
-			rk_clrsetreg(&cru->clksel_con[59],
+			rk_clrsetreg(&cru->clksel_con[58],
 				     CLK_SARADC_SEL_MASK |
 				     CLK_SARADC_DIV_MASK,
 				     (CLK_SARADC_SEL_GPLL <<
