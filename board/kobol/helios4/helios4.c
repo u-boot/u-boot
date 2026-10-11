@@ -5,15 +5,21 @@
  */
 
 #include <config.h>
+#include <env.h>
 #include <i2c.h>
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
+#include <spi-mem.h>
+#include <spi_flash.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <dm/device.h>
+#include <linux/string.h>
+#include <u-boot/sha256.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
@@ -132,4 +138,56 @@ int board_eth_init(struct bd_info *bis)
 {
 	cpu_eth_init(bis); /* Built in controller(s) come first */
 	return pci_eth_init(bis);
+}
+
+#define SPINOR_OP_RDUID		0x4b
+#define SPINOR_UID_LEN		8
+
+static int helios4_read_flash_uid(u8 *uid)
+{
+	struct spi_mem_op op =
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RDUID, 1),
+			   SPI_MEM_OP_NO_ADDR,
+			   SPI_MEM_OP_DUMMY(4, 1),
+			   SPI_MEM_OP_DATA_IN(SPINOR_UID_LEN, uid, 1));
+	struct spi_flash *flash;
+	struct udevice *dev;
+	int ret;
+
+	ret = spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS,
+				     CONFIG_SF_DEFAULT_CS, &dev);
+	if (ret)
+		return ret;
+
+	flash = dev_get_uclass_priv(dev);
+	ret = spi_mem_exec_op(flash->spi, &op);
+	if (ret)
+		return ret;
+
+	if (!memchr_inv(uid, 0x00, SPINOR_UID_LEN) ||
+	    !memchr_inv(uid, 0xff, SPINOR_UID_LEN))
+		return -ENODATA;
+
+	return 0;
+}
+
+/*
+ * The board has no factory MAC address, so derive a stable one from the
+ * unique ID of the SPI NOR on the SoM.
+ */
+int misc_init_r(void)
+{
+	u8 uid[SPINOR_UID_LEN];
+	u8 mac[SHA256_SUM_LEN];
+
+	/* ethernet@70000 is aliased as ethernet1 */
+	if (env_get("eth1addr") || helios4_read_flash_uid(uid))
+		return 0;
+
+	sha256_csum_wd(uid, sizeof(uid), mac, CHUNKSZ_SHA256);
+	mac[0] &= 0xfe;	/* unicast */
+	mac[0] |= 0x02;	/* locally administered */
+	eth_env_set_enetaddr("eth1addr", mac);
+
+	return 0;
 }
