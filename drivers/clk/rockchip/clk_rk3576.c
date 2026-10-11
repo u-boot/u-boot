@@ -702,7 +702,7 @@ static ulong rk3576_adc_set_clk(struct rk3576_clk_priv *priv,
 	case CLK_TSADC:
 		src_clk_div = DIV_ROUND_UP(OSC_HZ, rate);
 		assert(src_clk_div - 1 <= 255);
-		rk_clrsetreg(&cru->clksel_con[58],
+		rk_clrsetreg(&cru->clksel_con[59],
 			     CLK_TSADC_DIV_MASK,
 			     (src_clk_div - 1) <<
 			     CLK_TSADC_DIV_SHIFT);
