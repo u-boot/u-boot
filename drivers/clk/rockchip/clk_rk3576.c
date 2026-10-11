@@ -56,7 +56,7 @@ static struct rockchip_pll_clock rk3576_pll_clks[] = {
 		     RK3576_MODE_CON0, 8, 15, 0, rk3576_24m_pll_rates),
 	[GPLL] = PLL(pll_rk3588, PLL_GPLL, RK3576_PLL_CON(112),
 		     RK3576_MODE_CON0, 2, 15, 0, rk3576_24m_pll_rates),
-	[PPLL] = PLL(pll_rk3588, PLL_PPLL, RK3576_PMU_PLL_CON(128),
+	[PPLL] = PLL(pll_rk3588, PLL_PPLL, RK3576_PHP_PLL_CON(128),
 		     RK3576_MODE_CON0, 10, 15, 0, rk3576_24m_pll_rates),
 };
 
@@ -2454,7 +2454,7 @@ static int rk3576_clk_probe(struct udevice *dev)
 	       RK3576_SCRU_BASE + RK3576_MODE_CON0);
 	/* fix ppll\aupll\cpll */
 	writel(BITS_WITH_WMASK(2, 0x7U, 6),
-	       RK3576_CRU_BASE + RK3576_PMU_PLL_CON(129));
+	       RK3576_CRU_BASE + RK3576_PHP_PLL_CON(129));
 	writel(BITS_WITH_WMASK(2, 0x7U, 6),
 	       RK3576_CRU_BASE + RK3576_PLL_CON(97));
 	writel(BITS_WITH_WMASK(2, 0x7U, 6),
