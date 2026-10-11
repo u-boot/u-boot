@@ -41,7 +41,6 @@ struct rk3588_clk_info {
 
 struct rk3588_clk_priv {
 	struct rk3588_cru *cru;
-	struct rk3588_grf *grf;
 	ulong ppll_hz;
 	ulong gpll_hz;
 	ulong cpll_hz;

@@ -1973,10 +1973,6 @@ static int rk3588_clk_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	if (IS_ERR(priv->grf))
-		return PTR_ERR(priv->grf);
-
 	rk3588_clk_init(priv);
 
 	return 0;
