@@ -1714,7 +1714,7 @@ static ulong rk3576_uart_frac_set_rate(struct rk3576_clk_priv *priv,
 		p_rate = OSC_HZ;
 	} else {
 		clk_src = CLK_UART_SRC_SEL_GPLL;
-		p_rate = priv->cpll_hz;
+		p_rate = priv->gpll_hz;
 	}
 
 	rational_best_approximation(rate, p_rate, GENMASK(16 - 1, 0),
