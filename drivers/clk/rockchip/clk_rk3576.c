@@ -319,8 +319,7 @@ static ulong rk3576_top_set_clk(struct rk3576_clk_priv *priv,
 		rk_clrsetreg(&cru->clksel_con[10],
 			     ACLK_TOP_MID_DIV_MASK |
 			     ACLK_TOP_MID_SEL_MASK,
-			     (ACLK_TOP_MID_SEL_GPLL <<
-			      ACLK_TOP_MID_SEL_SHIFT) |
+			     (src_clk << ACLK_TOP_MID_SEL_SHIFT) |
 			     (src_clk_div - 1) << ACLK_TOP_MID_DIV_SHIFT);
 		break;
 	case PCLK_TOP_ROOT:
