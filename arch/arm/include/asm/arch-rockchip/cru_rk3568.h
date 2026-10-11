@@ -44,7 +44,6 @@ struct rk3568_pmuclk_priv {
 
 struct rk3568_clk_priv {
 	struct rk3568_cru *cru;
-	struct rk3568_grf *grf;
 	ulong ppll_hz;
 	ulong hpll_hz;
 	ulong gpll_hz;
