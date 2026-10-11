@@ -468,6 +468,7 @@ static ulong rk3576_i2c_set_clk(struct rk3576_clk_priv *priv, ulong clk_id,
 	case CLK_I2C8:
 		rk_clrsetreg(&cru->clksel_con[57], CLK_I2C8_SEL_MASK,
 			     src_clk << CLK_I2C8_SEL_SHIFT);
+		break;
 	case CLK_I2C9:
 		rk_clrsetreg(&cru->clksel_con[58], CLK_I2C9_SEL_MASK,
 			     src_clk << CLK_I2C9_SEL_SHIFT);
