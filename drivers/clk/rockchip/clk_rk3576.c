@@ -44,8 +44,7 @@ static struct rockchip_pll_rate_table rk3576_24m_pll_rates[] = {
 
 static struct rockchip_pll_clock rk3576_pll_clks[] = {
 	[BPLL] = PLL(pll_rk3588, PLL_BPLL, RK3576_PLL_CON(0),
-		      RK3576_BPLL_MODE_CON0, 0, 15, 0,
-		      rk3576_24m_pll_rates),
+		     RK3576_BPLL_MODE_CON0, 0, 15, 0, rk3576_24m_pll_rates),
 	[LPLL] = PLL(pll_rk3588, PLL_LPLL, RK3576_LPLL_CON(16),
 		     RK3576_LPLL_MODE_CON0, 0, 15, 0, rk3576_24m_pll_rates),
 	[VPLL] = PLL(pll_rk3588, PLL_VPLL, RK3576_PLL_CON(88),
