@@ -427,7 +427,7 @@ static ulong rk3576_i2c_set_clk(struct rk3576_clk_priv *priv, ulong clk_id,
 		src_clk = CLK_I2C_SEL_200M;
 	else if (rate >= 99 * MHz)
 		src_clk = CLK_I2C_SEL_100M;
-	if (rate >= 50 * MHz)
+	else if (rate >= 50 * MHz)
 		src_clk = CLK_I2C_SEL_50M;
 	else
 		src_clk = CLK_I2C_SEL_OSC;
