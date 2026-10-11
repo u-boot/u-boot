@@ -89,26 +89,6 @@ static inline struct cpuid_result cpuid(int op)
 	return result;
 }
 
-/*
- * Generic Extended CPUID function
- */
-static inline struct cpuid_result cpuid_ext(int op, unsigned ecx)
-{
-	struct cpuid_result result;
-	asm volatile(
-		"mov %%ebx, %%edi;"
-		"cpuid;"
-		"mov %%ebx, %%esi;"
-		"mov %%edi, %%ebx;"
-		: "=a" (result.eax),
-		  "=S" (result.ebx),
-		  "=c" (result.ecx),
-		  "=d" (result.edx)
-		: "0" (op), "2" (ecx)
-		: "edi");
-	return result;
-}
-
 static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
 				unsigned int *ecx, unsigned int *edx)
 {
@@ -120,6 +100,21 @@ static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
 	      "=d" (*edx)
 	    : "0" (*eax), "2" (*ecx)
 	    : "memory");
+}
+
+/*
+ * Generic Extended CPUID function
+ */
+static inline struct cpuid_result cpuid_ext(int op, unsigned int ecx)
+{
+	struct cpuid_result result = {
+		.eax = op,
+		.ecx = ecx,
+	};
+
+	native_cpuid(&result.eax, &result.ebx, &result.ecx, &result.edx);
+
+	return result;
 }
 
 #define native_cpuid_reg(reg)					\
