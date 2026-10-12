@@ -772,7 +772,7 @@ static int zynq_gem_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct emac_bd *current_bd = &priv->rx_bd[priv->rxbd_current];
 
 	if (!(current_bd->addr & ZYNQ_GEM_RXBUF_NEW_MASK))
-		return -1;
+		return -EAGAIN;
 
 	if (!(current_bd->status &
 			(ZYNQ_GEM_RXBUF_SOF_MASK | ZYNQ_GEM_RXBUF_EOF_MASK))) {
