@@ -19,6 +19,8 @@
 #define CTRL_MMR0_BASE					0x43000000
 
 #define CTRLMMR_WKUP_JTAG_DEVICE_ID		(WKUP_CTRL_MMR0_BASE + 0x18)
+#define JTAG_DEV_CORE_NR_MASK			GENMASK(23, 22)
+#define JTAG_DEV_CORE_NR_SHIFT			22
 #define JTAG_DEV_SPEED_MASK			GENMASK(10, 6)
 #define JTAG_DEV_SPEED_SHIFT			6
 
@@ -89,3 +91,10 @@ static const u32 put_core_ids[] = {
 };
 
 #endif /* __ASM_ARCH_DRA8_HARDWARE_H */
+
+static inline int k3_get_core_nr(void)
+{
+	u32 devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+
+	return (devid & JTAG_DEV_CORE_NR_MASK) >> JTAG_DEV_CORE_NR_SHIFT;
+}
