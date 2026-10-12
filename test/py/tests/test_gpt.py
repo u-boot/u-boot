@@ -6,6 +6,7 @@
 
 import os
 import pytest
+import struct
 import utils
 
 """
@@ -44,6 +45,28 @@ def parse_gpt_parts(disk_str):
             parts.append(part)
 
     return parts
+
+# Layout of gpt_header from include/part_efi.h. It is __packed and
+# little-endian, and struct.calcsize() of this is 92, its header_size.
+GPT_HEADER_FMT = '<8sIIIIQQQQ16sQIII'
+GPT_HEADER_FIELDS = (
+    'signature', 'revision', 'header_size', 'header_crc32', 'reserved1',
+    'my_lba', 'alternate_lba', 'first_usable_lba', 'last_usable_lba',
+    'disk_guid', 'partition_entry_lba', 'num_partition_entries',
+    'sizeof_partition_entry', 'partition_entry_array_crc32')
+
+def parse_gpt_header(blob):
+    """Unpack a raw GPT header.
+
+    Args:
+        blob: Bytes starting at the first byte of the header
+
+    Returns:
+        A dict mapping each gpt_header field name to its value
+    """
+    size = struct.calcsize(GPT_HEADER_FMT)
+    return dict(zip(GPT_HEADER_FIELDS,
+                    struct.unpack(GPT_HEADER_FMT, blob[:size])))
 
 class GptTestDiskImage(object):
     """Disk Image used by the GPT tests."""
@@ -92,6 +115,36 @@ class GptTestDiskImage(object):
 
         cmd = ('cp', persistent, self.path)
         utils.run_and_log(ubman, cmd)
+
+class BlankDiskImage(object):
+    """Zero-filled disk image with no partition table on it."""
+
+    def __init__(self, ubman, size=4 * 1024 * 1024):
+        """Initialize a new BlankDiskImage object.
+
+        Args:
+            ubman: A U-Boot console.
+            size: Image size in bytes. Must be a multiple of the block size
+                the image is later bound with.
+
+        Returns:
+            Nothing.
+        """
+
+        self.size = size
+        self.path = os.path.join(ubman.config.result_dir,
+                                 'test_gpt_blank_disk_image.bin')
+        ubman.log.action('Generating ' + self.path)
+        with open(self.path, 'wb') as fd:
+            fd.truncate(size)
+
+@pytest.fixture(scope='function')
+def blank_disk_image(ubman):
+    """pytest fixture to provide an empty BlankDiskImage object to tests.
+    This is function-scoped because it uses ubman, which is also
+    function-scoped."""
+
+    return BlankDiskImage(ubman)
 
 @pytest.fixture(scope='function')
 def state_disk_image(ubman):
@@ -333,11 +386,78 @@ def test_gpt_write(state_disk_image, ubman):
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
 @pytest.mark.buildconfigspec('cmd_part')
+def test_gpt_write_4k_sectors(blank_disk_image, ubman):
+    """Test the GPT layout written to a device with 4096-byte sectors.
+
+    The partition entry array takes up fewer blocks on a device with large
+    sectors, and the backup array has to end immediately before the backup
+    header in the last block whatever the block size is.
+    """
+
+    blksz = 4096
+    entry_sz = 128
+    nblocks = blank_disk_image.size // blksz
+    entries = int(ubman.config.buildconfig.get(
+        'config_efi_partition_entries_numbers', 128))
+    pte_blocks = -(-entries * entry_sz // blksz)
+
+    first_usable = 2 + pte_blocks
+    last_usable = nblocks - pte_blocks - 2
+
+    ubman.run_command(f'host bind 0 {blank_disk_image.path} {blksz}')
+
+    output = ubman.run_command('gpt write host 0 "name=all,size=0"')
+    assert 'Writing GPT: success!' in output
+    output = ubman.run_command('gpt verify host 0')
+    assert 'Verify GPT: success!' in output
+
+    output = ubman.run_command('part list host 0')
+    assert f'0x{first_usable:08x}\t0x{last_usable:08x}\t"all"' in output
+
+    with open(blank_disk_image.path, 'rb') as fd:
+        data = fd.read()
+
+    # The primary header sits in block 1 and describes the whole layout
+    prim = parse_gpt_header(data[blksz:])
+    assert prim['signature'] == b'EFI PART'
+    assert prim['my_lba'] == 1
+    assert prim['alternate_lba'] == nblocks - 1
+    assert prim['partition_entry_lba'] == 2
+    assert prim['first_usable_lba'] == first_usable
+    assert prim['last_usable_lba'] == last_usable
+    assert prim['num_partition_entries'] == entries
+    assert prim['sizeof_partition_entry'] == entry_sz
+
+    # The backup header sits in the very last block...
+    bkp = parse_gpt_header(data[(nblocks - 1) * blksz:])
+    assert bkp['signature'] == b'EFI PART'
+    assert bkp['my_lba'] == nblocks - 1
+    assert bkp['alternate_lba'] == 1
+    assert bkp['first_usable_lba'] == first_usable
+    assert bkp['last_usable_lba'] == last_usable
+
+    # ...and its entry array must end immediately before it
+    assert bkp['partition_entry_lba'] == last_usable + 1
+    assert bkp['partition_entry_lba'] + pte_blocks == nblocks - 1
+
+    # The backup array holds the same entries as the primary one
+    pte_len = entries * entry_sz
+    bkp_off = bkp['partition_entry_lba'] * blksz
+    assert data[bkp_off:bkp_off + pte_len] == data[2 * blksz:2 * blksz + pte_len]
+
+    # Unlike the other tests here this one binds a device with a non-default
+    # block size, so drop it again rather than leave it for whatever runs next
+    ubman.run_command('host unbind 0')
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.buildconfigspec('cmd_part')
 @pytest.mark.buildconfigspec('partition_type_guid')
 @pytest.mark.requiredtool('sgdisk')
 def test_gpt_write_part_type(state_disk_image, ubman):
     """Test the gpt command with part type uuid."""
 
+    ubman.run_command('host bind 0 ' + state_disk_image.path)
     output = ubman.run_command('gpt write host 0 "name=part1,type=data,size=1M;name=part2,size=512K,type=system;name=part3,size=65536,type=u-boot-env;name=part4,size=65536,type=375a56f7-d6c9-4e81-b5f0-09d41ca89efe;name=part5,size=-,type=linux"')
     assert 'Writing GPT: success!' in output
     output = ubman.run_command('part list host 0')

@@ -166,7 +166,7 @@ bool efi_hash_regions(struct image_region *regs, int count,
  *
  * Return: true if supported false otherwise
  */
-static bool hash_algo_supported(const efi_guid_t guid)
+static bool hash_algo_supported(const efi_guid_t *guid)
 {
 	int i;
 	const efi_guid_t unsupported_hashes[] = {
@@ -177,7 +177,7 @@ static bool hash_algo_supported(const efi_guid_t guid)
 	};
 
 	for (i = 0; i < ARRAY_SIZE(unsupported_hashes); i++) {
-		if (!guidcmp(&unsupported_hashes[i], &guid))
+		if (!guidcmp(&unsupported_hashes[i], guid))
 			return false;
 	}
 
@@ -219,7 +219,7 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 		 * if the hash algorithm is unsupported and we get an entry in
 		 * dbx reject the image
 		 */
-		if (dbx && !hash_algo_supported(siglist->sig_type)) {
+		if (dbx && !hash_algo_supported(&siglist->sig_type)) {
 			found = true;
 			continue;
 		};

@@ -820,6 +820,8 @@ static int test_hii_string_set_string(void)
 	efi_string_id_t id;
 	efi_status_t ret;
 	int result = EFI_ST_FAILURE;
+	u16 string[32];
+	efi_uintn_t string_size;
 
 	PRINT_TESTNAME;
 	ret = hii_database_protocol->new_package_list(hii_database_protocol,
@@ -845,6 +847,48 @@ static int test_hii_string_set_string(void)
 					      u"Nihongo", NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("set_string returned %u\n",
+			     (unsigned int)ret);
+		goto out;
+	}
+
+	ret = hii_database_protocol->remove_package_list(hii_database_protocol,
+							 handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
+	}
+
+	/*
+	 * Test the reallocation path.
+	 * We create string 2 in package fr-FR, which has only one string.
+	 * This forces the reallocation of the string table.
+	 * Then we read string 2 again, to verify that we did not forget the
+	 * size of the string table.
+	 */
+	ret = hii_database_protocol->new_package_list(hii_database_protocol,
+			(struct efi_hii_package_list_header *)packagelist3,
+			NULL, &handle);
+	if (ret != EFI_SUCCESS || !handle) {
+		efi_st_error("new_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
+	}
+
+	ret = hii_string_protocol->set_string(hii_string_protocol, handle, 2,
+					      (u8 *)"fr-FR", u"Realloc", NULL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("set_string returned %u\n",
+			     (unsigned int)ret);
+		goto out;
+	}
+
+	string_size = sizeof(string);
+	ret = hii_string_protocol->get_string(hii_string_protocol,
+					      (u8 *)"fr-FR", handle, 2, string,
+					      &string_size, NULL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("get_string returned %u\n",
 			     (unsigned int)ret);
 		goto out;
 	}

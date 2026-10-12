@@ -34,25 +34,6 @@ extern const struct efi_device_path EFI_DP_END;
 struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
 
 /**
- * efi_dp_match() - Compare two device-paths
- *
- * Compare two device paths node by node. The comparison stops when an End
- * node is reached in the shorter of the two paths. This is useful, for example,
- * to compare a device-path representing a device with one representing a file
- * on that device, or a device with a parent device.
- *
- * @a: Pointer to the first device path.
- * @b: Pointer to the second device path.
- * Return: An integer less than, equal to, or greater than zero if the first
- * differing node in 'a' is found, respectively, to be less than,
- * to match, or be greater than the corresponding node in 'b'. Returns 0
- * if they match up to the end of the shorter path. Compares length first,
- * then content.
- */
-int efi_dp_match(const struct efi_device_path *a,
-		 const struct efi_device_path *b);
-
-/**
  * efi_dp_shorten() - shorten device-path
  *
  * When creating a short-boot option we want to use a device-path that is
