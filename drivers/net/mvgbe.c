@@ -569,7 +569,7 @@ static int __mvgbe_recv(struct mvgbe_device *dmvgbe, uchar **packetp)
 			timeout++;
 		else {
 			debug("%s time out...\n", __func__);
-			return -1;
+			return -EAGAIN;
 		}
 	} while (readl(&p_rxdesc_curr->cmd_sts) & MVGBE_BUFFER_OWNED_BY_DMA);
 
