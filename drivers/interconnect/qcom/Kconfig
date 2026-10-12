@@ -5,6 +5,18 @@ config INTERCONNECT_QCOM_RPMH
 	  Enable support for the interconnect helpers to vote with
 	  the RPMh subsystems in Qualcomm SoCs
 
+config INTERCONNECT_QCOM_SC7280
+	bool "Enable interconnect support for SC7280 SoC"
+	depends on INTERCONNECT_QCOM_RPMH
+	help
+	  Enable support for the interconnect driver for the SC7280 SoC.
+
+config INTERCONNECT_QCOM_QCS8300
+	bool "Enable interconnect support for QCS8300 SoC"
+	depends on INTERCONNECT_QCOM_RPMH
+	help
+	  Enable support for the interconnect driver for the QCS8300 SoC.
+
 config INTERCONNECT_QCOM_SM8650
 	bool "Enable interconnect support for SM8650 SoC"
 	depends on INTERCONNECT_QCOM_RPMH
