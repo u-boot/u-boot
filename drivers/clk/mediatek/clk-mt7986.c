@@ -78,7 +78,7 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	PLL_FACTOR(CLK_TOP_MMPLL_D8, "mmpll_d8", CLK_APMIXED_MMPLL, 1, 8),
 	PLL_FACTOR(CLK_TOP_MMPLL_D8_D2, "mmpll_d8_d2", CLK_APMIXED_MMPLL, 1, 16),
 	PLL_FACTOR(CLK_TOP_MMPLL_D3_D8, "mmpll_d3_d8", CLK_APMIXED_MMPLL, 1, 8),
-	PLL_FACTOR(CLK_TOP_MMPLL_U2PHYD, "mmpll_u2phy", CLK_APMIXED_MMPLL, 1, 30),
+	PLL_FACTOR(CLK_TOP_MMPLL_U2PHY, "mmpll_u2phy", CLK_APMIXED_MMPLL, 1, 30),
 	/* APLL2 */
 	PLL_FACTOR(CLK_TOP_APLL2_D4, "apll2_d4", CLK_APMIXED_APLL2, 1, 4),
 	/* NET1PLL */
@@ -227,7 +227,7 @@ static const struct mtk_parent u2u3_sys_parents[] = {
 };
 
 static const struct mtk_parent da_u2_refsel_parents[] = {
-	TOP_PARENT(CLK_TOP_XTAL), TOP_PARENT(CLK_TOP_MMPLL_U2PHYD),
+	TOP_PARENT(CLK_TOP_XTAL), TOP_PARENT(CLK_TOP_MMPLL_U2PHY),
 };
 
 #define TOP_MUX(_id, _name, _parents, _mux_ofs, _mux_set_ofs, _mux_clr_ofs,    \
