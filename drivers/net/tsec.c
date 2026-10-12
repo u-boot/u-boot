@@ -335,6 +335,8 @@ static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 			/* Rearm the packet buffer */
 			tsec_free_pkt(dev, NULL, 0);
 		}
+	} else {
+		ret = -EAGAIN;
 	}
 
 	if (in_be32(&regs->ievent) & IEVENT_BSY) {
