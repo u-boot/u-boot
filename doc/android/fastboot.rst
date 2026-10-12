@@ -72,6 +72,54 @@ platform. The location of the buffer and size are set with
 may be overridden on the fastboot command line using ``-l`` and
 ``-s``.
 
+Fastboot in SPL
+^^^^^^^^^^^^^^^
+
+Fastboot can be used from SPL without enabling the command line. Enable
+``CONFIG_SPL_FASTBOOT`` together with the platform's SPL USB gadget support,
+then start the session from board code::
+
+   ret = fastboot_usb_run(controller_index, NULL, 0);
+
+The call normally belongs in ``board_init_r()`` or in a board recovery hook.
+It services USB until the host sends ``continue`` or detaches the gadget, then
+returns control to its caller.
+
+A ``NULL`` buffer and zero size select ``CONFIG_FASTBOOT_BUF_ADDR`` and
+``CONFIG_FASTBOOT_BUF_SIZE``. These Kconfig settings are shared with U-Boot
+proper. A board which needs a different SPL memory layout must pass explicit
+values. Unlike the command-line invocation, an SPL session cannot be aborted
+from the local console.
+
+SPL supports ``getvar``, ``download``, ``continue`` and the ``set_active``
+stub. The ``continue`` command ends the session and returns control to the
+caller. The ``flash`` and ``erase`` commands are available when their SPL
+backend is enabled. A recognized command whose optional backend is disabled is
+reported as unsupported. Commands omitted from the SPL table, including
+``boot``, ``ucmd``, ``acmd`` and the OEM commands, are reported as unrecognized.
+
+MMC flash and erase support is enabled with
+``CONFIG_SPL_FASTBOOT_FLASH_MMC``. The SPL partition-table parser matching the
+storage layout must also be enabled, for example ``CONFIG_SPL_EFI_PARTITION``
+for GPT. This backend requires the reclaiming SPL allocator; it cannot be used
+with ``CONFIG_SPL_SYS_MALLOC_SIMPLE`` because sparse and block writes allocate
+and free transient buffers.
+
+SPL reports ``raw`` for ``partition-type`` because it does not add filesystem
+probing for this getvar. The special ``flash:zimage`` path is not available
+because Android boot-image support is not enabled for SPL.
+
+Environment support is optional. With ``CONFIG_SPL_ENV_SUPPORT``, the USB
+serial number, environment-backed getvars, MMC partition aliases and raw
+partition descriptors work as in U-Boot proper. Without it, the core protocol
+and partition-table lookups remain available, while those environment-backed
+features are omitted.
+
+Reboot commands require ``CONFIG_SPL_FASTBOOT_REBOOT`` and a platform
+``reset_cpu()`` implementation. The ``reboot-bootloader``, ``reboot-fastboot``
+and ``reboot-recovery`` commands also require a platform
+``fastboot_set_reboot_flag()`` implementation.
+
 Fastboot environment variables
 ------------------------------
 

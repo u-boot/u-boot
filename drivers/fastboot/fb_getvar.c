@@ -70,19 +70,19 @@ static const struct {
 		.variable = "current-slot",
 		.dispatch = getvar_current_slot,
 		.list = true
-#if IS_ENABLED(CONFIG_FASTBOOT_FLASH)
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	}, {
 		.variable = "has-slot",
 		.dispatch = getvar_has_slot,
 		.list = false
 #endif
-#if IS_ENABLED(CONFIG_FASTBOOT_FLASH_MMC)
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	}, {
 		.variable = "partition-type",
 		.dispatch = getvar_partition_type,
 		.list = false
 #endif
-#if IS_ENABLED(CONFIG_FASTBOOT_FLASH)
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	}, {
 		.variable = "partition-size",
 		.dispatch = getvar_partition_size,
@@ -116,21 +116,21 @@ static int getvar_get_part_info(const char *part_name, char *response,
 	struct disk_partition disk_part;
 	struct part_info *part_info;
 
-	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_BLOCK)) {
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_BLOCK)) {
 		r = fastboot_block_get_part_info(part_name, &dev_desc, &disk_part,
 						 response);
 		if (r >= 0 && size)
 			*size = disk_part.size * disk_part.blksz;
-	} else if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_MMC)) {
+	} else if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)) {
 		r = fastboot_mmc_get_part_info(part_name, &dev_desc, &disk_part,
 					       response);
 		if (r >= 0 && size)
 			*size = disk_part.size * disk_part.blksz;
-	} else if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_NAND)) {
+	} else if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)) {
 		r = fastboot_nand_get_part_info(part_name, &part_info, response);
 		if (r >= 0 && size)
 			*size = part_info->size;
-	} else if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_SPI)) {
+	} else if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_SPI)) {
 		r = fastboot_spi_flash_get_part_info(part_name, &disk_part,
 						     response);
 		if (r >= 0 && size)
@@ -160,7 +160,8 @@ static void getvar_downloadsize(char *var_parameter, char *response)
 
 static void getvar_serialno(char *var_parameter, char *response)
 {
-	const char *tmp = env_get("serial#");
+	const char *tmp = CONFIG_IS_ENABLED(ENV_SUPPORT,
+					    (env_get("serial#")), (NULL));
 
 	if (tmp)
 		fastboot_okay(tmp, response);
@@ -175,7 +176,8 @@ static void getvar_version_baseband(char *var_parameter, char *response)
 
 static void getvar_product(char *var_parameter, char *response)
 {
-	const char *board = env_get("board");
+	const char *board = CONFIG_IS_ENABLED(ENV_SUPPORT,
+					      (env_get("board")), (NULL));
 
 	if (board)
 		fastboot_okay(board, response);
@@ -185,7 +187,8 @@ static void getvar_product(char *var_parameter, char *response)
 
 static void getvar_platform(char *var_parameter, char *response)
 {
-	const char *p = env_get("platform");
+	const char *p = CONFIG_IS_ENABLED(ENV_SUPPORT,
+					  (env_get("platform")), (NULL));
 
 	if (p)
 		fastboot_okay(p, response);
@@ -240,12 +243,17 @@ static void __maybe_unused getvar_partition_type(char *part_name, char *response
 	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
 				       response);
 	if (r >= 0) {
+#ifdef CONFIG_XPL_BUILD
+		/* SPL does not pull in filesystem probing just for this getvar. */
+		fastboot_okay("raw", response);
+#else
 		r = fs_set_blk_dev_with_part(dev_desc, r);
 		if (r < 0)
 			/* If we don't know then just default to raw */
 			fastboot_okay("raw", response);
 		else
 			fastboot_okay(fs_get_type_name(), response);
+#endif
 	}
 }
 
@@ -327,7 +335,7 @@ void fastboot_getvar(char *cmd_parameter, char *response)
 
 		snprintf(envstr, sizeof(envstr) - 1,
 			 FASTBOOT_ENV_PREFIX "%s", cmd_parameter);
-		s = env_get(envstr);
+		s = CONFIG_IS_ENABLED(ENV_SUPPORT, (env_get(envstr)), (NULL));
 		if (s) {
 			fastboot_response("OKAY", response, "%s", s);
 			return;

@@ -1,5 +1,6 @@
 menu "Fastboot support"
-	depends on CMDLINE
+
+if CMDLINE
 
 config FASTBOOT
 	bool
@@ -47,7 +48,33 @@ config TCP_FUNCTION_FASTBOOT
 	help
 	  This enables the fastboot protocol over TCP.
 
-if FASTBOOT
+endif # CMDLINE
+
+config SPL_FASTBOOT
+	bool "Support fastboot in SPL"
+	depends on USB_GADGET && SPL_USB_GADGET
+	depends on !SPL_USE_TINY_PRINTF
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_PRINTF
+	select SPL_USB_FUNCTION_FASTBOOT
+	help
+	  Enable the USB fastboot protocol in SPL. The board is responsible
+	  for starting the fastboot session. Full printf support is required
+	  because fastboot builds bounded responses with vsnprintf() and uses
+	  formats which are not supported by the tiny implementation.
+
+config SPL_USB_FUNCTION_FASTBOOT
+	bool
+
+config SPL_FASTBOOT_REBOOT
+	bool "Enable fastboot reboot commands in SPL"
+	depends on SPL_FASTBOOT
+	help
+	  Enable the fastboot reboot commands in SPL. The platform must provide
+	  reset_cpu(), either directly or through the SPL sysreset framework.
+
+if FASTBOOT || SPL_FASTBOOT
 
 config FASTBOOT_BUF_ADDR
 	hex "Define FASTBOOT buffer address"
@@ -65,7 +92,8 @@ config FASTBOOT_BUF_ADDR
 	help
 	  The fastboot protocol requires a large memory buffer for
 	  downloads. Define this to the starting RAM address to use for
-	  downloaded images.
+	  downloaded images. U-Boot proper and SPL share this setting; an SPL
+	  caller needing a different address can pass it to fastboot_usb_run().
 
 config FASTBOOT_BUF_SIZE
 	hex "Define FASTBOOT buffer size"
@@ -77,7 +105,13 @@ config FASTBOOT_BUF_SIZE
 	help
 	  The fastboot protocol requires a large memory buffer for
 	  downloads. This buffer should be as large as possible for a
-	  platform. Define this to the size available RAM for fastboot.
+	  platform. Define this to the size available RAM for fastboot. U-Boot
+	  proper and SPL share this setting; an SPL caller needing a different
+	  size can pass it to fastboot_usb_run().
+
+endif # FASTBOOT || SPL_FASTBOOT
+
+if FASTBOOT
 
 config FASTBOOT_USB_DEV
 	int "USB controller number"
@@ -293,5 +327,67 @@ config FASTBOOT_OEM_BOARD
 	  Otherwise, it will do nothing and send fastboot fail.
 
 endif # FASTBOOT
+
+config SPL_FASTBOOT_FLASH
+	bool
+	default y if SPL_FASTBOOT_FLASH_MMC
+	select SPL_IMAGE_SPARSE
+
+config SPL_FASTBOOT_FLASH_MMC
+	bool "Enable fastboot MMC flashing in SPL"
+	depends on SPL_FASTBOOT && SPL_MMC && SPL_DM_MMC && SPL_PARTITIONS
+	depends on SPL_SYS_MALLOC && !SPL_SYS_MALLOC_SIMPLE
+	select SPL_MMC_WRITE
+	help
+	  Build the fastboot MMC flashing backend into SPL. This allows the
+	  fastboot flash and erase commands to operate on MMC partitions. A
+	  suitable SPL partition-table parser and a reclaiming malloc
+	  implementation must also be enabled.
+
+config SPL_FASTBOOT_FLASH_MMC_DEV
+	int "Define fastboot MMC flash device in SPL"
+	depends on SPL_FASTBOOT_FLASH_MMC
+	default 0
+	help
+	  Define the MMC device that the SPL fastboot flash backend uses.
+
+config SPL_FASTBOOT_MMC_BOOT_SUPPORT
+	bool "Enable eMMC boot-partition flash/erase in SPL"
+	depends on SPL_FASTBOOT_FLASH_MMC && SUPPORT_EMMC_BOOT
+	help
+	  Enable the special fastboot targets used to flash or erase the eMMC
+	  boot hardware partitions from SPL.
+
+config SPL_FASTBOOT_MMC_BOOT1_NAME
+	string "Target name for updating eMMC boot partition 1 in SPL"
+	depends on SPL_FASTBOOT_MMC_BOOT_SUPPORT
+	default "mmc0boot0"
+
+config SPL_FASTBOOT_MMC_BOOT2_NAME
+	string "Target name for updating eMMC boot partition 2 in SPL"
+	depends on SPL_FASTBOOT_MMC_BOOT_SUPPORT
+	default "mmc0boot1"
+
+config SPL_FASTBOOT_MMC_USER_SUPPORT
+	bool "Enable eMMC user-area flash/erase in SPL"
+	depends on SPL_FASTBOOT_FLASH_MMC
+	help
+	  Enable a special fastboot target for flashing or erasing the complete
+	  eMMC user area from SPL.
+
+config SPL_FASTBOOT_MMC_USER_NAME
+	string "Target name for updating the eMMC user area in SPL"
+	depends on SPL_FASTBOOT_MMC_USER_SUPPORT
+	default "mmc0"
+
+config SPL_FASTBOOT_GPT_NAME
+	string "Target name for updating GPT from SPL"
+	depends on SPL_FASTBOOT_FLASH_MMC && SPL_EFI_PARTITION
+	default "gpt"
+
+config SPL_FASTBOOT_MBR_NAME
+	string "Target name for updating MBR from SPL"
+	depends on SPL_FASTBOOT_FLASH_MMC && SPL_DOS_PARTITION
+	default "mbr"
 
 endmenu

@@ -126,6 +126,16 @@ void fastboot_set_progress_callback(void (*progress)(const char *msg));
 void fastboot_init(void *buf_addr, u32 buf_size);
 
 /**
+ * fastboot_usb_run() - run a USB fastboot session
+ *
+ * @controller_index: USB gadget controller index
+ * @buf_addr: Pointer to download buffer, or NULL for default
+ * @buf_size: Size of download buffer, or zero for default
+ * Return: 0 on success, or a negative error code
+ */
+int fastboot_usb_run(int controller_index, void *buf_addr, u32 buf_size);
+
+/**
  * fastboot_boot() - Execute fastboot boot command
  *
  * If ${fastboot_bootcmd} is set, run that command to execute the boot
