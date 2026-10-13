@@ -6,10 +6,14 @@
 #include <dm.h>
 #include <event.h>
 #include <asm/io.h>
+#include <linux/bitfield.h>
 #include <asm/arch/gcr.h>
 #include "../common/uart.h"
 
-#define SR_MII_CTRL_SWR_BIT15	15
+#define NPCM_CLK_BA	0xF0801000
+#define CLKSEL		0x4
+#define PIXCKSEL_GFX	0
+#define PIXCKSEL_MASK	GENMASK(5, 4)
 
 #define DRAM_512MB_ECC_SIZE	0x1C000000ULL
 #define DRAM_512MB_SIZE		0x20000000ULL
@@ -21,6 +25,18 @@
 #define DRAM_4GB_SIZE		0x100000000ULL
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int board_init(void)
+{
+	u32 val;
+
+	/* Select GFX_PLL as PIXCK source */
+	val = readl(NPCM_CLK_BA + CLKSEL);
+	val &= ~PIXCKSEL_MASK;
+	val |= FIELD_PREP(PIXCKSEL_MASK, PIXCKSEL_GFX);
+	writel(val, NPCM_CLK_BA + CLKSEL);
+	return 0;
+}
 
 phys_size_t get_effective_memsize(void)
 {
