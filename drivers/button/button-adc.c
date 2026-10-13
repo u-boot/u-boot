@@ -20,12 +20,14 @@
  * @channel: channel of the ADC device to probe the button state.
  * @min: minimal uV value to consider button as pressed.
  * @max: maximal uV value to consider button as pressed.
+ * @linux_code: linux,code devicetree property for this button, or 0 if unset.
  */
 struct button_adc_priv {
 	struct udevice *adc;
 	int channel;
 	int min;
 	int max;
+	int linux_code;
 };
 
 static enum button_state_t button_adc_get_state(struct udevice *dev)
@@ -47,6 +49,16 @@ static enum button_state_t button_adc_get_state(struct udevice *dev)
 		return ret;
 
 	return (uV >= priv->min && uV < priv->max) ? BUTTON_ON : BUTTON_OFF;
+}
+
+static int button_adc_get_code(struct udevice *dev)
+{
+	struct button_adc_priv *priv = dev_get_priv(dev);
+
+	if (!priv->linux_code)
+		return -ENODATA;
+
+	return priv->linux_code;
 }
 
 static int button_adc_of_to_plat(struct udevice *dev)
@@ -93,6 +105,7 @@ static int button_adc_of_to_plat(struct udevice *dev)
 	}
 
 	priv->channel = args.args[0];
+	priv->linux_code = dev_read_u32_default(dev, "linux,code", 0);
 
 	/*
 	 * Define the voltage range such that the button is only pressed
@@ -138,6 +151,7 @@ static int button_adc_bind(struct udevice *parent)
 
 static const struct button_ops button_adc_ops = {
 	.get_state	= button_adc_get_state,
+	.get_code	= button_adc_get_code,
 };
 
 static const struct udevice_id button_adc_ids[] = {

@@ -123,10 +123,13 @@ static int dm_test_button_keys_adc(struct unit_test_state *uts)
 	 */
 	ut_assertok(button_get_by_label("button3", &dev));
 	ut_asserteq(BUTTON_OFF, button_get_state(dev));
+	ut_asserteq(KEY_F3, button_get_code(dev));
 	ut_assertok(button_get_by_label("button4", &dev));
 	ut_asserteq(BUTTON_OFF, button_get_state(dev));
+	ut_asserteq(KEY_F4, button_get_code(dev));
 	ut_assertok(button_get_by_label("button5", &dev));
 	ut_asserteq(BUTTON_ON, button_get_state(dev));
+	ut_asserteq(KEY_F5, button_get_code(dev));
 
 	return 0;
 }
