@@ -71,15 +71,17 @@ u32 get_nr_cpus(void)
 u32 get_cpu_rev(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
 	u32 reg = readl(&anatop->digprog_sololite);
 	u32 type = ((reg >> 16) & 0xff);
 	u32 major, cfg = 0;
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
-		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-		cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
+		if (type == MXC_CPU_MX6DL || type == MXC_CPU_MX6Q)
+			cfg = readl(&scu->config) & 3;
+
 		if (type == MXC_CPU_MX6DL) {
 			if (!cfg)
 				type = MXC_CPU_MX6SOLO;
