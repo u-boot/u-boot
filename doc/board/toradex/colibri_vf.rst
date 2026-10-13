@@ -14,6 +14,7 @@ Quick Start
 - Build U-Boot
 - Flash to NAND from a running U-Boot
 - Flash to NAND over recovery mode
+- The NAND boot control block
 - Modules still carrying the WinCE bootloader
 
 Build U-Boot
@@ -63,6 +64,30 @@ serial downloader on the USB client port. The `imx_usb_loader
     $ imx_usb u-boot.imx
 
 From the running U-Boot, flash NAND as in the previous section.
+
+The NAND boot control block
+---------------------------
+
+The BootROM finds U-Boot through the Firmware Configuration Block in
+the first NAND page: the ECC level and the page of the image. Modules
+come with it, it needs writing again only after the first block was
+erased or when the ECC layout of the NAND changes. With
+``CONFIG_CMD_NANDBCB`` enabled, ``nandbcb`` writes the block the ROM
+expects on the Vybrid, and ``nandbcb dump`` shows the one in NAND. The
+same block holds the Toradex configuration block in its second page,
+so read that page back after the rewrite:
+
+.. code-block:: none
+
+    Colibri VFxx # nand read ${loadaddr} 0x800 0x800
+    Colibri VFxx # nandbcb bcbonly 0 0x20000 0x160000 0x20000 0x160000
+    Colibri VFxx # nand write ${loadaddr} 0x800 0x800
+    Colibri VFxx # nandbcb dump 0
+
+The offsets name the ``u-boot`` partition of the default ``mtdparts``,
+which starts at 0x20000, for both firmware copies the ROM knows, as the
+modules come with one image; ``nandbcb`` takes the whole device as its
+first argument because the block sits at page 0 of the device.
 
 Modules still carrying the WinCE bootloader
 -------------------------------------------
