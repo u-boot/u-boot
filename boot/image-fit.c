@@ -2190,6 +2190,7 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 	ulong img_load;
 	u8 img_comp = IH_COMP_NONE;
 	void *mapped;
+	void *dst;
 
 	if (CONFIG_IS_ENABLED(FIT_VERITY)) {
 		u8 img_type;
@@ -2223,10 +2224,11 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 
 	if (img_comp == IH_COMP_NONE && load_op != FIT_LOAD_IGNORED &&
 	    !fit_image_get_load(fit, noffset, &img_load)) {
-		void *dst = map_sysmem(img_load, data_sz);
+		dst = map_sysmem(img_load, data_sz);
 
 		mapped = imagemap_map_to(images->imagemap, data_off, data_sz,
 					 dst);
+		unmap_sysmem(dst);
 	} else {
 		mapped = imagemap_map(images->imagemap, data_off, data_sz);
 	}
@@ -2467,7 +2469,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			return -EXDEV;
 		}
 
-		if (!CONFIG_IS_ENABLED(IMAGEMAP) || data != load)
+		/* A storage-backed image was read straight to its load address */
+		if (!images->imagemap || data != load)
 			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
 			       prop_name, data, load);
 	} else {

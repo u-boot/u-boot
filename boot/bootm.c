@@ -1265,18 +1265,17 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 
 	/* From now on, we need the OS boot function */
 	if (ret)
-		return ret;
+		goto err;
 	boot_fn = bootm_os_get_boot_func(images->os.os);
 	need_boot_fn = states & (BOOTM_STATE_OS_CMDLINE |
 			BOOTM_STATE_OS_BD_T | BOOTM_STATE_OS_PREP |
 			BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO);
 	if (boot_fn == NULL && need_boot_fn) {
-		if (iflag)
-			enable_interrupts();
 		printf("ERROR: booting os '%s' (%d) is not supported\n",
 		       genimg_get_os_name(images->os.os), images->os.os);
 		bootstage_error(BOOTSTAGE_ID_CHECK_BOOT_OS);
-		return 1;
+		ret = 1;
+		goto err;
 	}
 
 	/* Call various other states that are not generally used */
@@ -1318,7 +1317,7 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	/* Check for unsupported subcommand. */
 	if (ret) {
 		printf("subcommand failed (err=%d)\n", ret);
-		return ret;
+		goto err;
 	}
 
 	/* Now run the OS! We hope this doesn't return */

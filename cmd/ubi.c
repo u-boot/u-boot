@@ -21,6 +21,7 @@
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <dm/device.h>
+#include <dm/device-internal.h>
 #include <dm/devres.h>
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
@@ -650,6 +651,47 @@ static int ubi_set_skip_check(const char *volume, bool skip_check)
 	return ubi_change_vtbl_record(ubi, vol->vol_id, &vtbl_rec);
 }
 
+#if CONFIG_IS_ENABLED(UBI_BLOCK)
+static struct udevice *ubi_blk_dev;
+
+static void ubi_blk_bind_once(void)
+{
+	struct udevice *parent;
+	int ret;
+
+	/*
+	 * A single ubi_blk device serves all volumes of the attached UBI
+	 * device, the volume being selected through the block descriptor's
+	 * hwpart. It is parented to the MTD device UBI sits on, so it must
+	 * not outlive the attach that created it.
+	 */
+	if (ubi_blk_dev)
+		return;
+
+	parent = ubi && ubi->mtd && ubi->mtd->dev ? ubi->mtd->dev : dm_root();
+
+	ret = ubi_bind(parent, &ubi_blk_dev);
+	if (ret)
+		printf("Cannot create UBI block device: %d\n", ret);
+}
+
+static void ubi_blk_unbind(void)
+{
+	if (!ubi_blk_dev)
+		return;
+
+	device_remove(ubi_blk_dev, DM_REMOVE_NORMAL);
+	device_unbind(ubi_blk_dev);
+	ubi_blk_dev = NULL;
+}
+#else
+static inline void ubi_blk_bind_once(void) { }
+
+static inline void ubi_blk_unbind(void)
+{
+}
+#endif
+
 int ubi_detach(void)
 {
 #ifdef CONFIG_CMD_UBIFS
@@ -662,6 +704,8 @@ int ubi_detach(void)
 		cmd_ubifs_umount();
 #endif
 
+	ubi_blk_unbind();
+
 	/*
 	 * Call ubi_exit() before re-initializing the UBI subsystem
 	 */
@@ -672,29 +716,6 @@ int ubi_detach(void)
 
 	return 0;
 }
-
-#if CONFIG_IS_ENABLED(UBI_BLOCK)
-static void ubi_blk_bind_once(void)
-{
-	struct udevice *dev;
-
-	/*
-	 * A single ubi_blk device serves all volumes of the attached UBI
-	 * device, the volume being selected through the block descriptor's
-	 * hwpart. Bind one when UBI is attached -- unless a previous attach
-	 * already did -- parented to the MTD device UBI sits on.
-	 */
-	for (uclass_find_first_device(UCLASS_BLK, &dev); dev;
-	     uclass_find_next_device(&dev)) {
-		if (dev->driver == DM_DRIVER_GET(ubi_blk))
-			return;
-	}
-
-	ubi_bind(ubi && ubi->mtd && ubi->mtd->dev ? ubi->mtd->dev : dm_root());
-}
-#else
-static inline void ubi_blk_bind_once(void) { }
-#endif
 
 int ubi_part(const char *part_name, const char *vid_header_offset)
 {

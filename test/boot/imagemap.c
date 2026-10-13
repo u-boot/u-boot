@@ -155,7 +155,7 @@ static int imagemap_test_map_basic(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_map_basic, 0);
+IMAGEMAP_TEST(imagemap_test_map_basic, UTF_DM);
 
 /* Test: map() returns cached pointer for already-mapped range */
 static int imagemap_test_map_cached(struct unit_test_state *uts)
@@ -188,7 +188,7 @@ static int imagemap_test_map_cached(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_map_cached, 0);
+IMAGEMAP_TEST(imagemap_test_map_cached, UTF_DM);
 
 /* Test: map() returns correct offset within a larger region */
 static int imagemap_test_map_offset(struct unit_test_state *uts)
@@ -222,7 +222,7 @@ static int imagemap_test_map_offset(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_map_offset, 0);
+IMAGEMAP_TEST(imagemap_test_map_offset, UTF_DM);
 
 /* Test: map() re-reads when extending a region to a larger size */
 static int imagemap_test_map_extend(struct unit_test_state *uts)
@@ -281,7 +281,7 @@ static int imagemap_test_map_extend(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_map_extend, 0);
+IMAGEMAP_TEST(imagemap_test_map_extend, UTF_DM);
 
 /* Test: map_to() reads to a specified address and records it */
 static int imagemap_test_map_to(struct unit_test_state *uts)
@@ -315,7 +315,7 @@ static int imagemap_test_map_to(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_map_to, 0);
+IMAGEMAP_TEST(imagemap_test_map_to, UTF_DM);
 
 /* Test: lookup() returns NULL for unmapped ranges */
 static int imagemap_test_lookup_miss(struct unit_test_state *uts)
@@ -350,7 +350,7 @@ static int imagemap_test_lookup_miss(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_lookup_miss, 0);
+IMAGEMAP_TEST(imagemap_test_lookup_miss, UTF_DM);
 
 /* Test: LMB reservations are made for map() allocations */
 static int imagemap_test_lmb_reserve(struct unit_test_state *uts)
@@ -383,7 +383,7 @@ static int imagemap_test_lmb_reserve(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_lmb_reserve, 0);
+IMAGEMAP_TEST(imagemap_test_lmb_reserve, UTF_DM);
 
 /* Test: cleanup() removes the device */
 static int imagemap_test_cleanup(struct unit_test_state *uts)
@@ -405,7 +405,7 @@ static int imagemap_test_cleanup(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_cleanup, 0);
+IMAGEMAP_TEST(imagemap_test_cleanup, UTF_DM);
 
 /* Test: map() with multiple disjoint regions */
 static int imagemap_test_multi_region(struct unit_test_state *uts)
@@ -448,7 +448,7 @@ static int imagemap_test_multi_region(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_multi_region, 0);
+IMAGEMAP_TEST(imagemap_test_multi_region, UTF_DM);
 
 /* Test: read beyond image size returns error */
 static int imagemap_test_read_oob(struct unit_test_state *uts)
@@ -474,7 +474,7 @@ static int imagemap_test_read_oob(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_read_oob, 0);
+IMAGEMAP_TEST(imagemap_test_read_oob, UTF_DM);
 
 /*
  * Test: block-addressed backend (bl_len > 1) still returns/places the
@@ -514,7 +514,7 @@ static int imagemap_test_blocklen(struct unit_test_state *uts)
 	return 0;
 }
 
-IMAGEMAP_TEST(imagemap_test_blocklen, 0);
+IMAGEMAP_TEST(imagemap_test_blocklen, UTF_DM);
 
 #if CONFIG_IS_ENABLED(MTD_BLOCK)
 /*
@@ -571,7 +571,8 @@ static int imagemap_test_mtd_blk(struct unit_test_state *uts)
 
 	return 0;
 }
-IMAGEMAP_TEST(imagemap_test_mtd_blk, 0);
+
+IMAGEMAP_TEST(imagemap_test_mtd_blk, UTF_DM | UTF_SCAN_FDT | UTF_LIVE_TREE);
 #endif /* MTD_BLOCK */
 
 #if CONFIG_IS_ENABLED(MTD_UBI) && CONFIG_IS_ENABLED(UBI_BLOCK)
@@ -591,6 +592,13 @@ static int imagemap_test_ubiblock(struct unit_test_state *uts)
 	u8 *wbuf;
 	u64 off;
 	int i;
+
+	/*
+	 * Release any device a previous run attached: UBI keeps a reference to
+	 * the MTD device, and mtd_probe_devices() would then rebuild the
+	 * partition list behind its back.
+	 */
+	ubi_detach();
 
 	mtd_probe_devices();
 	mtd = get_mtd_device_nm("nand2");
@@ -638,8 +646,10 @@ static int imagemap_test_ubiblock(struct unit_test_state *uts)
 
 	imagemap_cleanup(imdev);
 	free(wbuf);
+	ubi_detach();
 
 	return 0;
 }
-IMAGEMAP_TEST(imagemap_test_ubiblock, 0);
+
+IMAGEMAP_TEST(imagemap_test_ubiblock, UTF_DM | UTF_SCAN_FDT | UTF_LIVE_TREE);
 #endif /* MTD_UBI && UBI_BLOCK */
