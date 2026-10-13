@@ -25,6 +25,7 @@ obj-$(CONFIG_DWC_ETH_QOS_MTK) += dwc_eth_qos_mtk.o
 obj-$(CONFIG_DWC_ETH_QOS_QCOM) += dwc_eth_qos_qcom.o
 obj-$(CONFIG_DWC_ETH_QOS_ROCKCHIP) += dwc_eth_qos_rockchip.o
 obj-$(CONFIG_DWC_ETH_QOS_STARFIVE) += dwc_eth_qos_starfive.o
+obj-$(CONFIG_DWC_ETH_QOS_SPACEMIT) += dwc_eth_qos_spacemit.o
 obj-$(CONFIG_DWC_ETH_QOS_STM32) += dwc_eth_qos_stm32.o
 obj-$(CONFIG_DWC_ETH_QOS_SUNXI) += dwc_eth_qos_sunxi.o
 obj-$(CONFIG_DWC_ETH_XGMAC) += dwc_eth_xgmac.o

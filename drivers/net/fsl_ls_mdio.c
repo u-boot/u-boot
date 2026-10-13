@@ -136,6 +136,8 @@ static int fsl_ls_mdio_probe(struct udevice *dev)
 
 static const struct udevice_id fsl_ls_mdio_of_ids[] = {
 	{ .compatible = "fsl,ls-mdio" },
+	{ .compatible = "fsl,fman-memac-mdio" },
+	{ }
 };
 
 U_BOOT_DRIVER(fsl_ls_mdio) = {

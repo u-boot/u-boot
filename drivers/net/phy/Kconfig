@@ -238,6 +238,14 @@ config PHY_MOTORCOMM
 	  Enables support for Motorcomm network PHYs.
 	  Currently supports the YT8511 and YT8531 Gigabit Ethernet PHYs.
 
+config PHY_MAXIO
+	bool "Maxio PHYs"
+	help
+	  Enables support for Maxio network PHYs.
+	  Currently supports the MAE0621A/MAE0621B Gigabit Ethernet PHYs,
+	  which require a vendor init sequence (crystal clock mode plus
+	  analog tuning) before their RGMII interface comes up.
+
 config PHY_MSCC
 	depends on !COMPILE_TEST
 	bool "Microsemi Corp Ethernet PHYs support"

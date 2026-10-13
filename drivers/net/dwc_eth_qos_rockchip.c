@@ -744,10 +744,8 @@ static int eqos_probe_resources_rk(struct udevice *dev)
 	}
 
 	ret = reset_get_bulk(dev, &data->resets);
-	if (ret < 0)
+	if (ret && ret != -ENOENT && ret != -ENOTSUPP)
 		goto err_free;
-
-	reset_assert_bulk(&data->resets);
 
 	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
 	if (ret) {
@@ -803,18 +801,17 @@ static int eqos_remove_resources_rk(struct udevice *dev)
 	return 0;
 }
 
-static int eqos_stop_resets_rk(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_plat(dev);
-	struct rockchip_platform_data *data = pdata->priv_pdata;
-
-	return reset_assert_bulk(&data->resets);
-}
-
 static int eqos_start_resets_rk(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct rockchip_platform_data *data = pdata->priv_pdata;
+	int ret;
+
+	ret = reset_assert_bulk(&data->resets);
+	if (ret)
+		return ret;
+
+	udelay(10);
 
 	return reset_deassert_bulk(&data->resets);
 }
@@ -891,7 +888,7 @@ static struct eqos_ops eqos_rockchip_ops = {
 	.eqos_flush_buffer = eqos_flush_buffer_generic,
 	.eqos_probe_resources = eqos_probe_resources_rk,
 	.eqos_remove_resources = eqos_remove_resources_rk,
-	.eqos_stop_resets = eqos_stop_resets_rk,
+	.eqos_stop_resets = eqos_null_ops,
 	.eqos_start_resets = eqos_start_resets_rk,
 	.eqos_stop_clks = eqos_stop_clks_rk,
 	.eqos_start_clks = eqos_start_clks_rk,

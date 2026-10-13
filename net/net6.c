@@ -94,6 +94,13 @@ int ip6_is_our_addr(struct in6_addr *addr)
 	       !memcmp(addr, &net_ip6, sizeof(struct in6_addr));
 }
 
+/* Check if addr is a multicast address with link-local scope */
+static bool ip6_is_link_local_multicast(const struct in6_addr *addr)
+{
+	return addr->s6_addr[0] == 0xff &&
+	       (addr->s6_addr[1] & 0xf) == IPV6_ADDRSCOPE_LINK;
+}
+
 void ip6_make_eui(unsigned char eui[8], unsigned char const enetaddr[6])
 {
 	memcpy(eui, enetaddr, 3);
@@ -330,6 +337,15 @@ int net_send_udp_packet6(uchar *ether, struct in6_addr *dest, int dport,
 	uchar *pkt;
 	struct udp_hdr *udp;
 	u16 csum_p;
+	struct in6_addr *src;
+
+	/*
+	 * Per RFC 6724 source address selection, prefer the link-local
+	 * address for link-local multicast destinations (e.g. DHCPv6).
+	 */
+	src = (ip6_is_unspecified_addr(&net_ip6) ||
+	       ip6_is_link_local_multicast(dest)) ?
+	      &net_link_local_ip6 : &net_ip6;
 
 	udp = (struct udp_hdr *)((uchar *)net_tx_packet + net_eth_hdr_size() +
 			IP6_HDR_SIZE);
@@ -341,7 +357,7 @@ int net_send_udp_packet6(uchar *ether, struct in6_addr *dest, int dport,
 	/* checksum */
 	udp->udp_xsum = 0;
 	csum_p = csum_partial((u8 *)udp, len + UDP_HDR_SIZE, 0);
-	udp->udp_xsum = csum_ipv6_magic(&net_ip6, dest, len + UDP_HDR_SIZE,
+	udp->udp_xsum = csum_ipv6_magic(src, dest, len + UDP_HDR_SIZE,
 					IPPROTO_UDP, csum_p);
 
 	/* if MAC address was not discovered yet, save the packet and do
@@ -353,8 +369,8 @@ int net_send_udp_packet6(uchar *ether, struct in6_addr *dest, int dport,
 
 		pkt = net_nd_tx_packet;
 		pkt += net_set_ether(pkt, net_nd_packet_mac, PROT_IP6);
-		pkt += ip6_add_hdr(pkt, &net_ip6, dest, IPPROTO_UDP, 64,
-				len + UDP_HDR_SIZE);
+		pkt += ip6_add_hdr(pkt, src, dest, IPPROTO_UDP, 64,
+				   len + UDP_HDR_SIZE);
 		memcpy(pkt, (uchar *)udp, len + UDP_HDR_SIZE);
 
 		/* size of the waiting packet */
@@ -370,8 +386,7 @@ int net_send_udp_packet6(uchar *ether, struct in6_addr *dest, int dport,
 
 	pkt = (uchar *)net_tx_packet;
 	pkt += net_set_ether(pkt, ether, PROT_IP6);
-	pkt += ip6_add_hdr(pkt, &net_ip6, dest, IPPROTO_UDP, 64,
-			len + UDP_HDR_SIZE);
+	pkt += ip6_add_hdr(pkt, src, dest, IPPROTO_UDP, 64, len + UDP_HDR_SIZE);
 	(void)eth_send(net_tx_packet, pkt - net_tx_packet + UDP_HDR_SIZE + len);
 
 	return 0;	/* transmitted */

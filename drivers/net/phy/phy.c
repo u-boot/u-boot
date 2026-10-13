@@ -950,8 +950,13 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 	struct phy_device *phydev = NULL;
 	uint mask = (addr >= 0) ? (1 << addr) : 0xffffffff;
 
+#ifdef CONFIG_PHY_XILINX_GMII2RGMII
+	phydev = phy_connect_gmii2rgmii(bus, dev);
+#endif
+
 #ifdef CONFIG_DM_ETH_PHY
-	phydev = phy_connect_dm_bound(bus, dev, mask);
+	if (!phydev)
+		phydev = phy_connect_dm_bound(bus, dev, mask);
 #endif
 
 #ifdef CONFIG_PHY_FIXED
@@ -967,11 +972,6 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #ifdef CONFIG_PHY_ETHERNET_ID
 	if (!phydev)
 		phydev = phy_connect_phy_id(bus, dev, addr);
-#endif
-
-#ifdef CONFIG_PHY_XILINX_GMII2RGMII
-	if (!phydev)
-		phydev = phy_connect_gmii2rgmii(bus, dev);
 #endif
 
 	if (!phydev)

@@ -1567,7 +1567,9 @@ struct pxe_menu *parse_pxefile(struct pxe_context *ctx, unsigned long menucfg)
 	if (ctx->use_fallback) {
 		if (cfg->fallback_label) {
 			printf("Setting use of fallback\n");
+			free(cfg->default_label);
 			cfg->default_label = cfg->fallback_label;
+			cfg->fallback_label = NULL;
 		} else {
 			printf("Selected fallback option, but not set\n");
 		}
@@ -1610,7 +1612,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	list_for_each(pos, &cfg->labels) {
 		label = list_entry(pos, struct pxe_label, list);
 
-		sprintf(label->num, "%d", i++);
+		snprintf(label->num, sizeof(label->num), "%d", i++);
 		if (menu_item_add(m, label->num, label) != 1) {
 			menu_destroy(m);
 			return NULL;

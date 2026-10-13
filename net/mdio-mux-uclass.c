@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <log.h>
 #include <miiphy.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
@@ -86,6 +87,9 @@ static int mmux_read(struct udevice *ch, int addr, int devad,
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
 	int err;
 
+	if (!parent_mdio)
+		return -ENODEV;
+
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
@@ -104,6 +108,9 @@ static int mmux_write(struct udevice *ch, int addr, int devad,
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
 	int err;
 
+	if (!parent_mdio)
+		return -ENODEV;
+
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
@@ -120,6 +127,9 @@ static int mmux_reset(struct udevice *ch)
 	struct udevice *mux = ch->parent;
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
 	int err;
+
+	if (!parent_mdio)
+		return -ENODEV;
 
 	/* reset is optional, if it's not implemented just exit */
 	if (!mdio_get_ops(parent_mdio)->reset)
@@ -222,3 +232,32 @@ UCLASS_DRIVER(mdio_mux) = {
 	.per_device_auto	= sizeof(struct mdio_mux_perdev_priv),
 	.per_child_plat_auto	= sizeof(struct mdio_mux_ch_data),
 };
+
+static int dm_mdio_mux_parent_pre_remove(void *ctx, struct event *event)
+{
+	struct udevice *mdio_parent = event->data.dm.dev;
+	struct udevice *mux, *mux_next;
+	struct uclass *uc;
+	int ret;
+
+	if (device_get_uclass_id(mdio_parent) != UCLASS_MDIO)
+		return 0;
+
+	if (uclass_get(UCLASS_MDIO_MUX, &uc))
+		return 0;
+
+	uclass_foreach_dev_safe(mux, mux_next, uc) {
+		if (!device_active(mux) ||
+		    mmux_get_parent_mdio(mux) != mdio_parent)
+			continue;
+
+		dev_dbg(mdio_parent, "removing %s %s\n", mux->driver->name,
+			mux->name);
+		ret = device_remove(mux, DM_REMOVE_NORMAL);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+EVENT_SPY_FULL(EVT_DM_PRE_REMOVE, dm_mdio_mux_parent_pre_remove);

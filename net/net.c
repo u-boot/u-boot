@@ -1408,8 +1408,9 @@ void net_process_received_packet(uchar *in_packet, int len)
 				sumptr += 2;
 				sumlen -= 2;
 			}
+			/* last byte is padded with a zero byte (RFC 768) */
 			if (sumlen > 0)
-				xsum += (sumptr[0] << 8) + sumptr[0];
+				xsum += sumptr[0] << 8;
 			while ((xsum >> 16) != 0) {
 				xsum = (xsum & 0x0000ffff) +
 				       ((xsum >> 16) & 0x0000ffff);

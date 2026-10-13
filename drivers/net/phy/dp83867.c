@@ -131,7 +131,7 @@ static int dp83867_phy_extread(struct phy_device *phydev,
 {
 	if (devad != DP83867_DEVADDR)
 		return -EINVAL;
-	return phy_read_mmd(phydev, devad, addr);
+	return phy_read_mmd(phydev, devad, reg);
 };
 
 static int dp83867_phy_extwrite(struct phy_device *phydev, int addr,
@@ -139,7 +139,7 @@ static int dp83867_phy_extwrite(struct phy_device *phydev, int addr,
 {
 	if (devad != DP83867_DEVADDR)
 		return -EINVAL;
-	return phy_write_mmd(phydev, devad, addr, (u32)val);
+	return phy_write_mmd(phydev, devad, reg, (u32)val);
 };
 
 static int dp83867_config_port_mirroring(struct phy_device *phydev)

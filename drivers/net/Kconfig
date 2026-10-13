@@ -30,6 +30,7 @@ config DM_MDIO
 
 config DM_MDIO_MUX
 	bool "Enable Driver Model for MDIO MUX devices"
+	select DM_EVENT
 	depends on DM_MDIO
 	help
 	  Enable driver model for MDIO MUX devices
@@ -274,6 +275,14 @@ config DWC_ETH_QOS_STARFIVE
 	help
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in STARFIVE  JH7110 soc.
+
+config DWC_ETH_QOS_SPACEMIT
+	bool "Synopsys DWC Ethernet QOS device support for SpacemiT"
+	depends on DWC_ETH_QOS && TARGET_SPACEMIT_K3
+	select DM_ETH_PHY
+	help
+	  The Synopsys Designware Ethernet QOS (DWMAC 5.40a) IP block with
+	  SpacemiT K3 APMU PHY interface and RGMII delay configuration.
 
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"

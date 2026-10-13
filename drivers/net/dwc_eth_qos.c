@@ -702,33 +702,16 @@ static int eqos_start(struct udevice *dev)
 	eqos->reg_access_ok = true;
 
 	/*
-	 * Assert the SWR first, the actually reset the MAC and to latch in
-	 * e.g. i.MX8M Plus GPR[1] content, which selects interface mode.
+	 * Bring the PHY up before triggering the DMA soft reset: on SoCs
+	 * where the RGMII RX clock is sourced by the PHY (e.g. Rockchip,
+	 * with PHYs that need a vendor init to start their clock, like the
+	 * Maxio MAE0621A), DMA_MODE_SWR cannot complete until the PHY runs.
 	 */
-	setbits_le32(&eqos->dma_regs->mode, EQOS_DMA_MODE_SWR);
-
-	if (eqos->config->ops->eqos_fix_soc_reset)
-		eqos->config->ops->eqos_fix_soc_reset(dev);
-
-	ret = wait_for_bit_le32(&eqos->dma_regs->mode,
-				EQOS_DMA_MODE_SWR, false,
-				eqos->config->swr_wait, false);
-	if (ret) {
-		pr_err("EQOS_DMA_MODE_SWR stuck\n");
-		goto err_stop_resets;
-	}
 
 	ret = eqos->config->ops->eqos_calibrate_pads(dev);
 	if (ret < 0) {
 		pr_err("eqos_calibrate_pads() failed: %d\n", ret);
 		goto err_stop_resets;
-	}
-
-	if (eqos->config->ops->eqos_get_tick_clk_rate) {
-		rate = eqos->config->ops->eqos_get_tick_clk_rate(dev);
-
-		val = (rate / 1000000) - 1;
-		writel(val, &eqos->mac_regs->us_tic_counter);
 	}
 
 	/*
@@ -784,6 +767,32 @@ static int eqos_start(struct udevice *dev)
 		pr_err("No link\n");
 		ret = -EAGAIN;
 		goto err_shutdown_phy;
+	}
+
+	/*
+	 * Assert the SWR first, the actually reset the MAC and to latch in
+	 * e.g. i.MX8M Plus GPR[1] content, which selects interface mode.
+	 * The PHY is running by now, so its RX clock keeps the MAC clock
+	 * domains alive and the reset can complete.
+	 */
+	setbits_le32(&eqos->dma_regs->mode, EQOS_DMA_MODE_SWR);
+
+	if (eqos->config->ops->eqos_fix_soc_reset)
+		eqos->config->ops->eqos_fix_soc_reset(dev);
+
+	ret = wait_for_bit_le32(&eqos->dma_regs->mode,
+				EQOS_DMA_MODE_SWR, false,
+				eqos->config->swr_wait, false);
+	if (ret) {
+		pr_err("EQOS_DMA_MODE_SWR stuck\n");
+		goto err_shutdown_phy;
+	}
+
+	if (eqos->config->ops->eqos_get_tick_clk_rate) {
+		rate = eqos->config->ops->eqos_get_tick_clk_rate(dev);
+
+		val = (rate / 1000000) - 1;
+		writel(val, &eqos->mac_regs->us_tic_counter);
 	}
 
 	ret = eqos_adjust_link(dev);
@@ -1673,6 +1682,12 @@ static const struct udevice_id eqos_ids[] = {
 	{
 		.compatible = "allwinner,sun55i-a523-gmac200",
 		.data = (ulong)&eqos_sunxi_config
+	},
+#endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_SPACEMIT)
+	{
+		.compatible = "spacemit,k3-dwmac",
+		.data = (ulong)&eqos_spacemit_config
 	},
 #endif
 	{ }
