@@ -18,7 +18,6 @@
 #define PD_LVDS0_I2C0               lvds0_i2c0
 #define PD_LVDS0_I2C1               lvds0_i2c1
 #define PD_LVDS0_PWM                lvds0_pwm
-#define PD_LVDS0_PWM                lvds0_pwm
 #define PD_LVDS0_GPIO               lvds0_gpio
 #define PD_DC_1                     dc1_power_domain
 #define PD_DC_1_PLL_0               dc1_pll0

@@ -125,8 +125,6 @@
 /* Used for Macronix and Winbond flashes. */
 #define SPINOR_OP_EN4B		0xb7	/* Enter 4-byte mode */
 #define SPINOR_OP_EX4B		0xe9	/* Exit 4-byte mode */
-#define SPINOR_OP_EN4B			0xb7		/* Enter 4-byte mode */
-#define SPINOR_OP_EX4B			0xe9		/* Exit 4-byte mode */
 #define SPINOR_OP_RD_CR2		0x71		/* Read configuration register 2 */
 #define SPINOR_OP_WR_CR2		0x72		/* Write configuration register 2 */
 #define SPINOR_OP_MXIC_DTR_RD		0xee		/* Fast Read opcode in DTR mode */
