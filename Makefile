@@ -2096,7 +2096,7 @@ ifeq ($(LTO_ENABLE),y)
 quiet_cmd_u-boot__ ?= LTO     $@
       cmd_u-boot__ ?=								\
 		touch $(u-boot-main) ;						\
-		$(CC) -nostdlib -nostartfiles					\
+		$(CC) -nostdlib -nostartfiles -static				\
 		$(LTO_FINAL_LDFLAGS) $(c_flags)					\
 		$(KBUILD_LDFLAGS:%=-Wl,%) $(LDFLAGS_u-boot:%=-Wl,%) -o $@	\
 		-T u-boot.lds $(u-boot-init)					\
