@@ -78,16 +78,21 @@ int dram_init_banksize(void)
 		gd->dram[1].start = DRAM_4GB_SIZE;
 		gd->dram[1].size = DRAM_2GB_SIZE -
 			(DRAM_4GB_SIZE - DRAM_4GB_ECC_SIZE);
+		/* use bank0 only */
+		gd->ram_size = DRAM_2GB_SIZE;
 		break;
 	case DRAM_4GB_SIZE:
 		gd->dram[0].size = DRAM_2GB_SIZE;
 		gd->dram[1].start = DRAM_4GB_SIZE;
 		gd->dram[1].size = DRAM_2GB_SIZE;
+		/* use bank0 only */
+		gd->ram_size = DRAM_2GB_SIZE;
 		break;
 	default:
 		gd->dram[0].size = DRAM_1GB_SIZE;
 		gd->dram[1].start = 0;
 		gd->dram[1].size = 0;
+		gd->ram_size = DRAM_1GB_SIZE;
 		break;
 	}
 
