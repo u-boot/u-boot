@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/nxp/imx95_frdm/
 F:	include/configs/imx95_frdm.h
 F:	configs/imx95_15x15_frdm_defconfig
+F:	configs/imx95_19x19_frdm_pro_defconfig
