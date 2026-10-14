@@ -1096,7 +1096,7 @@ static int do_mem_mtest(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (strict_strtoul(argv[4], 16, &iteration_limit) < 0)
 			return CMD_RET_USAGE;
 
-	if (end < start) {
+	if (end <= start) {
 		printf("Refusing to do empty test\n");
 		return -1;
 	}
