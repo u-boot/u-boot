@@ -26,6 +26,6 @@
 #define PHYS_SDRAM_2_SIZE	SZ_6G
 
 #define CFG_SYS_SECURE_SDRAM_BASE	0x8A000000 /* Secure DDR region for A55, SPL could use first 2MB */
-#define CFG_SYS_SECURE_SDRAM_SIZE	0x06000000
+#define CFG_SYS_SECURE_SDRAM_SIZE	SZ_64M
 
 #endif
