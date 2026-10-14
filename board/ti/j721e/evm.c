@@ -102,6 +102,7 @@ static void __maybe_unused detect_enable_hyperflash(void *blob)
 {
 	struct gpio_desc desc = {0};
 	char *hypermux_sel_gpio = (board_is_j721e_som()) ? "8" : "6";
+	int offset;
 
 	if (dm_gpio_lookup_name(hypermux_sel_gpio, &desc))
 		return;
@@ -113,14 +114,16 @@ static void __maybe_unused detect_enable_hyperflash(void *blob)
 		return;
 
 	if (dm_gpio_get_value(&desc)) {
-		int offset;
-
 		do_fixup_by_compat(blob, "ti,am654-hbmc", "status",
 				   "okay", sizeof("okay"), 0);
 		offset = fdt_node_offset_by_compatible(blob, -1,
 						       "ti,am654-ospi");
 		fdt_setprop(blob, offset, "status", "disabled",
 			    sizeof("disabled"));
+	} else {
+		offset = fdt_node_offset_by_compatible(blob, -1,
+						       "ti,am654-hbmc");
+		fdt_del_node(blob, offset);
 	}
 }
 #endif
