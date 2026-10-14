@@ -309,10 +309,10 @@ static inline bool is_leap_year(unsigned int year)
  * rtc_calc_weekday() - Work out the weekday from a time
  *
  * This only works for the Gregorian calendar - i.e. after 1752 (in the UK).
- * It sets time->tm_wdaay to the correct day of the week.
+ * It sets time->tm_wday to the correct day of the week.
  *
  * @time:	Time to inspect. tm_wday is updated
- * Return: 0 if OK, -EINVAL if the weekday could not be determined
+ * Return: 0 if OK, -1 if the weekday could not be determined
  */
 int rtc_calc_weekday(struct rtc_time *time);
 

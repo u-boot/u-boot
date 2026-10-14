@@ -17,7 +17,7 @@
 #define	days_in_year(a)		(leapyear(a) ? 366 : 365)
 #define	days_in_month(a)	(month_days[(a) - 1])
 
-static int month_offset[] = {
+static const int month_offset[] = {
 	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
 };
 
@@ -30,7 +30,7 @@ int rtc_calc_weekday(struct rtc_time *tm)
 	int last_year;
 	int day;
 
-	if (tm->tm_year < 1753)
+	if (tm->tm_year < 1753 || tm->tm_mon < 1 || tm->tm_mon > 12)
 		return -1;
 	last_year = tm->tm_year - 1;
 
