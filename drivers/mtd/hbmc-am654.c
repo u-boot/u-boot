@@ -11,7 +11,7 @@
 
 #define FSS_SYSC_REG	0x4
 
-#define HYPERBUS_CALIB_COUNT 25
+#define HYPERBUS_CALIB_COUNT 100
 
 struct am654_hbmc_priv {
 	void __iomem *mmiobase;
