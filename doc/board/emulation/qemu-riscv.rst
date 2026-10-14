@@ -205,6 +205,18 @@ Invoke QEMU with:
     qemu-system-riscv64 -M virt -nographic \
     -drive if=pflash,format=raw,unit=0,file=u-boot.bin,readonly=off
 
+When U-Boot runs from flash, QEMU passes the files given with ``-kernel``,
+``-initrd`` and ``-append`` to it through the fw_cfg interface instead of
+loading the kernel itself. The QEMU firmware boot method (see
+:doc:`../../develop/bootstd/qfw`) picks them up, and since ``qfw`` comes
+first in ``boot_targets``, the kernel is booted without further input:
+
+.. code-block:: bash
+
+    qemu-system-riscv64 -M virt -nographic -m 1G \
+    -drive if=pflash,format=raw,unit=0,file=u-boot.bin,readonly=on \
+    -kernel Image -initrd initrd.gz -append "console=ttyS0"
+
 Debug UART
 ----------
 
