@@ -9,3 +9,13 @@ config PHY_SPACEMIT_K1_PCIE
 	  ports B and C.  The combo PHY must be enabled even if port A
 	  is not used for PCIe, because it provides calibration values
 	  required by the other ports.
+
+config PHY_SPACEMIT_K1_USB2
+	bool "SpacemiT K1 USB 2.0 PHY driver"
+	depends on PHY && CLK
+	help
+	  Enable this to support the USB 2.0 (UTMI) PHY of the SpacemiT K1
+	  and K3 SoCs, used by their DWC3 USB 3 controllers. The driver
+	  configures the PLL for the 24 MHz reference clock, releases the
+	  internal resets and enables the PHY clocks before the controller
+	  is started.
