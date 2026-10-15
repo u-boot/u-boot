@@ -160,6 +160,9 @@ struct dm_virtio_ops {
 	/**
 	 * reset() - reset the device
 	 *
+	 * The uclass waits for the status to become zero and frees the
+	 * virtqueues after this operation succeeds.
+	 *
 	 * @vdev:	the real virtio device
 	 * @return 0 if OK, -ve on error
 	 */
@@ -288,7 +291,9 @@ int virtio_get_status(struct udevice *vdev, u8 *status);
 int virtio_set_status(struct udevice *vdev, u8 status);
 
 /**
- * virtio_reset() - reset the device
+ * virtio_reset() - reset the device and free its virtqueues
+ *
+ * Wait for the device status to become zero before freeing the virtqueues.
  *
  * @vdev:	the real virtio device
  * Return: 0 if OK, -ve on error
