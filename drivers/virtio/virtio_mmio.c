@@ -279,7 +279,7 @@ error_available:
 
 static void virtio_mmio_del_vq(struct virtqueue *vq)
 {
-	struct virtio_mmio_priv *priv = dev_get_priv(vq->vdev);
+	struct virtio_mmio_priv *priv = dev_get_priv(vq->vdev->parent);
 	unsigned int index = vq->index;
 
 	/* Select and deactivate the queue */
