@@ -539,7 +539,7 @@ static int dw_i3c_ccc_set(struct dw_i3c_master *master,
 
 	dw_i3c_master_enqueue_xfer(master, xfer);
 
-	if (dw_i3c_status_poll_timeout(master) > POLL_SUCCESS)
+	if (dw_i3c_status_poll_timeout(master) < POLL_SUCCESS)
 		dw_i3c_master_dequeue_xfer(master, xfer);
 	else
 		dw_i3c_master_irq_handler(master);
@@ -584,7 +584,7 @@ static int dw_i3c_ccc_get(struct dw_i3c_master *master, struct i3c_ccc_cmd *ccc)
 
 	dw_i3c_master_enqueue_xfer(master, xfer);
 
-	if (dw_i3c_status_poll_timeout(master) > POLL_SUCCESS)
+	if (dw_i3c_status_poll_timeout(master) < POLL_SUCCESS)
 		dw_i3c_master_dequeue_xfer(master, xfer);
 	else
 		dw_i3c_master_irq_handler(master);
@@ -661,13 +661,24 @@ static int dw_i3c_master_daa(struct i3c_master_controller *m)
 
 	dw_i3c_master_enqueue_xfer(master, xfer);
 
-	if (dw_i3c_status_poll_timeout(master) > POLL_SUCCESS)
+	if (dw_i3c_status_poll_timeout(master) < POLL_SUCCESS)
 		dw_i3c_master_dequeue_xfer(master, xfer);
 	else
 		dw_i3c_master_irq_handler(master);
 
 	newdevs = GENMASK(master->maxdevs - cmd->rx_len - 1, 0);
 	newdevs &= ~olddevs;
+
+	/* Sometimes, when the Response Queue is being processed,
+	 * the interrupt status register may get updated with a transfer error
+	 * (INTR_TRANSFER_ERR_STAT) and this error stays set. Because of
+	 * this, when the system keeps checking for the next interrupt, it
+	 * detects that an interrupt is already present—even before the
+	 * intended, actual interrupt occurs. So, clearing the Transfer
+	 * error here.
+	 */
+	if (readl(master->regs + INTR_STATUS) & INTR_TRANSFER_ERR_STAT)
+		writel(INTR_TRANSFER_ERR_STAT, master->regs + INTR_STATUS);
 
 	for (pos = 0; pos < master->maxdevs; pos++) {
 		if (newdevs & BIT(pos)) {
@@ -743,7 +754,7 @@ static int dw_i3c_master_priv_xfers(struct i3c_dev_desc *dev,
 
 	dw_i3c_master_enqueue_xfer(master, xfer);
 
-	if (dw_i3c_status_poll_timeout(master) > POLL_SUCCESS)
+	if (dw_i3c_status_poll_timeout(master) < POLL_SUCCESS)
 		dw_i3c_master_dequeue_xfer(master, xfer);
 	else
 		dw_i3c_master_irq_handler(master);
@@ -888,7 +899,7 @@ static int dw_i3c_master_i2c_xfers(struct i2c_dev_desc *dev,
 
 	dw_i3c_master_enqueue_xfer(master, xfer);
 
-	if (dw_i3c_status_poll_timeout(master) > POLL_SUCCESS)
+	if (dw_i3c_status_poll_timeout(master) < POLL_SUCCESS)
 		dw_i3c_master_dequeue_xfer(master, xfer);
 	else
 		dw_i3c_master_irq_handler(master);
