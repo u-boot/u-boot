@@ -449,7 +449,7 @@ static int eeprom_action_expected_argc(enum eeprom_action action)
 int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	enum eeprom_action action = EEPROM_ACTION_INVALID;
-	struct eeprom_dev_spec dev;
+	struct eeprom_dev_spec dev = {};
 	ulong addr = 0, cnt = 0, off = 0;
 	int ret, index = 0;
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
