@@ -143,6 +143,7 @@ struct macb_device {
 	unsigned long		pclk_rate;
 #endif
 	phy_interface_t		phy_interface;
+	phy_interface_t		phy_sub_interface;
 };
 
 struct macb_usrio_cfg {
@@ -186,7 +187,7 @@ static int gem_is_gigabit_capable(struct macb_device *macb)
 /* Is the port a fixed link */
 static int macb_port_is_fixed_link(struct macb_device *macb)
 {
-	return macb->phy_addr > PHY_MAX_ADDR;
+	return macb->phy_addr == PHY_MAX_ADDR + 1;
 }
 
 static void macb_mdio_write(struct macb_device *macb, u8 phy_adr, u8 reg,
@@ -195,6 +196,14 @@ static void macb_mdio_write(struct macb_device *macb, u8 phy_adr, u8 reg,
 	unsigned long netctl;
 	unsigned long netstat;
 	unsigned long frame;
+
+	if (phy_adr == PHY_MAX_ADDR + 2) {
+		/* Internal PCS */
+		if (reg > 0x0f)
+			return;
+		gem_writel(macb, PCS_CONTROL + reg*4, value);
+		return;
+	}
 
 	netctl = macb_readl(macb, NCR);
 	netctl |= MACB_BIT(MPE);
@@ -222,6 +231,14 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 phy_adr, u8 reg)
 	unsigned long netctl;
 	unsigned long netstat;
 	unsigned long frame;
+
+	if (phy_adr == PHY_MAX_ADDR + 2) {
+		/* Internal PCS: implements the usual MII registers,
+		 * so just treat it like a PHY at a weird address. */
+		if (reg > 0x0f)
+			return (0);
+		return gem_readl(macb, PCS_CONTROL + reg*4);
+	}
 
 	netctl = macb_readl(macb, NCR);
 	netctl |= MACB_BIT(MPE);
@@ -532,7 +549,11 @@ static void macb_phy_reset(struct macb_device *macb, const char *name)
 	int i;
 	u16 status, adv;
 
-	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
+	if (macb->phy_interface == PHY_INTERFACE_MODE_1000BASEX ||
+	    macb->phy_sub_interface == PHY_INTERFACE_MODE_1000BASEX)
+		adv = ADVERTISE_1000XFULL;
+	else
+		adv = ADVERTISE_CSMA | ADVERTISE_ALL;
 	macb_mdio_write(macb, macb->phy_addr, MII_ADVERTISE, adv);
 	printf("%s: Starting autonegotiation...\n", name);
 	macb_mdio_write(macb, macb->phy_addr, MII_BMCR, (BMCR_ANENABLE
@@ -692,8 +713,18 @@ static int macb_phy_init(struct udevice *dev, const char *name)
 		}
 
 #ifdef CONFIG_PHYLIB
-		macb->phydev = phy_connect(macb->bus, macb->phy_addr, dev,
-				     macb->phy_interface);
+		if (macb->phy_addr == PHY_MAX_ADDR+2) {
+			/* Internal PCS fake PHY */
+			int id;
+			get_phy_id(macb->bus, macb->phy_addr, MDIO_DEVAD_NONE, &id);
+			macb->phydev = phy_device_create(macb->bus, macb->phy_addr, id, false);
+			macb->phydev->node = dev_ofnode(dev);
+		} else {
+			/* Real PHY */
+			macb->phydev = phy_connect(macb->bus, macb->phy_addr, dev,
+					     macb->phy_interface);
+		}
+
 		if (!macb->phydev) {
 			printf("phy_connect failed\n");
 			return -ENODEV;
@@ -727,9 +758,13 @@ static int macb_phy_init(struct udevice *dev, const char *name)
 			return -ENETDOWN;
 		}
 
+		adv = macb_mdio_read(macb, macb->phy_addr, MII_ADVERTISE);
+		lpa = macb_mdio_read(macb, macb->phy_addr, MII_LPA);
+
 		/* First check for GMAC and that it is GiB capable */
 		if (gem_is_gigabit_capable(macb)) {
-			lpa = macb_mdio_read(macb, macb->phy_addr, MII_STAT1000);
+			if (lpa & ADVERTISE_CSMA)
+				lpa = macb_mdio_read(macb, macb->phy_addr, MII_STAT1000);
 
 			if (lpa & (LPA_1000FULL | LPA_1000HALF | LPA_1000XFULL |
 						LPA_1000XHALF)) {
@@ -987,6 +1022,12 @@ static int _macb_init(struct udevice *dev, const char *name)
 			unsigned int ncfgr = macb_readl(macb, NCFGR);
 
 			ncfgr |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
+			macb_writel(macb, NCFGR, ncfgr);
+		} else if (macb->phy_interface == PHY_INTERFACE_MODE_1000BASEX) {
+			unsigned int ncfgr = macb_readl(macb, NCFGR);
+
+			ncfgr |= GEM_BIT(PCSSEL);
+			ncfgr &= ~GEM_BIT(SGMIIEN);
 			macb_writel(macb, NCFGR, ncfgr);
 		}
 	} else {
@@ -1269,10 +1310,17 @@ static int macb_eth_probe(struct udevice *dev)
 		return -EINVAL;
 
 	/* Read phyaddr from DT */
+	macb->phy_sub_interface = macb->phy_interface;
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
-					&phandle_args))
+					&phandle_args)) {
 		macb->phy_addr = ofnode_read_u32_default(phandle_args.node,
 							 "reg", -1);
+		macb->phy_sub_interface = ofnode_read_phy_mode(phandle_args.node);
+	} else if (dev_read_string(dev, "managed") != NULL &&
+			strcmp(dev_read_string(dev, "managed"), "in-band-status") == 0) {
+		/* Use internal PCS */
+		macb->phy_addr = PHY_MAX_ADDR + 2;
+	}
 
 	macb->regs = (void *)(uintptr_t)pdata->iobase;
 
