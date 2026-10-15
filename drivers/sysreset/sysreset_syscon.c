@@ -47,8 +47,13 @@ static int syscon_reboot_probe(struct udevice *dev)
 
 	priv->regmap = syscon_regmap_lookup_by_phandle(dev, "regmap");
 	if (IS_ERR(priv->regmap)) {
-		pr_err("unable to find regmap\n");
-		return -ENODEV;
+		ofnode syscon_node = dev_ofnode(dev_get_parent(dev));
+
+		priv->regmap = syscon_node_to_regmap(syscon_node);
+		if (IS_ERR(priv->regmap)) {
+			pr_err("unable to find regmap\n");
+			return -ENODEV;
+		}
 	}
 
 	err = dev_read_u32(dev, "offset", &priv->offset);
