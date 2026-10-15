@@ -92,6 +92,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	char str[64];
 	int ret;
 
+	ret = fdt_setprop_u32(blob, 0, "hpe,server-id", gxp_get_server_id());
+	if (ret < 0)
+		printf("WARNING: could not set server id property: %s\n",
+		       fdt_strerror(ret));
+
 	ret = sysinfo_get(&dev);
 	if (ret)
 		goto skip_sysinfo;
