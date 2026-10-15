@@ -477,7 +477,9 @@ static int rk3568_pmuclk_probe(struct udevice *dev)
 	}
 
 	/* Ungate PCIe30phy refclk_m and refclk_n */
-	rk_clrsetreg(&priv->pmucru->pmu_clkgate_con[2], 0x3 << 13, 0 << 13);
+	if (CONFIG_IS_ENABLED(PCI))
+		rk_clrreg(&priv->pmucru->pmu_clkgate_con[2], 0x3 << 13);
+
 	return 0;
 }
 
