@@ -424,7 +424,7 @@ endif
 # minimize the diff between upstream DTs and U-Boot DTs.
 ifdef DEVICE_TREE_DEBUG
 cmd_dtc_diff = \
-	$(HOSTCC) -E $(dtc_cpp_flags) -I$(obj) -x assembler-with-cpp -o $(dtn-tmp) $< ; \
+	$(HOSTCC) -E @$(dtc-flags-tmp) -x assembler-with-cpp -o $(dtn-tmp) $< ; \
 	$(DTC) -s -O dts -o $@.clean.dts -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) $(dtn-tmp) || \
 		(echo "Check $(shell pwd)/$< for errors" && false); \
@@ -448,7 +448,7 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 	(cat $< > $(pre-tmp)); \
 	$(foreach f,$(subst $(quote),,$(dtsi_include_list) $(CONFIG_DEVICE_TREE_INCLUDES)), \
 	  echo '$(pound)include "$(f)"' >> $(pre-tmp);) \
-	$(HOSTCC) -E $(dtc_cpp_flags) -I$(obj) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
+	$(HOSTCC) -E @$(dtc-flags-tmp) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
 		-i $(dir $<) -i $(u_boot_dtsi_loc) $(DTC_FLAGS) \
 		-d $(depfile).dtc.tmp $(dtc-tmp) || \
@@ -477,6 +477,15 @@ $(obj)/%.dtb: $(src)/%.dts $(DTC) $(dtsi_include_list_deps) $(DT_TMP_SCHEMA) FOR
 
 pre-tmp = $(subst $(comma),_,$(dot-target).pre.tmp)
 dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
+dtc-flags-tmp = $(subst $(comma),_,$(dot-target).dtc.flags.tmp)
+
+# if_changed_dep compares cmd_extra_* but does not pass it to the shell.
+# The response file is written only after that check decides to rebuild.
+cmd_extra_dtb = $(dtc_cpp_flags) -I$(obj)
+cmd_prepare_dtb = $(file >$(dtc-flags-tmp),$(cmd_extra_dtb))
+
+cmd_extra_dtco = $(dtc_cpp_flags)
+cmd_prepare_dtco = $(file >$(dtc-flags-tmp),$(cmd_extra_dtco))
 
 # DTCO
 # ---------------------------------------------------------------------------
@@ -486,7 +495,7 @@ quiet_cmd_dtco = DTCO    $@
 # No generation of assembly file either
 # Modified for U-Boot
 cmd_dtco = mkdir -p $(dir ${dtc-tmp}) ; \
-	$(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $< ; \
+	$(CPP) @$(dtc-flags-tmp) -x assembler-with-cpp -o $(dtc-tmp) $< ; \
 	$(DTC) -@ -O dtb -o $@ -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) \
 		-d $(depfile).dtc.tmp $(dtc-tmp) ; \
