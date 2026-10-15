@@ -56,6 +56,7 @@ obj-$(CONFIG_FSL_PFE) += pfe_eth/
 obj-$(CONFIG_FTGMAC100) += ftgmac100.o
 obj-$(CONFIG_FTMAC100) += ftmac100.o
 obj-$(CONFIG_GMAC_ROCKCHIP) += gmac_rockchip.o
+obj-$(CONFIG_GXP_UMAC) += gxp_umac.o
 obj-$(CONFIG_HIFEMAC_ETH) += hifemac.o
 obj-$(CONFIG_HIFEMAC_MDIO) += hifemac_mdio.o
 obj-$(CONFIG_HIGMACV300_ETH) += higmacv300.o
