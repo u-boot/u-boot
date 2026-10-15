@@ -1294,9 +1294,9 @@ out:
  * efi_bootmgr_run() - execute EFI boot manager
  * @fdt:	Flat device tree
  *
- * Invoke EFI boot manager and execute a binary depending on
- * boot options. If @fdt is not NULL, it will be passed to
- * the executed binary.
+ * Invoke the EFI boot manager and execute a binary according to its boot
+ * options. The devicetree precedence, from highest to lowest, is an FDT
+ * passed in @fdt, the Boot#### load-option FDT, then the distro/ESP FDT.
  *
  * Return:	status code
  */
@@ -1305,7 +1305,7 @@ efi_status_t efi_bootmgr_run(void *fdt)
 	efi_handle_t handle;
 	void *load_options;
 	efi_status_t ret;
-	void *fdt_lo, *fdt_distro = NULL;
+	void *fdt_lo = NULL, *fdt_distro = NULL;
 	efi_uintn_t fdt_size;
 
 	/* Initialize EFI drivers */
@@ -1320,11 +1320,13 @@ efi_status_t efi_bootmgr_run(void *fdt)
 	}
 
 	if (!IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
-		ret = load_fdt_from_load_option(&fdt_lo);
-		if (ret != EFI_SUCCESS)
-			return ret;
-		if (fdt_lo)
-			fdt = fdt_lo;
+		if (!fdt) {
+			ret = load_fdt_from_load_option(&fdt_lo);
+			if (ret != EFI_SUCCESS)
+				return ret;
+			if (fdt_lo)
+				fdt = fdt_lo;
+		}
 		if (!fdt) {
 			efi_load_distro_fdt(handle, &fdt_distro, &fdt_size);
 			fdt = fdt_distro;
