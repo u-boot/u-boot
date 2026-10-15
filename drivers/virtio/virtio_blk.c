@@ -251,12 +251,7 @@ static int virtio_blk_probe(struct udevice *dev)
 	struct virtio_blk_priv *priv = dev_get_priv(dev);
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	u64 cap;
-	int ret;
 	u32 blk_size;
-
-	ret = virtio_find_vqs(dev, 1, &priv->vq);
-	if (ret)
-		return ret;
 
 	virtio_cread(dev, struct virtio_blk_config, capacity, &cap);
 	desc->lba = cap;
@@ -281,7 +276,7 @@ static int virtio_blk_probe(struct udevice *dev)
 	else
 		priv->seg_max = -1U;
 
-	return 0;
+	return virtio_find_vqs(dev, 1, &priv->vq);
 }
 
 static const struct blk_ops virtio_blk_ops = {
