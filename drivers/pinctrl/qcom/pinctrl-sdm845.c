@@ -18,9 +18,31 @@
 #define MAX_PIN_NAME_LEN 32
 static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 
+enum {
+	FUNC_QUP9,
+	FUNC_QUP4,
+	FUNC_GPIO,
+};
+
 static const struct pinctrl_function msm_pinctrl_functions[] = {
-	{"qup9", 1},
-	{"gpio", 0},
+	[FUNC_QUP9] = {"qup9", -1},
+	[FUNC_QUP4] = {"qup4", -1},
+	[FUNC_GPIO] = {"gpio", 0},
+};
+
+static const struct {
+	u8 pin;
+	u8 function;
+	u8 mux;
+} sdm845_pin_muxes[] = {
+	/* GPIO 4..5: UART9 debug console */
+	{ 4, FUNC_QUP9, 1 },
+	{ 5, FUNC_QUP9, 1 },
+	/* GPIO 89..92: GENI QUP0 SE4 SPI */
+	{ 89, FUNC_QUP4, 2 },
+	{ 90, FUNC_QUP4, 3 },
+	{ 91, FUNC_QUP4, 3 },
+	{ 92, FUNC_QUP4, 3 },
 };
 
 static const unsigned int sdm845_pin_offsets[] = {
@@ -80,10 +102,23 @@ static const char *sdm845_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
-static int sdm845_get_function_mux(__maybe_unused unsigned int pin,
-				   unsigned int selector)
+static int sdm845_get_function_mux(unsigned int pin, unsigned int selector)
 {
-	return msm_pinctrl_functions[selector].val;
+	int i;
+
+	if (selector >= ARRAY_SIZE(msm_pinctrl_functions))
+		return -EINVAL;
+
+	if (selector == FUNC_GPIO)
+		return msm_pinctrl_functions[selector].val;
+
+	for (i = 0; i < ARRAY_SIZE(sdm845_pin_muxes); i++) {
+		if (sdm845_pin_muxes[i].pin == pin &&
+		    sdm845_pin_muxes[i].function == selector)
+			return sdm845_pin_muxes[i].mux;
+	}
+
+	return -EINVAL;
 }
 
 static const struct msm_pinctrl_data sdm845_data = {
