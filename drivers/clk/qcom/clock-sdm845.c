@@ -18,6 +18,7 @@
 
 #include "clock-qcom.h"
 
+#define SE4_SPI_APPS_CMD_RCGR	0x174f4
 #define SE9_UART_APPS_CMD_RCGR	0x18148
 
 #define USB30_PRIM_MASTER_CLK_CMD_RCGR 0xf018
@@ -77,7 +78,7 @@ static ulong sdm670_clk_set_rate(struct clk *clk, ulong rate)
 	case GCC_SDCC1_APPS_CLK:
 		freq = qcom_find_freq(ftbl_gcc_sdcc1_apps_clk_src, rate);
 		clk_rcg_set_rate_mnd(priv->base, SDCC1_APPS_CLK_CMD_RCGR,
-				     freq->pre_div, freq->m, freq->n, freq->src, 8);
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
 		return freq->freq;
 	default:
 		return 0;
@@ -95,10 +96,15 @@ static ulong sdm845_clk_set_rate(struct clk *clk, ulong rate)
 		clk_rcg_set_rate_mnd(priv->base, SE9_UART_APPS_CMD_RCGR,
 				     freq->pre_div, freq->m, freq->n, freq->src, 16);
 		return freq->freq;
+	case GCC_QUPV3_WRAP0_S4_CLK: /* QUP0 SE4 SPI */
+		freq = qcom_find_freq(ftbl_gcc_qupv3_wrap0_s0_clk_src, rate);
+		clk_rcg_set_rate_mnd(priv->base, SE4_SPI_APPS_CMD_RCGR,
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
+		return freq->freq;
 	case GCC_SDCC2_APPS_CLK:
 		freq = qcom_find_freq(ftbl_gcc_sdcc2_apps_clk_src, rate);
 		clk_rcg_set_rate_mnd(priv->base, SDCC2_APPS_CLK_CMD_RCGR,
-				     freq->pre_div, freq->m, freq->n, freq->src, 8);
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
 		return freq->freq;
 	default:
 		return 0;
