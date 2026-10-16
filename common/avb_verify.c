@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <image.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <part.h>
 #include <tee.h>
 #include <tee/optee_ta_avb.h>
@@ -387,44 +388,68 @@ static unsigned long avb_blk_write(struct avb_blk_part *part, lbaint_t start,
 			  start, sectors, tmp_buf);
 }
 
+static int avb_init_mmc(int dev_num)
+{
+	struct mmc *mmc;
+	int ret;
+
+	mmc = find_mmc_device(dev_num);
+	if (!mmc) {
+		printf("%s: no MMC device at slot %x\n", __func__, dev_num);
+		return -ENODEV;
+	}
+
+	ret = mmc_init(mmc);
+	if (ret) {
+		printf("%s: MMC initialization failed, err = %d\n",
+		       __func__, ret);
+		return ret;
+	}
+
+	if (IS_MMC(mmc)) {
+		/* Select the user area, where the GPT and our images live */
+		ret = mmc_switch_part(mmc, 0);
+		if (ret) {
+			printf("%s: MMC part switch failed, err = %d\n",
+			       __func__, ret);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 static struct avb_blk_part *get_partition(AvbOps *ops, const char *partition)
 {
-	int ret;
-	u8 dev_num;
-	int part_num = 0;
+	enum uclass_id uclass_id;
 	struct avb_blk_part *part;
 	struct blk_desc *blk;
+	int dev_num;
+	int ret;
 
 	part = malloc(sizeof(struct avb_blk_part));
 	if (!part)
 		return NULL;
 
 	dev_num = get_boot_device(ops);
-	part->mmc = find_mmc_device(dev_num);
-	if (!part->mmc) {
-		printf("%s: no MMC device at slot %x\n", __func__, dev_num);
+	uclass_id = get_boot_interface(ops);
+	if (uclass_id == UCLASS_INVALID || dev_num < 0) {
+		printf("%s: no storage interface, run 'avb init' first\n",
+		       __func__);
 		goto err;
 	}
 
-	ret = mmc_init(part->mmc);
-	if (ret) {
-		printf("%s: MMC initialization failed, err = %d\n",
-		       __func__, ret);
-		goto err;
-	}
-
-	if (IS_MMC(part->mmc)) {
-		ret = mmc_switch_part(part->mmc, part_num);
-		if (ret) {
-			printf("%s: MMC part switch failed, err = %d\n",
-			       __func__, ret);
+	if (uclass_id == UCLASS_MMC) {
+		ret = avb_init_mmc(dev_num);
+		if (ret)
 			goto err;
-		}
 	}
 
-	blk = mmc_get_blk_desc(part->mmc);
+	blk = blk_get_devnum_by_uclass_id(uclass_id, dev_num);
 	if (!blk) {
-		printf("%s: failed to obtain block descriptor\n", __func__);
+		/* Every bus but mmc must already be started when AVB runs */
+		printf("%s: no %s device %d, is the bus started?\n", __func__,
+		       blk_get_uclass_name(uclass_id), dev_num);
 		goto err;
 	}
 
@@ -434,7 +459,6 @@ static struct avb_blk_part *get_partition(AvbOps *ops, const char *partition)
 		goto err;
 	}
 
-	part->dev_num = dev_num;
 	part->blk = blk;
 
 	return part;
@@ -1112,7 +1136,7 @@ __weak AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
  * AVB2.0 AvbOps alloc/initialisation/free
  * ============================================================================
  */
-AvbOps *avb_ops_alloc(int boot_device)
+AvbOps *avb_ops_alloc(enum uclass_id uclass_id, int dev_num)
 {
 	struct AvbOpsData *ops_data;
 
@@ -1135,7 +1159,8 @@ AvbOps *avb_ops_alloc(int boot_device)
 	ops_data->ops.read_persistent_value = read_persistent_value;
 #endif
 	ops_data->ops.get_size_of_partition = get_size_of_partition;
-	ops_data->mmc_dev = boot_device;
+	ops_data->uclass_id = uclass_id;
+	ops_data->dev_num = dev_num;
 
 	return &ops_data->ops;
 }

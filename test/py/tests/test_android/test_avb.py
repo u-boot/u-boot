@@ -135,3 +135,31 @@ def test_avb_persistent_values(ubman):
 
     response = ubman.run_command('avb read_pvalue test 12')
     assert response == 'Read 12 bytes, value = value_value'
+
+
+@pytest.mark.buildconfigspec('cmd_avb')
+@pytest.mark.buildconfigspec('cmd_mmc')
+def test_avb_init_interface(ubman):
+    """Check that 'avb init' accepts an explicit interface
+
+    'avb init' only records the interface and device number, so this does
+    not need a device that exists.
+    """
+
+    response = ubman.run_command('avb init mmc 1')
+    assert response == ''
+
+    response = ubman.run_command('avb init 1')
+    assert response == ''
+
+
+@pytest.mark.buildconfigspec('cmd_avb')
+def test_avb_init_bad_interface(ubman):
+    """Check that 'avb init' rejects an interface that does not exist
+
+    The device itself is only resolved on first access, so a device number
+    that does not exist is not rejected here.
+    """
+
+    response = ubman.run_command('avb init nonsense 0')
+    assert response.find("Unknown interface 'nonsense'") != -1

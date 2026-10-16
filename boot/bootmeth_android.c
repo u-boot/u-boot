@@ -443,7 +443,7 @@ static int run_avb_verification(struct bootflow *bflow)
 	bool unlocked = false;
 	int ret;
 
-	avb_ops = avb_ops_alloc(desc->devnum);
+	avb_ops = avb_ops_alloc(desc->uclass_id, desc->devnum);
 	if (!avb_ops)
 		return log_msg_ret("avb ops", -ENOMEM);
 

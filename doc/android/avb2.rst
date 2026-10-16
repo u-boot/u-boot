@@ -29,6 +29,17 @@ integration in ``common/avb_verify.c`` and the platform port under
 
 For additional details check [1]_.
 
+Only mmc is started by AVB itself. Any other interface must already be
+enumerated when AVB runs, either by the board code or by a command such as
+``usb start``, or the partition lookup fails. ``avb init`` only records the
+interface and device number; the device is resolved on the first partition
+access.
+
+If the Android images live on another interface while the AVB trusted
+application keeps its state in eMMC RPMB, the trusted application's first
+RPMB request is also the first eMMC access, and it is made from within a
+supplicant RPC. That needs OP-TEE to tolerate a nested RPMB announcement.
+
 AVB using OP-TEE (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -80,7 +91,8 @@ AVB 2.0 U-Boot shell commands
 Provides CLI interface to invoke AVB 2.0 verification + misc. commands for
 different testing purposes::
 
-    avb init <dev> - initialize avb 2 for <dev>
+    avb init [<interface>] <dev> - initialize avb 2 for hex <dev> on
+        <interface> (mmc, nvme, usb, ...; defaults to mmc)
     avb read_rb <num> - read rollback index at location <num>
     avb write_rb <num> <rb> - write rollback index <rb> to <num>
     avb is_unlocked - returns unlock status of the device

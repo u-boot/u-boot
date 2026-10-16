@@ -7,8 +7,9 @@
 #define _AVB_VERIFY_H
 
 #include <../lib/libavb/libavb.h>
+#include <blk.h>
 #include <mapmem.h>
-#include <mmc.h>
+#include <part.h>
 
 #define AVB_MAX_ARGS			1024
 #define VERITY_TABLE_OPT_RESTART	"restart_on_corruption"
@@ -24,7 +25,8 @@ enum avb_boot_state {
 
 struct AvbOpsData {
 	struct AvbOps ops;
-	int mmc_dev;
+	enum uclass_id uclass_id;
+	int dev_num;
 	enum avb_boot_state boot_state;
 #ifdef CONFIG_OPTEE_TA_AVB
 	struct udevice *tee;
@@ -33,8 +35,6 @@ struct AvbOpsData {
 };
 
 struct avb_blk_part {
-	int dev_num;
-	struct mmc *mmc;
 	struct blk_desc *blk;
 	struct disk_partition info;
 };
@@ -44,7 +44,7 @@ enum avb_io_type {
 	AVB_IO_WRITE
 };
 
-AvbOps *avb_ops_alloc(int boot_device);
+AvbOps *avb_ops_alloc(enum uclass_id uclass_id, int dev_num);
 void avb_ops_free(AvbOps *ops);
 
 /**
@@ -110,10 +110,24 @@ static inline int get_boot_device(AvbOps *ops)
 	if (ops) {
 		data = ops->user_data;
 		if (data)
-			return data->mmc_dev;
+			return data->dev_num;
 	}
 
 	return -1;
+}
+
+/* Mirrors get_boot_device(): no ops means no interface, not a default one */
+static inline enum uclass_id get_boot_interface(AvbOps *ops)
+{
+	struct AvbOpsData *data;
+
+	if (ops) {
+		data = ops->user_data;
+		if (data)
+			return data->uclass_id;
+	}
+
+	return UCLASS_INVALID;
 }
 
 #endif /* _AVB_VERIFY_H */

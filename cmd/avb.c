@@ -16,17 +16,29 @@ static struct AvbOps *avb_ops;
 
 int do_avb_init(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	unsigned long mmc_dev;
+	enum uclass_id uclass_id;
+	int dev_num;
 
-	if (argc != 2)
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
-	mmc_dev = hextoul(argv[1], NULL);
+	/* "avb init <dev>" keeps its old meaning of mmc <dev> */
+	if (argc == 2) {
+		uclass_id = UCLASS_MMC;
+		dev_num = hextoul(argv[1], NULL);
+	} else {
+		uclass_id = blk_get_uclass_id(argv[1]);
+		if (uclass_id == UCLASS_INVALID) {
+			printf("Unknown interface '%s'\n", argv[1]);
+			return CMD_RET_FAILURE;
+		}
+		dev_num = hextoul(argv[2], NULL);
+	}
 
 	if (avb_ops)
 		avb_ops_free(avb_ops);
 
-	avb_ops = avb_ops_alloc(mmc_dev);
+	avb_ops = avb_ops_alloc(uclass_id, dev_num);
 	if (avb_ops)
 		return CMD_RET_SUCCESS;
 	else
@@ -428,7 +440,7 @@ int do_avb_write_pvalue(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static struct cmd_tbl cmd_avb[] = {
-	U_BOOT_CMD_MKENT(init, 2, 0, do_avb_init, "", ""),
+	U_BOOT_CMD_MKENT(init, 3, 0, do_avb_init, "", ""),
 	U_BOOT_CMD_MKENT(read_rb, 2, 0, do_avb_read_rb, "", ""),
 	U_BOOT_CMD_MKENT(write_rb, 3, 0, do_avb_write_rb, "", ""),
 	U_BOOT_CMD_MKENT(is_unlocked, 1, 0, do_avb_is_unlocked, "", ""),
@@ -464,7 +476,8 @@ static int do_avb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	avb, 29, 0, do_avb,
 	"Provides commands for testing Android Verified Boot 2.0 functionality",
-	"init <dev> - initialize avb2 for <dev>\n"
+	"init [<interface>] <dev> - initialize avb2 for hex <dev> on <interface>\n"
+	"    (mmc, nvme, usb, ...; defaults to mmc)\n"
 	"avb read_rb <num> - read rollback index at location <num>\n"
 	"avb write_rb <num> <rb> - write rollback index <rb> to <num>\n"
 	"avb is_unlocked - returns unlock status of the device\n"
