@@ -32,16 +32,16 @@ struct AvbOpsData {
 #endif
 };
 
-struct mmc_part {
+struct avb_blk_part {
 	int dev_num;
 	struct mmc *mmc;
-	struct blk_desc *mmc_blk;
+	struct blk_desc *blk;
 	struct disk_partition info;
 };
 
-enum mmc_io_type {
-	IO_READ,
-	IO_WRITE
+enum avb_io_type {
+	AVB_IO_READ,
+	AVB_IO_WRITE
 };
 
 AvbOps *avb_ops_alloc(int boot_device);
@@ -78,7 +78,7 @@ const char *str_avb_slot_error(AvbSlotVerifyResult res);
  * I/O helper inline functions
  * ============================================================================
  */
-static inline uint64_t calc_offset(struct mmc_part *part, int64_t offset)
+static inline uint64_t calc_offset(struct avb_blk_part *part, int64_t offset)
 {
 	u64 part_size = part->info.size * part->info.blksz;
 
