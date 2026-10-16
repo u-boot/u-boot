@@ -21,6 +21,7 @@
 		"bootm ${loadaddr}; "					\
 		"echo Error loading kernel FIT image\0"			\
 	"loadaddr=" STR(CONFIG_SYS_LOAD_ADDR) "\0"			\
+	"fdtspiaddr=0x100420000\0"					\
 	"bootside=a\0"							\
 	"rootfs=rofs-a\0"						\
 	"setmmcargs=setenv bootargs ${bootargs} "			\
