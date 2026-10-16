@@ -1033,9 +1033,9 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
 		const char *ext_data_prop = NULL;
-		void *data = NULL;
-		int buf_ptr;
-		int len;
+		uint64_t offset = 0;
+		u32 val;
+		u32 len;
 
 		/*
 		 * A source file must not combine image-data with external
@@ -1059,22 +1059,39 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		 * FIT_DATA_OFFSET_PROP and FIT_DATA_POSITION_PROP are never both present,
 		 *  but if they are, prefer FIT_DATA_OFFSET_PROP as it was there first
 		 */
-		buf_ptr = fdtdec_get_int(fdt, node, FIT_DATA_POSITION_PROP, -1);
-		if (buf_ptr != -1) {
+		if (!fit_image_get_data_position(fdt, node, &val)) {
 			ext_data_prop = FIT_DATA_POSITION_PROP;
-			data = old_fdt + buf_ptr;
+			offset = val;
 		}
-		buf_ptr = fdtdec_get_int(fdt, node, FIT_DATA_OFFSET_PROP, -1);
-		if (buf_ptr != -1) {
+		if (!fit_image_get_data_offset(fdt, node, &val)) {
 			ext_data_prop = FIT_DATA_OFFSET_PROP;
-			data = old_fdt + data_base + buf_ptr;
+			offset = data_base + (uint64_t)val;
 		}
-		len = fdtdec_get_int(fdt, node, FIT_DATA_SIZE_PROP, -1);
-		if (!data || len == -1)
+		if (!ext_data_prop || fit_image_get_data_size(fdt, node, &len))
 			continue;
+
+		/*
+		 * The offset and size come from the FIT itself, so make
+		 * sure the region lies within the mapped file before
+		 * reading it. An empty region reads nothing and may lie
+		 * past the end, as mkimage -E -p places it there when every
+		 * image is empty.
+		 */
+		if (len && (offset > (uint64_t)sbuf.st_size ||
+			    len > sbuf.st_size - offset)) {
+			fprintf(stderr,
+				"Error: image '%s': external data at file offset 0x%llx size 0x%x is outside the FIT file (size 0x%llx)\n",
+				fdt_get_name(fdt, node, NULL),
+				(unsigned long long)offset, len,
+				(unsigned long long)sbuf.st_size);
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+
 		debug("Importing data size %x\n", len);
 
-		ret = fdt_setprop(fdt, node, FIT_DATA_PROP, data, len);
+		ret = fdt_setprop(fdt, node, FIT_DATA_PROP, old_fdt + offset,
+				  len);
 		if (ret) {
 			debug("%s: Failed to write property: %s\n", __func__,
 			      fdt_strerror(ret));
