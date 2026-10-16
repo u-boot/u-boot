@@ -963,14 +963,19 @@ int fit_image_get_emb_data(const void *fit, int noffset, const void **data,
  * returns:
  *     0, on success
  *     -ENOENT if the property could not be found
+ *     -EINVAL if the property is not exactly one fdt32_t long
  */
 int fit_image_get_data_offset(const void *fit, int noffset, u32 *data_offset)
 {
 	const fdt32_t *val;
+	int len;
 
-	val = fdt_getprop(fit, noffset, FIT_DATA_OFFSET_PROP, NULL);
+	val = fdt_getprop(fit, noffset, FIT_DATA_OFFSET_PROP, &len);
 	if (!val)
 		return -ENOENT;
+
+	if (len != sizeof(*val))
+		return -EINVAL;
 
 	*data_offset = fdt32_to_cpu(*val);
 
@@ -987,15 +992,20 @@ int fit_image_get_data_offset(const void *fit, int noffset, u32 *data_offset)
  * returns:
  *     0, on success
  *     -ENOENT if the property could not be found
+ *     -EINVAL if the property is not exactly one fdt32_t long
  */
 int fit_image_get_data_position(const void *fit, int noffset,
 				u32 *data_position)
 {
 	const fdt32_t *val;
+	int len;
 
-	val = fdt_getprop(fit, noffset, FIT_DATA_POSITION_PROP, NULL);
+	val = fdt_getprop(fit, noffset, FIT_DATA_POSITION_PROP, &len);
 	if (!val)
 		return -ENOENT;
+
+	if (len != sizeof(*val))
+		return -EINVAL;
 
 	*data_position = fdt32_to_cpu(*val);
 
@@ -1012,14 +1022,19 @@ int fit_image_get_data_position(const void *fit, int noffset,
  * returns:
  *     0, on success
  *     -ENOENT if the property could not be found
+ *     -EINVAL if the property is not exactly one fdt32_t long
  */
 int fit_image_get_data_size(const void *fit, int noffset, u32 *data_size)
 {
 	const fdt32_t *val;
+	int len;
 
-	val = fdt_getprop(fit, noffset, FIT_DATA_SIZE_PROP, NULL);
+	val = fdt_getprop(fit, noffset, FIT_DATA_SIZE_PROP, &len);
 	if (!val)
 		return -ENOENT;
+
+	if (len != sizeof(*val))
+		return -EINVAL;
 
 	*data_size = fdt32_to_cpu(*val);
 
