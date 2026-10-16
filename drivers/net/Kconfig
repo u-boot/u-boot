@@ -1117,6 +1117,14 @@ config MDIO_MSCC_MIIM
 	  This driver supports MDIO interface found in Microsemi and Microchip
 	  network switches.
 
+config MDIO_PIC64HPSC
+	bool "PIC64-HPSC/HX MDIO interface support"
+	depends on DM_MDIO
+	select CLK
+	help
+	  This driver supports the MDIO interface found on the PIC64-HPSC/HX
+	  SoCs.
+
 config MDIO_MUX_MMIOREG
 	bool "MDIO MUX accessed as a MMIO register access"
 	depends on DM_MDIO_MUX
