@@ -40,7 +40,7 @@ static struct {
 	{ UCLASS_MTD, "ubi" },
 };
 
-static enum uclass_id uclass_name_to_iftype(const char *uclass_idname)
+enum uclass_id blk_get_uclass_id(const char *uclass_idname)
 {
 	int i;
 
@@ -115,7 +115,7 @@ struct blk_desc *blk_get_devnum_by_uclass_idname(const char *uclass_idname, int 
 	struct uclass *uc;
 	int ret;
 
-	type = uclass_name_to_iftype(uclass_idname);
+	type = blk_get_uclass_id(uclass_idname);
 	if (type == UCLASS_INVALID) {
 		debug("%s: Unknown interface type '%s'\n", __func__,
 		      uclass_idname);

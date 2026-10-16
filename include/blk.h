@@ -742,6 +742,17 @@ int blk_select_hwpart_devnum(enum uclass_id uclass_id, int devnum, int hwpart);
 const char *blk_get_uclass_name(enum uclass_id uclass_id);
 
 /**
+ * blk_get_uclass_id() - Get the interface type for a name
+ *
+ * This does not look up or probe any device, so it can be used to validate
+ * an interface name before a device of that type exists.
+ *
+ * @uclass_idname: Interface name to check, e.g. "mmc"
+ * Return: interface type, or UCLASS_INVALID if the name is not known
+ */
+enum uclass_id blk_get_uclass_id(const char *uclass_idname);
+
+/**
  * blk_common_cmd() - handle common commands with block devices
  *
  * @args: Number of arguments to the command (argv[0] is the command itself)
