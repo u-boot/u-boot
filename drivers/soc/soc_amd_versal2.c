@@ -26,17 +26,27 @@ struct soc_amd_versal2_priv {
 static int soc_amd_versal2_get_family(struct udevice *dev, char *buf, int size)
 {
 	struct soc_amd_versal2_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return snprintf(buf, size, "%s", priv->family);
+	ret = snprintf(buf, size, "%s", priv->family);
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static int soc_amd_versal2_get_revision(struct udevice *dev, char *buf, int size)
 {
 	struct soc_amd_versal2_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return snprintf(buf, size, "v%d.%d",
-			(u32)FIELD_GET(PS_VERSION_MAJOR, priv->revision),
-			(u32)FIELD_GET(PS_VERSION_MINOR, priv->revision));
+	ret = snprintf(buf, size, "v%d.%d",
+		       (u32)FIELD_GET(PS_VERSION_MAJOR, priv->revision),
+		       (u32)FIELD_GET(PS_VERSION_MINOR, priv->revision));
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static const struct soc_ops soc_amd_versal2_ops = {

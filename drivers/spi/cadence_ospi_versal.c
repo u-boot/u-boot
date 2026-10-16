@@ -12,8 +12,7 @@
 #include <asm/gpio.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
-#include <zynqmp_firmware.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #include "cadence_qspi.h"
 
 int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
@@ -39,7 +38,10 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 			clrbits_le32(priv->regbase + CQSPI_REG_CONFIG,
 				     CQSPI_REG_CONFIG_DIRECT);
 
-		cadence_qspi_apb_enable_linear_mode(false);
+		ret = cadence_qspi_apb_enable_linear_mode(false);
+		if (ret)
+			return ret;
+
 		reg = readl(priv->regbase + CQSPI_REG_CONFIG);
 		reg |= CQSPI_REG_CONFIG_ENBL_DMA;
 		writel(reg, priv->regbase + CQSPI_REG_CONFIG);
@@ -156,69 +158,20 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_priv *priv)
 #if !CONFIG_IS_ENABLED(DM_GPIO)
 int cadence_qspi_flash_reset(struct udevice *dev)
 {
-	/* CRP WPROT */
-	writel(0, WPROT_CRP);
-	/* GPIO Reset */
-	writel(0, RST_GPIO);
-
-	/* disable IOU write protection */
-	writel(0, WPROT_LPD_MIO);
-
-	/* set direction as output */
-	writel((readl(BOOT_MODE_DIR) | BIT(FLASH_RESET_GPIO)),
-	       BOOT_MODE_DIR);
-
-	/* Data output enable */
-	writel((readl(BOOT_MODE_OUT) | BIT(FLASH_RESET_GPIO)),
-	       BOOT_MODE_OUT);
-
-	/* IOU SLCR write enable */
-	writel(0, WPROT_PMC_MIO);
-
-	/* set MIO as GPIO */
-	writel(0x60, MIO_PIN_12);
-
-	/* Set value 1 to pin */
-	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(10);
-
-	/* Disable Tri-state */
-	writel((readl(BANK0_TRI) & ~BIT(FLASH_RESET_GPIO)), BANK0_TRI);
-	udelay(5);
-
-	/* Set value 0 to pin */
-	writel((readl(BANK0_OUTPUT) & ~BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(150);
-
-	/* Set value 1 to pin */
-	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(1200);
-
-	return 0;
+	return zynqmp_pm_ospi_flash_reset();
 }
 #endif
 
-void cadence_qspi_apb_enable_linear_mode(bool enable)
+int cadence_qspi_apb_enable_linear_mode(bool enable)
 {
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
-		if (enable)
-			/* ahb read mode */
-			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
-					  IOCTL_OSPI_MUX_SELECT,
-					  PM_OSPI_MUX_SEL_LINEAR, 0, 0, 0, NULL);
-		else
-			/* DMA mode */
-			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
-					  IOCTL_OSPI_MUX_SELECT,
-					  PM_OSPI_MUX_SEL_DMA, 0, 0, 0, NULL);
-	} else {
-		if (enable)
-			writel(readl(VERSAL_AXI_MUX_SEL) |
-			       VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
-		else
-			writel(readl(VERSAL_AXI_MUX_SEL) &
-			       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
-	}
+	int ret;
+
+	/* ahb read mode vs. DMA mode */
+	ret = zynqmp_pm_ospi_enable_linear_mode(enable);
+	if (ret)
+		printf("%s: failed to select OSPI mux mode: %d\n", __func__, ret);
+
+	return ret;
 }
 
 int cadence_device_reset(struct udevice *bus)

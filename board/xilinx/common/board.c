@@ -570,12 +570,16 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 
 char * __maybe_unused __weak board_name_decode(void)
 {
-	char *board_local_name;
 	struct xilinx_board_description *desc;
+	char *board_local_name;
+	size_t len = 0;
 	int i, id;
 
-	board_local_name = calloc(1, MAX_NAME_LENGTH);
 	if (!board_info)
+		return NULL;
+
+	board_local_name = calloc(1, MAX_NAME_LENGTH);
+	if (!board_local_name)
 		return NULL;
 
 	for (id = 0; id <= highest_id; id++) {
@@ -591,39 +595,36 @@ char * __maybe_unused __weak board_name_decode(void)
 
 		/* The first string should be soc name */
 		if (!id)
-			strcat(board_local_name, CONFIG_SYS_BOARD);
+			len = strlcat(board_local_name, CONFIG_SYS_BOARD, MAX_NAME_LENGTH);
 
 		/*
 		 * For two purpose here:
 		 * soc_name- eg: zynqmp-
 		 * and between base board and CC eg: ..revA-sck...
 		 */
-		strcat(board_local_name, "-");
+		len = strlcat(board_local_name, "-", MAX_NAME_LENGTH);
 
 		if (desc->name[0]) {
 			/* For DT composition name needs to be lowercase */
 			for (i = 0; i < sizeof(desc->name); i++)
 				desc->name[i] = tolower(desc->name[i]);
 
-			strcat(board_local_name, desc->name);
+			len = strlcat(board_local_name, desc->name, MAX_NAME_LENGTH);
 		}
 		if (desc->revision[0]) {
-			strcat(board_local_name, "-rev");
+			len = strlcat(board_local_name, "-rev", MAX_NAME_LENGTH);
 
 			/* And revision needs to be uppercase */
 			for (i = 0; i < sizeof(desc->revision); i++)
 				desc->revision[i] = toupper(desc->revision[i]);
 
-			strcat(board_local_name, desc->revision);
+			len = strlcat(board_local_name, desc->revision, MAX_NAME_LENGTH);
 		}
-	}
 
-	/*
-	 * Longer strings will end up with buffer overflow and potential
-	 * attacks that's why check it
-	 */
-	if (strlen(board_local_name) >= MAX_NAME_LENGTH)
-		panic("Board name can't be determined\n");
+		/* Reject truncated board names. */
+		if (len >= MAX_NAME_LENGTH)
+			panic("Board name can't be determined\n");
+	}
 
 	if (strlen(board_local_name))
 		return board_local_name;
@@ -692,7 +693,7 @@ int embedded_dtb_select(void)
 
 #ifdef CONFIG_OF_BOARD_SETUP
 #define MAX_RAND_SIZE 8
-int ft_board_setup(void *blob, struct bd_info *bd)
+int __weak ft_board_setup(void *blob, struct bd_info *bd)
 {
 	static const struct node_info nodes[] = {
 		{ "arm,pl353-nand-r2p1", MTD_DEV_TYPE_NAND, },

@@ -18,6 +18,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/cache.h>
 #include <dm/platdata.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -215,6 +216,68 @@ __weak u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr)
 {
 	return readl((ulong)reg_addr);
 }
+
+__weak int zynqmp_pm_ospi_enable_linear_mode(bool enable)
+{
+	if (enable)
+		writel(readl(VERSAL_AXI_MUX_SEL) |
+		       VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+	else
+		writel(readl(VERSAL_AXI_MUX_SEL) &
+		       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+
+	return 0;
+}
+
+#if !CONFIG_IS_ENABLED(DM_GPIO)
+int zynqmp_pm_ospi_flash_reset_raw(void)
+{
+	/* CRP WPROT */
+	writel(0, WPROT_CRP);
+	/* GPIO Reset */
+	writel(0, RST_GPIO);
+
+	/* disable IOU write protection */
+	writel(0, WPROT_LPD_MIO);
+
+	/* set direction as output */
+	writel((readl(BOOT_MODE_DIR) | BIT(FLASH_RESET_GPIO)),
+	       BOOT_MODE_DIR);
+
+	/* Data output enable */
+	writel((readl(BOOT_MODE_OUT) | BIT(FLASH_RESET_GPIO)),
+	       BOOT_MODE_OUT);
+
+	/* IOU SLCR write enable */
+	writel(0, WPROT_PMC_MIO);
+
+	/* set MIO as GPIO */
+	writel(0x60, MIO_PIN_12);
+
+	/* Set value 1 to pin */
+	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
+	udelay(10);
+
+	/* Disable Tri-state */
+	writel((readl(BANK0_TRI) & ~BIT(FLASH_RESET_GPIO)), BANK0_TRI);
+	udelay(5);
+
+	/* Set value 0 to pin */
+	writel((readl(BANK0_OUTPUT) & ~BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
+	udelay(150);
+
+	/* Set value 1 to pin */
+	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
+	udelay(1200);
+
+	return 0;
+}
+
+__weak int zynqmp_pm_ospi_flash_reset(void)
+{
+	return zynqmp_pm_ospi_flash_reset_raw();
+}
+#endif
 
 U_BOOT_DRVINFO(soc_xilinx_versal) = {
 	.name = "soc_xilinx_versal",

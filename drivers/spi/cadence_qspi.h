@@ -316,7 +316,8 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_priv *priv);
 int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg);
 int cadence_qspi_flash_reset(struct udevice *dev);
 ofnode cadence_qspi_get_subnode(struct udevice *dev);
-void cadence_qspi_apb_enable_linear_mode(bool enable);
+int cadence_qspi_apb_enable_linear_mode(bool enable);
+int zynqmp_pm_ospi_init(void);
 int cadence_device_reset(struct udevice *dev);
 int cadence_qspi_setup_opcode_ext(struct cadence_spi_priv *priv,
 				  const struct spi_mem_op *op,

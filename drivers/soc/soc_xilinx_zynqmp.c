@@ -368,26 +368,41 @@ static int soc_xilinx_zynqmp_detect_machine(struct udevice *dev, u32 idcode,
 static int soc_xilinx_zynqmp_get_family(struct udevice *dev, char *buf, int size)
 {
 	struct soc_xilinx_zynqmp_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return snprintf(buf, size, "%s", priv->family);
+	ret = snprintf(buf, size, "%s", priv->family);
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static int soc_xilinx_zynqmp_get_machine(struct udevice *dev, char *buf, int size)
 {
 	struct soc_xilinx_zynqmp_priv *priv = dev_get_priv(dev);
 	const char *machine = priv->machine;
+	int ret;
 
 	if (!machine[0])
 		machine = "unknown";
 
-	return snprintf(buf, size, "%s", machine);
+	ret = snprintf(buf, size, "%s", machine);
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static int soc_xilinx_zynqmp_get_revision(struct udevice *dev, char *buf, int size)
 {
 	struct soc_xilinx_zynqmp_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return snprintf(buf, size, "v%d", priv->revision);
+	ret = snprintf(buf, size, "v%d", priv->revision);
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static const struct soc_ops soc_xilinx_zynqmp_ops = {

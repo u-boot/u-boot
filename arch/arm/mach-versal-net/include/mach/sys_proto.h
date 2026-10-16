@@ -19,3 +19,11 @@ int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
 u32 zynqmp_pm_get_pmc_tap_idcode(void);
 u32 zynqmp_pm_get_pmc_tap_version(void);
 u32 zynqmp_pm_get_pmc_tap_usercode(void);
+/* Overridable OSPI AXI-mux select: weak MMIO default, firmware override */
+int zynqmp_pm_ospi_enable_linear_mode(bool enable);
+#if !CONFIG_IS_ENABLED(DM_GPIO)
+/* Overridable OSPI flash GPIO reset sequence: weak MMIO default, firmware override */
+int zynqmp_pm_ospi_flash_reset(void);
+/* Direct GPIO reset sequence (EL3 / no-firmware path) */
+int zynqmp_pm_ospi_flash_reset_raw(void);
+#endif
