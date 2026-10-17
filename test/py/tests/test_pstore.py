@@ -112,3 +112,34 @@ def test_pstore_invalid_records(ubman):
     assert(not os.listdir(outdir))
 
     shutil.rmtree(outdir)
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_set_larger_record(ubman):
+    """Test that pstore save works after pstore set makes a record larger."""
+
+    size = 0x2000
+    console = PSTORE_ADDR + PSTORE_LENGTH - 2 * 4096 - size
+    outdir = tempfile.mkdtemp()
+
+    ubman.run_command('')
+    try:
+        # Size the buffer for the default record sizes
+        ubman.run_command_list([
+            'mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+            'pstore set 0x%x 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+            'pstore display'])
+        # Make the console record larger and save a full one. With 0xaa
+        # data, an overflow of the buffer fails the sandbox malloc checks.
+        ubman.run_command_list([
+            'pstore set 0x%x 0x%x 0x1000 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH,
+                                                  size),
+            'mw.b 0x%x 0xaa 0x%x' % (console + 12, size - 12)])
+        write_header(ubman, console, PSTORE_SIG, size - 12, size - 12)
+        ubman.run_command('pstore save hostfs - %s' % (outdir))
+        with open('%s/console-ramoops-0' % (outdir), 'rb') as f:
+            assert(f.read() == b'\xaa' * (size - 12))
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+    shutil.rmtree(outdir)
