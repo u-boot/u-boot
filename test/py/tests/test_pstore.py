@@ -143,3 +143,23 @@ def test_pstore_set_larger_record(ubman):
         ubman.restart_uboot()
 
     shutil.rmtree(outdir)
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_cut_dump_header(ubman):
+    """Test that pstore skips a dump record whose header line is cut."""
+
+    outdir = tempfile.mkdtemp()
+
+    ubman.run_command('')
+    ubman.run_command('mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH))
+    load_pstore(ubman)
+    # Cut the second dump record inside its header line
+    write_header(ubman, PSTORE_ADDR + 4096, PSTORE_SIG, 8, 8)
+
+    response = ubman.run_command('pstore display dump')
+    assert(response.count('**** Dump') == 1)
+
+    ubman.run_command('pstore save hostfs - %s' % (outdir))
+    assert(not os.path.exists('%s/dmesg-ramoops-1' % (outdir)))
+
+    shutil.rmtree(outdir)
