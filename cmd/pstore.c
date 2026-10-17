@@ -92,13 +92,16 @@ static u32 pstore_get_buffer(u32 sig, phys_addr_t buffer, u32 size, char *dest)
 		(struct persistent_ram_buffer *)map_sysmem(buffer, size);
 	u32 dest_size;
 
+	if (size <= sizeof(*prb))
+		return 0;
+
 	if (sig == 0 || prb->sig == sig) {
 		if (prb->size == 0) {
 			log_debug("found existing empty buffer\n");
 			return 0;
 		}
 
-		if (prb->size > size) {
+		if (prb->size > size - sizeof(*prb) || prb->start > prb->size) {
 			log_debug("found existing invalid buffer, size %u, start %u\n",
 			          prb->size, prb->start);
 			return 0;
