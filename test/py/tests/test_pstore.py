@@ -10,6 +10,7 @@ import shutil
 
 PSTORE_ADDR=0x3000000
 PSTORE_LENGTH=0x100000
+PSTORE_SIG=0x43474244
 PSTORE_PANIC1='test/py/tests/test_pstore_data_panic1.hex'
 PSTORE_PANIC2='test/py/tests/test_pstore_data_panic2.hex'
 PSTORE_CONSOLE='test/py/tests/test_pstore_data_console.hex'
@@ -39,6 +40,14 @@ def checkfile(ubman, path, filesize, checksum):
         'md5sum %x $filesize' % ADDR,
         'setenv filesize'])
     assert(checksum in ''.join(output))
+
+def write_header(ubman, addr, sig, start, size):
+    """Write a record header at addr"""
+
+    ubman.run_command_list([
+        'mw.l 0x%x 0x%x' % (addr, sig),
+        'mw.l 0x%x 0x%x' % (addr + 4, start),
+        'mw.l 0x%x 0x%x' % (addr + 8, size)])
 
 @pytest.mark.buildconfigspec('cmd_pstore')
 def test_pstore_display_all_records(ubman):
@@ -73,5 +82,33 @@ def test_pstore_save_records(ubman):
     checkfile(ubman, '%s/dmesg-ramoops-0' % (outdir), 3798, '8059335ab4cfa62c77324c491659c503')
     checkfile(ubman, '%s/dmesg-ramoops-1' % (outdir), 4035, '3ff30df3429d81939c75d0070b5187b9')
     checkfile(ubman, '%s/console-ramoops-0' % (outdir), 4084, 'bb44de4a9b8ebd9b17ae98003287325b')
+
+    shutil.rmtree(outdir)
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_invalid_records(ubman):
+    """Test that pstore skips records with an invalid header."""
+
+    console = PSTORE_ADDR + PSTORE_LENGTH - 3 * 4096
+    ftrace = console + 4096
+    pmsg = ftrace + 4096
+    outdir = tempfile.mkdtemp()
+
+    ubman.run_command('')
+    ubman.run_command_list([
+        'mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+        'pstore set 0x%x 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH)])
+    # Start beyond the size
+    write_header(ubman, console, PSTORE_SIG, 0x10, 0x8)
+    # The same in the ftrace zone, which is read without checking the signature
+    write_header(ubman, ftrace, 0, 0x10, 0x8)
+    # Size larger than the zone minus the header
+    write_header(ubman, pmsg, PSTORE_SIG, 0, 4096)
+
+    response = ubman.run_command('pstore display')
+    assert('****' not in response)
+
+    ubman.run_command('pstore save hostfs - %s' % (outdir))
+    assert(not os.listdir(outdir))
 
     shutil.rmtree(outdir)
