@@ -9,6 +9,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <usb.h>
+#include <dm/device_compat.h>
 #include <power/regulator.h>
 #include <asm/gpio.h>
 
@@ -51,9 +52,9 @@ static int xhci_usb_probe(struct udevice *dev)
 
 	ret = device_get_supply_regulator(dev, "vbus-supply", &regulator);
 	if (!ret) {
-		ret = regulator_set_enable(regulator, true);
-		if (ret) {
-			printf("Failed to turn ON the VBUS regulator\n");
+		ret = regulator_set_enable_if_allowed(regulator, true);
+		if (ret && ret != -ENOSYS) {
+			dev_err(dev, "Failed to turn ON the VBUS regulator\n");
 			return ret;
 		}
 	}
