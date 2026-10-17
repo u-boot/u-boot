@@ -42,6 +42,7 @@ static unsigned int buffer_size;
   * pstore_read_kmsg_hdr() - Check kernel header and get compression flag if
   *                          available.
   * @buffer: Kernel messages buffer.
+  * @size: Length of the kernel messages in @buffer.
   * @compressed: Returns TRUE if kernel buffer is compressed, else FALSE.
   *
   * Check if buffer starts with a kernel header of the form:
@@ -51,7 +52,7 @@ static unsigned int buffer_size;
   *
   * Return: Length of kernel header.
   */
-static int pstore_read_kmsg_hdr(char *buffer, bool *compressed)
+static int pstore_read_kmsg_hdr(char *buffer, u32 size, bool *compressed)
 {
 	char *ptr = buffer;
 	*compressed = false;
@@ -59,9 +60,7 @@ static int pstore_read_kmsg_hdr(char *buffer, bool *compressed)
 	if (strncmp(RAMOOPS_KERNMSG_HDR, ptr, strlen(RAMOOPS_KERNMSG_HDR)) != 0)
 		return 0;
 
-	ptr += strlen(RAMOOPS_KERNMSG_HDR);
-
-	ptr = strchr(ptr, '\n');
+	ptr = memchr(buffer, '\n', size);
 	if (!ptr)
 		return 0;
 
@@ -299,7 +298,8 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 			if (size == 0)
 				continue;
 
-			header_len = pstore_read_kmsg_hdr(buffer, &compressed);
+			header_len = pstore_read_kmsg_hdr(buffer, size,
+							  &compressed);
 			if (header_len == 0) {
 				log_debug("no valid kernel header\n");
 				continue;
@@ -411,7 +411,7 @@ static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 		if (size == 0)
 			continue;
 
-		header_len = pstore_read_kmsg_hdr(buffer, &compressed);
+		header_len = pstore_read_kmsg_hdr(buffer, size, &compressed);
 		if (header_len == 0) {
 			log_debug("no valid kernel header\n");
 			continue;
