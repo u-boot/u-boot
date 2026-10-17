@@ -197,6 +197,9 @@ static int pstore_set(struct cmd_tbl *cmdtp, int flag,  int argc,
 	if (argc > 7)
 		pstore_ecc_size = hextoul(argv[7], NULL);
 
+	/* Size the buffer again for the new record sizes on next use */
+	buffer_size = 0;
+
 	if (pstore_length < (pstore_record_size + pstore_console_size
 			     + pstore_ftrace_size + pstore_pmsg_size)) {
 		printf("pstore <len> should be larger than the sum of all records sizes\n");
