@@ -613,9 +613,12 @@ __weak unsigned long board_spl_mmu_tlb_base(void)
 #endif
 }
 
+/* Uboot early MMU only map first 64MB DDR before DM init.
+ * Set default early MMU table at top 2MB of first 64MB DDR
+ */
 __weak unsigned long board_early_mmu_tlb_base(void)
 {
-	return CFG_SYS_SDRAM_BASE;
+	return CFG_SYS_SDRAM_BASE + SZ_64M - SZ_2M;
 }
 
 /*

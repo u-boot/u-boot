@@ -9,6 +9,9 @@
 
 #define FCB_FINGERPRINT		0x20424346      /* 'FCB' */
 #define FCB_VERSION_1		0x01000000
+/* the Vybrid ROM reads both the other way round */
+#define FCB_FINGERPRINT_VF610	0x46434220
+#define FCB_VERSION_VF610	0x00000001
 #define FCB_FINGERPRINT_OFF	0x4		/* FCB fingerprint offset*/
 
 #define DBBT_FINGERPRINT	0x54424244	/* 'DBBT' */

@@ -24,7 +24,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 
-#include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <asm/mach-imx/imx-nandbcb.h>
 #include <asm/mach-imx/imximage.cfg>
 #include <mxs_nand.h>
@@ -49,6 +49,8 @@
 #define FCB_ENCODE_BCH			(FCB_ENCODE_BCH_40b | FCB_ENCODE_BCH_62b)
 /* FCB data was randomized */
 #define FCB_RANDON_ENABLED		BIT(5)
+/* No DBBT */
+#define FCB_NO_DBBT			BIT(6)
 
 /* Firmware related flags */
 /* No 1K padding */
@@ -60,9 +62,13 @@
 
 /* Boot search related flags */
 #define BT_SEARCH_CNT_FROM_FUSE		BIT(16)
+/* One FCB copy at page 0 */
+#define BT_SEARCH_SINGLE_FCB		BIT(17)
 
 struct platform_config {
 	int misc_flags;
+	u32 fcb_fingerprint;
+	u32 fcb_version;
 };
 
 static struct platform_config plat_config;
@@ -127,6 +133,16 @@ static struct platform_config imx8q_plat_config = {
 		     FCB_RANDON_ENABLED |
 		     FIRMWARE_SECONDARY_FIXED_ADDR |
 		     BT_SEARCH_CNT_FROM_FUSE,
+};
+
+/* vf610 */
+static struct platform_config vf610_plat_config = {
+	.misc_flags = FCB_ENCODE_HAMMING |
+		     FCB_NO_DBBT |
+		     FIRMWARE_NEED_PADDING |
+		     BT_SEARCH_SINGLE_FCB,
+	.fcb_fingerprint = FCB_FINGERPRINT_VF610,
+	.fcb_version = FCB_VERSION_VF610,
 };
 
 /* boot search related variables and definitions */
@@ -271,7 +287,9 @@ static int nandbcb_set_boot_config(int argc, char * const argv[],
 	maxsize = ((u32)(maxsize + mtd->writesize - 1)) / (u32)mtd->writesize
 			* mtd->writesize;
 
-	boot_stream1_address = 2 * boot_cfg->search_area_size_in_bytes;
+	boot_stream1_address = boot_cfg->search_area_size_in_bytes;
+	if (!(plat_config.misc_flags & FCB_NO_DBBT))
+		boot_stream1_address += boot_cfg->search_area_size_in_bytes;
 	boot_stream2_address = ((maxsize - boot_stream1_address) / 2 +
 			       boot_stream1_address);
 
@@ -321,6 +339,11 @@ static int nandbcb_check_space(struct boot_config *boot_cfg)
 	}
 
 	return CMD_RET_SUCCESS;
+}
+
+static int fcb_raw_offset(void)
+{
+	return plat_config.misc_flags & FCB_LAYOUT_RESV_12B ? 12 : 0;
 }
 
 #if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
@@ -410,6 +433,14 @@ static void encode_hamming_13_8(void *_src, void *_ecc, size_t size)
 	for (i = 0; i < size; i++)
 		ecc[i] = calculate_parity_13_8(src[i]);
 }
+
+static void fcb_raw_hamming(void *raw, struct fcb_block *fcb)
+{
+	int off = fcb_raw_offset();
+
+	memcpy(raw + off, fcb, sizeof(*fcb));
+	encode_hamming_13_8(raw + off, raw + off + 512, 512);
+}
 #endif
 
 static u32 calc_chksum(void *buf, size_t size)
@@ -424,17 +455,42 @@ static u32 calc_chksum(void *buf, size_t size)
 	return ~chksum;
 }
 
+static void fill_fcb_ecc(struct fcb_block *fcb, struct mtd_info *mtd)
+{
+	struct nand_chip *chip;
+	struct mxs_nand_info *nand_info;
+	struct mxs_nand_layout l;
+
+	if (IS_ENABLED(CONFIG_NAND_VF610_NFC)) {
+		fcb->ecc_level = 6;
+		if (IS_ENABLED(CONFIG_SYS_NAND_VF610_NFC_60_ECC_BYTES))
+			fcb->ecc_level = 7;
+		fcb->ecc_type = fcb->ecc_level;
+		return;
+	}
+
+	chip = mtd_to_nand(mtd);
+	nand_info = nand_get_controller_data(chip);
+	mxs_nand_get_layout(mtd, &l);
+
+	fcb->meta_size = l.meta_size;
+	fcb->nr_blocks = l.nblocks;
+	fcb->ecc_nr = l.data0_size;
+	fcb->ecc_level = l.ecc0;
+	fcb->ecc_size = l.datan_size;
+	fcb->ecc_type = l.eccn;
+	fcb->bchtype = l.gf_len;
+
+	fcb->bb_byte = nand_info->bch_geometry.block_mark_byte_offset;
+	fcb->bb_start_bit = nand_info->bch_geometry.block_mark_bit_offset;
+}
+
 static void fill_fcb(struct fcb_block *fcb, struct boot_config *boot_cfg)
 {
 	struct mtd_info *mtd = boot_cfg->mtd;
-	struct nand_chip *chip = mtd_to_nand(mtd);
-	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
-	struct mxs_nand_layout l;
 
-	mxs_nand_get_layout(mtd, &l);
-
-	fcb->fingerprint = FCB_FINGERPRINT;
-	fcb->version = FCB_VERSION_1;
+	fcb->fingerprint = plat_config.fcb_fingerprint ?: FCB_FINGERPRINT;
+	fcb->version = plat_config.fcb_version ?: FCB_VERSION_1;
 
 	fcb->datasetup = 80;
 	fcb->datahold = 60;
@@ -445,19 +501,14 @@ static void fill_fcb(struct fcb_block *fcb, struct boot_config *boot_cfg)
 	fcb->oob_pagesize = mtd->writesize + mtd->oobsize;
 	fcb->sectors = mtd->erasesize / mtd->writesize;
 
-	fcb->meta_size = l.meta_size;
-	fcb->nr_blocks = l.nblocks;
-	fcb->ecc_nr = l.data0_size;
-	fcb->ecc_level = l.ecc0;
-	fcb->ecc_size = l.datan_size;
-	fcb->ecc_type = l.eccn;
-	fcb->bchtype = l.gf_len;
+	fill_fcb_ecc(fcb, mtd);
 
-	/* DBBT search area starts from the next block after all FCB */
-	fcb->dbbt_start = boot_cfg->search_area_size_in_pages;
-
-	fcb->bb_byte = nand_info->bch_geometry.block_mark_byte_offset;
-	fcb->bb_start_bit = nand_info->bch_geometry.block_mark_bit_offset;
+	if (plat_config.misc_flags & FCB_NO_DBBT) {
+		fcb->disbbm_search_limit = 8;
+	} else {
+		/* DBBT search area starts from the next block after all FCB */
+		fcb->dbbt_start = boot_cfg->search_area_size_in_pages;
+	}
 
 	fcb->phy_offset = mtd->writesize;
 
@@ -516,7 +567,8 @@ static int read_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb,
 	/*
 	 * User BCH hardware to decode ECC for FCB
 	 */
-	if (plat_config.misc_flags & FCB_ENCODE_BCH) {
+	if (IS_ENABLED(CONFIG_NAND_MXS) &&
+	    (plat_config.misc_flags & FCB_ENCODE_BCH)) {
 		size = sizeof(struct fcb_block);
 
 		/* switch nand BCH to FCB compatible settings */
@@ -550,9 +602,9 @@ static int read_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb,
 	if (ret)
 		goto fcb_raw_page_err;
 
-	if ((plat_config.misc_flags & FCB_ENCODE_HAMMING) &&
-	    (plat_config.misc_flags & FCB_LAYOUT_RESV_12B))
-		memcpy(fcb, fcb_raw_page + 12, sizeof(struct fcb_block));
+	if (plat_config.misc_flags & FCB_ENCODE_HAMMING)
+		memcpy(fcb, fcb_raw_page + fcb_raw_offset(),
+		       sizeof(struct fcb_block));
 
 /* TODO: check if it can pass Hamming check */
 
@@ -573,11 +625,10 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 	mtd = boot_cfg->mtd;
 
 	/*
-	 * We prepare raw page only for i.MX6, for i.MX7 we
+	 * We prepare raw page only for i.MX6 and vf610, for i.MX7 we
 	 * leverage BCH hw module instead
 	 */
-	if ((plat_config.misc_flags & FCB_ENCODE_HAMMING) &&
-	    (plat_config.misc_flags & FCB_LAYOUT_RESV_12B)) {
+	if (plat_config.misc_flags & FCB_ENCODE_HAMMING) {
 		fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize,
 				       GFP_KERNEL);
 		if (!fcb_raw_page) {
@@ -590,9 +641,7 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 		/* 40 bit BCH, for i.MX6UL(L) */
 		encode_bch_ecc(fcb_raw_page + 32, fcb, 40);
 #else
-		memcpy(fcb_raw_page + 12, fcb, sizeof(struct fcb_block));
-		encode_hamming_13_8(fcb_raw_page + 12,
-				    fcb_raw_page + 12 + 512, 512);
+		fcb_raw_hamming(fcb_raw_page, fcb);
 #endif
 		/*
 		 * Set the first and second byte of OOB data to 0xFF,
@@ -619,7 +668,8 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 		/*
 		 * User BCH hardware module to generate ECC for FCB
 		 */
-		if (plat_config.misc_flags & FCB_ENCODE_BCH) {
+		if (IS_ENABLED(CONFIG_NAND_MXS) &&
+		    (plat_config.misc_flags & FCB_ENCODE_BCH)) {
 			size = sizeof(struct fcb_block);
 
 			/* switch nand BCH to FCB compatible settings */
@@ -1008,6 +1058,8 @@ static int nandbcb_init(struct boot_config *boot_cfg, u_char *buf)
 	fill_fcb(fcb, boot_cfg);
 
 	ret = write_fcb(boot_cfg, fcb);
+	if (plat_config.misc_flags & FCB_NO_DBBT)
+		goto fcb_err;
 
 	/* fill dbbt */
 	dbbt_page = kzalloc(mtd->writesize, GFP_KERNEL);
@@ -1098,6 +1150,8 @@ static int do_nandbcb_bcbonly(int argc, char *const argv[])
 	memset(&opts, 0, sizeof(opts));
 	opts.offset = off;
 	opts.length = g_boot_search_stride * 2;
+	if (plat_config.misc_flags & BT_SEARCH_SINGLE_FCB)
+		opts.length = g_boot_search_stride;
 	ret = nand_erase_opts(mtd, &opts);
 	if (ret) {
 		printf("%s: erase failed (ret = %d)\n", __func__, ret);
@@ -1116,6 +1170,8 @@ static int do_nandbcb_bcbonly(int argc, char *const argv[])
 
 	/* write fcb */
 	ret = write_fcb(&cfg, fcb);
+	if (plat_config.misc_flags & FCB_NO_DBBT)
+		goto fcb_err;
 
 	/* fill dbbt */
 	dbbt_page = kzalloc(mtd->writesize, GFP_KERNEL);
@@ -1228,6 +1284,10 @@ void dump_structure(struct boot_config *boot_cfg, struct fcb_block *fcb,
 		P1(read_retry_enable);
 #endif
 	#undef P1
+		if (plat_config.misc_flags & FCB_NO_DBBT) {
+			printf("DBBT : none\n");
+			goto firmware;
+		}
 	#define P1(x)	printf("  %s = 0x%08x\n", #x, dbbt->x)
 		printf("DBBT :\n");
 		P1(checksum);
@@ -1240,6 +1300,8 @@ void dump_structure(struct boot_config *boot_cfg, struct fcb_block *fcb,
 
 	for (i = 0; i < dbbt->dbbtpages; ++i)
 		printf("%d ", *((u32 *)(dbbt_data_page + i)));
+
+firmware:
 
 	if (!(plat_config.misc_flags & FIRMWARE_EXTRA_ONE)) {
 		printf("Firmware: image #0 @ 0x%x size 0x%x\n",
@@ -1330,6 +1392,7 @@ static int nandbcb_dump(struct boot_config *boot_cfg)
 	struct dbbt_block dbbt, dbbt_copy;
 	void *dbbt_data_page, *dbbt_data_page_copy;
 	bool fcb_not_found, dbbt_not_found;
+	u32 fingerprint = plat_config.fcb_fingerprint ?: FCB_FINGERPRINT;
 	int ret = 0;
 
 	dbbt_data_page = kzalloc(mtd->writesize, GFP_KERNEL);
@@ -1358,7 +1421,7 @@ static int nandbcb_dump(struct boot_config *boot_cfg)
 			else if (ret == 1)
 				continue;
 			else if (ret == 0)
-				if (check_fingerprint(&fcb, FCB_FINGERPRINT))
+				if (check_fingerprint(&fcb, fingerprint))
 					fcb_not_found = 0;
 		} else {
 			ret = read_fcb(boot_cfg, &fcb_copy, off);
@@ -1380,7 +1443,10 @@ static int nandbcb_dump(struct boot_config *boot_cfg)
 	/* read dbbt*/
 	dbbt_not_found = 1;
 	off = boot_cfg->search_area_size_in_bytes;
+	memset(&dbbt, 0, sizeof(dbbt));
 	for (i = 0; i < g_boot_search_count; ++i) {
+		if (plat_config.misc_flags & FCB_NO_DBBT)
+			break;
 		if (dbbt_not_found) {
 			ret = read_dbbt(boot_cfg, &dbbt, dbbt_data_page, off);
 
@@ -1515,10 +1581,15 @@ static int do_nandbcb(struct cmd_tbl *cmdtp, int flag, int argc,
 		plat_config = imx8mn_plat_config;
 	} else if (is_imx8qm() || is_imx8qxp()) {
 		plat_config = imx8q_plat_config;
+	} else if (is_cpu_type(MXC_CPU_VF610)) {
+		plat_config = vf610_plat_config;
 	} else {
 		printf("ERROR: Unknown platform\n");
 		return CMD_RET_FAILURE;
 	}
+
+	if (plat_config.misc_flags & BT_SEARCH_SINGLE_FCB)
+		g_boot_search_count = 1;
 
 	if ((plat_config.misc_flags) & BT_SEARCH_CNT_FROM_FUSE) {
 		if (is_imx8qxp())
@@ -1573,6 +1644,6 @@ U_BOOT_LONGHELP(nandbcb,
 	"nandbcb dump off|partition - dump/verify boot structures\n");
 
 U_BOOT_CMD(nandbcb, 7, 1, do_nandbcb,
-	   "i.MX NAND Boot Control Blocks write",
+	   "i.MX and Vybrid NAND Boot Control Blocks write",
 	   nandbcb_help_text
 );
