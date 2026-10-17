@@ -378,6 +378,19 @@ DTC_FLAGS += $(DTC_FLAGS_$(basetarget))
 # Set -@ if the target is a base DTB that overlay is applied onto
 DTC_FLAGS += $(if $(filter $(patsubst $(obj)/%,%,$@), $(base-dtb-y)), -@)
 
+# dtc-option
+# Usage: DTC_FLAGS += $(call dtc-option,-Eno-node_name_not_empty)
+dtc-option = $(call try-run,\
+	printf '/dts-v1/; / {};' | $(DTC) $(1) -I dts -O dtb -o /dev/null,$(1),$(2))
+
+# Since DTC 7c78c8542d73 ("Added empty node name check") , U-Boot binman
+# use of placeholder node names such as @fdt-SEQ and @config-SEQ triggers
+# DTC ERROR (node_name_not_empty). Inhibit the error, as these placeholder
+# nodes are updated by binman and replaced by proper nodes, the encoding
+# in DTB is temporary. Since -Eno-node_name_not_empty is only available in
+# DTC 1.8.0 and newer, add the option conditionally.
+DTC_FLAGS += $(call dtc-option, -Eno-node_name_not_empty)
+
 # Generate an assembly file to wrap the output of the device tree compiler
 quiet_cmd_dt_S_dtb= DTBS    $@
 # Modified for U-Boot
