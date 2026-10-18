@@ -612,7 +612,9 @@ u16 X86API BE_inw(X86EMU_pioAddr port)
 	u16 val = 0;
 
 #if !defined(CONFIG_X86EMU_RAW_IO)
-	if (IS_PCI_PORT(port))
+	if (IS_VGA_PORT(port))
+		val = BE_inb(port) | ((u16)BE_inb(port + 1) << 8);
+	else if (IS_PCI_PORT(port))
 		val = PCI_inp(port, REG_READ_WORD);
 	else if (port < 0x100) {
 		DB(printf("WARN: Maybe INVALID inw.%04X -> %04X\n", (u16) port, val);)
