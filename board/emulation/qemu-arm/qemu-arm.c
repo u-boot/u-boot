@@ -14,6 +14,7 @@
 #include <usb.h>
 #include <virtio_types.h>
 #include <virtio.h>
+#include <wdt.h>
 
 #include <linux/kernel.h>
 #include <linux/sizes.h>
@@ -113,6 +114,10 @@ int board_late_init(void)
 	/* start usb so that usb keyboard can be used as input device */
 	if (CONFIG_IS_ENABLED(USB_KEYBOARD))
 		usb_init();
+
+	/* watchdog may come via PCI but was probed too early */
+	if (CONFIG_IS_ENABLED(WDT))
+		initr_watchdog();
 
 	return 0;
 }

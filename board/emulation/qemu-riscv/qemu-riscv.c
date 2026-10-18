@@ -14,6 +14,7 @@
 #include <usb.h>
 #include <virtio_types.h>
 #include <virtio.h>
+#include <wdt.h>
 
 #if IS_ENABLED(CONFIG_MTD_NOR_FLASH)
 int is_flash_available(void)
@@ -37,6 +38,10 @@ int board_late_init(void)
 	 * on the virtio bus can be discovered by their drivers
 	 */
 	virtio_init();
+
+	/* watchdog may come via PCI but was probed too early */
+	if (CONFIG_IS_ENABLED(WDT))
+		initr_watchdog();
 
 	return 0;
 }
