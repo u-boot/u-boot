@@ -181,6 +181,8 @@ struct scsi_cmd {
 #define SCSI_WRITE_LONG	0x3F		/* Write Long (O) */
 #define SCSI_WRITE_SAME	0x41		/* Write Same (O) */
 #define SCSI_UNMAP	0x42		/* Write 10-Byte (MANDATORY) */
+#define SCSI_SECURITY_PROTOCOL_IN	0xA2	/* Security Protocol In (O) */
+#define SCSI_SECURITY_PROTOCOL_OUT	0xB5	/* Security Protocol Out (O) */
 
 /**
  * enum scsi_cmd_phase - current phase of the SCSI protocol

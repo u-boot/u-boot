@@ -20,4 +20,8 @@ int ufs_probe(void);
  */
 int ufs_probe_dev(int index);
 
+int ufs_rpmb_route_frames(struct udevice *scsi_dev, unsigned int region,
+			  void *req, unsigned long reqlen, void *rsp,
+			  unsigned long rsplen);
+
 #endif
