@@ -435,27 +435,27 @@ static u32 BE_accessReg(int regOffset, u32 value, int func)
 	if ((function == _BE_env.vgaInfo.function) &&
 	    (device == _BE_env.vgaInfo.device) &&
 	    (bus == _BE_env.vgaInfo.bus)) {
-		pci_dev_t bdf = PCI_BDF(bus, device, function);
+		struct udevice *dev = _BE_env.vgaInfo.pcidev;
 		switch (func) {
 		case REG_READ_BYTE:
-			pci_read_config_byte(bdf, regOffset, &val8);
+			dm_pci_read_config8(dev, regOffset, &val8);
 			return val8;
 		case REG_READ_WORD:
-			pci_read_config_word(bdf, regOffset, &val16);
+			dm_pci_read_config16(dev, regOffset, &val16);
 			return val16;
 		case REG_READ_DWORD:
-			pci_read_config_dword(bdf, regOffset, &val32);
+			dm_pci_read_config32(dev, regOffset, &val32);
 			return val32;
 		case REG_WRITE_BYTE:
-			pci_write_config_byte(bdf, regOffset, value);
+			dm_pci_write_config8(dev, regOffset, value);
 
 			return 0;
 		case REG_WRITE_WORD:
-			pci_write_config_word(bdf, regOffset, value);
+			dm_pci_write_config16(dev, regOffset, value);
 
 			return 0;
 		case REG_WRITE_DWORD:
-			pci_write_config_dword(bdf, regOffset, value);
+			dm_pci_write_config32(dev, regOffset, value);
 
 			return 0;
 		}
