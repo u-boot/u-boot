@@ -105,6 +105,13 @@ int initr_watchdog(void)
 	}
 
 	uclass_foreach_dev(dev, uc) {
+		/*
+		 * initr_watchdog might be called multiple times to resolve
+		 * for probe ordering issues. Skip already activated devices.
+		 */
+		if (device_active(dev))
+			continue;
+
 		ret = device_probe(dev);
 		if (ret) {
 			log_debug("Error probing %s: %d\n", dev->name, ret);
