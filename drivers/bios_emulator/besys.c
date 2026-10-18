@@ -248,10 +248,26 @@ void X86API BE_wrl(u32 addr, u32 val)
 
 #define IS_TIMER_PORT(port) (0x40 <= port && port <= 0x43)
 #define IS_CMOS_PORT(port)  (0x70 <= port && port <= 0x71)
-/*#define IS_VGA_PORT(port)   (_BE_env.emulateVGA && 0x3C0 <= port && port <= 0x3DA)*/
-#define IS_VGA_PORT(port)   (0x3C0 <= port && port <= 0x3DA)
+/*#define IS_VGA_PORT(port)   (_BE_env.emulateVGA && 0x3B4 <= port && port <= 0x3DA)*/
+#define IS_VGA_PORT(port)   (0x3B4 <= port && port <= 0x3DA)
 #define IS_PCI_PORT(port)   (0xCF8 <= port && port <= 0xCFF)
 #define IS_SPKR_PORT(port)  (port == 0x61)
+
+/****************************************************************************
+PARAMETERS:
+port    -  Port to check
+
+REMARKS:
+Some VGA ports (the CRTC index/data pair 3B4/3D4 and 3B5/3D5, and
+Input Status Register 1 3BA/3DA) have a monochrome (0x3Bx) and a
+colour (0x3Dx) alias. Bit 0 of 0x3C2 selects which one is decoded:
+0x3Bx when clear, 0x3Dx when set. Return true if port is decoded in
+the current mode.
+****************************************************************************/
+static bool vga_port_active(int port)
+{
+	return (port >= 0x3d0) == !!(_BE_env.emu3C2 & 1);
+}
 
 /****************************************************************************
 PARAMETERS:
@@ -313,18 +329,28 @@ static u8 VGA_inpb (const int port)
 		if (_BE_env.emu3CE < GRA_C)
 			return _BE_env.emu3CF[_BE_env.emu3CE];
 		break;
+	/*
+	 * 3B4 and 3B5 are mirrors of 3D4 and 3D5 that are used in
+	 * monochrome mode (i.e., bit 0 of 3C2 is not set)
+	 */
+	case 0x3B4:
 	case 0x3D4:
-		if (_BE_env.emu3C2 & 0x1)
+		if (vga_port_active(port))
 			return _BE_env.emu3D4;
 		break;
+	case 0x3B5:
 	case 0x3D5:
-		if ((_BE_env.emu3C2 & 0x1) && (_BE_env.emu3D4 < CRT_C))
+		if (vga_port_active(port) && (_BE_env.emu3D4 < CRT_C))
 			return _BE_env.emu3D5[_BE_env.emu3D4];
 		break;
+	/* 3BA is a mirror of 3DA */
+	case 0x3BA:
 	case 0x3DA:
-		_BE_env.flipFlop3C0 = 0;
-		val = _BE_env.emu3DA;
-		_BE_env.emu3DA ^= 0x9;
+		if (vga_port_active(port)) {
+			_BE_env.flipFlop3C0 = 0;
+			val = _BE_env.emu3DA;
+			_BE_env.emu3DA ^= 0x9;
+		}
 		break;
 	}
 	return val;
@@ -390,12 +416,18 @@ static void VGA_outpb (int port, u8 val)
 		if (_BE_env.emu3CE < GRA_C)
 			_BE_env.emu3CF[_BE_env.emu3CE] = val;
 		break;
+	/*
+	 * 3B4 and 3B5 are mirrors of 3D4 and 3D5 that are used in
+	 * monochrome mode (i.e., bit 0 of 3C2 is not set)
+	 */
+	case 0x3B4:
 	case 0x3D4:
-		if (_BE_env.emu3C2 & 0x1)
+		if (vga_port_active(port))
 			_BE_env.emu3D4 = val;
 		break;
+	case 0x3B5:
 	case 0x3D5:
-		if ((_BE_env.emu3C2 & 0x1) && (_BE_env.emu3D4 < CRT_C))
+		if (vga_port_active(port) && (_BE_env.emu3D4 < CRT_C))
 			_BE_env.emu3D5[_BE_env.emu3D4] = val;
 		break;
 	}
