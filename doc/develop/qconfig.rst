@@ -24,11 +24,14 @@ You may need to install 'python3-asteval' for the 'asteval' module.
 How does it work?
 -----------------
 
+The tool must be run at the top of the source directory.
+
 When building a database (`-b`), this tool runs configuration and builds
 include/autoconf.mk for every defconfig.  The config options defined in Kconfig
-appear in the .config file (unless they are hidden because of unmet dependency.)
+appear in the .config file (unless they are hidden because of unmet dependency).
 On the other hand, the config options defined by board headers are seen
-in include/autoconf.mk.
+in include/autoconf.mk.  The tool stores the database in a file named qconfig.db
+at the top of the source directory.
 
 When resyncing defconfigs (`-s`) the .config is synced by "make savedefconfig"
 and the defconfig is updated with it.
@@ -79,24 +82,60 @@ which do not. To use it, first build a database::
 Then you can run queries using the `-f` flag followed by a list of CONFIG terms.
 Each term is CONFIG name, with or without a tilde (~) prefix. The tool searches
 for boards which match the CONFIG name, or do not match if tilde is used. For
-example, to find boards which enabled CONFIG_SCSI but not CONFIG_BLK::
+example, to find boards which enabled CONFIG_PCIE1 but not CONFIG_PCIE2::
 
-    tools/qconfig.py -f SCSI ~BLK
-    3 matches
-    pg_wcom_seli8_defconfig highbank_defconfig pg_wcom_expu1_defconfig
+    ./tools/qconfig.py -f PCIE1 ~PCIE2
+    10 matches
+    MPC8548CDS_36BIT MPC8548CDS MPC8548CDS_legacy kmcent2
+    ls1012afrwy_tfa_SECURE_BOOT ls1012afrwy_tfa ls1012aqds_tfa_SECURE_BOOT
+    ls1012aqds_tfa ls1012ardb_tfa_SECURE_BOOT ls1012ardb_tfa
 
 It is also possible to search for particular values. For example, this finds all
 boards with an empty string for `CONFIG_DEFAULT_FDT_FILE`::
 
     ./tools/qconfig.py -f DEFAULT_FDT_FILE=\"\"
-    1092 matches
+    1229 matches
     ...
 
 This finds boards which have a value for SYS_MAXARGS other than 64::
 
     ./tools/qconfig.py -f ~SYS_MAXARGS=64
-    cfg CONFIG_SYS_MAXARGS
-    281 matches
+    296 matches
+    ...
+
+String values can be searched for, too, including regular expressions, but
+taking care of needed quoting and escaping. Since the values are stored in the
+database with their double quotes, the quotes must be part of the pattern
+itself. Enclosing the pattern with single quotes makes the shell pass the double
+quotes and backslashes through unchanged.
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT=arch/arm/cpu/armv8/u-boot-spl.lds
+    0 matches
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT="arch/arm/cpu/armv8/u-boot-spl.lds"
+    0 matches
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT='"arch/arm/cpu/armv8/u-boot-spl.lds"'
+    326 matches
+    ...
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT='"arch/arm/cpu/.*/u-boot-spl.lds"'
+    462 matches
+    ...
+
+The pattern must match the whole value stored in the database, therefore::
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT='"arch/arm/cpu/.*/'
+    0 matches
+
+The values stored are the ones from the Kconfig files before expansion, thus::
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT='"arch/arm/cpu/u-boot-spl.lds"'
+    0 matches
+
+    ./tools/qconfig.py -f SPL_LDSCRIPT='"arch/\$\(ARCH\)/cpu/u-boot-spl.lds"' \
+        SYS_ARCH='"arm"'
+    158 matches
     ...
 
 
@@ -245,4 +284,4 @@ Available options
 
 To see the complete list of supported options, run::
 
-  tools/qconfig.py -h
+    ./tools/qconfig.py -h
