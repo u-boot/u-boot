@@ -105,4 +105,12 @@ config SUPPORT_UFS_RPMB
 	  single RPMB transport, so this is mutually exclusive with the eMMC
 	  RPMB supplicant (SUPPORT_EMMC_RPMB).
 
+config UFS_RPMB_CONTROLLER
+	int "UFS controller index used for RPMB"
+	depends on SUPPORT_UFS_RPMB
+	default 0
+	help
+	  Index of the RPMB-owning UFS controller in the UCLASS_UFS device
+	  list. Leave at 0 unless the board has more than one UFS controller.
+
 endmenu
