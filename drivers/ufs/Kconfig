@@ -95,11 +95,14 @@ config UFS_TI_J721E
 config SUPPORT_UFS_RPMB
 	bool "Enable UFS RPMB (Replay Protected Memory Block) support"
 	depends on UFS && OPTEE && !SUPPORT_EMMC_RPMB
+	select BLAKE2
 	help
 	  Route OP-TEE RPMB requests to the UFS RPMB Well-Known LUN using
 	  SCSI SECURITY PROTOCOL IN/OUT commands. Required for OP-TEE secure
 	  storage (CFG_RPMB_FS) on UFS-based platforms that have no eMMC.
-	  The OP-TEE supplicant handles a single RPMB transport, so this is
-	  mutually exclusive with the eMMC RPMB supplicant (SUPPORT_EMMC_RPMB).
+	  BLAKE2 is used to derive the fixed-length RPMB CID that matches the
+	  Linux kernel UFS device_id ABI. The OP-TEE supplicant handles a
+	  single RPMB transport, so this is mutually exclusive with the eMMC
+	  RPMB supplicant (SUPPORT_EMMC_RPMB).
 
 endmenu
