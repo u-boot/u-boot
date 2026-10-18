@@ -1657,12 +1657,31 @@ static void prepare_prdt_table(struct ufs_hba *hba, struct scsi_cmd *pccb)
 	ufshcd_cache_flush(req_desc, sizeof(*req_desc));
 }
 
+/*
+ * On a CHECK CONDITION the sense data is returned inline in the RESPONSE
+ * UPIU; copy it into the SCSI command so callers can inspect the sense key
+ * (for example to tell a transient UNIT ATTENTION from a hard error).
+ */
+static void ufs_scsi_copy_sense(struct ufs_hba *hba, struct scsi_cmd *pccb)
+{
+	u16 len = be16_to_cpu(hba->ucd_rsp_ptr->sr.sense_data_len);
+
+	if (len > RESPONSE_UPIU_SENSE_DATA_LENGTH)
+		len = RESPONSE_UPIU_SENSE_DATA_LENGTH;
+
+	memcpy(pccb->sense_buf, hba->ucd_rsp_ptr->sr.sense_data, len);
+	pccb->sensedatalen = len;
+}
+
 static int ufs_scsi_exec(struct udevice *scsi_dev, struct scsi_cmd *pccb)
 {
 	struct ufs_hba *hba = dev_get_uclass_priv(scsi_dev->parent);
 	u32 upiu_flags;
 	int ocs, result = 0;
 	u8 scsi_status;
+
+	pccb->status = 0;
+	pccb->sensedatalen = 0;
 
 	ufshcd_prepare_req_desc_hdr(hba, &upiu_flags, pccb->dma_dir);
 	ufshcd_prepare_utp_scsi_cmd_upiu(hba, pccb, upiu_flags);
@@ -1683,8 +1702,12 @@ static int ufs_scsi_exec(struct udevice *scsi_dev, struct scsi_cmd *pccb)
 			result = ufshcd_get_rsp_upiu_result(hba->ucd_rsp_ptr);
 
 			scsi_status = result & MASK_SCSI_STATUS;
-			if (scsi_status)
+			if (scsi_status) {
+				pccb->status = scsi_status;
+				if (scsi_status == S_CHECK_COND)
+					ufs_scsi_copy_sense(hba, pccb);
 				return -EINVAL;
+			}
 
 			break;
 		case UPIU_TRANSACTION_REJECT_UPIU:
