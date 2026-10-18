@@ -5,6 +5,7 @@
  *  Copyright (c) 2017 Rob Clark
  */
 
+#include <asm/byteorder.h>
 #include <charset.h>
 #include <capitalization.h>
 #include <cp437.h>
@@ -458,12 +459,24 @@ size_t u16_strlcat(u16 *dest, const u16 *src, size_t count)
 }
 
 /* Convert UTF-16 to UTF-8.  */
-uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size)
+u8 *utf16_to_utf8(u8 *dest, const u16 *src, size_t size,
+		  enum utf16_endian endian)
 {
 	uint32_t code_high = 0;
 
 	while (size--) {
 		uint32_t code = *src++;
+
+		switch (endian) {
+		case UTF16_LITTLE_ENDIAN:
+			code = le16_to_cpu(code);
+			break;
+		case UTF16_BIG_ENDIAN:
+			code = be16_to_cpu(code);
+			break;
+		case UTF16_HOST_ENDIAN:
+			break;
+		}
 
 		if (code_high) {
 			if (code >= 0xDC00 && code <= 0xDFFF) {

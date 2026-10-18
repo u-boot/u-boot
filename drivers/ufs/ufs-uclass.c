@@ -1767,11 +1767,12 @@ static int ufshcd_read_string_desc(struct ufs_hba *hba, int desc_index,
 		}
 
 		/*
-		 * the descriptor contains string in UTF16 format
-		 * we need to convert to utf-8 so it can be displayed
+		 * the descriptor contains a big-endian UTF-16 string, convert
+		 * it to utf-8 so it can be displayed
 		 */
 		utf16_to_utf8(buff_ascii,
-			      (uint16_t *)&buf[QUERY_DESC_HDR_SIZE], ascii_len);
+			      (uint16_t *)&buf[QUERY_DESC_HDR_SIZE], ascii_len,
+			      UTF16_BIG_ENDIAN);
 
 		/* replace non-printable or non-ASCII characters with spaces */
 		for (i = 0; i < ascii_len; i++)
