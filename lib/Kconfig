@@ -1390,7 +1390,8 @@ config SPL_LMB_ARCH_MEM_MAP
 config LMB_LIMIT_DMA_BELOW_RAM_TOP
 	bool
 	depends on LMB
-	default y if ARCH_BCM283X || ARCH_MVEBU || ARCH_ROCKCHIP || STARFIVE_JH7110
+	default y if ARCH_BCM283X || ARCH_EXYNOS9 || ARCH_MVEBU || \
+		     ARCH_ROCKCHIP || STARFIVE_JH7110
 	default y if SANDBOX
 	help
 	  Some architectures can not DMA above ram_top boundary,
