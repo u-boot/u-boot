@@ -509,8 +509,7 @@ int biosemu_run(struct udevice *pcidev, uchar *bios_rom, int bios_len,
 	*/
 	if (clean_up) {
 		BE_exit();
-		if (vga_info->BIOSImage &&
-		    (ulong)(vga_info->BIOSImage) != 0xc0000)
+		if (!bios_rom)
 			free(vga_info->BIOSImage);
 		free(vga_info);
 	}
