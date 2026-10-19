@@ -637,6 +637,13 @@ to the J784S4 endpoint:
 This program copies the boot image to the PCIe endpoint's memory region and
 writes the necessary control words to signal image transfer completion.
 
+HSM M4F Loading
+----------------
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_hsm_m4f_loading
+    :end-before: .. k3_rst_include_end_hsm_m4f_loading
+
 Debugging U-Boot
 ----------------
 
