@@ -317,9 +317,14 @@ static void update_fdt_gpu_industrial_frequencies(void *blob)
 	gpu_assigned_clocks[0] = cpu_to_fdt32(625000000); /* Core Clock */
 	gpu_assigned_clocks[1] = cpu_to_fdt32(625000000); /* Shader Clock */
 
-	err = change_property(blob, "/bus@53100000/gpu@53100000",
+	err = change_property(blob, "/bus@53000000/gpu@53100000",
 			      "assigned-clock-rates", gpu_assigned_clocks,
 			      sizeof(gpu_assigned_clocks));
+	/* NXP kernels before 6.18 use bus@53100000 */
+	if (err == -FDT_ERR_NOTFOUND)
+		err = change_property(blob, "/bus@53100000/gpu@53100000",
+				      "assigned-clock-rates", gpu_assigned_clocks,
+				      sizeof(gpu_assigned_clocks));
 	if (err && err != -FDT_ERR_NOTFOUND)
 		printf("Failed to set assigned-clock-rates for GPU0: %s\n",
 		       fdt_strerror(err));
