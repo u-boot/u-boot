@@ -297,6 +297,32 @@
 					};
 				};
 
+#ifdef CONFIG_K3_HSM_FW
+				hsm {
+					description = "HSM binary";
+					type = "standalone";
+					compression = "none";
+					os = "hsm";
+					load = <CONFIG_K3_HSM_LOAD_ADDR>;
+
+					ti-secure {
+						/*
+						 * HSM (Hardware Security Module) core boot configuration.
+						 * Refer to TIFS Boot Extension format specification:
+						 * https://software-dl.ti.com/tisci/esd/latest/2_tisci_msgs/security/sec_cert_format.html#sysfw-boot-ext
+						 */
+						content = <&hsm_fw>;
+						keyfile = "custMpk.pem";
+						proc-id = <0x80>;      /* HSM core processor ID */
+						flags-set = <0x04>;    /* Bit 2: Release processor from reset */
+						flags-clr = <0x00>;    /* No flags to clear */
+						reset-vector = <0x00>; /* HSM starts execution from address 0x0 */
+						dest-addr = <0x43c00000>; /* Load address: HSM SRAM base */
+						auth-type = <0xfd00>;  /* Upper byte 0xfd: HSM host ID, lower byte 0x00: Copy to dest-addr */
+					};
+				};
+#endif
+
 				dm {
 					description = "DM binary";
 					type = "firmware";
