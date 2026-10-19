@@ -3,7 +3,7 @@ config CMD_BOOTEFI_SELFTEST
 	depends on CMD_BOOTEFI
 	imply PARTITIONS
 	imply DOS_PARTITION
-	imply FAT
+	imply FS_FAT
 	imply FAT_WRITE
 	imply CMD_POWEROFF if PSCI_RESET || SYSRESET_PSCI
 	help

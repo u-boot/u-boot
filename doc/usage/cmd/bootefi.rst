@@ -28,9 +28,9 @@ The *bootefi* command is used to launch a UEFI binary which can be any of
 
 An operating system requires a hardware description which can either be
 presented as ACPI table (CONFIG_GENERATE_ACPI_TABLE=y) or as device-tree.
-The load address of the device-tree may be provided as parameter *fdt_addr*. If
-this address is not specified, the bootefi command will try to fall back in
-sequence to:
+The load address of the device-tree may be provided as parameter *fdt_addr*.
+When launching a binary directly without this address, the bootefi command
+will try to fall back in sequence to:
 
 * the device-tree specified by environment variable *fdt_addr*
 * the device-tree specified by environment variable *fdtcontroladdr*
@@ -84,9 +84,10 @@ initrd_size
     Size of the Linux initial RAM disk.
 
 fdt_addr
-    Address of the device-tree or '-'. If no address is specified, the
-    environment variable $fdt_addr is used as first fallback, the address of
-    U-Boot's internal device-tree $fdtcontroladdr as second fallback.
+    Address of the device-tree or '-'. For direct invocation without an
+    address, the environment variable $fdt_addr is used as first fallback,
+    the address of U-Boot's internal device-tree $fdtcontroladdr as second
+    fallback. The boot manager's selection order is described below.
     When using ACPI no device-tree shall be specified.
 
 Note
@@ -108,6 +109,22 @@ option to execute next. If no binary can be loaded via *BootNext* the variable
 
 The values of these variables can be managed using the U-Boot command
 *efidebug*.
+
+When using a device-tree rather than ACPI, the boot manager selects it in
+the following order, from highest to lowest priority:
+
+1. The address explicitly passed to ``bootefi bootmgr <fdt_addr>``.
+2. The device-tree referenced by the selected *Boot####* load option.
+3. The distro device-tree loaded from the filesystem containing the EFI binary.
+4. The address in the environment variable *fdt_addr*.
+5. The address of U-Boot's internal device-tree in *fdtcontroladdr*.
+
+An explicit address overrides the stored device-tree choice for this
+invocation only. This allows trying an alternative device-tree, for example
+while debugging, without modifying the boot option. *Boot####* still selects
+the EFI binary to execute. If a load-option device-tree is selected but cannot
+be loaded, the boot manager returns an error instead of trying a lower-priority
+source.
 
 UEFI hello world application
 ''''''''''''''''''''''''''''

@@ -467,15 +467,17 @@ static efi_status_t EFIAPI efi_http_service_binding_destroy_child(
 		goto out;
 	}
 
+	http_instance = phandler->protocol_interface;
+
+	/* This will free *phandler */
 	ret = efi_delete_handle(child_handle);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	http_instance = phandler->protocol_interface;
 	efi_free_pool(http_instance->http_load_addr);
 	http_instance->http_load_addr = NULL;
 
-	free(phandler->protocol_interface);
+	free(http_instance);
 
 	num_instances--;
 out:

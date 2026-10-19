@@ -28,7 +28,7 @@ config EFI_LOADER
 	select OF_LIBFDT
 	imply PARTITION_UUIDS
 	select REGEX
-	imply FAT
+	imply FS_FAT
 	imply FAT_WRITE
 	imply FAT_RENAME
 	imply USB_KEYBOARD_FN_KEYS

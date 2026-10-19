@@ -773,7 +773,8 @@ def ut_ubman_fixture(ubman, ut_subtest):
     yield ubman
 
     if ut_subtest in ("bootstd bootflow_cmd_boot", "bootstd bootflow_scan_boot",
-                      "bootstd bootflow_bls_prefix"):
+                      "bootstd bootflow_bls_prefix",
+                      "bootstd bootflow_efi_mgr_err"):
         ubman.restart_uboot()
 
 
