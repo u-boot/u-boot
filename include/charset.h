@@ -13,6 +13,19 @@
 
 #define MAX_UTF8_PER_UTF16 3
 
+/**
+ * enum utf16_endian - byte order of a UTF-16 string
+ *
+ * @UTF16_HOST_ENDIAN:	code units are in host byte order
+ * @UTF16_LITTLE_ENDIAN:	code units are little-endian
+ * @UTF16_BIG_ENDIAN:	code units are big-endian
+ */
+enum utf16_endian {
+	UTF16_HOST_ENDIAN,
+	UTF16_LITTLE_ENDIAN,
+	UTF16_BIG_ENDIAN,
+};
+
 /*
  * codepage_437 - Unicode to codepage 437 translation table
  */
@@ -299,9 +312,11 @@ size_t u16_strlcat(u16 *dest, const u16 *src, size_t count);
  * @dest:	the destination buffer to write the utf8 characters
  * @src:	the source utf16 string
  * @size:	the number of utf16 characters to convert
+ * @endian:	byte order of the code units in 'src'
  * Return:	the pointer to the first unwritten byte in 'dest'
  */
-uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size);
+u8 *utf16_to_utf8(u8 *dest, const u16 *src, size_t size,
+		  enum utf16_endian endian);
 
 /**
  * utf_to_cp() - translate Unicode code point to 8bit codepage

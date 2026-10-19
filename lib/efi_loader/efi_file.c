@@ -184,7 +184,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 	int flen = 0;
 
 	if (file_name) {
-		utf16_to_utf8((u8 *)f0, file_name, 1);
+		utf16_to_utf8((u8 *)f0, file_name, 1, UTF16_LITTLE_ENDIAN);
 		flen = u16_strlen(file_name);
 	}
 
@@ -216,7 +216,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 			*p++ = '/';
 		}
 
-		utf16_to_utf8((u8 *)p, file_name, flen);
+		utf16_to_utf8((u8 *)p, file_name, flen, UTF16_LITTLE_ENDIAN);
 
 		if (sanitize_path(fh->path))
 			goto error;
