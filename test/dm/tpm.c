@@ -6,7 +6,9 @@
 
 #include <dm.h>
 #include <tpm_api.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -197,3 +199,48 @@ static int dm_test_tpm_autostart_reinit(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_tpm_autostart_reinit, UTF_SCAN_FDT);
+
+/* Check that tpm_autostart_init() starts the first TPM */
+static int dm_test_tpm_autostart_init(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	char buf[50];
+
+	if (!IS_ENABLED(CONFIG_TPM_AUTOSTART))
+		return -EAGAIN;
+
+	/* tpm_autostart_init() uses the first TPM, which is the v2 one */
+	ut_assertok(uclass_first_device_err(UCLASS_TPM, &dev));
+	ut_asserteq(TPM_V2, tpm_get_version(dev));
+
+	ut_assert(tpm_report_state(dev, buf, sizeof(buf)));
+	ut_asserteq_str("init_done=0", buf);
+
+	ut_assertok(tpm_autostart_init());
+	ut_assert_console_end();
+
+	ut_assert(tpm_report_state(dev, buf, sizeof(buf)));
+	ut_asserteq_str("init_done=1", buf);
+
+	return 0;
+}
+DM_TEST(dm_test_tpm_autostart_init, UTF_SCAN_FDT | UTF_CONSOLE);
+
+/* Check that a missing TPM is skipped silently */
+static int dm_test_tpm_autostart_init_missing(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	if (!IS_ENABLED(CONFIG_TPM_AUTOSTART))
+		return -EAGAIN;
+
+	while (!uclass_find_first_device(UCLASS_TPM, &dev) && dev)
+		ut_assertok(device_unbind(dev));
+
+	ut_asserteq(-ENODEV, uclass_first_device_err(UCLASS_TPM, &dev));
+	ut_assertok(tpm_autostart_init());
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_tpm_autostart_init_missing, UTF_SCAN_FDT | UTF_CONSOLE);

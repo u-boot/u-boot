@@ -977,7 +977,7 @@ u32 tpm2_get_random(struct udevice *dev, void *data, u32 count)
 	const size_t data_size_offset = 10;
 	const size_t data_offset = 12;
 	size_t response_length = sizeof(response);
-	u32 data_size;
+	u16 data_size;
 	u8 *out = data;
 
 	while (count > 0) {
