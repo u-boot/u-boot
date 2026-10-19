@@ -4,9 +4,15 @@
  */
 
 / {
+	/*
+	 * The remoteproc sequence numbers defined here are used as literal indices
+	 * in arch/arm/mach-k3/r5/common.c (e.g., rproc_load(1, ...), rproc_load(2, ...)).
+	 * Adding, removing, or reordering these aliases will break the code.
+	 */
 	aliases {
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a53_0;
+		remoteproc2 = &hsm;
 		serial0 = &wkup_uart0;
 		serial2 = &main_uart0;
 	};
@@ -81,4 +87,8 @@
 &ospi0 {
 	reg = <0x00 0x0fc40000 0x00 0x100>,
 	      <0x00 0x60000000 0x00 0x08000000>;
+};
+
+&hsm {
+	status = "okay";
 };
