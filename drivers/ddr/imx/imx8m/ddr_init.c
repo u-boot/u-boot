@@ -10,6 +10,19 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 
+/* GPC registers for the DDRMIX (DDR1) power domain */
+#ifdef CONFIG_IMX8MP
+#define GPC_PGC_CPU_MAPPING		0x1cc
+#define GPC_PGC_CPU_MAPPING_ALL		0x003fffff
+#define GPC_PU_PGC_SW_PUP_REQ		0x0d8
+#define GPC_DDR1_SW_Pxx_REQ		BIT(19)
+#else
+#define GPC_PGC_CPU_MAPPING		0x0ec
+#define GPC_PGC_CPU_MAPPING_ALL		0x0000ffff
+#define GPC_PU_PGC_SW_PUP_REQ		0x0f8
+#define GPC_DDR1_SW_Pxx_REQ		BIT(5)
+#endif
+
 static unsigned int g_cdd_rr_max[4];
 static unsigned int g_cdd_rw_max[4];
 static unsigned int g_cdd_wr_max[4];
@@ -333,8 +346,8 @@ int ddr_init(struct dram_timing_info *dram_timing)
 			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV4));
 
 	/* disable iso */
-	reg32_write(0x303A00EC, 0x0000ffff); /* PGC_CPU_MAPPING */
-	reg32setbit(0x303A00F8, 5); /* PU_PGC_SW_PUP_REQ */
+	reg32_write(GPC_BASE_ADDR + GPC_PGC_CPU_MAPPING, GPC_PGC_CPU_MAPPING_ALL);
+	setbits_le32(GPC_BASE_ADDR + GPC_PU_PGC_SW_PUP_REQ, GPC_DDR1_SW_Pxx_REQ);
 
 	initial_drate = dram_timing->fsp_msg[0].drate;
 	/* default to the frequency point 0 clock */
