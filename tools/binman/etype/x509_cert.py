@@ -52,6 +52,8 @@ class Entry_x509_cert(Entry_collection):
         self.sysfw_inner_cert_ext_boot_block = None
         self.dm_data_ext_boot_block = None
         self.firewall_cert_data = None
+        self.boot_ext = None
+        self.load_ext = None
         self.debug = False
 
     def ReadNode(self):
@@ -102,7 +104,9 @@ class Entry_x509_cert(Entry_collection):
                 config_fname=config_fname,
                 sw_rev=self.sw_rev,
                 req_dist_name_dict=self.req_dist_name,
-                firewall_cert_data=self.firewall_cert_data)
+                firewall_cert_data=self.firewall_cert_data,
+                boot_ext_data=self.boot_ext,
+                load_ext_data=self.load_ext)
         elif type == 'rom':
             stdout = self.openssl.x509_cert_rom(
                 cert_fname=output_fname,

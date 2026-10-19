@@ -7361,6 +7361,51 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
+    def testPackTiSecureBootLoadExt(self):
+        """Test that an image with TI secured binary having boot & load extensions can be created"""
+        keyfile = self.TestFile('security/key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data = self._DoReadFileDtb('vendor/ti_secure_boot_load_ext.dts',
+                                   entry_args=entry_args)[0]
+        self.assertGreater(len(data), len(TI_UNSECURE_DATA))
+
+        # Verify that boot and load extensions are correctly written to config file
+        image = control.images['image']
+        entries = image.GetEntries()
+        ti_secure_entry = entries['ti-secure']
+        uniq = ti_secure_entry.GetUniqueName()
+        config_fname = tools.get_output_filename('config.%s' % uniq)
+
+        # Read the generated config file
+        with open(config_fname, 'r') as f:
+            config_data = f.read()
+
+        # Verify boot extension values from the DTS
+        self.assertIn('[ sysfw_boot_seq ]', config_data)
+        self.assertIn('bootCore = INTEGER:32', config_data)  # 0x20 = 32
+        self.assertIn('bootCoreOpts_set = INTEGER:1', config_data)  # 0x00000001 = 1
+        self.assertIn('bootCoreOpts_clr = INTEGER:2', config_data)  # 0x00000002 = 2
+        self.assertIn('resetVec = FORMAT:HEX,OCT:70000000', config_data)  # 0x70000000
+
+        # Verify load extension values from the DTS
+        self.assertIn('[ sysfw_image_load ]', config_data)
+        self.assertIn('destAddr = FORMAT:HEX,OCT:80000000', config_data)  # 0x80000000
+        self.assertIn('authInPlace = INTEGER:2', config_data)  # 0x02
+
+    def testPackTiSecureBootLoadExtPartial(self):
+        """Test that partially specified boot/load extension properties raise an error"""
+        keyfile = self.TestFile('security/key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('vendor/ti_secure_boot_load_ext_partial.dts',
+                               entry_args=entry_args)
+        self.assertIn('Loadable core configuration incomplete', str(e.exception))
+        self.assertIn('Missing properties:', str(e.exception))
+
     def testEncryptedNoAlgo(self):
         """Test encrypted node with missing required properties"""
         with self.assertRaises(ValueError) as e:

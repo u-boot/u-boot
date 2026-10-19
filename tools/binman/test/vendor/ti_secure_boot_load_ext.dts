@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		ti-secure {
+			content = <&unsecure_binary>;
+			proc-id = <0x20>;
+			flags-set = <0x00000001>;
+			flags-clr = <0x00000002>;
+			reset-vector = <0x70000000>;
+			dest-addr = <0x80000000>;
+			auth-type = <0x02>;
+		};
+		unsecure_binary: blob-ext {
+			filename = "ti_unsecure.bin";
+		};
+	};
+};
