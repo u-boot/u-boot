@@ -69,20 +69,6 @@ static void spl_dram_init(void)
 	// assume 4GB if ddr_init() succeeds but 8GB can not be addressed
 	else if (!ret) {
 		/*
-		 * For some strange, unknown reason freezes are occurring if we run
-		 * check_ram_available() after the second call to ddr_init(). This
-		 * doesn't seem to be an issue with caching as it also happens with
-		 * caches disable. The workaround that does the trick is accessing the
-		 * DDR areas once more before calling ddr_init() and
-		 * check_ram_available() again. This can be done by rerunning the size
-		 * check on the first few bytes of the DDR.
-		 * On the other hand this breaks the 1GB DDR init, but we can skip this
-		 * as the 1GB is single rank and the training fails. We can detect that
-		 * by checking the return code of ddr_init().
-		 */
-		check_ram_available(256);
-
-		/*
 		 * Overwrite some values to comply with the 4GB DDR.
 		 */
 		dram_timing.ddrc_cfg[5].val = 0x7a0118;
