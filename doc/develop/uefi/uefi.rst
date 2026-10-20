@@ -503,6 +503,11 @@ on the FWU Multi Bank Update feature, please refer to
 When using the FMP for FIT images, the image index value needs to be
 set to 1.
 
+A platform that builds fw_images at run time can override
+efi_capsule_resolve_image_index() to map the capsule's image type GUID to
+the image_index of the matching fw_images entry. By default the
+UpdateImageIndex from the capsule is used as is.
+
 Finally, the capsule update can be initiated by rebooting the board.
 
 An example of setting the values in the struct efi_fw_image and
