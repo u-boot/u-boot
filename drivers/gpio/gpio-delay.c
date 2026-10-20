@@ -41,7 +41,9 @@ static int gpio_delay_set_value(struct udevice *dev, unsigned int offset,
 
 	dev_dbg(dev, "gpio %d set to %d\n", offset, value);
 
-	ret = dm_gpio_set_value(&desc->real_gpio, value);
+	ret = dm_gpio_clrset_flags(&desc->real_gpio, GPIOD_IS_OUT_ACTIVE,
+				   GPIOD_IS_OUT |
+				   (value ? GPIOD_IS_OUT_ACTIVE : 0));
 	if (ret) {
 		dev_err(dev, "Failed to set gpio %d, value %d\n", offset, value);
 		return ret;
