@@ -147,7 +147,7 @@ static ulong zynqmp_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 		if (new_buf > (u32 *)buf) {
 			debug("%s: Aligned buffer is after buffer start\n",
 			      __func__);
-			new_buf -= ARCH_DMA_MINALIGN;
+			new_buf = (u32 *)((ulong)new_buf - ARCH_DMA_MINALIGN);
 		}
 		printf("%s: Align buffer at %px to %px(swap %d)\n", __func__,
 		       buf, new_buf, swap);
