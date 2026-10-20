@@ -178,7 +178,8 @@ static int fru_parse_board(unsigned long addr, u32 size)
 		return -EINVAL;
 	}
 
-	memcpy(&fru_data.brd.ver, (void *)addr, 6);
+	memcpy(&fru_data.brd.ver, (void *)addr,
+	       sizeof(struct fru_board_info_header));
 
 	area_len = fru_data.brd.len * FRU_COMMON_HDR_LEN_MULTIPLIER;
 	if (area_len > size) {
@@ -198,7 +199,7 @@ static int fru_parse_board(unsigned long addr, u32 size)
 	eof = (u8 *)(area_len + addr - 2);
 	end = (u8 *)addr + size;
 
-	addr += 6;
+	addr += sizeof(struct fru_board_info_header);
 	data = (u8 *)&fru_data.brd.manufacturer_type_len;
 
 	/* Record max structure limit not to write data over allocated space */
