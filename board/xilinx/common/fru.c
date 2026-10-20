@@ -20,7 +20,7 @@ static int do_fru_capture(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	addr = hextoul(argv[2], &endp);
-	if (*argv[1] == 0 || *endp != 0)
+	if (*argv[2] == 0 || *endp != 0)
 		return -1;
 
 	size = hextoul(argv[3], &endp);
