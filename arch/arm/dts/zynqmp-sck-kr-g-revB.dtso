@@ -176,7 +176,11 @@
 	assigned-clock-rates = <27000000>, <25000000>, <300000000>;
 
 	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
 		out_dp: port@5 {
+			reg = <5>;
 			dpsub_dp_out: endpoint {
 				remote-endpoint = <&dpcon_in>;
 			};
