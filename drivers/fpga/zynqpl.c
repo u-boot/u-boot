@@ -445,7 +445,7 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 	if (fs_read(filename, (u32) buf, pos, blocksize, &actread) < 0)
 		return FPGA_FAIL;
 
-	if (zynq_validate_bitstream(desc, buf, bsize, blocksize, &swap,
+	if (zynq_validate_bitstream(desc, buf, bsize, actread, &swap,
 				    &partialbit))
 		return FPGA_FAIL;
 
