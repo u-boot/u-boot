@@ -192,6 +192,14 @@ config TARGET_IMX95_15X15_FRDM
 	imply BOOTSTD_BOOTCOMMAND
 	imply OF_UPSTREAM
 
+config TARGET_IMX95_19X19_FRDM_PRO
+	bool "imx95_19x19_frdm_pro"
+	select OF_BOARD_FIXUP
+	select IMX95
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
+
 config TARGET_IMX943_EVK
 	bool "imx943_evk"
 	select OF_BOARD_FIXUP
