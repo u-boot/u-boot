@@ -8,7 +8,6 @@ DTC_FLAGS += -Wno-unit_address_vs_reg \
         -Wno-unit_address_format \
         -Wno-avoid_unnecessary_addr_size \
         -Wno-alias_paths \
-        -Wno-graph_child_address \
         -Wno-simple_bus_reg \
         -Wno-unique_unit_address \
         -Wno-pci_device_reg
