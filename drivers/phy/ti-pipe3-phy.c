@@ -450,7 +450,7 @@ static void *get_reg(struct udevice *dev, const char *name)
 		return NULL;
 	}
 
-	err = dev_read_phandle_with_args(dev, name, NULL, 0, 0, &phandle);
+	err = dev_read_phandle_with_args(dev, name, NULL, 1, 0, &phandle);
 	if (err) {
 		dev_err(dev, "parse %s failed: %d\n", name, err);
 		return NULL;
