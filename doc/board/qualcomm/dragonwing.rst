@@ -6,7 +6,7 @@ Qualcomm DragonWing
 
 Qualcomm DragonWing boards are industrial-grade platforms targeting factory
 and edge applications. They span multiple product families, including
-IQ6, IQ8, IQ9, and Q8, which are based on Qualcomm QCS615, QCS8300,
+IQ6, IQ8, IQ9, and Q8, which are based on Qualcomm QCS615, QCS8300 (Monaco),
 QCS9100, and QCS8550 series SoCs respectively
 
 More information can be found on the `Qualcomm's IQ6 product page`_,
@@ -46,7 +46,7 @@ Generate the default configuration for the IQ-8 platform:
 
 .. code-block:: bash
 
-  $ make O=.output qcom_qcs8300_defconfig
+  $ make O=.output qcom_monaco_defconfig
 
 Generate the default configuration for the IQ-9 platform:
 

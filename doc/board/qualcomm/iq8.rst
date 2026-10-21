@@ -4,7 +4,7 @@
 Qualcomm DragonWing IQ8
 ========================================
 
-The Dragonwing IQ8 Series (which includes QCS8300) powers computeheavy and AI-based devices, and is designed
+The Dragonwing IQ8 Series (which includes monaco aka QCS8300) powers computeheavy and AI-based devices, and is designed
 to operate in an expanded temperature range with available built-in safety features.
 Dragonwing IQ8 Series delivers industrial-grade AI performance of up to 40 TOPS, an octa-core
 Qualcomm Kryo Gen 6 CPU, a powerful Qualcomm Adreno 623 GPU, support for
@@ -16,10 +16,10 @@ More information can be found on the `Qualcomm's IQ8 product page`_.
 
 Installation
 ------------
-First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``QCS8300``::
+First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``monaco``::
 
   $ export CROSS_COMPILE=<aarch64 toolchain prefix>
-  $ make qcom_qcs8300_defconfig
+  $ make qcom_monaco_defconfig
   $ make -j8 u-boot.mbn
 
 This will build the signed ``u-boot.mbn`` in the configured output directory.
