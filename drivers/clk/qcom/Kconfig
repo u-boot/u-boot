@@ -87,9 +87,19 @@ config CLK_QCOM_QCS8300
 	  on the Snapdragon QCS8300 SoC. This driver supports the clocks
 	  and resets exposed by the GCC hardware block.
 
+config CLK_QCOM_RPMH
+	bool "Qualcomm RPMh clock driver"
+	depends on CLK
+	help
+	  Say Y here to enable support for the RPMh-managed clocks found on
+	  SoCs such as SM8550, SM8650 and SA8775P. These clocks are owned by
+	  the always-on subsystem; the driver only reports the fixed CXO rate
+	  (bi_tcxo_div2) and accepts no-op enable/set_rate requests.
+
 config CLK_QCOM_SA8775P
 	bool "Qualcomm SA8775 GCC"
 	select CLK_QCOM
+	select CLK_QCOM_RPMH
 	help
 	  Say Y here to enable support for the Global Clock Controller
 	  on the Snapdragon SA8775 SoC. This driver supports the clocks
@@ -153,6 +163,7 @@ config CLK_QCOM_SM8250
 config CLK_QCOM_SM8550
 	bool "Qualcomm SM8550 GCC"
 	select CLK_QCOM
+	select CLK_QCOM_RPMH
 	help
 	  Say Y here to enable support for the Global Clock Controller
 	  on the Snapdragon SM8550 SoC. This driver supports the clocks
@@ -161,6 +172,7 @@ config CLK_QCOM_SM8550
 config CLK_QCOM_SM8650
 	bool "Qualcomm SM8650 GCC"
 	select CLK_QCOM
+	select CLK_QCOM_RPMH
 	help
 	  Say Y here to enable support for the Global Clock Controller
 	  on the Snapdragon SM8650 SoC. This driver supports the clocks
