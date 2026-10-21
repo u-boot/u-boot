@@ -897,8 +897,9 @@ config ENV_WRITEABLE_LIST
 	select ENV_APPEND
 	help
 	  If defined, only environment variables which explicitly set the 'w'
-	  writeable flag can be written and modified at runtime. No variables
-	  can be otherwise created, written or imported into the environment.
+	  writeable flag can be loaded from stored environment. This
+	  restricts only environment loading, not runtime modification using
+	  "env set", etc.
 
 config ENV_ACCESS_IGNORE_FORCE
 	bool "Block forced environment operations"

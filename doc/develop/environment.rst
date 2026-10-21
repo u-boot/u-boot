@@ -89,3 +89,10 @@ an association in the static list.
 If CONFIG_REGEX is defined, the variable name is evaluated as a regular
 expression. This allows multiple variables to define the same flags without
 explicitly listing them all.
+
+If CONFIG_ENV_WRITEABLE_LIST is defined, only environment variables
+which explicitly set the 'w' writeable flag can be loaded from stored
+environment. It restricts only environment loading, not runtime
+modification using "env set", etc. Non-writable variables are written
+to stored environment (e.g. ``env save``, or ``fw_setenv`` from a
+running OS), but will be ignored when loading the environment.
