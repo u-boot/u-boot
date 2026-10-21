@@ -284,19 +284,30 @@ static int dm_test_rtc_dual(struct unit_test_state *uts)
 	struct rtc_time now1, now2, cmp;
 	struct udevice *dev1, *dev2;
 	struct udevice *emul1, *emul2;
-	long offset;
+	long base_time, offset;
 
 	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev1));
-	ut_assertok(dm_rtc_get(dev1, &now1));
 	ut_assertok(uclass_get_device(UCLASS_RTC, 1, &dev2));
-	ut_assertok(dm_rtc_get(dev2, &now2));
 
 	ut_assertok(i2c_emul_find(dev1, &emul1));
 	ut_assertnonnull(emul1);
 	ut_assertok(i2c_emul_find(dev2, &emul2));
 	ut_assertnonnull(emul2);
 
+	/*
+	 * Stop both RTCs on the same time before reading them, so that only
+	 * the offsets set here tell them apart and no second can tick over
+	 * between the readings being compared
+	 */
+	base_time = sandbox_i2c_rtc_get_set_base_time(emul1, -1);
+	sandbox_i2c_rtc_get_set_base_time(emul2, base_time);
 	offset = sandbox_i2c_rtc_set_offset(emul1, false, -1);
+	sandbox_i2c_rtc_set_offset(emul2, false, offset);
+
+	ut_assertok(dm_rtc_get(dev1, &now1));
+	ut_assertok(dm_rtc_get(dev2, &now2));
+	ut_assertok(cmp_times(&now1, &now2, true));
+
 	sandbox_i2c_rtc_set_offset(emul2, false, offset + 1);
 	memset(&cmp, '\0', sizeof(cmp));
 	ut_assertok(dm_rtc_get(dev2, &cmp));
