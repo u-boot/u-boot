@@ -4,6 +4,7 @@
 
 #include "ast2700.dtsi"
 #include "ast2700-u-boot.dtsi"
+#include <dt-bindings/net/ti-dp83867.h>
 
 / {
 	model = "AST2700 EVB";
@@ -39,6 +40,9 @@
 	#size-cells = <0>;
 	ethphy1: ethernet-phy@0 {
 		reg = <0>;
+		/* For DDR5 board */
+		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 	};
 };
 
