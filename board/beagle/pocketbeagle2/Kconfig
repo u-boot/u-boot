@@ -22,6 +22,7 @@ config TARGET_AM62X_R5_POCKETBEAGLE2
 	select SPL_RAM
 	select K3_DDRSS
 	select BINMAN
+	select TOOLS_MKEFICAPSULE
 	imply SYS_K3_SPL_ATF
 
 endchoice

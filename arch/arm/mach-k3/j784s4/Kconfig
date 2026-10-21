@@ -43,6 +43,7 @@ config TARGET_J784S4_R5_EVM
 	select SPL_RAM
 	select K3_DDRSS
 	select BINMAN
+	select TOOLS_MKEFICAPSULE
 	imply SYS_K3_SPL_ATF
 
 config TARGET_J742S2_A72_EVM

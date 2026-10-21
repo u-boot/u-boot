@@ -26,6 +26,7 @@ config TARGET_AM625_R5_EVM
 	select SPL_RAM
 	select K3_DDRSS
 	select BINMAN
+	select TOOLS_MKEFICAPSULE
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
@@ -45,6 +46,7 @@ config TARGET_PHYCORE_AM62X_R5
 	select SPL_RAM
 	select K3_DDRSS
 	select BINMAN
+	select TOOLS_MKEFICAPSULE
 	select PHYTEC_K3_DDR_PATCH
 	imply SYS_K3_SPL_ATF
 

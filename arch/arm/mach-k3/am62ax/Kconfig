@@ -48,6 +48,7 @@ config TARGET_PHYCORE_AM62AX_R5
 	select SPL_RAM
 	select K3_DDRSS
 	select BINMAN
+	select TOOLS_MKEFICAPSULE
 	imply SYS_K3_SPL_ATF
 
 config TARGET_AM62D2_A53_EVM
