@@ -315,6 +315,18 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 				return 0;
 		}
 
+		/*
+		 * Check completion before the timeout: the status read itself
+		 * may have taken longer than SDHCI_READ_STATUS_TIMEOUT (for
+		 * example when an emulated controller performs a long DMA
+		 * transfer while holding the guest's MMIO path), and a command
+		 * that has completed must not be reported as timed out. The
+		 * BROKEN_R1B quirk above keeps precedence and returns as soon
+		 * as the DAT line is idle, as it did before.
+		 */
+		if ((stat & mask) == mask)
+			break;
+
 		if (get_timer(start) >= SDHCI_READ_STATUS_TIMEOUT) {
 			log_warning("Timeout for status update: %08x %08x\n",
 				    stat, mask);

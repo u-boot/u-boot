@@ -243,6 +243,9 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_BOOT_MULT		226	/* RO */
 #define EXT_CSD_SEC_FEATURE		231	/* RO */
 #define EXT_CSD_GENERIC_CMD6_TIME       248     /* RO */
+#define EXT_CSD_PRE_EOL_INFO		267	/* RO */
+#define EXT_CSD_DEVICE_LIFE_TIME_EST_TYP_A	268	/* RO */
+#define EXT_CSD_DEVICE_LIFE_TIME_EST_TYP_B	269	/* RO */
 #define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
 
 /*
@@ -628,6 +631,13 @@ struct mmc_config {
 #if CONFIG_IS_ENABLED(MMC_PWRSEQ)
 	struct udevice *pwr_dev;
 #endif
+	/*
+	 * Extra discharge delay at the end of mmc_power_off(), in
+	 * microseconds. Default 0. Boards with slow RC discharge on MMC
+	 * VDD set this via "power-off-delay-us". mmc_power_cycle() already
+	 * waits 2 ms before power-on, so this is additional time only.
+	 */
+	unsigned int power_off_delay_us;
 };
 
 struct sd_ssr {
