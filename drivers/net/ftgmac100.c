@@ -701,6 +701,82 @@ static int ftgmac100_set_ast2600_rgmii_delay(struct udevice *dev)
 				   tx_delay_index | rx_delay_index);
 }
 
+static int ftgmac100_set_ast2700_rgmii_delay(struct udevice *dev)
+{
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	u32 rgmii_delay_tx_unit, rgmii_delay_rx_unit;
+	u32 rgmii_delay_tx_dis, rgmii_delay_rx_dis;
+	u32 tx_delay_index, rx_delay_index;
+	u32 reg_unit, reg_val;
+	struct regmap *scu;
+	int dly_mask;
+	int mac_id;
+
+	scu = syscon_regmap_lookup_by_phandle(dev, "aspeed,scu");
+	if (IS_ERR(scu))
+		return PTR_ERR(scu);
+
+	switch (pdata->iobase) {
+	case AST2700_MAC0_BASE_ADDR:
+		mac_id = 0;
+		regmap_read(scu, AST2700_MAC0_DLY_UNIT, &reg_unit);
+		regmap_read(scu, AST2700_MAC0_DLY_VAL, &reg_val);
+		break;
+	case AST2700_MAC1_BASE_ADDR:
+		mac_id = 1;
+		regmap_read(scu, AST2700_MAC1_DLY_UNIT, &reg_unit);
+		regmap_read(scu, AST2700_MAC1_DLY_VAL, &reg_val);
+		break;
+	case AST2700_MAC2_BASE_ADDR:
+		/* MAC2 only supports SGMII, no RGMII delay to configure */
+		return 0;
+	default:
+		dev_err(dev, "Invalid mac base address\n");
+		return -EINVAL;
+	}
+
+	rgmii_delay_tx_unit = AST2700_MAC_TX_DLY_UNIT(reg_unit);
+	rgmii_delay_rx_unit = AST2700_MAC_RX_DLY_UNIT(reg_unit);
+	rgmii_delay_tx_dis = AST2700_MAC_TX_DLY_DIS(reg_val);
+	rgmii_delay_rx_dis = AST2700_MAC_RX_DLY_DIS(reg_val);
+
+	tx_delay_index = DIV_ROUND_CLOSEST(priv->rgmii_tx_delay,
+					   rgmii_delay_tx_unit);
+	tx_delay_index += rgmii_delay_tx_dis;
+	if (tx_delay_index >= 32) {
+		dev_err(dev, "The %u ps of TX delay is out of range\n",
+			priv->rgmii_tx_delay);
+		return -EINVAL;
+	}
+
+	rx_delay_index = DIV_ROUND_CLOSEST(priv->rgmii_rx_delay,
+					   rgmii_delay_rx_unit);
+	rx_delay_index += rgmii_delay_rx_dis;
+	if (rx_delay_index >= 32) {
+		dev_err(dev, "The %u ps of RX delay is out of range\n",
+			priv->rgmii_rx_delay);
+		return -EINVAL;
+	}
+
+	if (mac_id == 0) {
+		dly_mask = ASPEED_MAC0_2_TX_DLY | ASPEED_MAC0_2_RX_DLY;
+		tx_delay_index = FIELD_PREP(ASPEED_MAC0_2_TX_DLY,
+					    tx_delay_index);
+		rx_delay_index = FIELD_PREP(ASPEED_MAC0_2_RX_DLY,
+					    rx_delay_index);
+	} else {
+		dly_mask = ASPEED_MAC1_3_TX_DLY | ASPEED_MAC1_3_RX_DLY;
+		tx_delay_index = FIELD_PREP(ASPEED_MAC1_3_TX_DLY,
+					    tx_delay_index);
+		rx_delay_index = FIELD_PREP(ASPEED_MAC1_3_RX_DLY,
+					    rx_delay_index);
+	}
+
+	return regmap_update_bits(scu, AST2700_MAC01_CLK_DLY, dly_mask,
+				   tx_delay_index | rx_delay_index);
+}
+
 static int ftgmac100_set_internal_delay(struct udevice *dev)
 {
 	struct ftgmac100_data *priv = dev_get_priv(dev);
@@ -715,6 +791,8 @@ static int ftgmac100_set_internal_delay(struct udevice *dev)
 
 	if (data == FTGMAC100_MODEL_ASPEED_AST2600)
 		return ftgmac100_set_ast2600_rgmii_delay(dev);
+	else if (data == FTGMAC100_MODEL_ASPEED_AST2700)
+		return ftgmac100_set_ast2700_rgmii_delay(dev);
 
 	return 0;
 }
