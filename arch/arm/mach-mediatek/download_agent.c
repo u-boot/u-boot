@@ -6,6 +6,7 @@
 
 #include <dm/uclass.h>
 #include <fastboot.h>
+#include <init.h>
 #include <mmc.h>
 #include <spl.h>
 #include <stdio.h>
@@ -55,6 +56,7 @@ static int mtk_mmc_boot_prepare(void)
 	return 0;
 }
 
+#ifdef CONFIG_XPL_BUILD
 void spl_board_init(void)
 {
 	int ret;
@@ -68,3 +70,16 @@ void spl_board_init(void)
 	if (ret)
 		printf("Fastboot failed: %d\n", ret);
 }
+#else
+int board_late_init(void)
+{
+	int ret;
+
+	ret = mtk_mmc_boot_prepare();
+	if (ret)
+		printf("MMC boot preparation failed: %d\n", ret);
+
+	/* Keep fastboot available even if storage preparation failed. */
+	return 0;
+}
+#endif
