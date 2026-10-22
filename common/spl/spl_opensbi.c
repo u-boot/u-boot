@@ -97,6 +97,11 @@ void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 	ret = fit_image_get_entry(spl_image->fdt_addr, os_node, &os_entry);
 	if (ret)
 		ret = fit_image_get_load(spl_image->fdt_addr, os_node, &os_entry);
+	if (ret) {
+		pr_err("Can't get entry point or load address for %s, %d\n",
+		       genimg_get_os_name(os_type), ret);
+		hang();
+	}
 
 	/* Prepare opensbi_info object */
 	opensbi_info.magic = FW_DYNAMIC_INFO_MAGIC_VALUE;
