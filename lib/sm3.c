@@ -230,7 +230,7 @@ void sm3_update(struct sm3_context *sctx, const uint8_t *input, size_t ilen)
 			input += blocks * SM3_BLOCK_SIZE;
 		}
 
-		memset(W, 0, sizeof(W));
+		memzero_explicit(W, sizeof(W));
 
 		partial = 0;
 	}
@@ -263,7 +263,7 @@ void sm3_final(struct sm3_context *sctx, uint8_t output[SM3_DIGEST_SIZE])
 		put_unaligned_be32(sctx->state[i], digest++);
 
 	/* Zeroize sensitive information. */
-	memset(W, 0, sizeof(W));
+	memzero_explicit(W, sizeof(W));
 	memset(sctx, 0, sizeof(*sctx));
 }
 
