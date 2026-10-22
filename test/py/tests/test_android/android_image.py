@@ -81,8 +81,6 @@ def setup_android_image(ubman):
     with open(fname, 'wb') as outf:
         outf.write(disk_data)
 
-    print(f'wrote to {fname}')
-
     mmc_dev = 8
     fname = os.path.join(ubman.config.source_dir, f'mmc{mmc_dev}.img')
     utils.run_and_log(ubman, f'qemu-img create {fname} 20M')
@@ -129,7 +127,3 @@ def setup_android_image(ubman):
 
     with open(fname, 'wb') as outf:
         outf.write(disk_data)
-
-    print(f'wrote to {fname}')
-
-    return fname
