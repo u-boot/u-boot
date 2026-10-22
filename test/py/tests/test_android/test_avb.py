@@ -67,7 +67,7 @@ def test_avb_verify(ubman, avb_device_id):
     response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
     response = ubman.run_command('avb verify')
-    assert response.find(success_str)
+    assert success_str in response
 
 
 @pytest.mark.buildconfigspec('cmd_avb')
@@ -82,7 +82,7 @@ def test_avb_mmc_uuid(ubman, avb_device_id):
     assert response == ''
 
     response = ubman.run_command('mmc rescan; mmc dev %d' % avb_device_id)
-    assert response.find('is current device')
+    assert 'is current device' in response
 
     part_lines = ubman.run_command('mmc part').splitlines()
     part_list = {}
@@ -136,22 +136,22 @@ def test_avb_mmc_read(ubman, avb_device_id):
     """
 
     response = ubman.run_command('mmc rescan; mmc dev %d 0' % avb_device_id)
-    assert response.find('is current device')
+    assert 'is current device' in response
 
     response = ubman.run_command('mmc read 0x%x 0x100 0x1' % temp_addr)
-    assert response.find('read: OK')
+    assert 'read: OK' in response
 
     response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
 
     response = ubman.run_command('avb read_part xloader 0 100 0x%x' %
                                            temp_addr2)
-    assert response.find('Read 512 bytes')
+    assert 'Read 512 bytes' in response
 
     # Now lets compare two buffers
     response = ubman.run_command('cmp 0x%x 0x%x 40' %
                                           (temp_addr, temp_addr2))
-    assert response.find('64 word')
+    assert '64 word' in response
 
 
 @pytest.mark.buildconfigspec('cmd_avb')
