@@ -29,7 +29,7 @@ def test_avb_verify(ubman):
 
     success_str = "Verification passed successfully"
 
-    response = ubman.run_command('avb init %s' %str(mmc_dev))
+    response = ubman.run_command('avb init %x' % mmc_dev)
     assert response == ''
     response = ubman.run_command('avb verify')
     assert response.find(success_str)
@@ -43,11 +43,10 @@ def test_avb_mmc_uuid(ubman):
     'part list mmc 1' output
     """
 
-    response = ubman.run_command('avb init %s' % str(mmc_dev))
+    response = ubman.run_command('avb init %x' % mmc_dev)
     assert response == ''
 
-    response = ubman.run_command('mmc rescan; mmc dev %s' %
-                                          str(mmc_dev))
+    response = ubman.run_command('mmc rescan; mmc dev %d' % mmc_dev)
     assert response.find('is current device')
 
     part_lines = ubman.run_command('mmc part').splitlines()
@@ -75,7 +74,7 @@ def test_avb_read_rb(ubman):
     """Test reading rollback indexes
     """
 
-    response = ubman.run_command('avb init %s' % str(mmc_dev))
+    response = ubman.run_command('avb init %x' % mmc_dev)
     assert response == ''
 
     response = ubman.run_command('avb read_rb 1')
@@ -87,7 +86,7 @@ def test_avb_is_unlocked(ubman):
     """Test if device is in the unlocked state
     """
 
-    response = ubman.run_command('avb init %s' % str(mmc_dev))
+    response = ubman.run_command('avb init %x' % mmc_dev)
     assert response == ''
 
     response = ubman.run_command('avb is_unlocked')
@@ -101,14 +100,13 @@ def test_avb_mmc_read(ubman):
     """Test mmc read operation
     """
 
-    response = ubman.run_command('mmc rescan; mmc dev %s 0' %
-                                          str(mmc_dev))
+    response = ubman.run_command('mmc rescan; mmc dev %d 0' % mmc_dev)
     assert response.find('is current device')
 
     response = ubman.run_command('mmc read 0x%x 0x100 0x1' % temp_addr)
     assert response.find('read: OK')
 
-    response = ubman.run_command('avb init %s' % str(mmc_dev))
+    response = ubman.run_command('avb init %x' % mmc_dev)
     assert response == ''
 
     response = ubman.run_command('avb read_part xloader 0 100 0x%x' %
@@ -127,7 +125,7 @@ def test_avb_persistent_values(ubman):
     """Test reading/writing persistent storage to avb
     """
 
-    response = ubman.run_command('avb init %s' % str(mmc_dev))
+    response = ubman.run_command('avb init %x' % mmc_dev)
     assert response == ''
 
     response = ubman.run_command('avb write_pvalue test value_value')
