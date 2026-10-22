@@ -81,7 +81,9 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
 void efi_restore_gd(void);
 
 /* Called by networking code to memorize the dhcp ack package */
-void efi_net_set_dhcp_ack(void *pkt, int len);
+void efi_net_set_dhcp_ack(void *pkt, int len, void *proxy, int proxy_len);
+/* Populate PXE mode with the newest cached reply for this interface. */
+void efi_net_get_dhcp_ack(struct udevice *dev, struct efi_pxe_mode *mode);
 /* Print information about all loaded images */
 void efi_print_image_infos(void *pc);
 
@@ -101,7 +103,8 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
-static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
+static inline void efi_net_set_dhcp_ack(void *pkt, int len, void *proxy, int proxy_len) { }
+static inline void efi_net_get_dhcp_ack(struct udevice *dev, struct efi_pxe_mode *mode) { }
 static inline void efi_print_image_infos(void *pc) { }
 static inline efi_status_t efi_launch_capsules(void)
 {

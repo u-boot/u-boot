@@ -374,6 +374,21 @@ void sandbox_eth_set_tx_handler(int index, sandbox_eth_tx_hand_f *handler)
 		priv->tx_handler = sb_default_handler;
 }
 
+void sandbox_eth_set_free_pkt_handler(int index,
+				      sandbox_eth_free_pkt_hand_f *handler)
+{
+	struct eth_sandbox_priv *priv;
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_ETH, index, &dev);
+	if (ret)
+		return;
+
+	priv = dev_get_priv(dev);
+	priv->free_pkt_handler = handler;
+}
+
 /*
  * Set priv ptr
  *
@@ -457,6 +472,8 @@ static int sb_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 		       priv->recv_packet_length[i + 1]);
 	}
 	priv->recv_packet_length[priv->recv_packets] = 0;
+	if (priv->free_pkt_handler)
+		priv->free_pkt_handler(dev, length);
 
 	return 0;
 }

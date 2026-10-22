@@ -1,0 +1,28 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/* Copyright 2026 James Hilliard <james.hilliard1@gmail.com> */
+
+#ifndef __UBOOT_LWIP_DHCP_H
+#define __UBOOT_LWIP_DHCP_H
+
+#include <lwip/err.h>
+
+struct dhcp;
+struct dhcp_msg;
+struct netif;
+struct pbuf;
+
+u32_t net_lwip_dhcp_timeout(u8_t tries);
+#define DHCP_REQUEST_BACKOFF_SEQUENCE net_lwip_dhcp_timeout
+
+err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p);
+err_t net_lwip_dhcp_offer(struct netif *netif, struct dhcp *dhcp, struct pbuf *p);
+err_t net_lwip_dhcp_recv(struct netif *netif, struct dhcp *dhcp, struct pbuf *p);
+void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
+			  struct dhcp_msg *msg, u8_t type, u16_t *len);
+
+#define LWIP_HOOK_DHCP_HANDLE_ACK net_lwip_dhcp_ack
+#define LWIP_HOOK_DHCP_HANDLE_OFFER net_lwip_dhcp_offer
+#define LWIP_HOOK_DHCP_RECV net_lwip_dhcp_recv
+#define LWIP_HOOK_DHCP_APPEND_OPTIONS net_lwip_dhcp_append
+
+#endif /* __UBOOT_LWIP_DHCP_H */

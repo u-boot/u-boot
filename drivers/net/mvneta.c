@@ -1533,7 +1533,11 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		if (!mvneta_rxq_desc_is_first_last(rx_status) ||
 		    (rx_status & MVNETA_RXD_ERR_SUMMARY)) {
 			mvneta_rx_error(pp, rx_desc);
-			/* leave the descriptor untouched */
+			/*
+			 * Only mark one descriptor as free since only one
+			 * was processed, same as the success path below
+			 */
+			mvneta_rxq_desc_num_update(pp, rxq, 1, 1);
 			return -EIO;
 		}
 

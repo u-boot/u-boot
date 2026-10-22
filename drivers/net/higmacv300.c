@@ -193,7 +193,7 @@ static int higmac_recv(struct udevice *dev, int flags, uchar **packetp)
 	} while (--timeout && bqw_pos == bqr_pos);
 
 	if (!timeout)
-		return -ETIMEDOUT;
+		return -EAGAIN;
 
 	if (++bqr_pos >= RX_DESC_NUM)
 		bqr_pos = 0;

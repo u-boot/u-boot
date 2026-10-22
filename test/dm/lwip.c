@@ -314,6 +314,8 @@ static int _dm_test_lwip_runtime(struct unit_test_state *uts,
 #if CONFIG_IS_ENABLED(WGET)
 	ut_assertok(lwip_test_http_abort(uts));
 #endif
+	/* Address changes above can queue gratuitous ARP replies in sandbox. */
+	ut_assertok(net_lwip_poll());
 
 	*pcb_a = udp_new();
 	ut_assertnonnull(*pcb_a);

@@ -163,6 +163,48 @@
 				interrupts = <6>;
 				interrupt-parent = <&vic0>;
 			};
+
+			umac0: ethernet@4000 {
+				compatible = "hpe,gxp-umac";
+				reg = <0x4000 0x100>;
+				phy-mode = "sgmii";
+				phy-handle = <&phy0>;
+				nvmem-cells = <&mac_address0>;
+				nvmem-cell-names = "mac-address";
+				status = "okay";
+
+				mdio0: mdio {
+					compatible = "hpe,gxp-umac-mdio";
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					phy0: ethernet-phy@0 {
+						compatible = "ethernet-phy-ieee802.3-c22";
+						reg = <0>;
+					};
+				};
+			};
+
+			umac1: ethernet@5000 {
+				compatible = "hpe,gxp-umac";
+				reg = <0x5000 0x100>;
+				phy-mode = "gmii";
+				phy-handle = <&phy1>;
+				nvmem-cells = <&mac_address1>;
+				nvmem-cell-names = "mac-address";
+				status = "okay";
+
+				mdio1: mdio {
+					compatible = "hpe,gxp-umac-mdio";
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					phy1: ethernet-phy@0 {
+						compatible = "ethernet-phy-ieee802.3-c22";
+						reg = <0>;
+					};
+				};
+			};
 		};
 	};
 };

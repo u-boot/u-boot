@@ -618,7 +618,7 @@ static int fm_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct fm_port_bd *rxbd;
 	u32 buf_lo, buf_hi;
 	u16 status, len;
-	int ret = -1;
+	int ret = -EAGAIN;
 	u8 *data;
 
 	fm_eth = dev_get_priv(dev);

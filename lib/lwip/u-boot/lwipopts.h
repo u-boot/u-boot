@@ -127,6 +127,80 @@
 
 #define LWIP_DHCP_DOES_ACD_CHECK	0
 
+#ifdef CONFIG_CMD_BOOTP
+/*
+ * Receive unicast replies before the client has an IP address, also when
+ * the DHCP state machine is not built. The port is in network byte order.
+ */
+#define LWIP_IP_ACCEPT_UDP_PORT(port) ((port) == PP_HTONS(68))
+#endif
+
+#if defined(CONFIG_CMD_BOOTP) || defined(CONFIG_CMD_DHCP)
+#ifdef CONFIG_CMD_DHCP
+#define LWIP_HOOK_FILENAME "lwip-dhcp.h"
+#endif
+/* Core/PXE options plus two maximum-length hostname/vendor-class options. */
+#define DHCP_OPTIONS_LEN		640
+/* Stage NTP after concatenating fragments, not in the core option parser. */
+#define LWIP_DHCP_GET_NTP_SRV	0
+/* Stage DNS with the accepted boot options, independently of the resolver. */
+#define LWIP_DHCP_MAX_DNS_SERVERS	0
+#ifdef CONFIG_BOOTP_SUBNETMASK
+#define UBOOT_DHCP_SUBNET		1,
+#else
+#define UBOOT_DHCP_SUBNET
+#endif
+#ifdef CONFIG_BOOTP_GATEWAY
+#define UBOOT_DHCP_GATEWAY	3,
+#else
+#define UBOOT_DHCP_GATEWAY
+#endif
+#ifdef CONFIG_BOOTP_DNS
+#define UBOOT_DHCP_DNS		6,
+#else
+#define UBOOT_DHCP_DNS
+#endif
+#ifdef CONFIG_BOOTP_NTPSERVER
+#define UBOOT_DHCP_NTP		42,
+#else
+#define UBOOT_DHCP_NTP
+#endif
+#ifdef CONFIG_BOOTP_HOSTNAME
+#define UBOOT_DHCP_HOSTNAME	12,
+#else
+#define UBOOT_DHCP_HOSTNAME
+#endif
+#ifdef CONFIG_BOOTP_BOOTFILESIZE
+#define UBOOT_DHCP_FILESIZE	13,
+#else
+#define UBOOT_DHCP_FILESIZE
+#endif
+#ifdef CONFIG_BOOTP_BOOTPATH
+#define UBOOT_DHCP_ROOTPATH	17,
+#else
+#define UBOOT_DHCP_ROOTPATH
+#endif
+#ifdef CONFIG_BOOTP_NISDOMAIN
+#define UBOOT_DHCP_DOMAIN		40,
+#else
+#define UBOOT_DHCP_DOMAIN
+#endif
+#ifdef CONFIG_BOOTP_TIMEOFFSET
+#define UBOOT_DHCP_TIMEOFFSET	2,
+#else
+#define UBOOT_DHCP_TIMEOFFSET
+#endif
+#ifdef CONFIG_BOOTP_PXE_DHCP_OPTION
+#define UBOOT_DHCP_PXE_CONFIG	209,
+#else
+#define UBOOT_DHCP_PXE_CONFIG
+#endif
+#define DHCP_REQUEST_OPTIONS	UBOOT_DHCP_SUBNET UBOOT_DHCP_GATEWAY \
+	UBOOT_DHCP_DNS UBOOT_DHCP_NTP UBOOT_DHCP_HOSTNAME \
+	UBOOT_DHCP_FILESIZE UBOOT_DHCP_ROOTPATH UBOOT_DHCP_DOMAIN \
+	UBOOT_DHCP_TIMEOFFSET UBOOT_DHCP_PXE_CONFIG 67
+#endif /* defined(CONFIG_CMD_BOOTP) || defined(CONFIG_CMD_DHCP) */
+
 #define LWIP_AUTOIP                     0
 
 #define LWIP_SNMP                       0
@@ -194,10 +268,6 @@
 #define LWIP_ALTCP                      1
 #define LWIP_ALTCP_TLS                  1
 #define LWIP_ALTCP_TLS_MBEDTLS          1
-#endif
-
-#if defined(CONFIG_CMD_SNTP)
-#define LWIP_DHCP_GET_NTP_SRV 1
 #endif
 
 #endif /* LWIP_UBOOT_LWIPOPTS_H */

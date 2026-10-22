@@ -430,7 +430,7 @@ static int mcffec_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct fec_info_s *info = dev_get_priv(dev);
 	volatile fec_t *fecp = (fec_t *)info->iobase;
-	int length = -1;
+	int length = -EAGAIN;
 
 	for (;;) {
 #ifdef CONFIG_SYS_UNIFY_CACHE

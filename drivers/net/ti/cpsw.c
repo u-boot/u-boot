@@ -808,6 +808,8 @@ static int _cpsw_recv(struct cpsw_priv *priv, uchar **pkt)
 	int ret;
 
 	ret = cpdma_process(priv, &priv->rx_chan, &buffer, &len);
+	if (ret == -EBUSY)
+		return -EAGAIN;
 	if (ret < 0)
 		return ret;
 

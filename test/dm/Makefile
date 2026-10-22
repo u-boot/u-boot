@@ -52,8 +52,20 @@ obj-$(CONFIG_DM_ETH) += eth.o
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_PROT_UDP_LWIP),yy)
 obj-y += lwip.o
 endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_DHCP),yy)
+obj-y += lwip_dhcp.o
+obj-y += lwip_dhcp_options.o
+obj-y += lwip_dhcp_proxy.o
+obj-y += lwip_dhcp_policy.o
+endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_BOOTP),yy)
+obj-y += lwip_bootp.o
+endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_NETCONSOLE),yy)
 obj-y += netconsole.o
+endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_NFS),yy)
+obj-y += lwip_nfs.o
 endif
 obj-$(CONFIG_EXTCON) += extcon.o
 ifneq ($(CONFIG_EFI_PARTITION),)

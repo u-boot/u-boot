@@ -1980,13 +1980,14 @@ menuconfig CMD_NET
 
 if CMD_NET
 
-if NET_LEGACY
-
 config CMD_BOOTP
 	bool "bootp"
 	default y
+	select PROT_UDP_LWIP if NET_LWIP
 	help
 	  bootp - boot image via network using BOOTP/TFTP protocol
+
+if NET_LEGACY
 
 config CMD_DHCP6
 	bool "dhcp6"
@@ -2016,31 +2017,38 @@ config DHCP6_RAPID_COMMIT
 
 endif
 
+endif
+
 config BOOTP_MAY_FAIL
 	bool "Allow for the BOOTP/DHCP server to not be found"
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  If the DHCP server is not found after the configured retry count, the
 	  call will fail instead of starting over.  This can be used to fail
 	  over to Link-local IP address configuration if the DHCP server is not
 	  available.
 
+	  With lwIP, do not repeat the interface cycle once every interface
+	  has timed out, even with netretry=yes.
+
 config BOOTP_BOOTPATH
 	bool "Request & store 'rootpath' from BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  Even though the config is called BOOTP_BOOTPATH, it stores the
 	  path in the variable 'rootpath'.
 
 config BOOTP_BOOTFILESIZE
-	bool "Request & store 'bootfilesize' from BOOTP/DHCP server"
-	depends on CMD_BOOTP
+	bool "Request the boot file size from BOOTP/DHCP server"
+	depends on CMD_BOOTP || CMD_DHCP
+	help
+	  Save the expected file size in 512-byte blocks for download progress.
 
 config BOOTP_DNS
 	bool "Request & store 'dnsip' from BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  The primary DNS server is stored as 'dnsip'. If two servers are
 	  returned, you must set BOOTP_DNS2 to store that second server IP
@@ -2048,6 +2056,7 @@ config BOOTP_DNS
 
 config BOOTP_DNS2
 	bool "Store 'dnsip2' from BOOTP/DHCP server"
+	default y if NET_LWIP
 	depends on BOOTP_DNS
 	help
 	  If a DHCP client requests the DNS server IP from a DHCP server,
@@ -2060,44 +2069,46 @@ config BOOTP_DNS2
 config BOOTP_GATEWAY
 	bool "Request & store 'gatewayip' from BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 
 config BOOTP_HOSTNAME
 	bool "Request & store 'hostname' from BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  The name may or may not be qualified with the local domain name.
 
 config BOOTP_PREFER_SERVERIP
 	bool "serverip variable takes precedent over DHCP server IP."
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  By default a BOOTP/DHCP reply will overwrite the 'serverip' variable.
 
-	  With this option enabled, the 'serverip' variable in the environment
-	  takes precedence over DHCP server IP and will only be set by the DHCP
-	  server if not already set in the environment.
+	  With this option enabled, a nonzero 'serverip' in the environment
+	  takes precedence over the DHCP boot server. With lwIP, also clear
+	  'tftpserverip' so it cannot override the preserved 'serverip'.
 
 config BOOTP_SUBNETMASK
 	bool "Request & store 'netmask' from BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 
 config BOOTP_NISDOMAIN
-	bool "Request & store 'nisdomain' from BOOTP/DHCP server"
-	depends on CMD_BOOTP
+	bool "Request & store 'domain' from BOOTP/DHCP server"
+	depends on CMD_BOOTP || CMD_DHCP
 
 config BOOTP_NTPSERVER
 	bool "Request & store 'ntpserverip' from BOOTP/DHCP server"
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
+	default y if NET_LWIP && CMD_SNTP
 
 config BOOTP_TIMEOFFSET
 	bool "Request & store 'timeoffset' from BOOTP/DHCP server"
-	depends on CMD_BOOTP && CMD_SNTP
+	depends on (CMD_BOOTP || CMD_DHCP) && CMD_SNTP
 
 config CMD_PCAP
 	bool "pcap capture"
+	depends on NET_LEGACY
 	help
 	  Selecting this will allow capturing all Ethernet packets and store
 	  them in physical memory in a PCAP formated file,
@@ -2106,12 +2117,12 @@ config CMD_PCAP
 config BOOTP_PXE
 	bool "Send PXE client arch to BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP && CMD_PXE
+	depends on (CMD_BOOTP || CMD_DHCP) && CMD_PXE
 	help
 	  Supported for ARM, ARM64, and x86 for now.
 
 config DHCP_PXE_CLIENTARCH
-	hex "DCHCP client system architecture type"
+	hex "DHCP client system architecture type"
 	depends on BOOTP_PXE || CMD_DHCP6
 	default 0x16 if ARM64 # arm 64 uboot
 	default 0x15 if ARM   # arm 32 uboot
@@ -2134,11 +2145,13 @@ config BOOTP_PXE_DHCP_OPTION
 
 config BOOTP_VCI_STRING
 	string
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	default "U-Boot.armv7" if CPU_V7A || CPU_V7M_V8M || CPU_V7R
 	default "U-Boot.armv8" if ARM64
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
+
+if NET_LEGACY
 
 config BOOTP_RANDOM_XID
 	bool "Send random transaction ID to BOOTP/DHCP server"
@@ -2169,6 +2182,8 @@ config CMD_RARP
 	help
 	  Boot image via network using RARP/TFTP protocol
 
+endif
+
 config SYS_DISABLE_AUTOLOAD
 	bool "Disable automatically loading files over the network"
 	depends on CMD_BOOTP || CMD_DHCP || CMD_NFS || CMD_RARP
@@ -2177,6 +2192,8 @@ config SYS_DISABLE_AUTOLOAD
 	  load a file from the network, once the initial network configuration
 	  is complete.  Enable this option to disable this behavior and instead
 	  require files to be loaded over the network by subsequent commands.
+
+if NET_LEGACY
 
 config CMD_PING6
 	bool "ping6"

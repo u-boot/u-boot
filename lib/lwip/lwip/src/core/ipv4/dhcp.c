@@ -92,6 +92,15 @@
 #ifndef LWIP_HOOK_DHCP_PARSE_OPTION
 #define LWIP_HOOK_DHCP_PARSE_OPTION(netif, dhcp, state, msg, msg_type, option, len, pbuf, offset) do { LWIP_UNUSED_ARG(msg); } while(0)
 #endif
+#ifndef LWIP_HOOK_DHCP_HANDLE_ACK
+#define LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf) ERR_OK
+#endif
+#ifndef LWIP_HOOK_DHCP_RECV
+#define LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf) ERR_OK
+#endif
+#ifndef LWIP_HOOK_DHCP_HANDLE_OFFER
+#define LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, pbuf) ERR_OK
+#endif
 
 /** DHCP_ADD_EXTRA_REQUEST_OPTIONS: Additional options added to the list of options
  * that the client requests from the servers (opt 55: DHCP_OPTION_PARAMETER_REQUEST_LIST)
@@ -129,7 +138,9 @@
 #define DHCP_SET_TIMEOUT_FROM_OFFERED_T2_REBIND(res, dhcp) SET_TIMEOUT_FROM_OFFERED(res, (dhcp)->offered_t2_rebind, 0, 0xffff)
 
 #define DHCP_NEXT_TIMEOUT_THRESHOLD ((60 + DHCP_COARSE_TIMER_SECS / 2) / DHCP_COARSE_TIMER_SECS)
+#ifndef DHCP_REQUEST_BACKOFF_SEQUENCE
 #define DHCP_REQUEST_BACKOFF_SEQUENCE(tries)   (u16_t)(( (tries) < 6 ? 1 << (tries) : 60) * 1000)
+#endif
 
 #endif /* DHCP_DEFINE_CUSTOM_TIMEOUTS */
 
@@ -207,6 +218,9 @@ static u32_t dhcp_rx_options_val[DHCP_OPTION_IDX_MAX];
 static u8_t  dhcp_rx_options_given[DHCP_OPTION_IDX_MAX];
 
 static u8_t dhcp_discover_request_options[] = {
+#ifdef DHCP_REQUEST_OPTIONS
+  DHCP_REQUEST_OPTIONS
+#else
   DHCP_OPTION_SUBNET_MASK,
   DHCP_OPTION_ROUTER,
   DHCP_OPTION_BROADCAST
@@ -217,6 +231,7 @@ static u8_t dhcp_discover_request_options[] = {
   , DHCP_OPTION_NTP
 #endif /* LWIP_DHCP_GET_NTP_SRV */
   DHCP_ADD_EXTRA_REQUEST_OPTIONS
+#endif
 };
 
 #ifdef DHCP_GLOBAL_XID
@@ -447,7 +462,7 @@ dhcp_select(struct netif *netif)
 {
   struct dhcp *dhcp;
   err_t result;
-  u16_t msecs;
+  u32_t msecs;
   u8_t i;
   struct pbuf *p_out;
   u16_t options_out_len;
@@ -496,9 +511,9 @@ dhcp_select(struct netif *netif)
   if (dhcp->tries < 255) {
     dhcp->tries++;
   }
-  msecs = (u16_t)((dhcp->tries < 6 ? 1 << dhcp->tries : 60) * 1000);
+  msecs = DHCP_REQUEST_BACKOFF_SEQUENCE(dhcp->tries);
   dhcp->request_timeout = (u16_t)((msecs + DHCP_FINE_TIMER_MSECS - 1) / DHCP_FINE_TIMER_MSECS);
-  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_select(): set request timeout %"U16_F" msecs\n", msecs));
+  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_select(): set request timeout %"U32_F" msecs\n", msecs));
   return result;
 }
 
@@ -1020,7 +1035,7 @@ dhcp_discover(struct netif *netif)
 {
   struct dhcp *dhcp = netif_dhcp_data(netif);
   err_t result = ERR_OK;
-  u16_t msecs;
+  u32_t msecs;
   u8_t i;
   struct pbuf *p_out;
   u16_t options_out_len;
@@ -1069,7 +1084,7 @@ dhcp_discover(struct netif *netif)
   }
   msecs = DHCP_REQUEST_BACKOFF_SEQUENCE(dhcp->tries);
   dhcp->request_timeout = (u16_t)((msecs + DHCP_FINE_TIMER_MSECS - 1) / DHCP_FINE_TIMER_MSECS);
-  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_discover(): set request timeout %"U16_F" msecs\n", msecs));
+  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_discover(): set request timeout %"U32_F" msecs\n", msecs));
   return result;
 }
 
@@ -1829,6 +1844,11 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
                 ("transaction id mismatch reply_msg->xid(%"X32_F")!=dhcp->xid(%"X32_F")\n", lwip_ntohl(reply_msg->xid), dhcp->xid));
     goto free_pbuf_and_return;
   }
+  /* Let applications consume replies which do not supply a lease, before
+     parsing can replace the current DHCP boot filename or option state. */
+  if (LWIP_HOOK_DHCP_RECV(netif, dhcp, p) != ERR_OK) {
+    goto free_pbuf_and_return;
+  }
   /* option fields could be unfold? */
   if (dhcp_parse_reply(p, dhcp) != ERR_OK) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS,
@@ -1852,6 +1872,9 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
     /* in requesting state or just reconnected to the network? */
     if ((dhcp->state == DHCP_STATE_REQUESTING) ||
         (dhcp->state == DHCP_STATE_REBOOTING)) {
+      if (LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, p) != ERR_OK) {
+        goto free_pbuf_and_return;
+      }
       dhcp_handle_ack(netif, msg_in);
 #if LWIP_DHCP_DOES_ACD_CHECK
       if ((netif->flags & NETIF_FLAG_ETHARP) != 0) {
@@ -1869,6 +1892,9 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
     /* already bound to the given lease address and using it? */
     else if ((dhcp->state == DHCP_STATE_REBINDING) ||
              (dhcp->state == DHCP_STATE_RENEWING)) {
+      if (LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, p) != ERR_OK) {
+        goto free_pbuf_and_return;
+      }
       dhcp_handle_ack(netif, msg_in);
       dhcp_bind(netif);
     }
@@ -1883,6 +1909,9 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
   /* received a DHCP_OFFER in DHCP_STATE_SELECTING state? */
   else if ((msg_type == DHCP_OFFER) && (dhcp->state == DHCP_STATE_SELECTING)) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("DHCP_OFFER received in DHCP_STATE_SELECTING state\n"));
+    if (LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, p) != ERR_OK) {
+      goto free_pbuf_and_return;
+    }
     /* remember offered lease */
     dhcp_handle_offer(netif, msg_in);
   }

@@ -3194,6 +3194,73 @@
 #endif
 
 /**
+ * LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf):
+ * Called for a reply matching this client's hardware address and transaction
+ * ID, before parsing DHCP options or changing the client's lease state. This
+ * permits applications to consume ProxyDHCP replies without treating them as
+ * offers of a zero address. The hook must validate any options it consumes.
+ * Signature:\code{.c}
+ *   err_t my_hook(struct netif *netif, struct dhcp *dhcp, struct pbuf *pbuf);
+ * \endcode
+ * Arguments:
+ * - netif: receiving interface
+ * - dhcp: DHCP client on that interface
+ * - pbuf: complete DHCP reply, starting at the DHCP header
+ *
+ * Return ERR_OK to continue normal DHCP processing, or any other value to
+ * consume/discard the reply. Do not modify or free the pbuf. Copy any data
+ * needed after returning. The default hook leaves all replies to DHCP.
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf)
+#endif
+
+/**
+ * LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, pbuf):
+ * Called after successfully parsing a matching DHCPOFFER while selecting,
+ * before accepting the offer and sending DHCPREQUEST.
+ * Signature:\code{.c}
+ *   err_t my_hook(struct netif *netif, struct dhcp *dhcp, struct pbuf *pbuf);
+ * \endcode
+ * Arguments:
+ * - netif: receiving interface
+ * - dhcp: DHCP client on that interface
+ * - pbuf: complete DHCP reply; the payload starts at the DHCP header
+ *
+ * Return ERR_OK to accept the offer, or another error to discard it. Do not
+ * modify or free the pbuf. Copy any metadata needed later, and do not publish
+ * it until an ACK is accepted and the client has bound the lease. Forget
+ * saved defaults when starting another discovery transaction.
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, pbuf)
+#endif
+
+/**
+ * LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf):
+ * Called after parsing a matching DHCPACK in a state that accepts it, before
+ * applying the lease. Unlike LWIP_HOOK_DHCP_PARSE_OPTION, this hook sees the
+ * complete reply after the built-in option parser has succeeded. Applications
+ * can validate and save additional options without retaining partial results
+ * from a rejected packet.
+ * Signature:\code{.c}
+ *   err_t my_hook(struct netif *netif, struct dhcp *dhcp, struct pbuf *pbuf);
+ * \endcode
+ * Arguments:
+ * - netif: receiving interface
+ * - dhcp: DHCP client on that interface
+ * - pbuf: complete DHCP reply; the payload starts at the DHCP header
+ *
+ * Return ERR_OK to accept the ACK, or another error to discard it. The hook
+ * must not modify or free the pbuf and must copy any data it needs later.
+ * Address-conflict detection, if enabled, can still reject the offered address;
+ * do not publish saved configuration until the client has bound the lease.
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf)
+#endif
+
+/**
  * LWIP_HOOK_DHCP6_APPEND_OPTIONS(netif, dhcp6, state, msg, msg_type, options_len_ptr, max_len):
  * Called from various dhcp6 functions when sending a DHCP6 message.
  * This hook is called just before the DHCP6 message is sent, so the

@@ -596,10 +596,6 @@ static int gmac_rockchip_probe(struct udevice *dev)
 	ulong rate;
 	int ret;
 
-	ret = clk_set_defaults(dev, CLK_DEFAULTS_PRE);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return ret;
