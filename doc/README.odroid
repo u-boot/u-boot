@@ -26,10 +26,8 @@ This version of U-BOOT doesn't implement SPL. So, BL1, BL2, and TrustZone
 binaries are needed to boot up.
 
 << X2/U3 >>
-It can be found in "boot.tar.gz" from here:
-http://dev.odroid.com/projects/4412boot/wiki/FrontPage?action=download&value=boot.tar.gz
-or here:
-http://odroid.in/guides/ubuntu-lfs/boot.tar.gz
+It can be downloaded from:
+https://github.com/hardkernel/u-boot/tree/odroid-v2015.10/sd_fuse
 
 << XU3/XU4 >>
 It can be downloaded from:
