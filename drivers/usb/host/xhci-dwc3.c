@@ -256,6 +256,6 @@ U_BOOT_DRIVER(xhci_dwc3) = {
 	.ops = &xhci_usb_ops,
 	.priv_auto	= sizeof(struct xhci_ctrl),
 	.plat_auto	= sizeof(struct xhci_dwc3_plat),
-	.flags = DM_FLAG_ALLOC_PRIV_DMA,
+	.flags = DM_FLAG_ACTIVE_DMA | DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif
