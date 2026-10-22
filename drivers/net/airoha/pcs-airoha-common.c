@@ -17,6 +17,7 @@
 static void airoha_pcs_setup_scu_eth(struct airoha_pcs_priv *priv,
 				     phy_interface_t interface)
 {
+	struct udevice *dev = priv->dev;
 	u32 xsi_sel;
 
 	switch (interface) {
@@ -34,6 +35,12 @@ static void airoha_pcs_setup_scu_eth(struct airoha_pcs_priv *priv,
 	regmap_update_bits(priv->scu, AIROHA_SCU_SSR3,
 			   AIROHA_SCU_ETH_XSI_SEL,
 			   xsi_sel);
+
+	/* AN7583 require additional setting */
+	if (device_is_compatible(dev, "airoha,an7583-pcs-eth"))
+		regmap_update_bits(priv->scu, AIROHA_SCU_WAN_CONF,
+				   AIROHA_SCU_ETH_MAC_SEL,
+				   AIROHA_SCU_ETH_MAC_SEL_XFI);
 }
 
 static void airoha_pcs_setup_scu_pon(struct airoha_pcs_priv *priv,
@@ -810,11 +817,31 @@ static const struct airoha_pcs_match_data an7581_pcs_pon = {
 	.link_up = an7581_pcs_phya_link_up,
 };
 
+static const struct airoha_pcs_match_data an7583_pcs_eth = {
+	.port_type = AIROHA_PCS_ETH,
+	.usxgmii_rx_gb_out_vld_tweak = true,
+	.usxgmii_xfi_mode_sel = true,
+	.bringup = an7583_pcs_common_phya_bringup,
+	.link_up = an7583_pcs_common_phya_link_up,
+};
+
+static const struct airoha_pcs_match_data an7583_pcs_pon = {
+	.port_type = AIROHA_PCS_PON,
+	.usxgmii_rx_gb_out_vld_tweak = true,
+	.usxgmii_xfi_mode_sel = true,
+	.bringup = an7583_pcs_common_phya_bringup,
+	.link_up = an7583_pcs_common_phya_link_up,
+};
+
 static const struct udevice_id airoha_pcs_of_table[] = {
 	{ .compatible = "airoha,an7581-pcs-eth",
 	  .data = (ulong)&an7581_pcs_eth },
 	{ .compatible = "airoha,an7581-pcs-pon",
 	  .data = (ulong)&an7581_pcs_pon },
+	{ .compatible = "airoha,an7583-pcs-eth",
+	  .data = (ulong)&an7583_pcs_eth },
+	{ .compatible = "airoha,an7583-pcs-pon",
+	  .data = (ulong)&an7583_pcs_pon },
 	{ },
 };
 
