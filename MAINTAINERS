@@ -1643,6 +1643,15 @@ T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-spi.git
 F:	drivers/spi/
 F:	include/spi*
 
+SPI EEPROM
+M:	João Loureiro <joaofl@gmail.com>
+S:	Maintained
+F:	drivers/misc/spi_eeprom.c
+F:	drivers/misc/spi_eeprom_emul.c
+F:	drivers/misc/spi_eeprom_priv.h
+F:	include/spi_eeprom.h
+F:	test/dm/spi_eeprom.c
+
 SPI NAND
 M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
 M:	Michael Trimarchi <michael@amarulasolutions.com>
