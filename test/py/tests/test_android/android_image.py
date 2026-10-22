@@ -68,9 +68,8 @@ def create_gpt_image(ubman, mmc_dev, required_parts, images):
     with open(fname, 'wb') as outf:
         outf.write(disk_data)
 
-def setup_android_image(ubman):
-    """Create a 20MB disk image with Android partitions"""
-    mmc_dev = 7
+def setup_android_v4_image(ubman):
+    """Create mmc7.img: boot image v4 with vendor_boot partitions."""
     required_parts = [
         {'num': 1, 'label':'misc', 'size': '1M'},
         {'num': 2, 'label':'boot_a', 'size': '4M'},
@@ -82,9 +81,10 @@ def setup_android_image(ubman):
         (2, 'bootv4.img', test_abootimg.boot_img_hex),
         (4, 'vendor_boot.img', test_abootimg.vboot_img_hex),
     ]
-    create_gpt_image(ubman, mmc_dev, required_parts, images)
+    create_gpt_image(ubman, 7, required_parts, images)
 
-    mmc_dev = 8
+def setup_android_v2_image(ubman):
+    """Create mmc8.img: boot image v2 without vendor_boot."""
     required_parts = [
         {'num': 1, 'label':'misc', 'size': '1M'},
         {'num': 2, 'label':'boot_a', 'size': '4M'},
@@ -93,4 +93,9 @@ def setup_android_image(ubman):
     images = [
         (2, 'boot.img', test_abootimg.img_hex),
     ]
-    create_gpt_image(ubman, mmc_dev, required_parts, images)
+    create_gpt_image(ubman, 8, required_parts, images)
+
+def setup_android_image(ubman):
+    """Create disk images with Android partitions."""
+    setup_android_v4_image(ubman)
+    setup_android_v2_image(ubman)
