@@ -187,14 +187,24 @@ sha512_transform(uint64_t *state, const uint8_t *input)
 	a = b = c = d = e = f = g = h = t1 = t2 = 0;
 }
 
-static void sha512_block_fn(sha512_context *sst, const uint8_t *src,
-				    int blocks)
+void sha512_block_fn_generic(sha512_context *sst, const uint8_t *src,
+			     int blocks)
 {
 	while (blocks--) {
 		sha512_transform(sst->state, src);
 		src += SHA512_BLOCK_SIZE;
 	}
 }
+
+#ifdef USE_HOSTCC
+void sha512_block_fn(sha512_context *sst, const uint8_t *src, int blocks)
+{
+	sha512_block_fn_generic(sst, src, blocks);
+}
+#else
+__weak __alias(sha512_block_fn_generic)
+void sha512_block_fn(sha512_context *sst, const uint8_t *src, int blocks);
+#endif
 
 static void sha512_base_do_update(sha512_context *sctx,
 					const uint8_t *data,

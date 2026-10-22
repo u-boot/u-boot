@@ -87,6 +87,8 @@
 #define HCR_EL2_AMO_EL2		(1 <<  5) /* Route SErrors to EL2             */
 
 #define ID_AA64ISAR0_EL1_RNDR	(0xFUL << 60) /* RNDR random registers */
+#define ID_AA64ISAR0_EL1_SHA2	(0xFUL << 12) /* SHA256/SHA512 instructions */
+#define ID_AA64ISAR0_EL1_SHA2_SHA512	(0x2UL << 12) /* SHA512* implemented */
 /*
  * ID_AA64ISAR1_EL1 bits definitions
  */

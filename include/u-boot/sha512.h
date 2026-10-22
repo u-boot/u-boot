@@ -26,6 +26,19 @@ typedef struct {
 	uint64_t count[2];
 	uint8_t buf[SHA512_BLOCK_SIZE];
 } sha512_context;
+
+/**
+ * sha512_block_fn() - run the SHA-512 compression over whole input blocks
+ * @ctx:	hash context whose state is updated
+ * @src:	input data, @blocks * SHA512_BLOCK_SIZE bytes
+ * @blocks:	number of 128-byte blocks to process
+ *
+ * Weak alias of sha512_block_fn_generic(), overridden by an accelerated
+ * implementation (ARMV8_CE_SHA512) which may fall back to the generic one.
+ */
+void sha512_block_fn(sha512_context *ctx, const uint8_t *src, int blocks);
+void sha512_block_fn_generic(sha512_context *ctx, const uint8_t *src,
+			     int blocks);
 #endif
 
 extern const uint8_t sha512_der_prefix[];

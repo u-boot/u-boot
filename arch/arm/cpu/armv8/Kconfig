@@ -220,6 +220,16 @@ config ARMV8_CE_SHA256
 	bool "SHA-256 digest algorithm (ARMv8 Crypto Extensions)"
 	default y if SHA256
 
+config ARMV8_CE_SHA512
+	bool "SHA-512 digest algorithm (ARMv8 Crypto Extensions)"
+	depends on SHA512 && !SHA512_MBEDTLS
+	default y
+	help
+	  Use the SHA512H, SHA512H2, SHA512SU0 and SHA512SU1 instructions of
+	  the ARMv8.2 Crypto Extensions for SHA-384 and SHA-512. They are
+	  optional (ID_AA64ISAR0_EL1.SHA2 == 0b0010); on a CPU without them
+	  the generic C implementation is used.
+
 endif
 
 endif
