@@ -16,20 +16,26 @@ For configuration verification:
 
 import pytest
 
-# defauld mmc id
-mmc_dev = 1
 temp_addr = 0x90000000
 temp_addr2 = 0x90002000
 
+@pytest.fixture(scope='function')
+def avb_device_id(ubman):
+    """Returns the device id number for AVB
+    """
+
+    # default mmc id
+    return 1
+
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_avb_verify(ubman):
+def test_avb_verify(ubman, avb_device_id):
     """Run AVB 2.0 boot verification chain with avb subset of commands
     """
 
     success_str = "Verification passed successfully"
 
-    response = ubman.run_command('avb init %x' % mmc_dev)
+    response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
     response = ubman.run_command('avb verify')
     assert response.find(success_str)
@@ -38,15 +44,15 @@ def test_avb_verify(ubman):
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.notbuildconfigspec('sandbox')
-def test_avb_mmc_uuid(ubman):
+def test_avb_mmc_uuid(ubman, avb_device_id):
     """Check if 'avb get_uuid' works, compare results with
     'part list mmc 1' output
     """
 
-    response = ubman.run_command('avb init %x' % mmc_dev)
+    response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
 
-    response = ubman.run_command('mmc rescan; mmc dev %d' % mmc_dev)
+    response = ubman.run_command('mmc rescan; mmc dev %d' % avb_device_id)
     assert response.find('is current device')
 
     part_lines = ubman.run_command('mmc part').splitlines()
@@ -70,11 +76,11 @@ def test_avb_mmc_uuid(ubman):
 
 
 @pytest.mark.buildconfigspec('cmd_avb')
-def test_avb_read_rb(ubman):
+def test_avb_read_rb(ubman, avb_device_id):
     """Test reading rollback indexes
     """
 
-    response = ubman.run_command('avb init %x' % mmc_dev)
+    response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
 
     response = ubman.run_command('avb read_rb 1')
@@ -82,11 +88,11 @@ def test_avb_read_rb(ubman):
 
 
 @pytest.mark.buildconfigspec('cmd_avb')
-def test_avb_is_unlocked(ubman):
+def test_avb_is_unlocked(ubman, avb_device_id):
     """Test if device is in the unlocked state
     """
 
-    response = ubman.run_command('avb init %x' % mmc_dev)
+    response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
 
     response = ubman.run_command('avb is_unlocked')
@@ -96,17 +102,17 @@ def test_avb_is_unlocked(ubman):
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.notbuildconfigspec('sandbox')
-def test_avb_mmc_read(ubman):
+def test_avb_mmc_read(ubman, avb_device_id):
     """Test mmc read operation
     """
 
-    response = ubman.run_command('mmc rescan; mmc dev %d 0' % mmc_dev)
+    response = ubman.run_command('mmc rescan; mmc dev %d 0' % avb_device_id)
     assert response.find('is current device')
 
     response = ubman.run_command('mmc read 0x%x 0x100 0x1' % temp_addr)
     assert response.find('read: OK')
 
-    response = ubman.run_command('avb init %x' % mmc_dev)
+    response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
 
     response = ubman.run_command('avb read_part xloader 0 100 0x%x' %
@@ -121,11 +127,11 @@ def test_avb_mmc_read(ubman):
 
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('optee_ta_avb')
-def test_avb_persistent_values(ubman):
+def test_avb_persistent_values(ubman, avb_device_id):
     """Test reading/writing persistent storage to avb
     """
 
-    response = ubman.run_command('avb init %x' % mmc_dev)
+    response = ubman.run_command('avb init %x' % avb_device_id)
     assert response == ''
 
     response = ubman.run_command('avb write_pvalue test value_value')
