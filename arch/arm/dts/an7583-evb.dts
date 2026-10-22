@@ -65,3 +65,21 @@
 &snfi {
 	status = "okay";
 };
+
+&gdm1 {
+	status = "okay";
+};
+
+&gdm2 {
+	status = "okay";
+
+	managed = "in-band-status";
+	phy-mode = "usxgmii";
+};
+
+&gdm3 {
+	status = "okay";
+
+	managed = "in-band-status";
+	phy-mode = "2500base-x";
+};
