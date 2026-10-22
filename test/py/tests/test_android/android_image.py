@@ -13,20 +13,6 @@ def setup_android_image(ubman):
     parts = {}
     disk_data = None
 
-    def set_part_data(partnum, data):
-        """Set the contents of a disk partition
-
-        This updates disk_data by putting data in the right place
-
-        Args:
-            partnum (int): Partition number to set
-            data (bytes): Data for that partition
-        """
-        nonlocal disk_data
-
-        start = parts[partnum].start * sect_size
-        disk_data = disk_data[:start] + data + disk_data[start + len(data):]
-
     mmc_dev = 7
     fname = os.path.join(ubman.config.source_dir, f'mmc{mmc_dev}.img')
     utils.run_and_log(ubman, f'qemu-img create {fname} 20M')
@@ -68,15 +54,17 @@ def setup_android_image(ubman):
     with open(fname, 'rb') as inf:
         disk_data = inf.read()
 
-    test_abootimg.AbootimgTestDiskImage(ubman, 'bootv4.img', test_abootimg.boot_img_hex)
-    boot_img = os.path.join(ubman.config.result_dir, 'bootv4.img')
-    with open(boot_img, 'rb') as inf:
-        set_part_data(2, inf.read())
-
-    test_abootimg.AbootimgTestDiskImage(ubman, 'vendor_boot.img', test_abootimg.vboot_img_hex)
-    vendor_boot_img = os.path.join(ubman.config.result_dir, 'vendor_boot.img')
-    with open(vendor_boot_img, 'rb') as inf:
-        set_part_data(4, inf.read())
+    images = [
+        (2, 'bootv4.img', test_abootimg.boot_img_hex),
+        (4, 'vendor_boot.img', test_abootimg.vboot_img_hex),
+    ]
+    for partnum, img_name, hex_data in images:
+        test_abootimg.AbootimgTestDiskImage(ubman, img_name, hex_data)
+        img_path = os.path.join(ubman.config.result_dir, img_name)
+        with open(img_path, 'rb') as inf:
+            data = inf.read()
+        start = parts[partnum].start * sect_size
+        disk_data = disk_data[:start] + data + disk_data[start + len(data):]
 
     with open(fname, 'wb') as outf:
         outf.write(disk_data)
@@ -120,10 +108,16 @@ def setup_android_image(ubman):
     with open(fname, 'rb') as inf:
         disk_data = inf.read()
 
-    test_abootimg.AbootimgTestDiskImage(ubman, 'boot.img', test_abootimg.img_hex)
-    boot_img = os.path.join(ubman.config.result_dir, 'boot.img')
-    with open(boot_img, 'rb') as inf:
-        set_part_data(2, inf.read())
+    images = [
+        (2, 'boot.img', test_abootimg.img_hex),
+    ]
+    for partnum, img_name, hex_data in images:
+        test_abootimg.AbootimgTestDiskImage(ubman, img_name, hex_data)
+        img_path = os.path.join(ubman.config.result_dir, img_name)
+        with open(img_path, 'rb') as inf:
+            data = inf.read()
+        start = parts[partnum].start * sect_size
+        disk_data = disk_data[:start] + data + disk_data[start + len(data):]
 
     with open(fname, 'wb') as outf:
         outf.write(disk_data)
