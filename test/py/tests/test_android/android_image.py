@@ -95,7 +95,22 @@ def setup_android_v2_image(ubman):
     ]
     create_gpt_image(ubman, 8, required_parts, images)
 
+def setup_android_avb_image(ubman):
+    """Create mmc12.img: boot image v2 with vbmeta.img."""
+
+    required_parts = [
+        {'num': 1, 'label':'boot', 'size': '4M'},
+        {'num': 2, 'label':'system', 'size': '4M'},
+        {'num': 3, 'label':'vbmeta', 'size': '4M'},
+    ]
+    images = [
+        (1, 'boot.img', test_abootimg.img_hex),
+        (3, 'vbmeta.img', test_abootimg.vbmeta_img_hex),
+    ]
+    create_gpt_image(ubman, 12, required_parts, images)
+
 def setup_android_image(ubman):
     """Create disk images with Android partitions."""
     setup_android_v4_image(ubman)
     setup_android_v2_image(ubman)
+    setup_android_avb_image(ubman)

@@ -13,8 +13,11 @@ For configuration verification:
 - Corrupt boot partition and check for failure
 - Corrupt vbmeta partition and check for failure
 """
+import os
 
 import pytest
+import shutil
+from android_image import setup_android_avb_image
 
 temp_addr = 0x90000000
 temp_addr2 = 0x90002000
@@ -22,10 +25,36 @@ temp_addr2 = 0x90002000
 @pytest.fixture(scope='function')
 def avb_device_id(ubman):
     """Returns the device id number for AVB
+
+    On sandbox, creates mmc12.img and binds the disabled mmc12 DT node.
+    On other boards, defaults to device 1.
     """
+    if ubman.config.buildconfig.get('config_sandbox'):
+        if not ubman.config.buildconfig.get('config_cmd_bind'):
+            pytest.skip('CMD_BIND required for AVB on sandbox')
+
+        required_host_tools = ['qemu-img', 'cgpt']
+        for tool in required_host_tools:
+            if shutil.which(tool) is None:
+                pytest.skip(f'tool "{tool}" not in $PATH')
+
+        mmc_dev = 0xc
+        fname = os.path.join(ubman.config.source_dir, f'mmc{mmc_dev}.img')
+        if not os.path.exists(fname):
+            setup_android_avb_image(ubman)
+
+        response = ubman.run_command(f'bind /mmc{mmc_dev} mmc_sandbox')
+        assert response == ''
+        # Run mmc list to ensure that mmc_sandbox driver is probed
+        ubman.run_command('mmc list')
+
+        yield mmc_dev
+
+        ubman.run_command(f'unbind /mmc{mmc_dev}')
+        return
 
     # default mmc id
-    return 1
+    yield 1
 
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('cmd_mmc')
