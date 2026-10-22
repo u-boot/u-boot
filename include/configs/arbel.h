@@ -33,6 +33,10 @@
 		"console=ttyS0,115200n8\0" \
 		"common_bootargs=setenv bootargs earlycon=${earlycon} root=/dev/ram " \
 		"console=${console} ramdisk_size=48000\0" \
+		"tftptimeout=1000\0" \
+		"tftptimeoutcountmax=50\0" \
+		"bootpretryperiod=60000\0" \
+		"stopwdt=wdt dev watchdog@901c; wdt stop\0" \
 		"\0"
 
 #endif

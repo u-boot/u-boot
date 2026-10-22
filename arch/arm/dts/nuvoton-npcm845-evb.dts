@@ -152,7 +152,7 @@
 &gmac0 {
 	phy-mode = "sgmii";
 	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 1000000>;
+	snps,reset-delays-us = <0 10000 300000>;
 	snps,reset-gpio = <&gpio5 30 GPIO_ACTIVE_LOW>;    /* gpio190 */
 	status = "okay";
 };
@@ -160,7 +160,7 @@
 &gmac1 {
 	phy-mode = "rgmii-id";
 	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 1000000>;
+	snps,reset-delays-us = <0 10000 300000>;
 	snps,reset-gpio = <&gpio5 2 GPIO_ACTIVE_LOW>;    /* gpio162 */
 	phy-supply = <&vsbr2>;
 	phy-supply-microvolt = <1800000>;
@@ -189,7 +189,7 @@
 	snps,mdc-gpio = <&gpio2 27 GPIO_ACTIVE_HIGH>;     /* gpio91 */
 	snps,mdio-gpio = <&gpio2 28 GPIO_ACTIVE_HIGH>;    /* gpio92 */
 	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 1000000>;
+	snps,reset-delays-us = <0 10000 300000>;
 	snps,bitbang-delay = <1>;
 	snps,reset-gpio = <&gpio2 29 GPIO_ACTIVE_LOW>;    /* gpio93 */
 	status = "okay";
