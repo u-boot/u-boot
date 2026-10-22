@@ -7,6 +7,7 @@
 #include <blk.h>
 #include <cpu_func.h>
 #include <image.h>
+#include <mapmem.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <part.h>
@@ -347,7 +348,7 @@ static unsigned long avb_blk_read_and_flush(struct avb_blk_part *part,
 	blks = blk_dread(part->blk,
 			 start, sectors, tmp_buf);
 	/* flush cache after read */
-	flush_cache((ulong)tmp_buf, sectors * part->info.blksz);
+	flush_cache(map_to_sysmem(tmp_buf), sectors * part->info.blksz);
 
 	if (unaligned)
 		memcpy(buffer, tmp_buf, sectors * part->info.blksz);
