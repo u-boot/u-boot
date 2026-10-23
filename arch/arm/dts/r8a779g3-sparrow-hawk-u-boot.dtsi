@@ -7,6 +7,10 @@
 
 #include "r8a779g0-u-boot.dtsi"
 
+/ {
+	/delete-node/ reserved-memory;
+};
+
 /* Page 31 / FAN */
 &gpio1 {
 	pwm-fan-hog {
