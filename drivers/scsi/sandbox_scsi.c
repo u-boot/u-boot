@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <scsi.h>
 #include <scsi_emul.h>
+#include <asm/test.h>
 
 enum {
 	SANDBOX_SCSI_BLOCK_LEN		= 512,
@@ -116,6 +117,13 @@ static int sandbox_scsi_probe(struct udevice *dev)
 	log_debug("filename: %s, fd %d\n", priv->pathname, priv->fd);
 
 	return 0;
+}
+
+void sandbox_scsi_set_block_size(struct udevice *dev, int block_size)
+{
+	struct sandbox_scsi_priv *priv = dev_get_priv(dev);
+
+	priv->eminfo.block_size = block_size;
 }
 
 static int sandbox_scsi_remove(struct udevice *dev)

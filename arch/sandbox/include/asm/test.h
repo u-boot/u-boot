@@ -134,6 +134,16 @@ int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str);
 void sandbox_flash_set_block_size(struct udevice *dev, int block_size);
 
 /**
+ * sandbox_scsi_set_block_size() - Set the block size a SCSI disk reports
+ *
+ * @dev:	Sandbox SCSI controller
+ * @block_size:	Block size in bytes
+ *
+ * The host reads it when it next scans the bus.
+ */
+void sandbox_scsi_set_block_size(struct udevice *dev, int block_size);
+
+/**
  * sandbox_osd_get_mem() - get the internal memory of a sandbox OSD
  *
  * @dev:	OSD device for which to access the internal memory for
