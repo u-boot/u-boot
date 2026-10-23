@@ -2008,9 +2008,9 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock,
 			}
 			ext4fs_indir3_size = blksz;
 		}
-		if ((le32_to_cpu(ext4fs_indir2_block[rblock
-						       /
-						       perblock_child]) <<
+		if ((le32_to_cpu(ext4fs_indir2_block[(rblock /
+						      perblock_child) %
+						     (blksz / 4)]) <<
 		     log2_blksz) != ext4fs_indir3_blkno) {
 			status =
 			    ext4fs_devread((lbaint_t)le32_to_cpu
