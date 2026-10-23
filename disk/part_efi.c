@@ -875,6 +875,33 @@ int gpt_repair_headers(struct blk_desc *desc)
 	return ret;
 }
 
+int part_get_gpt(struct blk_desc *desc, gpt_header *gpt_h, gpt_entry **gpt_pte)
+{
+	int r;
+
+	/* Find the GPT as find_valid_gpt() does */
+	r = is_gpt_valid(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, gpt_h, gpt_pte);
+	if (r == 1)
+		return 0;
+
+	if (is_gpt_valid(desc, desc->lba - 1, gpt_h, gpt_pte) != 1) {
+		/* is_gpt_valid() may leave a freed array here */
+		*gpt_pte = NULL;
+		return -EINVAL;
+	}
+
+	/*
+	 * If the primary GPT is not valid, give the backup header as the
+	 * primary header that gpt_repair_headers() writes from it. A primary
+	 * header marked to be ignored (ChromeOS) is never repaired, so give
+	 * the backup header as it is then.
+	 */
+	if (r != 2)
+		restore_primary_gpt_header(gpt_h, desc);
+
+	return 0;
+}
+
 int gpt_verify_partitions(struct blk_desc *desc,
 			  struct disk_partition *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte)

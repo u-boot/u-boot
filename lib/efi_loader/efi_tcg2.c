@@ -16,6 +16,8 @@
 #include <efi_tcg2.h>
 #include <log.h>
 #include <malloc.h>
+#include <memalign.h>
+#include <part.h>
 #include <smbios.h>
 #include <version_string.h>
 #include <tpm_api.h>
@@ -1157,11 +1159,11 @@ tcg2_measure_gpt_data(struct udevice *dev,
 {
 	efi_status_t ret;
 	efi_handle_t handle;
-	struct efi_handler *dp_handler, *io_handler;
+	struct efi_handler *dp_handler;
 	struct efi_device_path *orig_device_path;
 	struct efi_device_path *device_path;
 	struct efi_device_path *dp;
-	struct efi_block_io *block_io;
+	struct blk_desc *desc;
 	struct efi_gpt_data *event = NULL;
 	efi_guid_t null_guid = NULL_GUID;
 	gpt_header *gpt_h;
@@ -1170,7 +1172,6 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	u32 num_of_valid_entry = 0;
 	u32 event_size;
 	u32 i;
-	u32 total_gpt_entry_size;
 
 	ret = efi_search_protocol(&loaded_image->header,
 				  &efi_guid_loaded_image_device_path,
@@ -1202,39 +1203,36 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	if (ret != EFI_SUCCESS)
 		goto out1;
 
-	ret = efi_search_protocol(handle, &efi_block_io_guid, &io_handler);
-	if (ret != EFI_SUCCESS)
+	/*
+	 * Measure the GPT the partitions were found in: read it with the
+	 * partition driver's own code, which checks it and uses the backup GPT
+	 * if the primary one is not valid. Only a block device of U-Boot's has
+	 * partitions found by it.
+	 */
+	if (!handle->dev || device_get_uclass_id(handle->dev) != UCLASS_BLK) {
+		log_debug("Not a U-Boot block device, GPT not measured\n");
+		ret = EFI_SUCCESS;
 		goto out1;
-	block_io = io_handler->protocol_interface;
+	}
+	desc = dev_get_uclass_plat(handle->dev);
 
-	gpt_h = memalign(block_io->media->io_align, block_io->media->block_size);
+	gpt_h = malloc_cache_aligned(desc->blksz);
 	if (!gpt_h) {
 		ret = EFI_OUT_OF_RESOURCES;
 		goto out2;
 	}
 
-	ret = EFI_CALL(block_io->read_blocks(block_io,
-					     block_io->media->media_id, 1,
-					     block_io->media->block_size,
-					     gpt_h));
-	if (ret != EFI_SUCCESS)
-		goto out2;
-
-	/* read GPT entry */
-	total_gpt_entry_size = gpt_h->num_partition_entries *
-			       gpt_h->sizeof_partition_entry;
-	entry = memalign(block_io->media->io_align, total_gpt_entry_size);
-	if (!entry) {
-		ret = EFI_OUT_OF_RESOURCES;
+	/*
+	 * The disk may have changed since its partitions were found, or not
+	 * read. Measure no GPT then, but return success, as an error would
+	 * skip the separators.
+	 */
+	if (part_get_gpt(desc, gpt_h, &entry)) {
+		log_warning("%s: No valid GPT read, not measured\n",
+			    handle->dev->name);
+		ret = EFI_SUCCESS;
 		goto out2;
 	}
-
-	ret = EFI_CALL(block_io->read_blocks(block_io,
-					     block_io->media->media_id,
-					     gpt_h->partition_entry_lba,
-					     total_gpt_entry_size, entry));
-	if (ret != EFI_SUCCESS)
-		goto out2;
 
 	/* count valid GPT entry */
 	gpt_e = entry;

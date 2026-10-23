@@ -328,6 +328,7 @@ static int gpt_sizes_check(struct unit_test_state *uts, struct udevice *dev,
 	struct blk_desc *desc;
 	struct udevice *blk;
 	gpt_entry *gpt_pte;
+	gpt_header orig, written, backup;
 	void *entries;
 	int i, ret;
 
@@ -341,6 +342,8 @@ static int gpt_sizes_check(struct unit_test_state *uts, struct udevice *dev,
 	disk_partition_set_uuid(&parts[0],
 				"a2a0d0eb-e5b9-3344-87c0-68b6b72699c7");
 	ut_assertok(gpt_restore(desc, str_disk_guid, parts, 1));
+	ut_asserteq(1, blk_dread(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, 1, hdr));
+	memcpy(&orig, hdr, sizeof(orig));
 
 	for (i = 0; i < ARRAY_SIZE(cases); i++) {
 		u32 header_size = cases[i].header_size;
@@ -365,6 +368,22 @@ static int gpt_sizes_check(struct unit_test_state *uts, struct udevice *dev,
 						      header_size));
 		ut_asserteq(1, blk_dwrite(desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 					  1, hdr));
+		memcpy(&written, hdr, sizeof(written));
+
+		/*
+		 * efi_tcg2 measures the GPT this gives: the header just
+		 * written if it is valid, else the backup header turned into
+		 * the primary one, which is then the header gpt_restore() wrote
+		 */
+		memset(hdr, '\0', 2 * blksz);
+		gpt_pte = NULL;
+		ret = part_get_gpt(desc, hdr, &gpt_pte);
+		free(gpt_pte);
+		ut_assertf(!ret, "case %d: GPT not found: %d\n", i, ret);
+		if (cases[i].ret)
+			ut_asserteq_mem(&orig, hdr, sizeof(gpt_header));
+		else
+			ut_asserteq_mem(&written, hdr, sizeof(gpt_header));
 
 		/*
 		 * Read it back into a buffer as large as the one above, so
@@ -396,6 +415,45 @@ static int gpt_sizes_check(struct unit_test_state *uts, struct udevice *dev,
 		ut_asserteq_64(parts[0].size, info.size);
 	}
 
+	/*
+	 * A primary header marked to be ignored is never repaired, so the
+	 * backup header is given as it is
+	 */
+	memset(hdr, '\0', 2 * blksz);
+	memcpy(hdr, &orig, sizeof(orig));
+	hdr->signature = cpu_to_le64(GPT_HEADER_CHROMEOS_IGNORE);
+	ut_asserteq(1, blk_dwrite(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, 1,
+				  hdr));
+	ut_asserteq(1, blk_dread(desc, lba - 1, 1, hdr));
+	memcpy(&backup, hdr, sizeof(backup));
+	memset(hdr, '\0', 2 * blksz);
+	gpt_pte = NULL;
+	ret = part_get_gpt(desc, hdr, &gpt_pte);
+	free(gpt_pte);
+	ut_assertok(ret);
+	ut_asserteq_64(lba - 1, le64_to_cpu(hdr->my_lba));
+	ut_asserteq_mem(&backup, hdr, sizeof(gpt_header));
+
+	/*
+	 * With the primary header valid again but not its entries, and the
+	 * backup header broken, there is no GPT left, and no entries either
+	 */
+	memset(hdr, '\0', 2 * blksz);
+	memcpy(hdr, &orig, sizeof(orig));
+	ut_asserteq(1, blk_dwrite(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, 1,
+				  hdr));
+	ut_asserteq(1, blk_dread(desc, le64_to_cpu(orig.partition_entry_lba),
+				 1, hdr));
+	((gpt_entry *)hdr)->partition_name[0] ^= 1;
+	ut_asserteq(1, blk_dwrite(desc, le64_to_cpu(orig.partition_entry_lba),
+				  1, hdr));
+	ut_asserteq(1, blk_dread(desc, lba - 1, 1, hdr));
+	hdr->signature = 0;
+	ut_asserteq(1, blk_dwrite(desc, lba - 1, 1, hdr));
+	gpt_pte = (gpt_entry *)hdr;
+	ut_asserteq(-EINVAL, part_get_gpt(desc, hdr, &gpt_pte));
+	ut_assertnull(gpt_pte);
+
 	return 0;
 }
 
@@ -403,7 +461,8 @@ static int gpt_sizes_check(struct unit_test_state *uts, struct udevice *dev,
  * A GPT header gives its own size and the size of its partition entries, and
  * its CRCs cover only what those say, so a CRC does not show that either size
  * is one the parser can use. Check that a primary header with a size the
- * parser cannot use is refused, CRCs or not, and that the backup is used.
+ * parser cannot use is refused, CRCs or not, and that the backup is used, for
+ * the GPT efi_tcg2 measures too.
  */
 static int lib_test_gpt_sizes(struct unit_test_state *uts)
 {
