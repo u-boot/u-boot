@@ -998,6 +998,41 @@ err:
 	return -EINVAL;
 }
 
+/**
+ * ext4fs_inode_to_group() - get the block group of an inode
+ *
+ * The inode number may come from disk, so check it before it is used to
+ * index the inode bitmaps and group descriptors: as Linux ext4_valid_inum()
+ * does, it must be the root or a non-reserved inode within the inode count,
+ * and its block group must be inside the filesystem.
+ *
+ * @fs:		filesystem
+ * @inodeno:	inode number
+ * Return:	block group of @inodeno, or -EINVAL if it is not a valid inode
+ */
+int ext4fs_inode_to_group(struct ext_filesystem *fs, int inodeno)
+{
+	struct ext2_sblock *sblock = &ext4fs_root->sblock;
+	uint32_t first_ino = EXT2_GOOD_OLD_FIRST_INO;
+	uint32_t group;
+
+	if (le32_to_cpu(sblock->revision_level) != EXT2_GOOD_OLD_REV)
+		first_ino = le32_to_cpu(sblock->first_inode);
+	if (inodeno != EXT2_ROOT_INO &&
+	    (inodeno < 1 || (uint32_t)inodeno < first_ino ||
+	     (uint32_t)inodeno > le32_to_cpu(sblock->total_inodes)))
+		goto err;
+
+	group = (inodeno - 1) / le32_to_cpu(sblock->inodes_per_group);
+	if (group >= fs->no_blkgrp)
+		goto err;
+
+	return group;
+err:
+	printf("Invalid inode number %d\n", inodeno);
+	return -EINVAL;
+}
+
 uint32_t ext4fs_get_new_blk_no(void)
 {
 	short i;
@@ -1131,7 +1166,7 @@ int ext4fs_get_new_inode_no(void)
 {
 	short i;
 	short status;
-	unsigned int ibmap_idx;
+	int ibmap_idx;
 	static int prev_inode_bitmap_index = -1;
 	unsigned int inodes_per_grp = le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
 	struct ext_filesystem *fs = get_fs();
@@ -1191,8 +1226,14 @@ int ext4fs_get_new_inode_no(void)
 	} else {
 restart:
 		fs->curr_inode_no++;
-		/* get the blockbitmap index respective to blockno */
-		ibmap_idx = fs->curr_inode_no / inodes_per_grp;
+		/* no free inode left after the last one allocated */
+		if (fs->curr_inode_no >
+		    le32_to_cpu(ext4fs_root->sblock.total_inodes))
+			goto fail;
+		/* get the inode bitmap index respective to inode no */
+		ibmap_idx = ext4fs_inode_to_group(fs, fs->curr_inode_no);
+		if (ibmap_idx < 0)
+			goto fail;
 		struct ext2_block_group *bgd =
 			ext4fs_get_group_descriptor(fs, ibmap_idx);
 		uint16_t bg_flags = ext4fs_bg_get_flags(bgd);
@@ -1210,7 +1251,7 @@ restart:
 		if (ext4fs_set_inode_bmap(fs->curr_inode_no,
 					  fs->inode_bmaps[ibmap_idx],
 					  ibmap_idx) != 0) {
-			debug("going for restart for the block no %d %u\n",
+			debug("going for restart for the block no %d %d\n",
 			      fs->curr_inode_no, ibmap_idx);
 			goto restart;
 		}

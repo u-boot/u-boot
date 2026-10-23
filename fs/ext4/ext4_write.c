@@ -473,6 +473,9 @@ static int ext4fs_delete_file(int inodeno)
 	char *journal_buffer = zalloc(fs->blksz);
 	if (!journal_buffer)
 		return -ENOMEM;
+	ibmap_idx = ext4fs_inode_to_group(fs, inodeno);
+	if (ibmap_idx < 0)
+		goto fail;
 	status = ext4fs_read_inode(ext4fs_root, inodeno, &inode);
 	if (status == 0)
 		goto fail;
@@ -539,7 +542,6 @@ static int ext4fs_delete_file(int inodeno)
 	/* release inode */
 	/* from the inode no to blockno */
 	inodes_per_block = fs->blksz / fs->inodesz;
-	ibmap_idx = inodeno / inode_per_grp;
 
 	/* get the block no */
 	inodeno--;
@@ -892,7 +894,8 @@ int ext4fs_write(const char *fname, const char *buffer,
 	long int blkoff;
 	struct ext2_sblock *sblock = &(ext4fs_root->sblock);
 	unsigned int inodes_per_block;
-	unsigned int ibmap_idx;
+	int ibmap_idx;
+	int parent_ibmap_idx;
 	struct ext2_block_group *bgd = NULL;
 	struct ext_filesystem *fs = get_fs();
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
@@ -928,6 +931,9 @@ int ext4fs_write(const char *fname, const char *buffer,
 	inodes_per_block = fs->blksz / fs->inodesz;
 	parent_inodeno = ext4fs_get_parent_inode_num(fname, filename, F_FILE);
 	if (parent_inodeno == -1)
+		goto fail;
+	parent_ibmap_idx = ext4fs_inode_to_group(fs, parent_inodeno);
+	if (parent_ibmap_idx < 0)
 		goto fail;
 	if (ext4fs_iget(parent_inodeno, g_parent_inode))
 		goto fail;
@@ -1020,7 +1026,9 @@ int ext4fs_write(const char *fname, const char *buffer,
 	temp_ptr = zalloc(fs->blksz);
 	if (!temp_ptr)
 		goto fail;
-	ibmap_idx = inodeno / le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
+	ibmap_idx = ext4fs_inode_to_group(fs, inodeno);
+	if (ibmap_idx < 0)
+		goto fail;
 	inodeno--;
 	bgd = ext4fs_get_group_descriptor(fs, ibmap_idx);
 	itable_blkno = ext4fs_bg_get_inode_table_id(bgd, fs) +
@@ -1041,9 +1049,8 @@ int ext4fs_write(const char *fname, const char *buffer,
 		/* FIXME: Deallocate data blocks */
 		goto fail;
 	}
-	ibmap_idx = parent_inodeno / le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
 	parent_inodeno--;
-	bgd = ext4fs_get_group_descriptor(fs, ibmap_idx);
+	bgd = ext4fs_get_group_descriptor(fs, parent_ibmap_idx);
 	parent_itable_blkno = ext4fs_bg_get_inode_table_id(bgd, fs) +
 	    (parent_inodeno %
 	     le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;
