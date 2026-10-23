@@ -17,10 +17,12 @@
 #include <asm/io.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/regs-usbphy.h>
+#include <dm/device_compat.h>
 #include <dt-bindings/clock/vf610-clock.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
 #include <linux/usb/otg.h>
+#include <power/regulator.h>
 #include <usb/ehci-ci.h>
 
 #include "ehci.h"
@@ -43,6 +45,8 @@ struct ehci_vf_priv_data {
 	struct anadig_reg __iomem *anatop_addr;
 	void __iomem *phy_addr;
 	void __iomem *misc_addr;
+	struct udevice *dev;
+	struct udevice *vbus_supply;
 	u32 portnr;
 };
 
@@ -242,6 +246,13 @@ static int vf_init_after_reset(struct ehci_ctrl *dev)
 	if (ret)
 		return ret;
 
+	ret = regulator_set_enable_if_allowed(priv->vbus_supply,
+					      type != USB_INIT_DEVICE);
+	if (ret && ret != -ENOSYS) {
+		dev_err(priv->dev, "cannot enable the VBUS supply: %d\n", ret);
+		return ret;
+	}
+
 	if (type == USB_INIT_DEVICE)
 		return 0;
 
@@ -266,6 +277,16 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
+
+	priv->dev = dev;
+	ret = device_get_supply_regulator(dev, "vbus-supply",
+					  &priv->vbus_supply);
+	if (ret == -ENOENT || ret == -ENOSYS) {
+		dev_dbg(dev, "no VBUS supply\n");
+	} else if (ret) {
+		dev_err(dev, "cannot get the VBUS supply: %d\n", ret);
+		return ret;
+	}
 
 	if (priv->dr_mode == USB_DR_MODE_OTG) {
 		ret = gpio_request_by_name(dev, "fsl,cdet-gpio", 0,
@@ -322,6 +343,8 @@ static const struct udevice_id vf_usb_ids[] = {
 static int ehci_usb_remove(struct udevice *dev)
 {
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
+
+	regulator_set_enable_if_allowed(priv->vbus_supply, false);
 
 	if (dm_gpio_is_valid(&priv->cdet_gpio))
 		dm_gpio_free(dev, &priv->cdet_gpio);
