@@ -21,8 +21,8 @@
 #include <asm/mach-imx/regs-usbphy.h>
 #include <linux/delay.h>
 #include <usb/ehci-ci.h>
-#include <linux/libfdt.h>
 #include <fdtdec.h>
+#include <linux/usb/otg.h>
 
 #include "ehci.h"
 
@@ -150,29 +150,19 @@ int ehci_vf_common_init(struct usb_ehci *ehci, int index)
 	return 0;
 }
 
-/* Possible port types (dual role mode) */
-enum dr_mode {
-	DR_MODE_NONE = 0,
-	DR_MODE_HOST,		/* supports host operation */
-	DR_MODE_DEVICE,		/* supports device operation */
-	DR_MODE_OTG,		/* supports both */
-};
-
 struct ehci_vf_priv_data {
 	struct ehci_ctrl ctrl;
 	struct usb_ehci *ehci;
 	struct gpio_desc cdet_gpio;
 	enum usb_init_type init_type;
-	enum dr_mode dr_mode;
+	enum usb_dr_mode dr_mode;
 	u32 portnr;
 };
 
 static int vf_usb_of_to_plat(struct udevice *dev)
 {
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
-	const void *dt_blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
-	const char *mode;
 	fdt_addr_t phy_addr;
 	ofnode phy_node;
 	int i;
@@ -192,34 +182,32 @@ static int vf_usb_of_to_plat(struct udevice *dev)
 	priv->portnr = i;
 
 	priv->ehci = dev_read_addr_ptr(dev);
-	mode = fdt_getprop(dt_blob, node, "dr_mode", NULL);
-	if (mode) {
-		if (0 == strcmp(mode, "host")) {
-			priv->dr_mode = DR_MODE_HOST;
-			priv->init_type = USB_INIT_HOST;
-		} else if (0 == strcmp(mode, "peripheral")) {
-			priv->dr_mode = DR_MODE_DEVICE;
-			priv->init_type = USB_INIT_DEVICE;
-		} else if (0 == strcmp(mode, "otg")) {
-			priv->dr_mode = DR_MODE_OTG;
-			/*
-			 * We set init_type to device by default when OTG
-			 * mode is requested. If a valid gpio is provided
-			 * we will switch the init_type based on the state
-			 * of the gpio pin.
-			 */
-			priv->init_type = USB_INIT_DEVICE;
-		} else {
-			debug("%s: Cannot decode dr_mode '%s'\n",
-			      __func__, mode);
-			return -EINVAL;
-		}
-	} else {
-		priv->dr_mode = DR_MODE_HOST;
+	priv->dr_mode = usb_get_dr_mode(dev_ofnode(dev));
+	/* Handle legacy DTs without dr_mode property, fall back to host */
+	if (priv->dr_mode == USB_DR_MODE_UNKNOWN)
+		priv->dr_mode = USB_DR_MODE_HOST;
+
+	switch (priv->dr_mode) {
+	case USB_DR_MODE_HOST:
 		priv->init_type = USB_INIT_HOST;
+		break;
+	case USB_DR_MODE_PERIPHERAL:
+		priv->init_type = USB_INIT_DEVICE;
+		break;
+	case USB_DR_MODE_OTG:
+		/*
+		 * We set init_type to device by default when OTG
+		 * mode is requested. If a valid gpio is provided
+		 * we will switch the init_type based on the state
+		 * of the gpio pin.
+		 */
+		priv->init_type = USB_INIT_DEVICE;
+		break;
+	default:
+		return -EINVAL;
 	}
 
-	if (priv->dr_mode == DR_MODE_OTG) {
+	if (priv->dr_mode == USB_DR_MODE_OTG) {
 		gpio_request_by_name_nodev(offset_to_ofnode(node),
 					   "fsl,cdet-gpio", 0, &priv->cdet_gpio,
 					   GPIOD_IS_IN);
