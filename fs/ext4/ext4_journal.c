@@ -239,28 +239,6 @@ int ext4fs_put_metadata(char *metadata_buffer, uint32_t blknr)
 	return 0;
 }
 
-void print_revoke_blks(char *revk_blk)
-{
-	int offset;
-	int max;
-	long int blocknr;
-	struct journal_revoke_header_t *header;
-
-	if (revk_blk == NULL)
-		return;
-
-	header = (struct journal_revoke_header_t *) revk_blk;
-	offset = sizeof(struct journal_revoke_header_t);
-	max = be32_to_cpu(header->r_count);
-	printf("total bytes %d\n", max);
-
-	while (offset < max) {
-		blocknr = be32_to_cpu(*((__be32 *)(revk_blk + offset)));
-		printf("revoke blknr is %ld\n", blocknr);
-		offset += 4;
-	}
-}
-
 static struct revoke_blk_list *_get_node(void)
 {
 	struct revoke_blk_list *tmp_node;
@@ -430,7 +408,7 @@ void print_jrnl_status(int recovery_flag)
 
 int ext4fs_check_journal_state(int recovery_flag)
 {
-	int i;
+	unsigned int i, maxlen;
 	int DB_FOUND = NO;
 	long int blknr;
 	int transaction_state = TRANSACTION_COMPLETE;
@@ -440,6 +418,7 @@ int ext4fs_check_journal_state(int recovery_flag)
 	struct ext2_inode inode_journal;
 	struct journal_superblock_t *jsb = NULL;
 	struct journal_header_t *jdb = NULL;
+	struct journal_revoke_header_t *revoke;
 	char *p_jdb = NULL;
 	struct ext3_journal_block_tag *tag = NULL;
 	char *temp_buff = NULL;
@@ -482,13 +461,34 @@ int ext4fs_check_journal_state(int recovery_flag)
 		jsb->s_feature_compat |=
 				cpu_to_be32(JBD2_FEATURE_COMPAT_CHECKSUM);
 
+	/*
+	 * The scan does not follow a log that wraps around the end of the
+	 * journal, so it ends there. Keep the block indexes in the range
+	 * read_allocated_block() takes.
+	 */
+	maxlen = min_t(u32, be32_to_cpu(jsb->s_maxlen), INT_MAX);
 	i = be32_to_cpu(jsb->s_first);
 	while (1) {
+		if (i >= maxlen) {
+			print_jrnl_status(recovery_flag);
+			break;
+		}
+
 		blknr = read_allocated_block(&inode_journal, i, NULL);
+		if (blknr <= 0) {
+			print_jrnl_status(recovery_flag);
+			break;
+		}
 		memset(temp_buff1, '\0', fs->blksz);
 		ext4fs_devread((lbaint_t)blknr * fs->sect_perblk,
 			       0, fs->blksz, temp_buff1);
 		jdb = (struct journal_header_t *) temp_buff1;
+
+		/* A block that is not a journal block ends the log */
+		if (jdb->h_magic != cpu_to_be32(EXT3_JOURNAL_MAGIC_NUMBER)) {
+			print_jrnl_status(recovery_flag);
+			break;
+		}
 
 		if (be32_to_cpu(jdb->h_blocktype) ==
 		    EXT3_JOURNAL_DESCRIPTOR_BLOCK) {
@@ -547,16 +547,23 @@ int ext4fs_check_journal_state(int recovery_flag)
 				print_jrnl_status(recovery_flag);
 				break;
 			}
+			/*
+			 * check_blknr_for_revoke() walks the records up to
+			 * r_count bytes, which must lie inside the block
+			 */
+			revoke = (struct journal_revoke_header_t *)jdb;
+			if (be32_to_cpu(revoke->r_count) > fs->blksz) {
+				printf("Invalid revoke block\n");
+				print_jrnl_status(recovery_flag);
+				break;
+			}
 			if (recovery_flag == SCAN)
 				ext4fs_push_revoke_blk((char *)jdb);
 			i++;
 		} else {
-			debug("Else Case\n");
-			if (be32_to_cpu(jdb->h_sequence) !=
-			    be32_to_cpu(jsb->s_sequence)) {
-				print_jrnl_status(recovery_flag);
-				break;
-			}
+			/* An unknown block type ends the log, as for Linux */
+			print_jrnl_status(recovery_flag);
+			break;
 		}
 	}
 
