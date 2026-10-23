@@ -6,6 +6,7 @@
 
 #include <clk.h>
 #include <dm.h>
+#include <fdtdec.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
@@ -44,32 +45,57 @@ static int mtk_infracfg_clear_bus_protection(void __iomem *infracfg,
 				  !(val & mask), 100);
 }
 
-static int _scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
-				      void __iomem *reg)
+static void __iomem *scpsys_bus_prot_reg(struct mtk_scpsys *scpsys,
+					 struct mtk_scp_domain *domain, u8 block)
 {
+	switch (block) {
+	case BUS_PROT_BLOCK_INFRA_NAO:
+		return domain->infracfg_nao;
+	case BUS_PROT_BLOCK_SMI:
+		return domain->smi;
+	case BUS_PROT_BLOCK_INFRA:
+	default:
+		return domain->infracfg ?: scpsys->infracfg;
+	}
+}
+
+static int _scpsys_bus_protect_set(struct mtk_scpsys *scpsys,
+				   struct mtk_scp_domain *domain,
+				   const struct mtk_scpsys_bus_prot_data *bpd)
+{
+	void __iomem *reg = scpsys_bus_prot_reg(scpsys, domain, bpd->bus_prot_block);
+	void __iomem *sta_reg = scpsys_bus_prot_reg(scpsys, domain,
+						    bpd->bus_prot_sta_block);
 	u32 val = 0, mask = bpd->bus_prot_mask;
 	u32 sta_mask = bpd->bus_prot_sta_mask;
-
-	if (!mask)
-		return 0;
 
 	if (bpd->bus_prot_reg_update)
 		clrsetbits_le32(reg + bpd->bus_prot_set, mask, mask);
 	else
 		writel(mask, reg + bpd->bus_prot_set);
 
-	return readl_poll_timeout(reg + bpd->bus_prot_sta, val,
+	return readl_poll_timeout(sta_reg + bpd->bus_prot_sta, val,
 				  (val & sta_mask) == sta_mask, 1000);
 }
 
-static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
-				       void __iomem *reg)
+static int _scpsys_bus_protect_clear(struct mtk_scpsys *scpsys,
+				     struct mtk_scp_domain *domain,
+				     const struct mtk_scpsys_bus_prot_data *bpd)
 {
+	void __iomem *reg = scpsys_bus_prot_reg(scpsys, domain, bpd->bus_prot_block);
+	void __iomem *sta_reg = scpsys_bus_prot_reg(scpsys, domain,
+						    bpd->bus_prot_sta_block);
 	u32 val = 0, mask = bpd->bus_prot_mask;
 	u32 sta_mask = bpd->bus_prot_sta_mask;
+	u32 expected_ack;
 
-	if (!mask)
-		return 0;
+	/*
+	 * The infracfg-nao mirror reports a released way-enable protection by
+	 * reading the status bits back as set, unlike the regular acknowledge
+	 * which clears to zero.
+	 */
+	expected_ack = bpd->bus_prot_sta_block == BUS_PROT_BLOCK_INFRA_NAO ?
+		       sta_mask : 0;
 
 	if (bpd->bus_prot_reg_update)
 		clrbits_le32(reg + bpd->bus_prot_clr, mask);
@@ -79,20 +105,24 @@ static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bp
 	if (bpd->ignore_clr_ack)
 		return 0;
 
-	return readl_poll_timeout(reg + bpd->bus_prot_sta, val,
-				  !(val & sta_mask), 1000);
+	return readl_poll_timeout(sta_reg + bpd->bus_prot_sta, val,
+				  (val & sta_mask) == expected_ack, 1000);
 }
 
-static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
-				     int bpd_size, void __iomem *reg, bool subclk)
+static int scpsys_bus_protect_enable(struct mtk_scpsys *scpsys,
+				     struct mtk_scp_domain *domain, bool subclk)
 {
+	const struct mtk_scpsys_bus_prot_data *bpd = domain->data->bp_cfg;
 	int ret, i;
 
-	for (i = 0; i < bpd_size; i++) {
-		if (bpd[i].subclk != subclk)
+	for (i = 0; i < SPM_MAX_BUS_PROT_DATA; i++) {
+		if (!bpd[i].bus_prot_mask || bpd[i].subclk != subclk)
 			continue;
 
-		ret = _scpsys_bus_protect_enable(&bpd[i], reg);
+		if (bpd[i].bus_prot_inverted)
+			ret = _scpsys_bus_protect_clear(scpsys, domain, &bpd[i]);
+		else
+			ret = _scpsys_bus_protect_set(scpsys, domain, &bpd[i]);
 		if (ret)
 			return ret;
 	}
@@ -100,16 +130,20 @@ static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
 	return 0;
 }
 
-static int scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
-				      int bpd_size, void __iomem *reg, bool subclk)
+static int scpsys_bus_protect_disable(struct mtk_scpsys *scpsys,
+				      struct mtk_scp_domain *domain, bool subclk)
 {
+	const struct mtk_scpsys_bus_prot_data *bpd = domain->data->bp_cfg;
 	int i, ret;
 
-	for (i = bpd_size - 1; i >= 0; i--) {
-		if (bpd[i].subclk != subclk)
+	for (i = SPM_MAX_BUS_PROT_DATA - 1; i >= 0; i--) {
+		if (!bpd[i].bus_prot_mask || bpd[i].subclk != subclk)
 			continue;
 
-		ret = _scpsys_bus_protect_disable(&bpd[i], reg);
+		if (bpd[i].bus_prot_inverted)
+			ret = _scpsys_bus_protect_set(scpsys, domain, &bpd[i]);
+		else
+			ret = _scpsys_bus_protect_clear(scpsys, domain, &bpd[i]);
 		if (ret)
 			return ret;
 	}
@@ -200,14 +234,20 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 	 * Some domains split the bus protection policy in two: one part has to
 	 * be released before the subsys clocks are enabled and the rest after.
 	 */
-	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
-					 infracfg, true);
+	ret = scpsys_bus_protect_disable(scpsys, domain, true);
 	if (ret < 0)
 		return ret;
 
-	ret = clk_enable_bulk(&domain->subsys_clks);
-	if (ret)
-		return ret;
+	/*
+	 * On domains with a stricter bus protection policy, the subsys clocks
+	 * must not be enabled until bus protection is fully released below,
+	 * instead of here.
+	 */
+	if (!(data->caps & MTK_SCPD_STRICT_BUS_PROTECTION)) {
+		ret = clk_enable_bulk(&domain->subsys_clks);
+		if (ret)
+			return ret;
+	}
 
 	/*
 	 * An inverted sram_pdn bit is set, not cleared, to power the SRAM up,
@@ -241,10 +281,15 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 		if (ret)
 			return ret;
 	}
-	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
-					 infracfg, false);
+	ret = scpsys_bus_protect_disable(scpsys, domain, false);
 	if (ret < 0)
 		return ret;
+
+	if (data->caps & MTK_SCPD_STRICT_BUS_PROTECTION) {
+		ret = clk_enable_bulk(&domain->subsys_clks);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -279,8 +324,7 @@ static int mtk_scpsys_power_off(struct power_domain *power_domain)
 			return ret;
 	}
 
-	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
-					infracfg, false);
+	ret = scpsys_bus_protect_enable(scpsys, domain, false);
 	if (ret < 0)
 		return ret;
 
@@ -312,8 +356,7 @@ static int mtk_scpsys_power_off(struct power_domain *power_domain)
 	if (ret)
 		return ret;
 
-	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
-					infracfg, true);
+	ret = scpsys_bus_protect_enable(scpsys, domain, true);
 	if (ret < 0)
 		return ret;
 
@@ -395,6 +438,7 @@ static int mtk_scpsys_add_one_domain(struct udevice *dev, ofnode node, int paren
 	struct mtk_scp_domain *domain;
 	struct regmap *regmap;
 	const char *clk_name;
+	fdt_addr_t addr;
 	int i, ret, num_clks;
 	u32 id;
 
@@ -429,6 +473,65 @@ static int mtk_scpsys_add_one_domain(struct udevice *dev, ofnode node, int paren
 			return PTR_ERR(regmap);
 
 		domain->infracfg = regmap_get_range(regmap, 0);
+	}
+
+	/*
+	 * mediatek,infracfg-nao and mediatek,smi are deprecated but we need to
+	 * support them because mt8365.dtsi still uses them.
+	 */
+	if (ofnode_read_bool(node, "mediatek,infracfg-nao")) {
+		ret = ofnode_parse_phandle_with_args(node, "mediatek,infracfg-nao",
+						     NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(regmap))
+			return PTR_ERR(regmap);
+
+		domain->infracfg_nao = regmap_get_range(regmap, 0);
+	}
+
+	if (ofnode_read_bool(node, "mediatek,smi")) {
+		ret = ofnode_parse_phandle_with_args(node, "mediatek,smi",
+						     NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		/* The SMI common node has no "syscon" fallback compatible. */
+		addr = ofnode_get_addr(args.node);
+		if (addr == FDT_ADDR_T_NONE)
+			return -ENOENT;
+
+		domain->smi = (void __iomem *)addr;
+	}
+
+	/*
+	 * If a domain's own bp_cfg has an entry targeting
+	 * BUS_PROT_BLOCK_INFRA_NAO/BUS_PROT_BLOCK_SMI but the corresponding
+	 * register block wasn't resolved, report a clear error for this domain
+	 * instead of leaving a NULL that gets dereferenced on first
+	 * power-on/off. That keeps the properties optional at the DT-binding
+	 * level while still catching a DT/driver mismatch early.
+	 */
+	for (i = 0; i < SPM_MAX_BUS_PROT_DATA; i++) {
+		const struct mtk_scpsys_bus_prot_data *bpd = &domain->data->bp_cfg[i];
+
+		if (!bpd->bus_prot_mask)
+			continue;
+
+		if ((bpd->bus_prot_block == BUS_PROT_BLOCK_INFRA_NAO ||
+		     bpd->bus_prot_sta_block == BUS_PROT_BLOCK_INFRA_NAO) &&
+		    !domain->infracfg_nao) {
+			dev_err(dev, "%s: missing mediatek,infracfg-nao\n",
+				ofnode_get_name(node));
+			return -EINVAL;
+		}
+
+		if (bpd->bus_prot_block == BUS_PROT_BLOCK_SMI && !domain->smi) {
+			dev_err(dev, "%s: missing mediatek,smi\n", ofnode_get_name(node));
+			return -EINVAL;
+		}
 	}
 
 	num_clks = ofnode_read_string_count(node, "clock-names");

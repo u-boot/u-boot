@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+config PHY_MTK_DP
+	bool "MediaTek DisplayPort PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	depends on ARM64
+	help
+	  Support for the embedded DisplayPort TX PHY found on MediaTek SoCs
+	  such as the MT8189. The PHY provides the main link lanes and the
+	  AUX channel to the eDP transmitter.
+
+config PHY_MTK_HDMI
+	bool "MediaTek HDMI-PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	depends on ARM64
+	depends on CLK
+	help
+	  Support for the HDMI TX PHY found on MediaTek SoCs such as the
+	  MT8188 and MT8195. The PHY provides the TMDS links and the pixel
+	  clock PLL to the HDMI TX controller.
+
+config PHY_MTK_MIPI_DSI
+	bool "MediaTek MIPI-DSI PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	depends on ARM64
+	depends on CLK
+	help
+	  Support for the MIPI TX D-PHY found on MediaTek SoCs such as the
+	  MT8183 and MT8365. The PHY provides the D-PHY lanes and their PLL.
+
+config PHY_MTK_TPHY
+	bool "MediaTek T-PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK || SOC_MT7621
+	select REGMAP
+	select SYSCON
+	help
+	  MediaTek T-PHY driver supports usb2.0, usb3.0 ports, PCIe and
+	  SATA, and meanwhile supports two version T-PHY which have
+	  different banks layout, the T-PHY with shared banks between
+	  multi-ports is first version, otherwise is second version,
+	  so you can easily distinguish them by banks layout.
+
+config PHY_MTK_UFS
+	bool "MediaTek UFS M-PHY driver"
+	depends on ARCH_MEDIATEK
+	depends on PHY
+	help
+	  Support for UFS M-PHY on MediaTek chipsets.
+	  Enable this to provide vendor-specific probing,
+	  initialization, power on and power off flow of
+	  specified M-PHYs.
+
+config PHY_MTK_XSPHY
+	bool "MediaTek XS-PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	select REGMAP
+	select SYSCON
+	help
+	  Enable this to support the SuperSpeedPlus XS-PHY transceiver for
+	  USB3.1 GEN2 controllers on MediaTek chips. The driver supports
+	  multiple USB2.0, USB3.1 GEN2 ports.

@@ -32,6 +32,7 @@ enum splash_storage {
 	SPLASH_STORAGE_USB,
 	SPLASH_STORAGE_SATA,
 	SPLASH_STORAGE_VIRTIO,
+	SPLASH_STORAGE_SCSI,
 };
 
 enum splash_flags {

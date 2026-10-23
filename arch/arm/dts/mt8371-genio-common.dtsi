@@ -55,12 +55,76 @@
 		enable-active-high;
 	};
 
-	usb_p4_vbus: regulator@4 {
+	backlight_lcd0: backlight-lcd0 {
+		compatible = "pwm-backlight";
+		pwms = <&disp_pwm0 0 500000>;
+		brightness-levels = <0 1023>;
+		num-interpolated-steps = <1023>;
+		default-brightness-level = <576>;
+	};
+
+	backlight_lcd1: backlight-lcd1 {
+		compatible = "pwm-backlight";
+		pwms = <&disp_pwm1 0 500000>;
+		brightness-levels = <0 1023>;
+		num-interpolated-steps = <1023>;
+		default-brightness-level = <576>;
+		power-supply = <&reg_edp_backlight_12v>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&edp_backlight_en_pins>;
+		enable-gpios = <&pio 108 GPIO_ACTIVE_HIGH>;
+		post-pwm-on-delay-ms = <1>;
+		status = "disabled";
+	};
+
+	reg_edp_panel_3v3: regulator-edp-panel-3v3 {
 		compatible = "regulator-fixed";
-		regulator-name = "p4_vbus";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		gpio = <&pio 87 0>;
+		regulator-name = "edp-panel-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&edp_panel_3v3_en_pins>;
+		gpio = <&pio 109 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		status = "disabled";
+	};
+
+	reg_edp_backlight_12v: regulator-edp-backlight-12v {
+		compatible = "regulator-fixed";
+		regulator-name = "edp-backlight-12v";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&edp_backlight_12v_en_pins>;
+		gpio = <&pio 110 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		status = "disabled";
+	};
+
+	reg_dsi0_vdd: regulator-dsi0-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "dsi0-vdd";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi0_vdd_pins>;
+		gpio = <&pio 87 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_dsi0_vddp: regulator-dsi0-vddp {
+		compatible = "regulator-fixed";
+		regulator-name = "dsi0-vddp";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi0_vddp_pins>;
+		gpio = <&pio 24 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_dsi0_iovcc: regulator-dsi0-iovcc {
+		compatible = "regulator-fixed";
+		regulator-name = "dsi0-iovcc";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi0_iovcc_pins>;
+		gpio = <&pio 58 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
@@ -124,6 +188,117 @@
 	status = "okay";
 };
 
+&disp_dvo0 {
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			dvo0_out: endpoint {
+				remote-endpoint = <&edp_in>;
+			};
+		};
+	};
+};
+
+&disp_ovl0_4l {
+	status = "okay";
+};
+
+&disp_pwm0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&disp_pwm0_pins>;
+	status = "okay";
+};
+
+&disp_pwm1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&disp_pwm1_pins>;
+};
+
+&disp_rdma0 {
+	status = "okay";
+};
+
+&dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	panel@0 {
+		compatible = "startek,kd070fhfid078", "himax,hx8279";
+		reg = <0>;
+		reset-gpios = <&pio 25 GPIO_ACTIVE_HIGH>;
+		enable-gpios = <&pio 13 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel0_pins>;
+		backlight = <&backlight_lcd0>;
+		vdd-supply = <&reg_dsi0_vdd>;
+		vddp-supply = <&reg_dsi0_vddp>;
+		iovcc-supply = <&reg_dsi0_iovcc>;
+		status = "okay";
+
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+
+	port {
+		dsi0_out: endpoint {
+			remote-endpoint = <&panel0_in>;
+		};
+	};
+};
+
+&edp_tx {
+	pinctrl-names = "default";
+	pinctrl-0 = <&edp_hpd_pins>;
+
+	aux-bus {
+		panel {
+			compatible = "edp-panel";
+			power-supply = <&reg_edp_panel_3v3>;
+			backlight = <&backlight_lcd1>;
+
+			port {
+				edp_panel_in: endpoint {
+					remote-endpoint = <&edp_out>;
+				};
+			};
+		};
+	};
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			edp_in: endpoint {
+				remote-endpoint = <&dvo0_out>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			edp_out: endpoint {
+				remote-endpoint = <&edp_panel_in>;
+				data-lanes = <0 1 2 3>;
+			};
+		};
+	};
+};
+
+&mipi_tx_config0 {
+	status = "okay";
+};
+
 &mmc0 {
 	bus-width = <8>;
 	max-frequency = <200000000>;
@@ -162,6 +337,10 @@
 	regulator-always-on;
 };
 
+&mutex0 {
+	status = "okay";
+};
+
 &nor_flash {
 	pinctrl-names = "default";
 	pinctrl-0 = <&nor_pins>;
@@ -178,6 +357,77 @@
 };
 
 &pio {
+	disp_pwm0_pins: disp-pwm0-pins {
+		pins {
+			pinmux = <PINMUX_GPIO29__FUNC_DISP_PWM0>;
+			output-high;
+		};
+	};
+
+	disp_pwm1_pins: disp-pwm1-pins {
+		pins {
+			pinmux = <PINMUX_GPIO30__FUNC_DISP_PWM1>;
+			output-high;
+		};
+	};
+
+	dsi0_iovcc_pins: dsi0-iovcc-pins {
+		pins {
+			pinmux = <PINMUX_GPIO58__FUNC_GPIO58>;
+			output-low;
+		};
+	};
+
+	dsi0_vdd_pins: dsi0-vdd-pins {
+		pins {
+			pinmux = <PINMUX_GPIO87__FUNC_GPIO87>;
+			output-low;
+		};
+	};
+
+	dsi0_vddp_pins: dsi0-vddp-pins {
+		pins {
+			pinmux = <PINMUX_GPIO24__FUNC_GPIO24>;
+			output-low;
+		};
+	};
+
+	edp_backlight_12v_en_pins: edp-backlight-12v-en-pins {
+		pins {
+			pinmux = <PINMUX_GPIO110__FUNC_GPIO110>;
+			output-low;
+		};
+	};
+
+	edp_backlight_en_pins: edp-backlight-en-pins {
+		pins {
+			pinmux = <PINMUX_GPIO108__FUNC_GPIO108>;
+			output-low;
+		};
+	};
+
+	edp_hpd_pins: edp-hpd-pins {
+		pins {
+			pinmux = <PINMUX_GPIO28__FUNC_EDP_TX_HPD>;
+			bias-pull-up;
+		};
+	};
+
+	edp_panel_3v3_en_pins: edp-panel-3v3-en-pins {
+		pins {
+			pinmux = <PINMUX_GPIO109__FUNC_GPIO109>;
+			output-low;
+		};
+	};
+
+	panel0_pins: panel0-pins {
+		pins {
+			pinmux = <PINMUX_GPIO13__FUNC_GPIO13>,
+				 <PINMUX_GPIO25__FUNC_GPIO25>;
+			output-high;
+		};
+	};
+
 	mmc0_default_pins: mmc0-default-pins {
 		pins-clk {
 			pinmux = <PINMUX_GPIO162__FUNC_MSDC0_CLK>;
@@ -376,6 +626,14 @@
 	};
 };
 
+&smi_disp_common {
+	status = "okay";
+};
+
+&smi_larb0 {
+	status = "okay";
+};
+
 &pmic {
 	interrupts-extended = <&pio 194 IRQ_TYPE_LEVEL_HIGH>;
 };
@@ -401,7 +659,6 @@
 };
 
 &xhci4{
-	vbus-supply = <&usb_p4_vbus>;
 	status = "okay";
 };
 

@@ -58,6 +58,12 @@ static struct splash_location default_splash_locations[] = {
 		.flags = SPLASH_STORAGE_FS,
 		.devpart = "0:1",
 	},
+	{
+		.name = "scsi_fs",
+		.storage = SPLASH_STORAGE_SCSI,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:1",
+	},
 };
 
 #ifdef CONFIG_VIDEO_LOGO
@@ -156,7 +162,7 @@ void splash_display_banner(void)
 
 /*
  * Common function to show a splash image if env("splashimage") is set.
- * For additional details please refer to doc/README.splashprepare.
+ * For additional details please refer to doc/develop/splash.rst.
  */
 int splash_display(void)
 {

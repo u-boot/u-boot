@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (c) 2026 BayLibre, SAS
+#
+# Author: Julien Stephan <jstephan@baylibre.com>
+
+# Display pipeline component helpers, selected by the output paths below
+config VIDEO_MEDIATEK_DISP_COMP
+	bool
+
+# mmsys routing, overlay and display RDMA, shared by the DSI and eDP paths
+config VIDEO_MEDIATEK_DISP_PIPELINE
+	bool
+
+# DPI timing generator programming, shared by the DPI and HDMI paths
+config VIDEO_MEDIATEK_DPI
+	bool
+
+config VIDEO_MEDIATEK_DSI
+	bool "DSI video path for MediaTek SoCs"
+	depends on VIDEO && ARCH_MEDIATEK
+	depends on ARM64 && CLK && PHY && POWER_DOMAIN
+	select MISC
+	select MTK_SMI
+	select PANEL
+	select PHY_MTK_MIPI_DSI
+	select SYSCON
+	select VIDEO_MEDIATEK_DISP_COMP
+	select VIDEO_MEDIATEK_DISP_PIPELINE
+	select VIDEO_MIPI_DSI
+	help
+	  Enable support for the DSI controller found on MediaTek SoCs such
+	  as the MT8365 and the MT8366. The driver drives the mmsys display
+	  pipeline (overlay, RDMA and, on the SoCs having one, the colour
+	  pipeline) to scan out the U-Boot framebuffer to a DSI panel.
+
+# DVO output stage, the eDP path's replacement for the DPI/DP_INTF block
+config VIDEO_MEDIATEK_DVO
+	bool
+	select MISC
+	select VIDEO_MEDIATEK_DISP_COMP
+
+config VIDEO_MEDIATEK_EDP
+	bool "eDP video path for MediaTek SoCs"
+	depends on VIDEO && ARCH_MEDIATEK
+	depends on ARM64 && CLK && PHY && POWER_DOMAIN
+	select ARM_SMCCC
+	select BACKLIGHT
+	select DM_REGULATOR
+	select I2C_EDID
+	select MISC
+	select MTK_SMI
+	select PHY_MTK_DP
+	select SYSCON
+	select VIDEO_MEDIATEK_DISP_COMP
+	select VIDEO_MEDIATEK_DISP_PIPELINE
+	select VIDEO_MEDIATEK_DVO
+	help
+	  Enable support for the embedded DisplayPort output found on
+	  MediaTek SoCs such as the MT8189. The driver drives the vdosys0
+	  display pipeline (OVL, RDMA, DVO) and the eDP transmitter, reads
+	  the EDID of the attached panel over the AUX channel and scans out
+	  the U-Boot framebuffer to it.
+
+config VIDEO_MEDIATEK_HDMI
+	bool "Video HDMI Support for MediaTek SoCs"
+	depends on VIDEO && ARCH_MEDIATEK
+	depends on ARM64 && CLK && DM_I2C && PHY && POWER_DOMAIN
+	select I2C_EDID
+	select MISC
+	select MTK_SMI
+	select PHY_MTK_HDMI
+	select SYS_I2C_DDC_MTK
+	select VIDEO_MEDIATEK_DISP_COMP
+	select VIDEO_MEDIATEK_DPI
+	help
+	  Enable support for the HDMI TX output found on recent MediaTek
+	  SoCs such as the MT8188. The driver reads the EDID of the
+	  connected display, selects its preferred mode and drives the
+	  vdosys1 display pipeline (MDP RDMA, padding, merge, ETHDR
+	  mixer, DPI) to scan out the U-Boot framebuffer over HDMI.

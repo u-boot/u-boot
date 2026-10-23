@@ -20,6 +20,18 @@ config ATMEL_EBI
 	  driver. Doesn't provide an access to EBI controller. Select
 	  this option to enable the NAND flash controller driver
 
+config MTK_SMI
+	bool "MediaTek SoC Memory Controller driver"
+	depends on ARCH_MEDIATEK && DM
+	select ARM_SMCCC
+	select MEMORY
+	help
+	  Enable support for the SMI local arbiters (larbs) found on
+	  MediaTek SoCs such as the MT8188. A larb gates the DRAM access of
+	  the multimedia masters behind it: this driver ungates its clocks
+	  on behalf of these masters and, where the secure world owns the
+	  port configuration, asks it to take the larb out of the IOMMU.
+
 config SANDBOX_MEMORY
 	bool "Enable Sandbox Memory Controller driver"
 	depends on SANDBOX && MEMORY

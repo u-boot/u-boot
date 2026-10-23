@@ -52,9 +52,13 @@ struct udevice;
  *			has to be released separately once it is powered.
  * SRAM_PDN_INVERTED:	@sram_pdn_bits is active low, so the bit is set to
  *			power the SRAM up rather than cleared.
+ * STRICT_BUS_PROTECTION: the subsys clocks must not be enabled until bus
+ *			protection is fully released, instead of the other
+ *			way round.
  */
 #define MTK_SCPD_SRAM_ISO		BIT(0)
 #define MTK_SCPD_SRAM_PDN_INVERTED	BIT(1)
+#define MTK_SCPD_STRICT_BUS_PROTECTION	BIT(2)
 
 #define PWR_STATUS_CONN		BIT(1)
 #define PWR_STATUS_DISP		BIT(3)
@@ -80,7 +84,21 @@ struct udevice;
 
 struct mtk_scp_domain;
 
+/*
+ * Register block a bus protection step operates on. A domain may drive its
+ * protections through several distinct register regions (infracfg, its
+ * read-only "nao" mirror used for way-enable acknowledgments, and the SMI
+ * common space), each retrieved from a separate DT phandle.
+ */
+enum mtk_scpsys_bus_prot_block {
+	BUS_PROT_BLOCK_INFRA,
+	BUS_PROT_BLOCK_INFRA_NAO,
+	BUS_PROT_BLOCK_SMI,
+};
+
 struct mtk_scpsys_bus_prot_data {
+	u8 bus_prot_block;
+	u8 bus_prot_sta_block;
 	u32 bus_prot_mask;
 	u32 bus_prot_set;
 	u32 bus_prot_clr;
@@ -88,6 +106,11 @@ struct mtk_scpsys_bus_prot_data {
 	u32 bus_prot_sta;
 	bool bus_prot_reg_update;
 	bool ignore_clr_ack;
+	/*
+	 * Invert the set/clear polarity: apply the protection by clearing and
+	 * release it by setting. Used for the way-enable steps.
+	 */
+	bool bus_prot_inverted;
 	/*
 	 * Release this protection before the subsys clocks are enabled and
 	 * re-apply it after they are disabled, instead of the other way round.
@@ -102,7 +125,7 @@ struct mtk_scp_domain_data {
 	u32 sram_pdn_bits;
 	u32 sram_pdn_ack_bits;
 	u32 bus_prot_mask;
-	const struct mtk_scpsys_bus_prot_data bp_infracfg[SPM_MAX_BUS_PROT_DATA];
+	const struct mtk_scpsys_bus_prot_data bp_cfg[SPM_MAX_BUS_PROT_DATA];
 	int pwr_sta_offs;
 	int pwr_sta2nd_offs;
 };
@@ -121,6 +144,8 @@ static const struct mtk_scp_soc_data _name##_scp_soc_data = {	\
 struct mtk_scp_domain {
 	const struct mtk_scp_domain_data *data;
 	void __iomem *infracfg;
+	void __iomem *infracfg_nao;
+	void __iomem *smi;
 	struct clk_bulk clks;
 	struct clk_bulk subsys_clks;
 	bool has_pd;
@@ -134,7 +159,10 @@ struct mtk_scpsys {
 	struct mtk_scp_domain *domains;
 };
 
-#define _BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, _update, _ignore, _subclk) { \
+#define _BUS_PROT(_block, _sta_block, _mask, _set, _clr, _sta_mask, _sta, \
+		  _update, _ignore, _subclk, _inverted) {		\
+	.bus_prot_block = BUS_PROT_BLOCK_##_block,		\
+	.bus_prot_sta_block = BUS_PROT_BLOCK_##_sta_block,	\
 	.bus_prot_mask = (_mask),				\
 	.bus_prot_set = (_set),					\
 	.bus_prot_clr = (_clr),					\
@@ -143,22 +171,36 @@ struct mtk_scpsys {
 	.bus_prot_reg_update = (_update),			\
 	.ignore_clr_ack = (_ignore),				\
 	.subclk = (_subclk),					\
+	.bus_prot_inverted = (_inverted),			\
 }
 
-#define BUS_PROT_WR(_mask, _set, _clr, _sta)			\
-	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, false, false)
+#define BUS_PROT_WR(_block, _mask, _set, _clr, _sta)		\
+	_BUS_PROT(_block, _block, _mask, _set, _clr, _mask, _sta, \
+		  false, false, false, false)
 
-#define BUS_PROT_WR_IGN(_mask, _set, _clr, _sta)		\
-	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true, false)
+#define BUS_PROT_WR_IGN(_block, _mask, _set, _clr, _sta)	\
+	_BUS_PROT(_block, _block, _mask, _set, _clr, _mask, _sta, \
+		  false, true, false, false)
 
-#define BUS_PROT_WR_IGN_SUBCLK(_mask, _set, _clr, _sta)		\
-	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true, true)
+#define BUS_PROT_WR_IGN_SUBCLK(_block, _mask, _set, _clr, _sta)	\
+	_BUS_PROT(_block, _block, _mask, _set, _clr, _mask, _sta, \
+		  false, true, true, false)
 
-#define BUS_PROT_WR_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
-	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, false, false)
+#define BUS_PROT_WR_STA_MASK(_block, _mask, _sta_mask, _set, _clr, _sta) \
+	_BUS_PROT(_block, _block, _mask, _set, _clr, _sta_mask, _sta, \
+		  false, false, false, false)
 
-#define BUS_PROT_WR_IGN_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
-	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, true, false)
+#define BUS_PROT_WR_IGN_STA_MASK(_block, _mask, _sta_mask, _set, _clr, _sta) \
+	_BUS_PROT(_block, _block, _mask, _set, _clr, _sta_mask, _sta, \
+		  false, true, false, false)
+
+/*
+ * Way-enable protection: the set/clear polarity is inverted and the
+ * acknowledgment is read back from the infracfg-nao mirror.
+ */
+#define BUS_PROT_WAY_EN(_set_mask, _set, _sta_mask, _sta)	\
+	_BUS_PROT(INFRA, INFRA_NAO, _set_mask, _set, _set, _sta_mask, _sta, \
+		  true, false, false, true)
 
 int mtk_scpsys_probe(struct udevice *dev);
 int mtk_power_controller_probe(struct udevice *dev);

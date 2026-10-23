@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/*
+ * Copyright (C) 2026 BayLibre, SAS.
+ *
+ * Drives the panel on the EVK's eDP connector instead of the DSI panel.
+ * The two share the display pipeline, so only one can be enabled at a time.
+ */
+
+/dts-v1/;
+/plugin/;
+
+&backlight_lcd0 {
+	status = "disabled";
+};
+
+&backlight_lcd1 {
+	status = "okay";
+};
+
+&disp_dvo0 {
+	status = "okay";
+};
+
+&disp_pwm0 {
+	status = "disabled";
+};
+
+&disp_pwm1 {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "disabled";
+};
+
+&edp_phy {
+	status = "okay";
+};
+
+&edp_tx {
+	status = "okay";
+};
+
+&mipi_tx_config0 {
+	status = "disabled";
+};
+
+&reg_edp_backlight_12v {
+	status = "okay";
+};
+
+&reg_edp_panel_3v3 {
+	status = "okay";
+};

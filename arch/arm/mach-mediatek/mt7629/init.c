@@ -16,6 +16,7 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
+#include <linux/err.h>
 #include <linux/io.h>
 
 #include <dt-bindings/clock/mt7629-clk.h>
@@ -38,6 +39,7 @@ static int mtk_pll_early_init(void)
 		[CLK_APMIXED_SGMIPLL] = 650000000,
 	};
 	struct udevice *dev;
+	ulong rate;
 	int ret, i;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
@@ -49,9 +51,9 @@ static int mtk_pll_early_init(void)
 	for (i = 0; i < ARRAY_SIZE(pll_rates); i++) {
 		struct clk clk = { .id = i, .dev = dev };
 
-		ret = clk_set_rate(&clk, pll_rates[i]);
-		if (ret)
-			return ret;
+		rate = clk_set_rate(&clk, pll_rates[i]);
+		if (IS_ERR_VALUE(rate))
+			return rate;
 
 		ret = clk_enable(&clk);
 		if (ret)
