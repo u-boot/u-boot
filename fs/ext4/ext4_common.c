@@ -963,6 +963,41 @@ int ext4fs_filename_unlink(char *filename)
 	return -1;
 }
 
+/**
+ * ext4fs_blk_to_group() - get the block group of a block
+ *
+ * The block number may come from disk, so check that it lies after the
+ * first data block, which holds the superblock, and before the end of the
+ * filesystem, as Linux does, before it is used to index the block bitmaps
+ * and group descriptors. The group is computed as Linux
+ * ext4_get_group_no_and_offset() does.
+ *
+ * @fs:		filesystem
+ * @blknr:	block number
+ * Return:	block group of @blknr, or -EINVAL if it is not a valid block
+ */
+int ext4fs_blk_to_group(struct ext_filesystem *fs, uint64_t blknr)
+{
+	struct ext2_sblock *sblock = &ext4fs_root->sblock;
+	uint32_t first_data_block = le32_to_cpu(sblock->first_data_block);
+	uint32_t bg_idx;
+
+	if (blknr <= first_data_block ||
+	    blknr >= le32_to_cpu(sblock->total_blocks))
+		goto err;
+
+	/* blknr is below total_blocks, so it fits in 32 bits */
+	bg_idx = ((uint32_t)blknr - first_data_block) /
+		 le32_to_cpu(sblock->blocks_per_group);
+	if (bg_idx >= fs->no_blkgrp)
+		goto err;
+
+	return bg_idx;
+err:
+	printf("Invalid block number %llu\n", (unsigned long long)blknr);
+	return -EINVAL;
+}
+
 uint32_t ext4fs_get_new_blk_no(void)
 {
 	short i;
