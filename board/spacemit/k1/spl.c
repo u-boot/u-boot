@@ -301,8 +301,16 @@ void pmic_init(void)
 	int ret;
 
 	ret = uclass_get_device(UCLASS_PMIC, 0, &pmic_dev);
-	if (ret)
-		panic("Fail to detect PMIC (%d)\n", ret);
+	if (ret) {
+		/*
+		 * Not every K1 board describes its PMIC to the SPL, and on some
+		 * the rails are already up when the SPL runs. Only boards whose
+		 * DDR bring-up depends on programming the bucks need one, so a
+		 * missing PMIC is not fatal here.
+		 */
+		log_info("No PMIC (%d), leaving rails as found\n", ret);
+		return;
+	}
 	set_vdd_core();
 	set_vdd_1v8();
 	set_vdd_mmc();
@@ -412,9 +420,15 @@ void nor_early_init(void)
 	struct udevice *dev;
 	int ret;
 
+	/*
+	 * A board that boots from eMMC or microSD may describe no SPI
+	 * controller at all; that is not fatal unless the SPL boots from SPI.
+	 */
 	ret = uclass_get_device(UCLASS_SPI, 0, &dev);
-	if (ret)
-		panic("Fail to detect spi controller.\n");
+	if (ret) {
+		log_info("No SPI controller (%d)\n", ret);
+		return;
+	}
 	udelay(10);
 	ret = uclass_get_device(UCLASS_SPI_FLASH, 0, &dev);
 	if (ret)
@@ -482,6 +496,32 @@ u32 spl_boot_device(void)
 	}
 
 	return ret;
+}
+
+/*
+ * Try the device the BootROM booted from first, then the other storage
+ * this SPL can read. The boot-mode detection relies on BootROM state; if
+ * it names a device that holds no image (the BootROM probed a card before
+ * falling back to eMMC, say), the SPL still finds U-Boot instead of
+ * stopping at "failed to boot from all boot devices".
+ */
+void board_boot_order(u32 *spl_boot_list)
+{
+	u32 fallbacks[3];
+	int i, n = 0, m = 0;
+
+	if (CONFIG_IS_ENABLED(MMC)) {
+		fallbacks[m++] = BOOT_DEVICE_MMC1;
+		fallbacks[m++] = BOOT_DEVICE_MMC2;
+	}
+	if (CONFIG_IS_ENABLED(SPI_LOAD))
+		fallbacks[m++] = BOOT_DEVICE_SPI;
+
+	spl_boot_list[n++] = spl_boot_device();
+	for (i = 0; i < m; i++)
+		if (fallbacks[i] != spl_boot_list[0])
+			spl_boot_list[n++] = fallbacks[i];
+	spl_boot_list[n] = BOOT_DEVICE_NONE;
 }
 
 void spl_board_init(void)

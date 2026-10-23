@@ -1530,6 +1530,7 @@ M:	Yixun Lan <dlan@kernel.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-spacemit.git
 F:	arch/riscv/dts/k1-*-u-boot.dtsi
+F:	drivers/phy/spacemit/phy-k1-usb2.c
 N:	spacemit
 K:	spacemit
 
