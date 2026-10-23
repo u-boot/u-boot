@@ -9,6 +9,7 @@
 #include <asm-generic/gpio.h>
 #include <dm/uclass.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <i2c_eeprom.h>
 #include <init.h>
 #include <linux/delay.h>
@@ -206,4 +207,10 @@ int board_mmc_init(struct bd_info *bis)
 {
 	if (IS_ENABLED(CONFIG_MMC))
 		return omap_mmc_init(0, 0, 0, -1, -1);
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	fdt_fixup_ethernet(blob);
+	return 0;
 }
