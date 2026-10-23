@@ -49,6 +49,16 @@ static int mount_ubifs(char *mtdpart, char *ubivol)
 }
 #endif
 
+static int mount_fs_dev(struct fw_loader_plat *plat)
+{
+	if (plat->phandlepart.phandle)
+		return 0;
+	else if (plat->mtdpart && plat->ubivol)
+		return mount_ubifs(plat->mtdpart, plat->ubivol);
+	else
+		return 0;
+}
+
 static int select_fs_dev(struct fw_loader_plat *plat)
 {
 	int ret;
@@ -63,10 +73,6 @@ static int select_fs_dev(struct fw_loader_plat *plat)
 			ret = fs_set_blk_dev_with_part(desc,
 				plat->phandlepart.partition);
 	} else if (plat->mtdpart && plat->ubivol) {
-		ret = mount_ubifs(plat->mtdpart, plat->ubivol);
-		if (ret)
-			return ret;
-
 		ret = fs_set_blk_dev("ubi", NULL, FS_TYPE_UBIFS);
 	} else {
 		debug("Error: unsupported storage device.\n");
@@ -79,18 +85,26 @@ static int select_fs_dev(struct fw_loader_plat *plat)
 	return ret;
 }
 
-/**
- * fw_get_filesystem_firmware - load firmware into an allocated buffer.
- * @dev: An instance of a driver.
- *
- * Return: Size of total read, negative value when error.
- */
-static int fw_get_filesystem_firmware(struct udevice *dev)
+static int fw_get_filesystem_mount(struct udevice *dev)
 {
-	struct firmware *upriv = dev_get_uclass_priv(dev);
 	struct fw_loader_plat *plat = dev_get_uclass_plat(dev);
 	struct fw_loader_env_info info = { };
-	loff_t actread = 0;
+
+	generic_fw_loader_env_info(&info);
+
+	if (info.storage_interface && info.dev_part)
+		return 0;
+	else if (info.storage_interface && info.ubi_mtdpart &&
+		 info.ubi_volume)
+		return mount_ubifs(info.ubi_mtdpart, info.ubi_volume);
+	else
+		return mount_fs_dev(plat);
+}
+
+static int fw_get_filesystem_prepare(struct udevice *dev)
+{
+	struct fw_loader_plat *plat = dev_get_uclass_plat(dev);
+	struct fw_loader_env_info info = { };
 	int ret;
 
 	generic_fw_loader_env_info(&info);
@@ -100,10 +114,6 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 				     info.dev_part, FS_TYPE_ANY);
 	} else if (info.storage_interface && info.ubi_mtdpart &&
 		   info.ubi_volume) {
-		ret = mount_ubifs(info.ubi_mtdpart, info.ubi_volume);
-		if (ret)
-			return ret;
-
 		if (!strcmp("ubi", info.storage_interface))
 			ret = fs_set_blk_dev(info.storage_interface, NULL,
 					     FS_TYPE_UBIFS);
@@ -113,6 +123,56 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 		ret = select_fs_dev(plat);
 	}
 
+	return ret;
+}
+
+static void fw_get_filesystem_release(struct udevice *dev)
+{
+#ifdef CONFIG_CMD_UBIFS
+	umount_ubifs();
+#endif
+}
+
+static int __fw_get_filesystem_firmware_size(struct udevice *dev,
+					     const char *name, loff_t *size)
+{
+	int ret;
+
+	ret = fw_get_filesystem_prepare(dev);
+	if (ret)
+		return ret;
+
+	return fs_size(name, size);
+}
+
+/**
+ * fw_get_filesystem_firmware - load firmware into an allocated buffer.
+ * @dev: An instance of a driver.
+ *
+ * Return: Size of total read, negative value when error.
+ */
+static int fw_get_filesystem_firmware(struct udevice *dev)
+{
+	struct firmware *upriv = dev_get_uclass_priv(dev);
+	loff_t size, actread = 0;
+	int ret;
+
+	ret = fw_get_filesystem_mount(dev);
+	if (ret)
+		goto out;
+
+	ret = __fw_get_filesystem_firmware_size(dev, upriv->name, &size);
+	if (ret)
+		goto out;
+
+	if (upriv->offset > size) {
+		log_err("Offset %#x beyond file size %#llx\n",
+			upriv->offset, size);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ret = fw_get_filesystem_prepare(dev);
 	if (ret)
 		goto out;
 
@@ -127,9 +187,7 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 	}
 
 out:
-#ifdef CONFIG_CMD_UBIFS
-	umount_ubifs();
-#endif
+	fw_get_filesystem_release(dev);
 	return ret;
 }
 
