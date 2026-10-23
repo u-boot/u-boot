@@ -450,6 +450,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 {
 	u8 ccb[12];	/* Command descriptor block */
 	u8 iobuf[64];	/* temp buf */
+	ulong blksz;
 	u8 c;
 	int device;
 
@@ -514,10 +515,28 @@ static void atapi_inquiry(struct blk_desc *desc)
 		  iobuf[0], iobuf[1], iobuf[2], iobuf[3],
 		  iobuf[4], iobuf[5], iobuf[6], iobuf[7]);
 
+	blksz = (ulong)iobuf[4] << 24 | (ulong)iobuf[5] << 16 |
+		(ulong)iobuf[6] << 8 | (ulong)iobuf[7];
+	/*
+	 * atapi_read() transfers ATAPI_READ_BLOCK_SIZE bytes per block. Some
+	 * CD drives report another size although they read 2048-byte blocks,
+	 * which Linux takes as 2048 in get_sectorsize(): do the same.
+	 */
+	switch (blksz) {
+	case 0:
+	case 2340:	/* HP 4020i CD-Recorder */
+	case 2352:	/* Philips CD-Writers */
+		blksz = ATAPI_READ_BLOCK_SIZE;
+		break;
+	case ATAPI_READ_BLOCK_SIZE:
+		break;
+	default:
+		printf("ATAPI block size %lu not supported, skipping\n", blksz);
+		return;
+	}
 	desc->lba = (ulong)iobuf[0] << 24 | (ulong)iobuf[1] << 16 |
 		(ulong)iobuf[2] << 8 | (ulong)iobuf[3];
-	desc->blksz = (ulong)iobuf[4] << 24 | (ulong)iobuf[5] << 16 |
-		(ulong)iobuf[6] << 8 | (ulong)iobuf[7];
+	desc->blksz = blksz;
 	desc->log2blksz = LOG2(desc->blksz);
 
 	/* ATAPI devices cannot use 48bit addressing (ATA/ATAPI v7) */
