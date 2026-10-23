@@ -135,6 +135,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPi R5C (nanopi-r5c-rk3568)
      - FriendlyElec NanoPi R5S (nanopi-r5s-rk3568)
      - Generic RK3566/RK3568 (generic-rk3568)
+     - Graperain G3568 v2 (graperain-g3568-v2-rk3568)
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
      - LinkEase EasePi R1 (easepi-r1-rk3568)
      - Lunzn FastRhino R66S (fastrhino-r66s-rk3568)

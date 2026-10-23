@@ -35,6 +35,11 @@ S:	Maintained
 F:	configs/generic-rk3568_defconfig
 F:	arch/arm/dts/rk3568-generic*
 
+GRAPERAIN-G3568-V2
+M:	Coia Prant <coiaprant@gmail.com>
+S:	Maintained
+F:	configs/graperain-g3568-v2-rk3568_defconfig
+
 LUBANCAT-2
 M:	Andy Yan <andyshrk@163.com>
 S:	Maintained
