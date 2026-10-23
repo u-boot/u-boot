@@ -1309,6 +1309,8 @@ config ARCH_U8500
 	imply DM_RTC
 	imply NOMADIK_GPIO
 	imply NOMADIK_MTU_TIMER
+	imply PINCTRL
+	imply PINCTRL_NOMADIK
 	imply PHY
 	imply PL01X_SERIAL
 	imply PMIC_AB8500

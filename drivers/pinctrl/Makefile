@@ -25,6 +25,7 @@ obj-$(CONFIG_PINCTRL_K210)		+= pinctrl-k210.o
 obj-$(CONFIG_PINCTRL_MESON)		+= meson/
 obj-$(CONFIG_PINCTRL_MSCC)		+= mscc/
 obj-$(CONFIG_PINCTRL_MTK)		+= mediatek/
+obj-$(CONFIG_PINCTRL_NOMADIK)		+= pinctrl-nomadik.o
 obj-$(CONFIG_PINCTRL_PIC32)		+= pinctrl_pic32.o
 obj-$(CONFIG_PINCTRL_QCOM)		+= qcom/
 obj-$(CONFIG_PINCTRL_QE)		+= pinctrl-qe-io.o
