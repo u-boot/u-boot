@@ -605,10 +605,29 @@ int ext4fs_init(void)
 	int i;
 	uint32_t real_free_blocks = 0;
 	struct ext_filesystem *fs = get_fs();
+	struct ext2_sblock *sblock = &ext4fs_root->sblock;
+	uint32_t blk_per_grp = le32_to_cpu(sblock->blocks_per_group);
+	uint32_t inode_per_grp = le32_to_cpu(sblock->inodes_per_group);
 
 	/* populate fs */
 	fs->blksz = EXT2_BLOCK_SIZE(ext4fs_root);
 	fs->sect_perblk = fs->blksz >> fs->dev_desc->log2blksz;
+
+	/*
+	 * The bitmap code finds the bitmap bits of group n at n * blocksize
+	 * bytes, so every group must hold one bitmap block's worth of
+	 * blocks, unless there is only one group. Check this before the
+	 * journal is replayed, so that nothing is written to a filesystem
+	 * that is refused.
+	 */
+	if (!blk_per_grp || blk_per_grp > fs->blksz * 8 ||
+	    (blk_per_grp != fs->blksz * 8 &&
+	     le32_to_cpu(sblock->total_blocks) -
+	     le32_to_cpu(sblock->first_data_block) > blk_per_grp) ||
+	    !inode_per_grp || inode_per_grp > fs->blksz * 8) {
+		printf("Unsupported block group layout, not writing\n");
+		return -EINVAL;
+	}
 
 	/* get the superblock */
 	fs->sb = zalloc(SUPERBLOCK_SIZE);
