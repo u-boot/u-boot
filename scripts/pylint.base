@@ -50,6 +50,7 @@ test_tests_test_fs_fstest_helpers.py 4.29
 test_tests_test_fs_test_basic.py 1.90
 test_tests_test_fs_test_erofs.py 8.97
 test_tests_test_fs_test_ext.py 1.48
+test_tests_test_fs_test_ext_oob.py 10.00
 test_tests_test_fs_test_fs_cmd.py 8.00
 test_tests_test_fs_test_fs_fat.py 2.50
 test_tests_test_fs_test_mkdir.py 3.04
