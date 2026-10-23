@@ -423,3 +423,49 @@ static int dm_test_part_dos_ext_empty(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_part_dos_ext_empty, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
+
+/*
+ * Partition numbers above 255 take three digits in the UUID made up for a
+ * DOS partition, from the disk signature and the partition number
+ */
+static int dm_test_part_dos_uuid(struct unit_test_state *uts)
+{
+	struct disk_partition info;
+	dos_partition_t pt[4];
+	struct blk_desc *desc;
+	int part;
+
+	if (!CONFIG_IS_ENABLED(PARTITION_UUIDS))
+		return -EAGAIN;
+
+	ut_asserteq(2, blk_get_device_by_str("mmc", "2", &desc));
+	ut_asserteq(512, desc->blksz);
+
+	/* an extended partition from sector 2 */
+	memset(pt, '\0', sizeof(pt));
+	dos_set_entry(&pt[0], DOS_PART_TYPE_EXTENDED, 2, 512);
+	ut_assertok(dos_write_table(desc, 0, pt));
+
+	/*
+	 * holding logical partitions 5 to 256, each of one sector after its
+	 * table, with the tables two sectors apart from sector 2 on
+	 */
+	for (part = 5; part <= 256; part++) {
+		memset(pt, '\0', sizeof(pt));
+		dos_set_entry(&pt[0], 0x83, 1, 1);
+		if (part < 256)
+			dos_set_entry(&pt[1], DOS_PART_TYPE_EXTENDED,
+				      (part - 4) * 2, 2);
+		ut_assertok(dos_write_table(desc, 2 + (part - 5) * 2, pt));
+	}
+
+	ut_assertok(part_get_info_by_type(desc, 255, PART_TYPE_DOS, &info));
+	ut_asserteq(2 + 250 * 2 + 1, info.start);
+	ut_asserteq_str("00000000-ff", disk_partition_uuid(&info));
+	ut_assertok(part_get_info_by_type(desc, 256, PART_TYPE_DOS, &info));
+	ut_asserteq(2 + 251 * 2 + 1, info.start);
+	ut_asserteq_str("00000000-100", disk_partition_uuid(&info));
+
+	return 0;
+}
+DM_TEST(dm_test_part_dos_uuid, UTF_SCAN_PDATA | UTF_SCAN_FDT);

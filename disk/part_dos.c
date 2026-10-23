@@ -325,9 +325,11 @@ static int part_get_info_extended(struct blk_desc *desc,
 						 "0x%x", pt->sys_ind);
 					info->bootable = get_bootable(pt);
 					if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
-						char str[12];
+						/* part_num may take three digits */
+						char str[UUID_STR_LEN + 1];
 
-						sprintf(str, "%08x-%02x", disksig, part_num);
+						snprintf(str, sizeof(str), "%08x-%02x",
+							 disksig, part_num);
 						disk_partition_set_uuid(info, str);
 					}
 					info->sys_ind = pt->sys_ind;
