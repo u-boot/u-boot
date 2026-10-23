@@ -81,6 +81,14 @@ typedef enum {
  *
  * AVB_ALGORITHM_TYPE_SHA512_RSA8192: Like above, but only with
  * a 8192-bit RSA key and |signature_size| set to 1024.
+ *
+ * AVB_ALGORITHM_TYPE_MLDSA65: A ML-DSA-65 key is used to sign the
+ * data. ML-DSA has an internal hash function and there is no external
+ * hash function. The field |hash_size| must be 0, |signature_size|
+ * must be 3309.
+ *
+ * AVB_ALGORITHM_TYPE_MLDSA87: Like above, but only with a ML-DSA-87
+ * key and |signature_size| set to 4627.
  */
 typedef enum {
   AVB_ALGORITHM_TYPE_NONE,
@@ -90,20 +98,15 @@ typedef enum {
   AVB_ALGORITHM_TYPE_SHA512_RSA2048,
   AVB_ALGORITHM_TYPE_SHA512_RSA4096,
   AVB_ALGORITHM_TYPE_SHA512_RSA8192,
+  AVB_ALGORITHM_TYPE_MLDSA65,
+  AVB_ALGORITHM_TYPE_MLDSA87,
   _AVB_ALGORITHM_NUM_TYPES
 } AvbAlgorithmType;
 
-/* Holds algorithm-specific data. The |padding| is needed by avb_rsa_verify. */
-typedef struct {
-  const uint8_t* padding;
-  size_t padding_len;
-  size_t hash_len;
-} AvbAlgorithmData;
-
-/* Provides algorithm-specific data for a given |algorithm|. Returns NULL if
+/* Provides the hash size for the given |algorithm|. Returns SIZE_MAX if
  * |algorithm| is invalid.
  */
-const AvbAlgorithmData* avb_get_algorithm_data(AvbAlgorithmType algorithm)
+size_t avb_get_algorithm_hash_size(AvbAlgorithmType algorithm)
     AVB_ATTR_WARN_UNUSED_RESULT;
 
 /* The header for a serialized RSA public key.

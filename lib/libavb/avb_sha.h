@@ -26,6 +26,9 @@ extern "C" {
  *   AvbSHA256ImplCtx - SHA-256 context used by the implementation
  *   AvbSHA512ImplCtx - SHA-512 context used by the implementation
  *
+ * For example, if AvbSHA512Ctx is implemented using BoringSSL this would
+ * typedef AvbSHA512ImplCtx to SHA512_CTX.
+ *
  * We expect the implementation to provide a header file with the name
  * avb_crypto_ops_impl.h to do all this.
  */
