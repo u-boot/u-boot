@@ -15,6 +15,7 @@
 #include <time.h>
 #include <dm/device-internal.h>
 #include <linux/compat.h>
+#include <linux/log2.h>
 #include "nvme.h"
 
 #define NVME_Q_DEPTH		2
@@ -701,6 +702,26 @@ int nvme_scan_namespace(void)
 	return 0;
 }
 
+/**
+ * nvme_lba_shift() - Get the LBA data size of a namespace
+ *
+ * @dev: NVMe controller
+ * @id: Identify Namespace data of the namespace
+ * Return: log2 of its block size, or -EINVAL if that size is not supported
+ */
+static int nvme_lba_shift(struct nvme_dev *dev, struct nvme_id_ns *id)
+{
+	u8 ds = id->lbaf[id->flbas & NVME_NS_FLBAS_LBA_MASK].ds;
+
+	if (ds < ilog2(DEFAULT_BLKSZ) || ds > ilog2(BLK_MAX_BLKSZ) ||
+	    ds > dev->max_transfer_shift) {
+		log_err("Unsupported LBA data size 2^%d\n", ds);
+		return -EINVAL;
+	}
+
+	return ds;
+}
+
 static int nvme_blk_probe(struct udevice *udev)
 {
 	struct nvme_dev *ndev = dev_get_priv(udev->parent);
@@ -708,6 +729,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
 	struct nvme_id_ns *id;
+	int ret;
 
 	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
 	if (!id)
@@ -724,7 +746,12 @@ static int nvme_blk_probe(struct udevice *udev)
 	memcpy(&ns->eui64, &id->eui64, sizeof(id->eui64));
 	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
 	ns->flbas = flbas;
-	ns->lba_shift = id->lbaf[flbas].ds;
+	ret = nvme_lba_shift(ndev, id);
+	if (ret < 0) {
+		free(id);
+		return ret;
+	}
+	ns->lba_shift = ret;
 	list_add(&ns->list, &ndev->namespaces);
 
 	desc->lba = le64_to_cpu(id->nsze);
@@ -897,6 +924,10 @@ int nvme_init(struct udevice *udev)
 
 		/* skip inactive namespace */
 		if (!id->nsze)
+			continue;
+
+		/* skip a namespace whose block size is not supported */
+		if (nvme_lba_shift(ndev, id) < 0)
 			continue;
 
 		/*
