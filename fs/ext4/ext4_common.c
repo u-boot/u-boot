@@ -1529,6 +1529,38 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 
 #endif
 
+/**
+ * ext4fs_check_extent_header() - check an extent tree node before using it
+ *
+ * Some of the checks of Linux __ext4_ext_check() and ext4_find_extent(): the
+ * node must not claim more entries than fit in it, and the depth must be at
+ * most 5 and drop by one at each level, so that a corrupt node can neither be
+ * walked past its end nor make the tree loop.
+ *
+ * @eh:		extent header of the node
+ * @max:	number of entries that fit in the node
+ * @depth:	depth this node must have, or -1 for the root in the inode
+ * Return:	0 if the node is valid, -EINVAL otherwise
+ */
+static int ext4fs_check_extent_header(struct ext4_extent_header *eh, int max,
+				      int depth)
+{
+	if (le16_to_cpu(eh->eh_magic) != EXT4_EXT_MAGIC)
+		return -EINVAL;
+	if (!eh->eh_max || le16_to_cpu(eh->eh_max) > max)
+		return -EINVAL;
+	if (le16_to_cpu(eh->eh_entries) > le16_to_cpu(eh->eh_max))
+		return -EINVAL;
+	if (le16_to_cpu(eh->eh_depth) > EXT4_MAX_EXTENT_DEPTH)
+		return -EINVAL;
+	if (depth >= 0 && le16_to_cpu(eh->eh_depth) != depth)
+		return -EINVAL;
+	if (eh->eh_depth && !eh->eh_entries)
+		return -EINVAL;
+
+	return 0;
+}
+
 static struct ext4_extent_header *ext4fs_get_extent_block
 	(struct ext2_data *data, struct ext_block_cache *cache,
 		struct ext4_extent_header *ext_block,
@@ -1537,16 +1569,24 @@ static struct ext4_extent_header *ext4fs_get_extent_block
 	struct ext4_extent_idx *index;
 	unsigned long long block;
 	int blksz = EXT2_BLOCK_SIZE(data);
+	/* The root node is held in the inode's 60-byte i_block area */
+	int max = (sizeof(((struct ext2_inode *)0)->b) -
+		   sizeof(struct ext4_extent_header)) /
+		  sizeof(struct ext4_extent);
+	int depth = -1;
 	int i;
 
 	while (1) {
 		index = (struct ext4_extent_idx *)(ext_block + 1);
 
-		if (le16_to_cpu(ext_block->eh_magic) != EXT4_EXT_MAGIC)
+		if (ext4fs_check_extent_header(ext_block, max, depth))
 			return NULL;
 
 		if (ext_block->eh_depth == 0)
 			return ext_block;
+		depth = le16_to_cpu(ext_block->eh_depth) - 1;
+		max = (blksz - sizeof(struct ext4_extent_header)) /
+		      sizeof(struct ext4_extent);
 		i = -1;
 		do {
 			i++;
