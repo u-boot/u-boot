@@ -164,17 +164,22 @@ int arch_auxiliary_core_check_up(u32 core_id)
 }
 #endif
 /*
- * To i.MX6SX and i.MX7D, the image supported by bootaux needs
- * the reset vector at the head for the image, with SP and PC
- * as the first two words.
+ * bootaux supports two image formats: ELF and raw binary.
  *
  * Per the cortex-M reference manual, the reset vector of M4/M7 needs
- * to exist at 0x0 (TCMUL/IDTCM). The PC and SP are the first two addresses
+ * to exist at 0x0 (TCMUL/IDTCM). The SP and PC are the first two addresses
  * of that vector.  So to boot M4/M7, the A core must build the M4/M7's reset
- * vector with getting the PC and SP from image and filling them to
+ * vector with getting the SP and PC from image and filling them to
  * TCMUL/IDTCM. When M4/M7 is kicked, it will load the PC and SP by itself.
  * The TCMUL/IDTCM is mapped to (MCU_BOOTROM_BASE_ADDR) at A core side for
- * accessing the M4/M7 TCMUL/IDTCM.
+ * accessing the M4/M7 TCMUL/IDTCM. For raw binary images targeting i.MX6SX
+ * and i.MX7D, this means the reset vector must be at the head of the image,
+ * with SP and PC as the first two words.
+ *
+ * For 32-bit ELF images, PC is retrieved from the e_entry field of the ELF
+ * header. SP is set to zero on non-ARM64 hosts (e.g. i.MX6SX and i.MX7D),
+ * and taken from the first non-empty loadable segment on ARM64 hosts
+ * (e.g. i.MX8M).
  */
 static int do_bootaux(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
