@@ -1358,6 +1358,9 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 		break;
 	}
 
+	if (env_loc == ENVL_UNKNOWN && IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+		env_loc = ENVL_NOWHERE;
+
 	return env_loc;
 }
 
