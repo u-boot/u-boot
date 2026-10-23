@@ -10,7 +10,6 @@
 #include <log.h>
 #include <usb.h>
 #include <errno.h>
-#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
@@ -36,8 +35,6 @@
 /* USBCMD */
 #define UCMD_RUN_STOP		(1 << 0) /* controller run/stop */
 #define UCMD_RESET			(1 << 1) /* controller reset */
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const unsigned phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
@@ -162,7 +159,6 @@ struct ehci_vf_priv_data {
 static int vf_usb_of_to_plat(struct udevice *dev)
 {
 	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
-	int node = dev_of_offset(dev);
 	fdt_addr_t phy_addr;
 	ofnode phy_node;
 	int i;
@@ -207,18 +203,6 @@ static int vf_usb_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	if (priv->dr_mode == USB_DR_MODE_OTG) {
-		gpio_request_by_name_nodev(offset_to_ofnode(node),
-					   "fsl,cdet-gpio", 0, &priv->cdet_gpio,
-					   GPIOD_IS_IN);
-		if (dm_gpio_is_valid(&priv->cdet_gpio)) {
-			if (dm_gpio_get_value(&priv->cdet_gpio))
-				priv->init_type = USB_INIT_DEVICE;
-			else
-				priv->init_type = USB_INIT_HOST;
-		}
-	}
-
 	return 0;
 }
 
@@ -258,12 +242,27 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_hcor *hcor;
 	int ret;
 
+	if (priv->dr_mode == USB_DR_MODE_OTG) {
+		ret = gpio_request_by_name(dev, "fsl,cdet-gpio", 0,
+					   &priv->cdet_gpio, GPIOD_IS_IN);
+		if (ret && ret != -ENOENT)
+			return ret;
+		if (!ret) {
+			ret = dm_gpio_get_value(&priv->cdet_gpio);
+			if (ret < 0)
+				goto err_gpio;
+			priv->init_type = ret ? USB_INIT_DEVICE : USB_INIT_HOST;
+		}
+	}
+
 	ret = ehci_vf_common_init(ehci, priv->portnr);
 	if (ret)
-		return ret;
+		goto err_gpio;
 
-	if (priv->init_type != plat->init_type)
-		return -ENODEV;
+	if (priv->init_type != plat->init_type) {
+		ret = -ENODEV;
+		goto err_gpio;
+	}
 
 	if (priv->init_type == USB_INIT_HOST) {
 		setbits_le32(&ehci->usbmode, CM_HOST);
@@ -277,7 +276,17 @@ static int ehci_usb_probe(struct udevice *dev)
 	hcor = (struct ehci_hcor *)((uint32_t)hccr +
 				HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	return ehci_register(dev, hccr, hcor, &vf_ehci_ops, 0, priv->init_type);
+	ret = ehci_register(dev, hccr, hcor, &vf_ehci_ops, 0, priv->init_type);
+	if (ret)
+		goto err_gpio;
+
+	return 0;
+
+err_gpio:
+	if (dm_gpio_is_valid(&priv->cdet_gpio))
+		dm_gpio_free(dev, &priv->cdet_gpio);
+
+	return ret;
 }
 
 static const struct udevice_id vf_usb_ids[] = {
@@ -285,12 +294,22 @@ static const struct udevice_id vf_usb_ids[] = {
 	{ }
 };
 
+static int ehci_usb_remove(struct udevice *dev)
+{
+	struct ehci_vf_priv_data *priv = dev_get_priv(dev);
+
+	if (dm_gpio_is_valid(&priv->cdet_gpio))
+		dm_gpio_free(dev, &priv->cdet_gpio);
+
+	return ehci_deregister(dev);
+}
+
 U_BOOT_DRIVER(ehci_vf) = {
 	.name = "ehci_vf",
 	.id = UCLASS_USB,
 	.of_match = vf_usb_ids,
 	.probe = ehci_usb_probe,
-	.remove = ehci_deregister,
+	.remove = ehci_usb_remove,
 	.ops = &ehci_usb_ops,
 	.of_to_plat = vf_usb_of_to_plat,
 	.plat_auto	= sizeof(struct usb_plat),
