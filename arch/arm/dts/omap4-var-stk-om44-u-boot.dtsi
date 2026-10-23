@@ -41,6 +41,13 @@
 				status = "disabled";
 			};
 		};
+
+		/* I2C3 (eeprom) */
+		target-module@60000 {
+			i2c@0 {
+				status = "okay";
+			};
+		};
 	};
 };
 

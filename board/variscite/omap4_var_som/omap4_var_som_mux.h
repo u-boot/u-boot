@@ -14,6 +14,8 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 {GPMC_NWE, (PTU | IEN | OFF_EN | OFF_PD | OFF_IN | M1)},  /* sdmmc2_cmd */
 {I2C1_SCL, (PTU | IEN | M0)},  /* i2c1_scl */
 {I2C1_SDA, (PTU | IEN | M0)},  /* i2c1_sda */
+{I2C3_SDA, (PTU | IEN | M0)},  /* i2c3_sda */
+{I2C3_SCL, (PTU | IEN | M0)},  /* i2c3_scl */
 {UART3_RX_IRRX, (IEN | M0)},  /* uart3_rx */
 {UART3_TX_IRTX, (M0)},  /* uart3_tx */
 };
