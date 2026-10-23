@@ -804,7 +804,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	total_memory_banks = CONFIG_NR_DRAM_BANKS + mc_memory_bank;
 
 	base = calloc(total_memory_banks, sizeof(u64));
+	if (!base)
+		return -ENOMEM;
+
 	size = calloc(total_memory_banks, sizeof(u64));
+	if (!size) {
+		free(base);
+		return -ENOMEM;
+	}
 
 	/* fixup DT for the three GPP DDR banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -836,6 +843,9 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 
 	fdt_fixup_memory_banks(blob, base, size, total_memory_banks);
+
+	free(base);
+	free(size);
 
 #ifdef CONFIG_USB_HOST
 	fsl_fdt_fixup_dr_usb(blob, bd);
