@@ -431,6 +431,11 @@ static bool tegra_hdmi_mode_valid(void *hdmi_priv, const struct display_timing *
 	if (timing->pixelclock.typ > priv->config->max_pclk)
 		return false;
 
+	/* The DC frame buffer is only reserved for modes up to this size */
+	if (timing->hactive.typ > TEGRA_DC_MAX_WIDTH ||
+	    timing->vactive.typ > TEGRA_DC_MAX_HEIGHT)
+		return false;
+
 	return true;
 }
 

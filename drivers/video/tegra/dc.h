@@ -14,6 +14,10 @@
 /* arch-tegra/dc exists only because T124 uses it */
 #include <asm/arch-tegra/dc.h>
 
+/* Largest mode the frame buffer of a DC is reserved for */
+#define TEGRA_DC_MAX_WIDTH	2560
+#define TEGRA_DC_MAX_HEIGHT	1600
+
 struct tegra_dc_plat {
 	struct udevice *dev;		/* Display controller device */
 	struct dc_ctlr *dc;		/* Display controller regmap */
