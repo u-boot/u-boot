@@ -400,9 +400,7 @@ int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 		if (!ucode_flash) {
 			printf("SF: probe for ucode failed\n");
 		} else {
-			ret = spi_flash_read(ucode_flash,
-					     CONFIG_SYS_FMAN_FW_ADDR +
-					     CFG_SYS_FSL_QSPI_BASE,
+			ret = spi_flash_read(ucode_flash, CONFIG_SYS_FMAN_FW_ADDR,
 					     CONFIG_SYS_QE_FMAN_FW_LENGTH,
 					     addr);
 			if (ret)
