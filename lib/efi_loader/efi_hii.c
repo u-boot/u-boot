@@ -910,41 +910,54 @@ get_string(const struct efi_hii_string_protocol *this,
 {
 	struct efi_hii_packagelist *hii = package_list;
 	struct efi_string_table *stbl;
+	efi_status_t ret;
 
 	EFI_ENTRY("%p, \"%s\", %p, %u, %p, %p, %p", this, language,
 		  package_list, string_id, string, string_size,
 		  string_font_info);
 
-	if (!package_list || !efi_hii_packagelist_exists(package_list))
-		return EFI_EXIT(EFI_NOT_FOUND);
+	if (!language || !string_size || (*string_size && !string)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
+	if (!package_list ||
+	    !efi_hii_packagelist_exists(package_list) ||
+	    !string_id ||
+	    string_id > hii->max_string_id) {
+		ret = EFI_NOT_FOUND;
+		goto out;
+	}
+
+	ret = EFI_INVALID_LANGUAGE;
 	list_for_each_entry(stbl, &hii->string_tables, link) {
 		if (language_match((char *)language, stbl->language)) {
 			efi_string_t str;
 			size_t len;
 
 			if (stbl->nstrings < string_id)
-				return EFI_EXIT(EFI_NOT_FOUND);
+				goto out;
 
 			str = stbl->strings[string_id - 1].string;
 			if (str) {
 				len = u16_strsize(str);
 				if (*string_size < len) {
 					*string_size = len;
-
-					return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
+					ret = EFI_BUFFER_TOO_SMALL;
+					goto out;
 				}
-				memcpy(string, str, len);
 				*string_size = len;
+				memcpy(string, str, len);
+				ret = EFI_SUCCESS;
+				goto out;
 			} else {
-				return EFI_EXIT(EFI_NOT_FOUND);
+				goto out;
 			}
-
-			return EFI_EXIT(EFI_SUCCESS);
 		}
 	}
 
-	return EFI_EXIT(EFI_NOT_FOUND);
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI
