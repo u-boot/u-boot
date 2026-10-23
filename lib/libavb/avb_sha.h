@@ -21,27 +21,25 @@ extern "C" {
 #include "avb_crypto.h"
 #include "avb_sysdeps.h"
 
-/* Block size in bytes of a SHA-256 digest. */
-#define AVB_SHA256_BLOCK_SIZE 64
-
-/* Block size in bytes of a SHA-512 digest. */
-#define AVB_SHA512_BLOCK_SIZE 128
+/* The following types must be set to something appropriate
+ *
+ *   AvbSHA256ImplCtx - SHA-256 context used by the implementation
+ *   AvbSHA512ImplCtx - SHA-512 context used by the implementation
+ *
+ * We expect the implementation to provide a header file with the name
+ * avb_crypto_ops_impl.h to do all this.
+ */
+#include "avb_crypto_ops_impl.h"
 
 /* Data structure used for SHA-256. */
 typedef struct {
-  uint32_t h[8];
-  uint64_t tot_len;
-  size_t len;
-  uint8_t block[2 * AVB_SHA256_BLOCK_SIZE];
+  AvbSHA256ImplCtx impl;
   uint8_t buf[AVB_SHA256_DIGEST_SIZE]; /* Used for storing the final digest. */
 } AvbSHA256Ctx;
 
 /* Data structure used for SHA-512. */
 typedef struct {
-  uint64_t h[8];
-  uint64_t tot_len;
-  size_t len;
-  uint8_t block[2 * AVB_SHA512_BLOCK_SIZE];
+  AvbSHA512ImplCtx impl;
   uint8_t buf[AVB_SHA512_DIGEST_SIZE]; /* Used for storing the final digest. */
 } AvbSHA512Ctx;
 
