@@ -7,21 +7,21 @@
  */
 
 #include <dm.h>
+#include <errno.h>
 #include <log.h>
 #include <usb.h>
-#include <errno.h>
-#include <linux/compiler.h>
-#include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/io.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/regs-usbphy.h>
-#include <linux/delay.h>
-#include <usb/ehci-ci.h>
-#include <linux/usb/otg.h>
 #include <dt-bindings/clock/vf610-clock.h>
+#include <linux/compiler.h>
+#include <linux/delay.h>
+#include <linux/usb/otg.h>
+#include <usb/ehci-ci.h>
 
 #include "ehci.h"
 
