@@ -33,6 +33,9 @@ struct tftp_protocol_test {
 	bool initialized;
 	bool fail_data_alloc;
 	bool window_requested;
+	bool server_empty;
+	bool server_followup;
+	bool server_failure;
 	char timeout[4];
 };
 
@@ -724,7 +727,10 @@ static int tftp_test_windows(struct unit_test_state *uts,
 static void tftp_test_server_input(void *arg)
 {
 	static const char wrq[] = "\000\002file\000octet";
+	static const char other[] = "\000\002other\000octet";
 	static const u8 data[] = { 0, 3, 0, 1, 'a', 'b', 'c' };
+	static const u8 extra[] = { 0, 3, 0, 1, 'X', 'Y', 'Z' };
+	static const char error[] = "\000\005\000\001missing";
 	struct tftp_protocol_test *test = arg;
 
 	if (!test->server_phase++) {
@@ -733,35 +739,95 @@ static void tftp_test_server_input(void *arg)
 		/* Lose DATA 1 long enough for the server to retransmit ACK 0. */
 		timer_test_add_offset(5001);
 		sys_timeout(1, tftp_test_server_input, test);
+	} else if (test->server_failure) {
+		test->error = tftp_test_input(test, error, sizeof(error), 0);
 	} else {
-		test->error = tftp_test_input(test, data, sizeof(data), 0);
+		test->error = tftp_test_input(test, data,
+					      test->server_empty ? 4 : sizeof(data), 0);
+	}
+	if (test->server_phase == 2 && test->server_followup && !test->error) {
+		/* More packets can arrive before the command leaves its RX loop. */
+		test->error = tftp_test_input(test, other, sizeof(other), 0);
+		if (!test->error)
+			test->error = tftp_test_input(test, extra, sizeof(extra), 0);
 	}
 }
 
 static int tftp_test_server_command(struct unit_test_state *uts,
 				    struct tftp_protocol_test *test)
 {
-	int ret;
+	int i, ret;
 
 	if (test->initialized)
 		tftp_cleanup();
-	memset(test, 0, sizeof(*test));
-	ipaddr_aton("1.1.2.2", &test->server);
-	ut_assertok(env_set("autostart", "yes"));
-	sys_timeout(1, tftp_test_server_input, test);
-	ret = run_command("tftpsrv 2000000", 0);
-	sys_untimeout(tftp_test_server_input, test);
-	ut_assertok(ret);
-	ut_assertok(test->error);
-	ut_asserteq(2, test->server_phase);
-	ut_asserteq(3, test->sent);
-	ut_asserteq(4, test->opcode);
-	ut_asserteq(1, test->block);
-	ut_asserteq(0x2000000, image_load_addr);
-	ut_asserteq_str("3", env_get("filesize"));
-	ut_asserteq_str("2000000", env_get("fileaddr"));
-	ut_asserteq_str("yes", env_get("autostart"));
-	ut_asserteq_mem("abc", map_sysmem(0x2000000, 3), 3);
+	for (i = 0; i < 4; i++) {
+		memset(test, 0, sizeof(*test));
+		test->server_empty = i == 2;
+		ipaddr_aton("1.1.2.2", &test->server);
+		ut_assertok(env_set("autostart", i ? "yes" : "no"));
+		if (i == 3)
+			ut_assertok(env_set(".flags", "filesize:xr"));
+		sys_timeout(1, tftp_test_server_input, test);
+		ret = run_command("tftpsrv 2000000", 0);
+		sys_untimeout(tftp_test_server_input, test);
+		ut_assertok(env_set(".flags", NULL));
+		/*
+		 * Non-bootable data must fail autostart, but an empty file must
+		 * not boot stale RAM. Metadata errors are transfer failures.
+		 */
+		if (i == 3 || (i == 1 && IS_ENABLED(CONFIG_CMD_BOOTM)))
+			ut_assert(ret != CMD_RET_SUCCESS);
+		else
+			ut_assertok(ret);
+		ut_assertok(test->error);
+		ut_asserteq(2, test->server_phase);
+		ut_asserteq(3, test->sent);
+		ut_asserteq(4, test->opcode);
+		ut_asserteq(1, test->block);
+		ut_asserteq(i >= 2 ? 0 : 3, net_boot_file_size);
+		ut_asserteq(0x2000000, image_load_addr);
+		ut_asserteq_str("2000000", env_get("fileaddr"));
+		ut_asserteq_str(i ? "yes" : "no", env_get("autostart"));
+		ut_asserteq_mem("abc", map_sysmem(0x2000000, 3), 3);
+	}
+	return 0;
+}
+
+static int tftp_test_server_completion(struct unit_test_state *uts,
+				       struct tftp_protocol_test *test)
+{
+	u8 expected[6];
+	void *buf = map_sysmem(0x2000000, sizeof(expected));
+	int i, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	for (i = 0; i < 3; i++) {
+		memset(test, 0, sizeof(*test));
+		test->server_followup = true;
+		test->server_empty = i == 1;
+		test->server_failure = i == 2;
+		ipaddr_aton("1.1.2.2", &test->server);
+		memset(buf, 0xa5, sizeof(expected));
+		memset(expected, 0xa5, sizeof(expected));
+		if (!i)
+			memcpy(expected, "abc", 3);
+		ut_assertok(env_set("fileaddr", "1234"));
+		ut_assertok(env_set("filesize", "5678"));
+		sys_timeout(1, tftp_test_server_input, test);
+		ret = run_command("tftpsrv 2000000", 0);
+		sys_untimeout(tftp_test_server_input, test);
+		ut_asserteq(i == 2 ? CMD_RET_FAILURE : CMD_RET_SUCCESS, ret);
+		ut_assertok(test->error);
+		ut_asserteq(2, test->server_phase);
+		ut_asserteq(i == 2 ? 4 : 5, test->sent);
+		ut_asserteq(5, test->opcode);
+		ut_asserteq(2, test->block);
+		ut_asserteq(i ? 0 : 3, net_boot_file_size);
+		ut_asserteq_str(i == 2 ? "1234" : "2000000", env_get("fileaddr"));
+		ut_asserteq_str(i == 2 ? "5678" : i ? "0" : "3", env_get("filesize"));
+		ut_asserteq_mem(expected, buf, sizeof(expected));
+	}
+	unmap_sysmem(buf);
 	return 0;
 }
 #endif
@@ -769,7 +835,7 @@ static int tftp_test_server_command(struct unit_test_state *uts,
 static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 {
 	static const char * const vars[] = {
-		"ethact", "ipaddr", "netmask", "fileaddr", "filesize", "autostart",
+		"ethact", "ipaddr", "netmask", "fileaddr", "filesize", "autostart", ".flags",
 	};
 	struct tftp_protocol_test test = {};
 	struct net_lwip_ctx net = {};
@@ -817,6 +883,8 @@ static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 #if IS_ENABLED(CONFIG_CMD_TFTPSRV)
 	if (!ret)
 		ret = tftp_test_server_command(uts, &test);
+	if (!ret)
+		ret = tftp_test_server_completion(uts, &test);
 #endif
 	if (test.initialized)
 		tftp_cleanup();
@@ -824,6 +892,7 @@ static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 	tftp_test_active = NULL;
 	net_lwip_stop(&net);
 restore_env:
+	env_set(".flags", NULL);
 	image_load_addr = load_addr;
 	net_boot_file_size = size;
 	for (i = 0; i < ARRAY_SIZE(vars); i++)

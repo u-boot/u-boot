@@ -15,6 +15,10 @@
 #include <asm/unaligned.h>
 #include <dm/test.h>
 #include <test/ut.h>
+#if IS_ENABLED(CONFIG_NET_LWIP)
+#include <lwip/timeouts.h>
+#include <lwip/udp.h>
+#endif
 
 static const char tftp_test_data[] = "update data, not a bootable image";
 
@@ -29,6 +33,7 @@ enum tftp_test_probe {
 
 struct tftp_test_context {
 	bool fail;
+	bool empty;
 	bool autostart;
 	unsigned int requests;
 	unsigned int arp_requests;
@@ -41,7 +46,46 @@ struct tftp_test_context {
 	ulong ack_start;
 	ulong ack_delay;
 	unsigned int advertised_timeout;
+	char filename[64];
+	u16 blocksize;
+	u16 windowsize;
+	u16 port;
 };
+
+static ulong tftp_test_option(const char *packet, size_t len, const char *option)
+{
+	const char *end = packet + len;
+	const char *name = packet + 2;
+	size_t size;
+	int i;
+
+	/* Skip the request's filename and mode before walking option pairs. */
+	for (i = 0; i < 2; i++) {
+		if (name >= end)
+			return 0;
+		size = strnlen(name, end - name);
+		if (size == end - name)
+			return 0;
+		name += size + 1;
+	}
+	while (name < end) {
+		const char *value;
+
+		size = strnlen(name, end - name);
+		if (size == end - name)
+			break;
+		value = name + size + 1;
+		if (value >= end)
+			break;
+		size = strnlen(value, end - value);
+		if (size == end - value)
+			break;
+		if (!strcmp(name, option))
+			return simple_strtoul(value, NULL, 10);
+		name = value + size + 1;
+	}
+	return 0;
+}
 
 /* Answer an RRQ with one short DATA block or a file-not-found error. */
 static int tftp_test_tx_handler(struct udevice *dev, void *packet,
@@ -52,9 +96,9 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 	struct ethernet_hdr *eth = packet, *reply_eth;
 	struct ip_udp_hdr *ip, *reply_ip;
 	const char *data = ctx->fail ? "not found" : tftp_test_data;
-	unsigned int data_len = strlen(data) + 1;
+	unsigned int data_len = ctx->empty ? 0 : strlen(data) + 1;
 	unsigned int reply_len, header_len = 4;
-	u16 opcode, reply_opcode = ctx->fail ? 5 : 3, block = 1;
+	u16 opcode, reply_opcode = 3, block = 1;
 	bool partial = false;
 	u8 *payload;
 
@@ -98,16 +142,16 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 			return 0;
 		ctx->ack_delay = get_timer(ctx->ack_start);
 		block = ctx->probe == TFTP_PROBE_DATA ? 2 : 1;
-	} else if (opcode == 1 && ntohs(ip->udp_dst) == 69) {
-		unsigned int i, request_len = len - ETHER_HDR_SIZE - IP_UDP_HDR_SIZE;
+	} else if (opcode == 1 || opcode == 2) {
+		size_t request_len = len - ETHER_HDR_SIZE - IP_UDP_HDR_SIZE;
 
 		if (!ctx->requests++)
 			ctx->request_start = get_timer(0);
-		payload = (void *)(ip + 1);
-		for (i = 2; i + 10 <= request_len; i++) {
-			if (!memcmp(payload + i, "timeout\0", 8))
-				ctx->advertised_timeout = dectoul((char *)payload + i + 8, NULL);
-		}
+		strlcpy(ctx->filename, (char *)(ip + 1) + 2, sizeof(ctx->filename));
+		ctx->blocksize = tftp_test_option((char *)(ip + 1), request_len, "blksize");
+		ctx->windowsize = tftp_test_option((char *)(ip + 1), request_len, "windowsize");
+		ctx->port = ntohs(ip->udp_dst);
+		ctx->advertised_timeout = tftp_test_option((char *)(ip + 1), request_len, "timeout");
 		if (ctx->probe == TFTP_PROBE_SILENT)
 			return 0;
 		if (ctx->probe == TFTP_PROBE_DATA) {
@@ -123,13 +167,23 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 				"timeout\0" "1" : "timeout\0" "5";
 			data_len = 10;
 		}
+		if (opcode == 2) {
+			reply_opcode = 4;
+			block = 0;
+			data_len = 0;
+		}
+	} else if (ntohs(ip->udp_dst) == 1234 && opcode == 3 &&
+		   len >= ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + 4) {
+		reply_opcode = 4;
+		block = get_unaligned_be16((u8 *)(ip + 1) + 2);
+		data_len = 0;
 	} else {
 		return 0;
 	}
+	reply_len = ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + header_len + data_len;
 	if (priv->recv_packets >= PKTBUFSRX)
 		return -ENOSPC;
 
-	reply_len = ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + header_len + data_len;
 	ctx->autostart |= env_get_autostart();
 	reply_eth = (void *)priv->recv_packet_buffer[priv->recv_packets];
 	memcpy(reply_eth->et_dest, eth->et_src, ARP_HLEN);
@@ -149,7 +203,7 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 	reply_ip->udp_len = htons(UDP_HDR_SIZE + header_len + data_len);
 	reply_ip->ip_sum = compute_ip_checksum(reply_ip, IP_HDR_SIZE);
 	payload = (void *)(reply_ip + 1);
-	put_unaligned_be16(reply_opcode, payload);
+	put_unaligned_be16(ctx->fail ? 5 : reply_opcode, payload);
 	if (header_len == 4)
 		put_unaligned_be16(block, payload + 2);
 	if (partial)
@@ -257,11 +311,140 @@ static int tftp_test_probe_timeout(struct unit_test_state *uts,
 	return 0;
 }
 
+static int tftp_test_filenames(struct unit_test_state *uts,
+			       struct tftp_test_context *ctx)
+{
+	static const char * const files[] = {
+		"dir:file", "dir:one:two:file", "1.1.2.2:path:file",
+	};
+	static const char * const expected[] = {
+		"dir:file", "dir:one:two:file", "path:file",
+	};
+	char command[100];
+	int i;
+
+	ut_assertok(env_set("autostart", "no"));
+	for (i = 0; i < ARRAY_SIZE(files); i++) {
+		memset(ctx, 0, sizeof(*ctx));
+		snprintf(command, sizeof(command), "tftpboot 2000000 %s", files[i]);
+		ut_assertok(run_command(command, 0));
+		ut_asserteq(1, ctx->requests);
+		ut_asserteq_str(expected[i], ctx->filename);
+		ut_assertok(env_set("bootfile", files[i]));
+		ut_assertok(run_command("tftpboot 2000000", 0));
+		ut_asserteq_str(expected[i], ctx->filename);
+	}
+	if (IS_ENABLED(CONFIG_NET_LWIP)) {
+		/* Keep the lwIP numeric-port extension, including filename colons. */
+		ut_assertok(run_command("tftpboot 2000000 1.1.2.2:1069:path:to:file", 0));
+		ut_asserteq(1069, ctx->port);
+		ut_asserteq_str("path:to:file", ctx->filename);
+		ut_assertok(run_command("tftpboot 2000000 :1069:path:to:file", 0));
+		ut_asserteq_str("path:to:file", ctx->filename);
+		ut_assertok(run_command("tftpboot 2000000 1.1.2.2::path:file", 0));
+		ut_asserteq(69, ctx->port);
+		ut_asserteq_str("path:file", ctx->filename);
+		memset(ctx, 0, sizeof(*ctx));
+		ut_asserteq(CMD_RET_FAILURE,
+			    run_command("tftpboot 2000000 1.1.2.2:65536:file", 0));
+		ut_asserteq(0, ctx->requests);
+	}
+	return 0;
+}
+
+#if IS_ENABLED(CONFIG_NET_LWIP)
+static int tftp_test_options(struct unit_test_state *uts,
+			     struct tftp_test_context *ctx)
+{
+	static const struct {
+		const char *value;
+		bool valid;
+	} sizes[] = {
+		{ NULL, true },
+		{ "512", true },
+		{ "4096", true },
+		{ "65464", true },
+		{ "1", false },
+		{ "bad", false },
+	};
+	ulong rx_max = IP_REASSEMBLY ?
+		min_t(ulong, 65464, IP_REASS_MAX_PBUFS * IP_FRAG_MTU_USABLE - 12) : 1468;
+	bool vars = IS_ENABLED(CONFIG_NET_TFTP_VARS);
+	ulong requested, expected;
+	int i, put, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("tftpwindowsize", "4"));
+	for (put = 0; put <= IS_ENABLED(CONFIG_CMD_TFTPPUT); put++) {
+		for (i = 0; i < ARRAY_SIZE(sizes); i++) {
+			memset(ctx, 0, sizeof(*ctx));
+			ut_assertok(env_set("tftpblocksize", sizes[i].value));
+			ret = run_command(put ? "tftpput 2000000 20 file" :
+					  "tftpboot 2000000 file", 0);
+			if (vars && !sizes[i].valid) {
+				ut_asserteq(CMD_RET_FAILURE, ret);
+				ut_asserteq(0, ctx->requests);
+				continue;
+			}
+			ut_assertok(ret);
+			requested = vars && sizes[i].value ?
+				simple_strtoul(sizes[i].value, NULL, 10) : CONFIG_TFTP_BLOCKSIZE;
+			expected = min(requested, put ? 1468UL : rx_max);
+			/* The default block size does not need an on-wire option. */
+			ut_asserteq(expected == 512 ? 0 : expected, ctx->blocksize);
+			expected = vars ? 4 : CONFIG_TFTP_WINDOWSIZE;
+			ut_asserteq(put || expected == 1 ? 0 : expected, ctx->windowsize);
+		}
+	}
+	ut_assertok(env_set("tftpblocksize", NULL));
+	ut_assertok(env_set("tftpwindowsize", "bad"));
+	memset(ctx, 0, sizeof(*ctx));
+	ret = run_command("tftpboot 2000000 file", 0);
+	ut_asserteq(vars ? CMD_RET_FAILURE : CMD_RET_SUCCESS, ret);
+	ut_asserteq(vars ? 0 : 1, ctx->requests);
+	ut_assertok(env_set("tftpwindowsize", NULL));
+	return 0;
+}
+#endif
+
+static int tftp_test_protected_autostart(struct unit_test_state *uts,
+					 struct tftp_test_context *ctx)
+{
+	char * const argv[] = { "tftpboot", "2000000", "update.bin" };
+	int enabled, helper, ret;
+
+	for (enabled = 0; enabled < 2; enabled++) {
+		ut_assertok(env_set("autostart", enabled ? "yes" : "no"));
+		ut_assertok(env_set(".flags", "autostart:br"));
+		for (helper = 0; helper < 3; helper++) {
+			memset(ctx, 0, sizeof(*ctx));
+			switch (helper) {
+			case 0:
+				ret = tftpb_run(TFTP_TEST_ADDR, "update.bin");
+				break;
+			case 1:
+				ret = tftpb_run_timeout(TFTP_TEST_ADDR, "update.bin", 100, 0);
+				break;
+			default:
+				ret = tftpb_run_argv(3, argv);
+			}
+			/* Do not override protection when suppression is required. */
+			ut_asserteq(enabled, !!ret);
+			ut_asserteq(!enabled, ctx->requests);
+			ut_assert(!ctx->autostart);
+			ut_asserteq_str(enabled ? "yes" : "no", env_get("autostart"));
+		}
+		ut_assertok(env_set(".flags", NULL));
+	}
+	return 0;
+}
+
 static int tftp_test_download(struct unit_test_state *uts,
 			      struct tftp_test_context *ctx)
 {
 	static const char * const autostart[] = { "yes", NULL, "no", "yes-please" };
 	const char *timeout, *retries;
+	char * const argv[] = { "tftpboot", "2000000", "update.bin" };
 	void *buffer = map_sysmem(TFTP_TEST_ADDR, sizeof(tftp_test_data));
 	int i, fail, ret;
 
@@ -277,22 +460,74 @@ static int tftp_test_download(struct unit_test_state *uts,
 	ut_assertok(tftp_test_probe_arp(uts, ctx));
 	ut_assertok(tftp_test_probe_timeout(uts, ctx));
 
+	ut_assertok(tftp_test_protected_autostart(uts, ctx));
+
+#if IS_ENABLED(CONFIG_NET_LWIP)
+	ut_assertok(tftp_test_options(uts, ctx));
+#endif
+	ut_assertok(tftp_test_filenames(uts, ctx));
+
+	/* A previous DHCP/download must not override the next command's env. */
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("loadaddr", "2000000"));
+	for (i = 0; i < 3; i++) {
+		strcpy(net_boot_file_name, "stale.bin");
+		ut_assertok(env_set("bootfile", i == 2 ? NULL : "fresh.bin"));
+		memset(ctx, 0, sizeof(*ctx));
+		ut_assertok(run_command(i == 1 ? "tftpboot 2000000" : "tftpboot", 0));
+		ut_asserteq_str(i == 2 ? "01010203.img" : "fresh.bin", ctx->filename);
+		ut_asserteq(1, ctx->requests);
+	}
+	strcpy(net_boot_file_name, "stale.bin");
+	ut_assertok(env_set("bootfile", "helper.bin"));
+	ut_assertok(tftpb_run(TFTP_TEST_ADDR, NULL));
+	ut_asserteq_str("helper.bin", ctx->filename);
+
+#if IS_ENABLED(CONFIG_NET_LWIP) && IS_ENABLED(CONFIG_NET_TFTP_VARS)
+	/* Reject delays outside lwIP's wrap-safe timer range before an RRQ. */
+	ut_assertok(env_set("autostart", "no"));
+	for (i = 0; i < 3; i++) {
+		static const char * const delays[] = {
+			"1073741823", "1073741824", "4294967295",
+		};
+
+		memset(ctx, 0, sizeof(*ctx));
+		net_boot_file_size = 1234;
+		ut_assertok(env_set("tftptimeout", delays[i]));
+		ret = do_tftpb(NULL, 0, 3, argv);
+		ut_asserteq(i ? CMD_RET_FAILURE : CMD_RET_SUCCESS, ret);
+		ut_asserteq(i ? 0 : 1, ctx->requests);
+		ut_asserteq(i ? 0 : sizeof(tftp_test_data), net_boot_file_size);
+		ut_asserteq(-ENODEV, net_lwip_poll());
+	}
+	ut_assertok(env_set("tftptimeout", NULL));
+#endif
+
 	for (i = 0; i < ARRAY_SIZE(autostart); i++) {
 		timeout = i & 1 ? NULL : "7000";
 		retries = i & 1 ? NULL : "09";
-		for (fail = 0; fail < 2; fail++) {
+		for (fail = 0; fail < 6; fail++) {
 			ut_assertok(env_set("autostart", autostart[i]));
 			ut_assertok(env_set("tftptimeout", timeout));
 			ut_assertok(env_set("tftptimeoutcountmax", retries));
 			memset(buffer, 0, sizeof(tftp_test_data));
 			memset(ctx, 0, sizeof(*ctx));
-			ctx->fail = fail;
+			ctx->fail = fail & 1;
 
-			ret = tftpb_run_timeout(TFTP_TEST_ADDR, "update.bin", 100, 0);
-			ut_asserteq(fail ? -ENOENT : 0, ret);
+			switch (fail / 2) {
+			case 0:
+				ret = tftpb_run_timeout(TFTP_TEST_ADDR, "update.bin", 100, 0);
+				break;
+			case 1:
+				ret = tftpb_run(TFTP_TEST_ADDR, "update.bin");
+				break;
+			default:
+				ret = tftpb_run_argv(3, argv) ? -ENOENT : 0;
+			}
+			ut_asserteq(ctx->fail ? -ENOENT : 0, ret);
 			ut_asserteq(1, ctx->requests);
 			ut_assert(!ctx->autostart);
-			if (!fail) {
+			if (!ctx->fail) {
 				ut_asserteq(sizeof(tftp_test_data), net_boot_file_size);
 				ut_asserteq_mem(tftp_test_data, buffer,
 						sizeof(tftp_test_data));
@@ -310,6 +545,40 @@ static int tftp_test_download(struct unit_test_state *uts,
 			}
 		}
 	}
+	if (IS_ENABLED(CONFIG_CMD_BOOTM)) {
+		/* An empty successful download must not boot stale RAM contents. */
+		memset(ctx, 0, sizeof(*ctx));
+		ctx->empty = true;
+		ut_assertok(env_set("autostart", "yes"));
+		ut_assertok(do_tftpb(NULL, 0, 3, argv));
+		ut_asserteq(1, ctx->requests);
+		ut_asserteq(0, net_boot_file_size);
+
+		/*
+		 * The same bytes are not bootable. A command must attempt boot
+		 * and return its failure, unlike the download-only helpers above.
+		 */
+		memset(ctx, 0, sizeof(*ctx));
+		ut_assertok(env_set("autostart", "yes"));
+		ut_assert(do_tftpb(NULL, 0, 3, argv) != CMD_RET_SUCCESS);
+		ut_asserteq(1, ctx->requests);
+		ut_assert(ctx->autostart);
+		ut_asserteq(sizeof(tftp_test_data), net_boot_file_size);
+		ut_asserteq_str("yes", env_get("autostart"));
+#if IS_ENABLED(CONFIG_NET_LWIP)
+		ut_asserteq(-ENODEV, net_lwip_poll());
+#endif
+	}
+#if IS_ENABLED(CONFIG_NET_LWIP) && IS_ENABLED(CONFIG_CMD_TFTPPUT)
+	/* Uploading non-bootable bytes is not a request to boot their source. */
+	memset(ctx, 0, sizeof(*ctx));
+	ut_assertok(env_set("autostart", "yes"));
+	ut_assertok(run_command("tftpput 2000000 20 update.bin", 0));
+	ut_asserteq(1, ctx->requests);
+	ut_assert(ctx->autostart);
+	ut_asserteq_str("yes", env_get("autostart"));
+	ut_asserteq(-ENODEV, net_lwip_poll());
+#endif
 	unmap_sysmem(buffer);
 
 	return 0;
@@ -321,6 +590,8 @@ static int dm_test_tftp_download_only(struct unit_test_state *uts)
 		"autostart", "tftptimeout", "tftptimeoutcountmax", "ethact",
 		"ipaddr", "serverip", "netmask", "gatewayip", "netretry", "tftpsrcp",
 		"tftpdstp", "tftpserverip", "fileaddr", "filesize",
+		"bootaddr", "loadaddr", "bootfile", "ethrotate", ".flags",
+		"tftpblocksize", "tftpwindowsize",
 	};
 	char saved_bootfile[sizeof(net_boot_file_name)];
 	ulong saved_load_addr = image_load_addr;

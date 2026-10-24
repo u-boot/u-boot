@@ -25,10 +25,10 @@ loadAddress
     image load address.
 
 After a successful transfer, the *fileaddr* and *filesize* environment
-variables describe the received file. The command returns successfully after
-the transfer has completed. It does not boot the file automatically; boot
-scripts can use commands such as bootm, booti or bootefi to boot from the
-load address.
+variables describe the received file. If *autostart* is enabled, a nonempty
+file is passed to bootm after the transfer completes. Otherwise, the command
+returns without booting the file; boot scripts can use commands such as
+bootm, booti or bootefi to boot from the load address.
 
 The transfer is aborted if no transfer has started after about 50 seconds or
 if Ctrl-C is pressed.
@@ -45,6 +45,7 @@ In the example the following steps are executed:
 ::
 
     => setenv autoload no
+    => setenv autostart no
     => dhcp
     BOOTP broadcast 1
     DHCP client bound to address 192.168.1.40 (7 ms)

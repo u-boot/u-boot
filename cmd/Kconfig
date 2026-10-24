@@ -2321,8 +2321,9 @@ config CMD_TFTPSRV
 	depends on CMD_TFTPBOOT
 	help
 	  Act as a TFTP server and receive the first incoming file into
-	  memory. The command returns successfully after the transfer so
-	  boot scripts can boot the received image from the load address.
+	  memory. If autostart is enabled, boot the received image after a
+	  successful nonempty transfer. Otherwise return to the caller so
+	  boot scripts can use the image at the load address.
 
 config CMD_WGET
 	bool "wget"

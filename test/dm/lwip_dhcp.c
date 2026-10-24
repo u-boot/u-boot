@@ -251,10 +251,18 @@ static int dhcp_handoff_check(struct unit_test_state *uts,
 	}
 	*test = (struct dhcp_handoff_test){ .offer = "offered.bin", .fail = true };
 	ut_assertok(env_set("autoload", "NFS"));
+	ut_assertok(env_set("autostart", "yes-please"));
 	ut_asserteq(-ENOENT, dhcp_run(0x2000000, "explicit.bin", true));
 	ut_asserteq_str("NFS", env_get("autoload"));
 	ut_assert(!test->dhcp_alive);
 	ut_assertnull(netif_default);
+	*test = (struct dhcp_handoff_test){ .offer = "offered.bin" };
+	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT)) {
+		ut_assertok(dhcp_run(0x2000000, "explicit.bin", true));
+		ut_asserteq_str("yes-please", env_get("autostart"));
+		ut_asserteq_str("NFS", env_get("autoload"));
+		ut_assertnull(netif_default);
+	}
 	*test = (struct dhcp_handoff_test){ .offer = "", .timeout = true };
 	ut_asserteq(-ENOENT, dhcp_run(0x2000000, NULL, true));
 	ut_asserteq(0, test->tftp);

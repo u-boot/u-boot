@@ -581,7 +581,9 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 out:
 	net_lwip_stop(&net);
-	return ret;
+	if (ret || !net_boot_file_size)
+		return ret;
+	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
 
 static int tftp_default_filename(char *fname, size_t size)
@@ -807,7 +809,13 @@ out:
 
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	return do_tftp(cmdtp, flag, argc, argv, TFTP_DOWNLOAD);
+	int ret;
+
+	ret = do_tftp(cmdtp, flag, argc, argv, TFTP_DOWNLOAD);
+	if (ret || !net_boot_file_size)
+		return ret;
+	/* The transfer's callbacks and runtime attachment are already gone. */
+	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
 
 int do_tftpput(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

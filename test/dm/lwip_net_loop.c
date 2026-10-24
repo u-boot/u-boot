@@ -71,13 +71,14 @@ static int net_loop_check(struct unit_test_state *uts, int *mode)
 	ut_assertok(env_set("tftpdstp", NULL));
 	ut_assertok(env_set("loadaddr", "2000000"));
 	ut_assertok(env_set("bootfile", "other.bin"));
-	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("autostart", "yes"));
 	strcpy(net_boot_file_name, "test.bin");
 	image_load_addr = 0x2100000;
 	for (*mode = -1; *mode <= 1; (*mode)++) {
 		net_boot_file_size = 1234;
 		ut_asserteq(*mode < 0 ? -EINVAL : *mode, net_loop(TFTPGET));
 		ut_asserteq(*mode > 0 ? 1 : 0, net_boot_file_size);
+		ut_asserteq_str("yes", env_get("autostart"));
 		if (*mode >= 0)
 			ut_asserteq_str("2100000", env_get("fileaddr"));
 	}
