@@ -122,6 +122,9 @@ static void *tftp_open(const char *fname, const char *mode, u8_t is_write)
 
 	if (!IS_ENABLED(CONFIG_CMD_TFTPSRV) || !ctx || !is_write)
 		return NULL;
+	/* The command may still be draining its final receive batch. */
+	if (ctx->done != NOT_DONE)
+		return NULL;
 
 	ctx->wrq_accepted = true;
 	ctx->start_time = get_timer(0);

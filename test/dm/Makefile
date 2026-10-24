@@ -61,6 +61,9 @@ endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_BOOTP),yy)
 obj-y += lwip_bootp.o
 endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_TFTPBOOT),yy)
+obj-y += lwip_tftp.o
+endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_NETCONSOLE),yy)
 obj-y += netconsole.o
 endif
