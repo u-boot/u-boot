@@ -3,6 +3,7 @@
 /* Copyright (C) 2024 Linaro Ltd. */
 
 #include <command.h>
+#include <console.h>
 #include <env.h>
 #include <image.h>
 #include <dm/device.h>
@@ -22,6 +23,7 @@
 #include <net.h>
 #include <net/pcap.h>
 #include <timer.h>
+#include <time.h>
 #include <u-boot/schedule.h>
 
 /* xx:xx:xx:xx:xx:xx\0 */
@@ -367,21 +369,9 @@ static int net_lwip_configure(enum net_lwip_addr_mode addr_mode)
 	return 0;
 }
 
-/**
- * net_lwip_start - Attach a client to the shared lwIP runtime
- * @ctx: Zero-initialized client attachment
- * @addr_mode: Initial IPv4 address configuration requested by the client
- *
- * The first client starts the selected Ethernet device and creates the lwIP
- * network interface. Later clients share both resources. Strict environment
- * clients and address-less clients are mutually exclusive. Flexible clients
- * can remain attached while an address-less client temporarily owns the
- * interface configuration.
- *
- * Return: 0 on success, or a negative error code.
- */
-int net_lwip_start(struct net_lwip_ctx *ctx,
-		   enum net_lwip_addr_mode addr_mode)
+static int net_lwip_start_ctx(struct net_lwip_ctx *ctx,
+			      enum net_lwip_addr_mode addr_mode,
+			      bool eth_started)
 {
 	struct netif *netif;
 	int ret;
@@ -402,9 +392,12 @@ int net_lwip_start(struct net_lwip_ctx *ctx,
 		return -EBUSY;
 
 	if (!net_lwip_runtime.users) {
-		ret = net_lwip_eth_start();
-		if (ret)
-			return ret;
+		/* net_start_again() already selected and started the next NIC. */
+		if (!eth_started) {
+			ret = net_lwip_eth_start();
+			if (ret)
+				return ret;
+		}
 
 		net_lwip_runtime.dev = eth_get_dev();
 		netif = new_netif(net_lwip_runtime.dev,
@@ -441,6 +434,25 @@ int net_lwip_start(struct net_lwip_ctx *ctx,
 	ctx->addr_mode = addr_mode;
 
 	return 0;
+}
+
+/**
+ * net_lwip_start - Attach a client to the shared lwIP runtime
+ * @ctx: Zero-initialized client attachment
+ * @addr_mode: Initial IPv4 address configuration requested by the client
+ *
+ * The first client starts the selected Ethernet device and creates the lwIP
+ * network interface. Later clients share both resources. Strict environment
+ * clients and address-less clients are mutually exclusive. Flexible clients
+ * can remain attached while an address-less client temporarily owns the
+ * interface configuration.
+ *
+ * Return: 0 on success, or a negative error code.
+ */
+int net_lwip_start(struct net_lwip_ctx *ctx,
+		   enum net_lwip_addr_mode addr_mode)
+{
+	return net_lwip_start_ctx(ctx, addr_mode, false);
 }
 
 /**
@@ -492,6 +504,8 @@ void net_lwip_stop(struct net_lwip_ctx *ctx)
  * Stop the current interface, select the next interface according to the
  * normal network retry policy and attach @ctx to the replacement interface.
  * A shared runtime cannot be restarted without disrupting other clients.
+ * Wait ten seconds after wrapping around the interfaces, as in legacy.
+ * Callers must detach @ctx even on error, including an interrupted wait.
  *
  * Return: 0 on success, -EBUSY if other clients are attached, or another
  * negative error code.
@@ -499,6 +513,7 @@ void net_lwip_stop(struct net_lwip_ctx *ctx)
 int net_lwip_restart(struct net_lwip_ctx *ctx)
 {
 	enum net_lwip_addr_mode addr_mode;
+	ulong start;
 	int ret;
 
 	if (!ctx || ctx->netif != net_lwip_runtime.netif ||
@@ -510,11 +525,30 @@ int net_lwip_restart(struct net_lwip_ctx *ctx)
 	addr_mode = ctx->addr_mode;
 	net_lwip_stop(ctx);
 
+	/* Retain the result for callers such as BOOTP_MAY_FAIL, but do not
+	 * carry the previous attempt's wrap into this interface selection.
+	 */
+	net_restart_wrap = 0;
 	ret = net_start_again();
 	if (ret)
 		return ret;
 
-	return net_lwip_start(ctx, addr_mode);
+	ret = net_lwip_start_ctx(ctx, addr_mode, true);
+	if (ret)
+		return ret;
+
+	if (net_restart_wrap) {
+		start = get_timer(0);
+		while (get_timer(start) < 10000) {
+			if (ctrlc()) {
+				puts("\nAbort\n");
+				return -EINTR;
+			}
+			net_lwip_poll();
+		}
+	}
+
+	return 0;
 }
 
 /**

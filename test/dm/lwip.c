@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright 2026 James Hilliard <james.hilliard1@gmail.com> */
 
+#include <console.h>
 #include <dm.h>
 #include <env.h>
 #include <lwip/pbuf.h>
 #include <lwip/udp.h>
+#include <lwip/timeouts.h>
 #include <net.h>
+#include <time.h>
 #include <asm/eth.h>
 #include <dm/test.h>
 #include <linux/kconfig.h>
@@ -375,3 +378,111 @@ static int dm_test_lwip_runtime(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_lwip_runtime, UTF_SCAN_FDT);
+
+struct lwip_restart_test {
+	unsigned int ticks;
+	bool cancel;
+};
+
+static void lwip_restart_tick(void *arg)
+{
+	struct lwip_restart_test *test = arg;
+
+	test->ticks++;
+	if (test->cancel)
+		console_in_puts("\x03");
+	timer_test_add_offset(1000);
+	sys_timeout(1, lwip_restart_tick, test);
+}
+
+static int lwip_restart_check(struct unit_test_state *uts,
+			      struct net_lwip_ctx *net,
+			      struct lwip_restart_test *test)
+{
+	struct eth_sandbox_priv *priv;
+	unsigned int starts, stops;
+	ulong start;
+	int ret;
+
+	ut_assertok(env_set("ethact", "eth@10002000"));
+	ut_assertok(env_set("ethrotate", "no"));
+	ut_assertok(env_set("netretry", "yes"));
+	ut_assertok(net_lwip_start(net, NET_LWIP_ADDR_NONE));
+	priv = dev_get_priv(net->dev);
+	starts = priv->start_count;
+	stops = priv->stop_count;
+	net_try_count = 1;
+	net_restart_wrap = 0;
+	ut_assertok(net_lwip_restart(net));
+	ut_asserteq(starts + 1, priv->start_count);
+	ut_asserteq(stops + 1, priv->stop_count);
+	ut_assert(eth_is_active(net->dev));
+
+	/* Exercise the wrap signal without depending on sandbox's NIC count. */
+	priv->restart_wrap = true;
+	start = get_timer(0);
+	sys_timeout(1, lwip_restart_tick, test);
+	ret = net_lwip_restart(net);
+	priv->restart_wrap = false;
+	sys_untimeout(lwip_restart_tick, test);
+	ut_assertok(ret);
+	ut_assert(get_timer(start) >= 10000);
+	ut_assert(test->ticks >= 10);
+	ut_asserteq(1, net_restart_wrap);
+	ut_asserteq(starts + 2, priv->start_count);
+	ut_asserteq(stops + 2, priv->stop_count);
+
+	/* No inherited delay on the next retry; Ctrl-C cancels a new wait. */
+	start = get_timer(0);
+	ut_assertok(net_lwip_restart(net));
+	ut_assert(get_timer(start) < 1000);
+	ut_asserteq(0, net_restart_wrap);
+	test->cancel = true;
+	priv->restart_wrap = true;
+	start = get_timer(0);
+	sys_timeout(1, lwip_restart_tick, test);
+	ret = net_lwip_restart(net);
+	priv->restart_wrap = false;
+	sys_untimeout(lwip_restart_tick, test);
+	ut_asserteq(-EINTR, ret);
+	ut_assert(get_timer(start) < 10000);
+	ut_asserteq(1, net_restart_wrap);
+	ut_asserteq(starts + 4, priv->start_count);
+	ut_asserteq(stops + 4, priv->stop_count);
+	return 0;
+}
+
+static int dm_test_lwip_restart(struct unit_test_state *uts)
+{
+	const char * const vars[] = { "ethact", "ethrotate", "netretry" };
+	struct lwip_restart_test test = {};
+	struct net_lwip_ctx net = {};
+	char *saved[ARRAY_SIZE(vars)] = {};
+	int i, ret = -ENOMEM, ctrlc_state;
+
+	for (i = 0; i < ARRAY_SIZE(vars); i++) {
+		const char *value = env_get(vars[i]);
+
+		if (value) {
+			saved[i] = strdup(value);
+			if (!saved[i])
+				goto out;
+		}
+	}
+	ctrlc_state = disable_ctrlc(0);
+	ret = lwip_restart_check(uts, &net, &test);
+	sys_untimeout(lwip_restart_tick, &test);
+	net_lwip_stop(&net);
+	clear_ctrlc();
+	disable_ctrlc(ctrlc_state);
+	net_restart_wrap = 0;
+	for (i = 0; i < ARRAY_SIZE(vars); i++)
+		if (env_set(vars[i], saved[i]))
+			ret = -EINVAL;
+out:
+	for (i = 0; i < ARRAY_SIZE(vars); i++)
+		free(saved[i]);
+	return ret;
+}
+
+DM_TEST(dm_test_lwip_restart, UTF_SCAN_FDT | UTF_CONSOLE);
