@@ -101,6 +101,8 @@ struct tftp_state {
   u32_t put_tsize;
   u32_t timeout_msecs;
   u32_t max_retries;
+  u32_t request_timeout_msecs;
+  u32_t request_max_retries;
   u32_t retries;
   u8_t request_timeout;
   u8_t negotiated_timeout;
@@ -809,7 +811,7 @@ tftp_req_tmr(void *arg)
     return;
   }
 
-  if (tftp_state.retries >= tftp_state.max_retries) {
+  if (tftp_state.retries >= tftp_state.request_max_retries) {
     transfer_timed_out();
     return;
   }
@@ -818,7 +820,7 @@ tftp_req_tmr(void *arg)
   ret = resend_request();
   LWIP_UNUSED_ARG(ret);
   tftp_state.retries++;
-  sys_timeout(tftp_state.timeout_msecs, tftp_req_tmr, NULL);
+  sys_timeout(tftp_state.request_timeout_msecs, tftp_req_tmr, NULL);
 }
 
 /**
@@ -853,6 +855,8 @@ tftp_init_common(u8_t mode, const struct tftp_context *ctx)
   tftp_state.tftp_mode = mode;
   tftp_state.timeout_msecs = TFTP_TIMEOUT_MSECS;
   tftp_state.max_retries = TFTP_MAX_RETRIES;
+  tftp_state.request_timeout_msecs = TFTP_TIMEOUT_MSECS;
+  tftp_state.request_max_retries = TFTP_MAX_RETRIES;
   tftp_state.wrq_pending = false;
 
   udp_recv(pcb, tftp_recv, NULL);
@@ -930,6 +934,26 @@ tftp_set_timeout(u32_t timeout_msecs, u32_t max_retries)
 
   tftp_state.timeout_msecs = timeout_msecs;
   tftp_state.max_retries = max_retries;
+  tftp_state.request_timeout_msecs = timeout_msecs;
+  tftp_state.request_max_retries = max_retries;
+  return ERR_OK;
+}
+
+/** @ingroup tftp
+ * Override the initial request timeout after tftp_set_timeout().
+ * Transfer timeouts and the advertised RFC 2349 option remain unchanged.
+ * @param timeout_msecs Initial request timeout in milliseconds
+ * @param max_retries Maximum number of request retransmissions
+ * @return ERR_ARG if the timeout is zero or outside sys_timeout()'s range
+ */
+err_t
+tftp_client_set_request_timeout(u32_t timeout_msecs, u32_t max_retries)
+{
+  if ((timeout_msecs == 0) || (timeout_msecs > LWIP_UINT32_MAX / 4))
+    return ERR_ARG;
+
+  tftp_state.request_timeout_msecs = timeout_msecs;
+  tftp_state.request_max_retries = max_retries;
   return ERR_OK;
 }
 
@@ -1005,7 +1029,7 @@ start_send_requests(const ip_addr_t *addr, u16_t port, u16_t opcode, const char*
     return ret;
   }
 
-  sys_timeout(tftp_state.timeout_msecs, tftp_req_tmr, NULL);
+  sys_timeout(tftp_state.request_timeout_msecs, tftp_req_tmr, NULL);
   return ERR_OK;
 }
 

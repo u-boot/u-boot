@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include <env.h>
+#include <limits.h>
 #include <malloc.h>
 #include <net-common.h>
 #include <rtc.h>
@@ -105,6 +106,13 @@ int dhcp_run(ulong addr, const char *fname, bool autoload)
 #endif
 
 #if defined(CONFIG_CMD_TFTPBOOT)
+static const struct tftp_request_timeout *tftp_request_timeout;
+
+const struct tftp_request_timeout *tftp_get_request_timeout(void)
+{
+	return tftp_request_timeout;
+}
+
 int tftpb_run(ulong addr, const char *fname)
 {
 	char *tftp_argv[] = {"tftpboot", NULL, (char *)fname, NULL};
@@ -121,6 +129,44 @@ int tftpb_run(ulong addr, const char *fname)
 		return log_msg_ret("res", -ENOENT);
 
 	return 0;
+}
+
+int tftpb_run_timeout(ulong addr, const char *fname, ulong timeout_ms,
+		      int max_retries)
+{
+	struct tftp_request_timeout timeout = { timeout_ms, max_retries };
+	const struct tftp_request_timeout *saved = tftp_request_timeout;
+	const char *autostart_env = env_get("autostart");
+	char *saved_autostart = NULL;
+	int restore_ret = 0;
+	int ret;
+
+	if (!timeout_ms || timeout_ms > U32_MAX / 4 || max_retries < 0)
+		return -EINVAL;
+
+	if (autostart_env) {
+		saved_autostart = strdup(autostart_env);
+		if (!saved_autostart) {
+			ret = -ENOMEM;
+			goto out_free;
+		}
+	}
+
+	/* Updates need the downloaded data, not the command's automatic boot. */
+	ret = env_set("autostart", "no");
+	if (ret)
+		goto out_free;
+
+	tftp_request_timeout = &timeout;
+	ret = tftpb_run(addr, fname);
+	tftp_request_timeout = saved;
+
+	if (env_set("autostart", saved_autostart))
+		restore_ret = -EINVAL;
+out_free:
+	free(saved_autostart);
+
+	return ret ?: restore_ret;
 }
 
 #endif

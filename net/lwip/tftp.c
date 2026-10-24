@@ -12,6 +12,7 @@
 #include <linux/kconfig.h>
 #include <lwip/apps/tftp_client.h>
 #include <lwip/apps/tftp_server.h>
+#include <lwip/etharp.h>
 #include <lwip/timeouts.h>
 #include <mapmem.h>
 #include <net.h>
@@ -152,6 +153,7 @@ static void tftp_close(void *handle)
 		return;
 	}
 	ctx->done = SUCCESS;
+	net_boot_file_size = ctx->size;
 
 	tftp_tsize = tftp_transfer_size(ctx);
 	if (tftp_tsize) {
@@ -275,12 +277,54 @@ static int tftp_get_blocksize(enum tftp_operation operation, u16 *blksize)
 	return 0;
 }
 
+/* Resolve the next hop before starting an internal caller's short RRQ timer. */
+static int tftp_probe_arp(struct netif *netif, const ip4_addr_t *server)
+{
+	const ip4_addr_t *target = server;
+	const ip4_addr_t *resolved;
+	struct eth_addr *ethaddr;
+	ulong start;
+	int tries;
+
+	if (ip4_addr_isbroadcast(server, netif) || ip4_addr_ismulticast(server))
+		return 0;
+	if (!ip4_addr_net_eq(server, netif_ip4_addr(netif), netif_ip4_netmask(netif)) &&
+	    !ip4_addr_islinklocal(server)) {
+		target = netif_ip4_gw(netif);
+		/* Leave a missing route to the TFTP client's normal error handling. */
+		if (ip4_addr_isany_val(*target))
+			return 0;
+	}
+	if (etharp_find_addr(netif, target, &ethaddr, &resolved) >= 0)
+		return 0;
+
+	/* Match net/arp.c's bounded retry policy, including the initial request. */
+	for (tries = 0; tries < max(1, CONFIG_NET_RETRY_COUNT - 1); tries++) {
+		start = get_timer(0);
+		/* Do not queue an RRQ or create a pending entry with its own timer. */
+		etharp_request(netif, target);
+		do {
+			net_lwip_poll();
+			if (ctrlc()) {
+				printf("\nAbort\n");
+				return -EINTR;
+			}
+			if (etharp_find_addr(netif, target, &ethaddr, &resolved) >= 0)
+				return 0;
+		} while (get_timer(start) <= CONFIG_ARP_TIMEOUT);
+	}
+
+	printf("\nARP Retry count exceeded\n");
+	return -EAGAIN;
+}
+
 static int tftp_loop(struct net_lwip_ctx *net,
 		     enum tftp_operation operation,
 		     ulong addr, ulong size, char *fname, ip_addr_t srvip,
 		     u16 srvport, u16 srcport, u32 timeout_msecs,
 		     u32 max_retries)
 {
+	const struct tftp_request_timeout *request = tftp_get_request_timeout();
 	struct tftp_ctx ctx;
 	bool initialized = false;
 	u16 blksize;
@@ -303,6 +347,7 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	ctx.daddr = addr;
 	ctx.total_size = size;
 	ctx.upload = operation == TFTP_UPLOAD;
+	net_boot_file_size = 0;
 
 	printf("Using %s device\n", net->dev->name);
 	printf("TFTP %s server %s; our IP address is %s\n",
@@ -316,6 +361,13 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	} else {
 		printf("Load address: 0x%lx\n", ctx.daddr);
 		printf("Loading: ");
+	}
+
+	if (operation == TFTP_DOWNLOAD && request) {
+		int ret = tftp_probe_arp(net->netif, ip_2_ip4(&srvip));
+
+		if (ret)
+			return ret;
 	}
 
 	err = tftp_init_client(&tftp_context);
@@ -337,6 +389,11 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	if (err != ERR_OK) {
 		log_err("tftp_set_timeout err: %d\n", err);
 		goto out_cleanup;
+	}
+	if (operation == TFTP_DOWNLOAD && request) {
+		err = tftp_client_set_request_timeout(request->msecs, request->max_retries);
+		if (err != ERR_OK)
+			goto out_cleanup;
 	}
 
 	tftp_client_set_blksize(blksize);
@@ -422,6 +479,7 @@ static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
 	ctx.done = NOT_DONE;
 	ctx.daddr = addr;
 	ctx.is_server = true;
+	net_boot_file_size = 0;
 
 	printf("Using %s device\n", net->dev->name);
 	printf("Listening for TFTP transfer on %s\n", ipaddr);

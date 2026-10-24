@@ -45,6 +45,7 @@ enum tftp_transfer_mode {
 
 err_t tftp_init_client(const struct tftp_context* ctx);
 err_t tftp_client_bind(u16_t port);
+err_t tftp_client_set_request_timeout(u32_t timeout_msecs, u32_t max_retries);
 void tftp_client_set_blksize(u16_t blksize);
 void tftp_client_set_tsize(u32_t tsize);
 u32_t tftp_client_get_tsize(void);

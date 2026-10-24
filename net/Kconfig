@@ -48,7 +48,6 @@ config NETCONSOLE
 
 config ARP_TIMEOUT
 	int "Milliseconds before trying ARP again"
-	depends on NET_LEGACY
 	default 5000
 
 config NET_RETRY_COUNT

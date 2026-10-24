@@ -536,6 +536,30 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int tftpb_run(ulong addr, const char *fname);
 
 /**
+ * tftpb_run_timeout() - Download via TFTP with an initial server-probe timeout
+ *
+ * Normal transfer timeouts apply after the server responds. Suppresses
+ * automatic boot and restores autostart on success and failure. Does not
+ * change the timeout environment variables or the RFC 2349 timeout option.
+ *
+ * @addr: Address to load the file into
+ * @fname: Filename of file to load
+ * @timeout_ms: Initial request timeout in milliseconds, 1..U32_MAX / 4
+ * @max_retries: Maximum number of initial request retransmissions
+ * Return: 0 if successful, otherwise a negative error code
+ */
+int tftpb_run_timeout(ulong addr, const char *fname, ulong timeout_ms,
+		      int max_retries);
+
+struct tftp_request_timeout {
+	ulong msecs;
+	int max_retries;
+};
+
+/* Initial request override for the current synchronous download, or NULL. */
+const struct tftp_request_timeout *tftp_get_request_timeout(void);
+
+/**
  * do_ping - Run the ping command
  *
  * @cmdtp: Unused
