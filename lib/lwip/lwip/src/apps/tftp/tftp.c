@@ -67,17 +67,6 @@
 #define TFTP_ERROR 5
 #define TFTP_OACK  6
 
-enum tftp_error {
-  TFTP_ERROR_FILE_NOT_FOUND    = 1,
-  TFTP_ERROR_ACCESS_VIOLATION  = 2,
-  TFTP_ERROR_DISK_FULL         = 3,
-  TFTP_ERROR_ILLEGAL_OPERATION = 4,
-  TFTP_ERROR_UNKNOWN_TRFR_ID   = 5,
-  TFTP_ERROR_FILE_EXISTS       = 6,
-  TFTP_ERROR_NO_SUCH_USER       = 7,
-  TFTP_ERROR_OPTION_NEGOTIATION = 8
-};
-
 #include <string.h>
 
 struct tftp_req {
@@ -181,7 +170,7 @@ static void
 transfer_timed_out(void)
 {
   LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: timeout\n"));
-  tftp_state.ctx->error(tftp_state.handle, -1, tftp_timeout_msg,
+  tftp_state.ctx->error(tftp_state.handle, TFTP_ERROR_TIMEOUT, tftp_timeout_msg,
                         sizeof(tftp_timeout_msg) - 1);
   close_handle();
 }
@@ -295,7 +284,7 @@ send_error_and_close(const ip_addr_t *addr, u16_t port,
 {
   send_error(addr, port, code, str);
   if (tftp_state.handle != NULL)
-    tftp_state.ctx->error(tftp_state.handle, code, str, strlen(str));
+    tftp_state.ctx->error(tftp_state.handle, TFTP_ERROR_LOCAL, str, strlen(str));
   close_handle();
 }
 
@@ -1087,7 +1076,11 @@ start_send_requests(const ip_addr_t *addr, u16_t port, u16_t opcode, const char*
   tftp_state.port = 0;
   tftp_state.retries = 0;
   ret = resend_request();
-  if (ret != ERR_OK) {
+  /* A route or device send failure must not bypass the request retry timer.
+   * Keep allocation and invalid-request errors terminal at setup time.
+   */
+  if ((ret != ERR_OK) && (ret != ERR_RTE) &&
+      (ret != ERR_IF) && (ret != ERR_ABRT)) {
     clear_req();
     ip_addr_set_any(0, &tftp_state.addr);
     tftp_state.handle = NULL;

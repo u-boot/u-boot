@@ -50,6 +50,20 @@
 extern "C" {
 #endif
 
+/* Negative callback errors are not TFTP wire error codes. */
+enum tftp_error {
+  TFTP_ERROR_LOCAL            = -2,
+  TFTP_ERROR_TIMEOUT          = -1,
+  TFTP_ERROR_FILE_NOT_FOUND    = 1,
+  TFTP_ERROR_ACCESS_VIOLATION  = 2,
+  TFTP_ERROR_DISK_FULL         = 3,
+  TFTP_ERROR_ILLEGAL_OPERATION = 4,
+  TFTP_ERROR_UNKNOWN_TRFR_ID   = 5,
+  TFTP_ERROR_FILE_EXISTS       = 6,
+  TFTP_ERROR_NO_SUCH_USER      = 7,
+  TFTP_ERROR_OPTION_NEGOTIATION = 8
+};
+
 /** @ingroup tftp
  * TFTP context containing callback functions for TFTP transfers
  */
@@ -87,7 +101,7 @@ struct tftp_context {
   /**
    * Error indication from client or response from server
    * @param handle File handle set by open()/tftp_get()/tftp_put()
-   * @param err error code from client or server
+   * @param err A negative tftp_error value, or the peer's wire error code
    * @param msg error message from client or server
    * @param size size of msg
    */

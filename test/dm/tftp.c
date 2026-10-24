@@ -46,11 +46,28 @@ struct tftp_test_context {
 	ulong ack_start;
 	ulong ack_delay;
 	unsigned int advertised_timeout;
+
 	char filename[64];
+	char first_filename[64];
 	struct in_addr local_ip;
+	bool default_filename;
 	u16 blocksize;
 	u16 windowsize;
 	u16 port;
+	unsigned int drop_requests;
+	unsigned int send_errors;
+	unsigned int error_requests;
+	u16 error_code;
+	bool invalid_oack;
+	bool partial;
+	unsigned int server_ticks;
+	unsigned int server_attempt;
+	unsigned int server_phase;
+	unsigned int server_acks;
+	unsigned int failed_attempts;
+	unsigned int server_case;
+	int server_error;
+	unsigned int timeout_ticks;
 };
 
 static ulong tftp_test_option(const char *packet, size_t len, const char *option)
@@ -96,7 +113,8 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 	struct tftp_test_context *ctx = priv->priv;
 	struct ethernet_hdr *eth = packet, *reply_eth;
 	struct ip_udp_hdr *ip, *reply_ip;
-	const char *data = ctx->fail ? "not found" : tftp_test_data;
+	bool fail = ctx->fail || ctx->error_requests;
+	const char *data = fail ? "error" : tftp_test_data;
 	unsigned int data_len = ctx->empty ? 0 : strlen(data) + 1;
 	unsigned int reply_len, header_len = 4;
 	u16 opcode, reply_opcode = 3, block = 1;
@@ -133,6 +151,10 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 	if (ip->ip_p != IPPROTO_UDP)
 		return 0;
 	opcode = get_unaligned_be16(ip + 1);
+	if (opcode == 4 && ctx->probe == TFTP_PROBE_NONE) {
+		ctx->server_acks++;
+		return 0;
+	}
 	if (opcode == 4 && ctx->probe >= TFTP_PROBE_DATA) {
 		ctx->probe_acks++;
 		if (ctx->probe_acks == 1) {
@@ -148,7 +170,13 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 
 		if (!ctx->requests++)
 			ctx->request_start = get_timer(0);
+		if (ctx->send_errors) {
+			ctx->send_errors--;
+			return -EIO;
+		}
 		strlcpy(ctx->filename, (char *)(ip + 1) + 2, sizeof(ctx->filename));
+		if (ctx->requests == 1)
+			strlcpy(ctx->first_filename, ctx->filename, sizeof(ctx->first_filename));
 		ctx->local_ip = ip->ip_src;
 		ctx->blocksize = tftp_test_option((char *)(ip + 1), request_len, "blksize");
 		ctx->windowsize = tftp_test_option((char *)(ip + 1), request_len, "windowsize");
@@ -169,19 +197,32 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 				"timeout\0" "1" : "timeout\0" "5";
 			data_len = 10;
 		}
+		if (ctx->requests <= ctx->drop_requests)
+			return 0;
+		if (ctx->error_requests)
+			ctx->error_requests--;
 		if (opcode == 2) {
 			reply_opcode = 4;
 			block = 0;
 			data_len = 0;
+		} else if (ctx->partial && ctx->requests == 1) {
+			partial = true;
+			data_len = 512;
 		}
 	} else if (ntohs(ip->udp_dst) == 1234 && opcode == 3 &&
 		   len >= ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + 4) {
 		reply_opcode = 4;
 		block = get_unaligned_be16((u8 *)(ip + 1) + 2);
 		data_len = 0;
+		if (ctx->partial && ctx->requests == 1)
+			return 0;
 	} else {
 		return 0;
 	}
+	if (fail)
+		block = ctx->fail ? 1 : ctx->error_code;
+	if (ctx->invalid_oack)
+		data_len = 0;
 	reply_len = ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + header_len + data_len;
 	if (priv->recv_packets >= PKTBUFSRX)
 		return -ENOSPC;
@@ -205,7 +246,7 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 	reply_ip->udp_len = htons(UDP_HDR_SIZE + header_len + data_len);
 	reply_ip->ip_sum = compute_ip_checksum(reply_ip, IP_HDR_SIZE);
 	payload = (void *)(reply_ip + 1);
-	put_unaligned_be16(ctx->fail ? 5 : reply_opcode, payload);
+	put_unaligned_be16(ctx->invalid_oack ? 6 : fail ? 5 : reply_opcode, payload);
 	if (header_len == 4)
 		put_unaligned_be16(block, payload + 2);
 	if (partial)
@@ -409,39 +450,281 @@ static int tftp_test_options(struct unit_test_state *uts,
 }
 #endif
 
-static int tftp_test_protected_autostart(struct unit_test_state *uts,
-					 struct tftp_test_context *ctx)
+#if IS_ENABLED(CONFIG_NET_LWIP)
+static void tftp_test_tick(void *arg)
 {
-	char * const argv[] = { "tftpboot", "2000000", "update.bin" };
-	int enabled, helper, ret;
+	struct tftp_test_context *ctx = arg;
 
-	for (enabled = 0; enabled < 2; enabled++) {
-		ut_assertok(env_set("autostart", enabled ? "yes" : "no"));
-		ut_assertok(env_set(".flags", "autostart:br"));
-		for (helper = 0; helper < 3; helper++) {
+	ctx->timeout_ticks++;
+	timer_test_add_offset(5001);
+	sys_timeout(1, tftp_test_tick, arg);
+}
+
+static int tftp_test_retry_command(struct tftp_test_context *ctx, bool put)
+{
+	int ret;
+
+	sys_timeout(1, tftp_test_tick, ctx);
+	if (ctx->default_filename)
+		ret = run_command(put ? "tftpput 2000000 20" : "tftpboot 2000000", 0);
+	else
+		ret = run_command(put ? "tftpput 2000000 20 update.bin" :
+				  "tftpboot 2000000 update.bin", 0);
+	sys_untimeout(tftp_test_tick, ctx);
+	return ret;
+}
+
+static int tftp_test_restarts(struct unit_test_state *uts,
+			      struct tftp_test_context *ctx)
+{
+	static const char * const policies[] = { NULL, "no", "once", "2", "yes" };
+	struct net_lwip_ctx shared = {};
+	char * const argv[] = { "tftpboot", "2000000", "update.bin" };
+	int i, put, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("ethrotate", "no"));
+	ut_assertok(env_set("tftptimeout", NULL));
+	ut_assertok(env_set("tftptimeoutcountmax", NULL));
+	ut_assertok(env_set("netretry", "no"));
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->drop_requests = UINT_MAX;
+	ut_asserteq(CMD_RET_FAILURE, tftp_test_retry_command(ctx, false));
+	ut_asserteq(CONFIG_NET_RETRY_COUNT * 2 + 1, ctx->requests);
+	ut_asserteq(0, net_boot_file_size);
+
+	ut_assertok(env_set("tftptimeout", "1000"));
+	ut_assertok(env_set("tftptimeoutcountmax", "0"));
+	for (put = 0; put <= IS_ENABLED(CONFIG_CMD_TFTPPUT); put++) {
+		for (i = 0; i < ARRAY_SIZE(policies); i++) {
 			memset(ctx, 0, sizeof(*ctx));
-			switch (helper) {
-			case 0:
-				ret = tftpb_run(TFTP_TEST_ADDR, "update.bin");
-				break;
-			case 1:
-				ret = tftpb_run_timeout(TFTP_TEST_ADDR, "update.bin", 100, 0);
-				break;
-			default:
-				ret = tftpb_run_argv(3, argv);
-			}
-			/* Do not override protection when suppression is required. */
-			ut_asserteq(enabled, !!ret);
-			ut_asserteq(!enabled, ctx->requests);
-			ut_assert(!ctx->autostart);
-			ut_asserteq_str(enabled ? "yes" : "no", env_get("autostart"));
+			ctx->drop_requests = 2;
+			ut_assertok(env_set("netretry", policies[i]));
+			ret = tftp_test_retry_command(ctx, put);
+			ut_asserteq(i < 3 ? CMD_RET_FAILURE : CMD_RET_SUCCESS, ret);
+			ut_asserteq(i < 2 ? 1 : i == 2 ? 2 : 3, ctx->requests);
+			ut_asserteq(-ENODEV, net_lwip_poll());
 		}
-		ut_assertok(env_set(".flags", NULL));
+		for (i = 0; i <= 8; i++) {
+			memset(ctx, 0, sizeof(*ctx));
+			ctx->error_requests = 1;
+			ctx->error_code = i;
+			ut_assertok(env_set("netretry", "once"));
+			ret = tftp_test_retry_command(ctx, put);
+			ut_asserteq(i == 1 || i == 2 ? CMD_RET_FAILURE : CMD_RET_SUCCESS, ret);
+			ut_asserteq(i == 1 || i == 2 ? 1 : 2, ctx->requests);
+		}
+		/* Exhaust packet retries after a device send failure, then restart. */
+		for (i = 0; i < 2; i++) {
+			memset(ctx, 0, sizeof(*ctx));
+			ctx->send_errors = 1;
+			ut_assertok(env_set("netretry", i ? "once" : "no"));
+			ret = tftp_test_retry_command(ctx, put);
+			ut_asserteq(i ? CMD_RET_SUCCESS : CMD_RET_FAILURE, ret);
+			ut_asserteq(i + 1, ctx->requests);
+		}
+		/* A failed transfer with progress must start from the beginning. */
+		memset(ctx, 0, sizeof(*ctx));
+		ctx->partial = true;
+		ut_assertok(tftp_test_retry_command(ctx, put));
+		ut_asserteq(2, ctx->requests);
+		ut_asserteq(put ? 32 : sizeof(tftp_test_data), net_boot_file_size);
+		if (!put)
+			ut_asserteq_mem(tftp_test_data, map_sysmem(TFTP_TEST_ADDR, 0),
+					sizeof(tftp_test_data));
 	}
+	/* Invalid options and metadata publication failures are not peer errors. */
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->invalid_oack = true;
+	ut_asserteq(CMD_RET_FAILURE, tftp_test_retry_command(ctx, false));
+	ut_asserteq(1, ctx->requests);
+	memset(ctx, 0, sizeof(*ctx));
+	ut_assertok(env_set(".flags", "filesize:xr"));
+	ret = do_tftpb(NULL, 0, ARRAY_SIZE(argv), argv);
+	ut_assertok(env_set(".flags", NULL));
+	ut_asserteq(CMD_RET_FAILURE, ret);
+	ut_asserteq(1, ctx->requests);
+
+	/* A second runtime user must survive a request to rotate interfaces. */
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->error_requests = 1;
+	ctx->error_code = 3;
+	ut_assertok(net_lwip_start(&shared, NET_LWIP_ADDR_ENV_STRICT));
+	ret = do_tftpb(NULL, 0, ARRAY_SIZE(argv), argv);
+	i = net_lwip_poll();
+	net_lwip_stop(&shared);
+	ut_asserteq(CMD_RET_FAILURE, ret);
+	ut_assert(i >= 0);
+	ut_asserteq(1, ctx->requests);
+
+	/* Retry on the next sandbox interface, not on the failed one. */
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->drop_requests = 1;
+	ut_assertok(env_set("ethrotate", NULL));
+	ut_assertok(env_set("ipaddr5", "1.1.2.4"));
+	ut_assertok(env_set("netmask5", "255.255.255.0"));
+	ut_assertok(tftp_test_retry_command(ctx, false));
+	ut_asserteq(2, ctx->requests);
+	ut_asserteq_str("eth@10003000", env_get("ethact"));
+	ut_asserteq_str("update.bin", ctx->filename);
+	ut_asserteq(string_to_ip("1.1.2.4").s_addr, ctx->local_ip.s_addr);
+	ut_assertok(env_set("bootfile", NULL));
+	for (put = 0; put <= IS_ENABLED(CONFIG_CMD_TFTPPUT); put++) {
+		ut_assertok(env_set("ethact", "eth@10002000"));
+		memset(ctx, 0, sizeof(*ctx));
+		ctx->default_filename = true;
+		ctx->drop_requests = 1;
+		ut_assertok(tftp_test_retry_command(ctx, put));
+		ut_asserteq(2, ctx->requests);
+		ut_asserteq_str("01010203.img", ctx->first_filename);
+		ut_asserteq_str("01010204.img", ctx->filename);
+	}
+	ut_assertok(env_set("ethact", "eth@10002000"));
+	ut_assertok(env_set("netretry", "no"));
+	ut_assertok(env_set("tftptimeout", NULL));
+	ut_assertok(env_set("tftptimeoutcountmax", NULL));
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_NET_LWIP)
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+static int tftp_test_server_packet(const void *data, size_t len)
+{
+	struct udp_pcb *pcb;
+	struct pbuf *p;
+	ip_addr_t peer;
+
+	for (pcb = udp_pcbs; pcb; pcb = pcb->next)
+		if (pcb->local_port == 69 && pcb->recv)
+			break;
+	if (!pcb)
+		return -ENOENT;
+	p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM);
+	if (!p)
+		return -ENOMEM;
+	pbuf_take(p, data, len);
+	ipaddr_aton("1.1.2.2", &peer);
+	pcb->recv(pcb->recv_arg, pcb, p, &peer, 1234);
+	return 0;
+}
+
+static void tftp_test_server_tick(void *arg)
+{
+	static const char wrq[] = "\000\002file\000octet";
+	u8 data[4 + 512] = { 0, 3, 0, 1 };
+	struct tftp_test_context *ctx = arg;
+	bool fail = net_try_count <= ctx->failed_attempts;
+
+	ctx->server_ticks++;
+	if (ctx->server_attempt != net_try_count) {
+		ctx->server_attempt = net_try_count;
+		ctx->server_phase = 0;
+	}
+	if (!ctx->server_phase && (!fail || ctx->server_case)) {
+		ctx->server_error = tftp_test_server_packet(wrq, sizeof(wrq));
+		ctx->server_phase++;
+	} else if (ctx->server_phase == 1 && (!fail || ctx->server_case > 1)) {
+		if (!fail) {
+			memcpy(data + 4, tftp_test_data, sizeof(tftp_test_data));
+			ctx->server_error = tftp_test_server_packet(data,
+								    4 + sizeof(tftp_test_data));
+		} else if (ctx->server_case == 2) {
+			/* Retain a full block before forcing a restart. */
+			memset(data + 4, 0xee, 512);
+			ctx->server_error = tftp_test_server_packet(data, sizeof(data));
+		} else {
+			put_unaligned_be16(5, data);
+			put_unaligned_be16(ctx->error_code, data + 2);
+			ctx->server_error = tftp_test_server_packet(data, 5);
+		}
+		ctx->server_phase++;
+	}
+	timer_test_add_offset(5001);
+	sys_timeout(1, tftp_test_server_tick, ctx);
+}
+
+static int tftp_test_server_run(struct tftp_test_context *ctx)
+{
+	int ret;
+
+	sys_timeout(1, tftp_test_server_tick, ctx);
+	ret = run_command("tftpsrv 2000000", 0);
+	sys_untimeout(tftp_test_server_tick, ctx);
+	return ret;
+}
+
+static int tftp_test_server_policy(struct unit_test_state *uts,
+				   struct tftp_test_context *ctx)
+{
+	static const char * const policies[] = { "no", "once", "2", "yes" };
+	struct net_lwip_ctx shared = {};
+	unsigned int retries = CONFIG_NET_RETRY_COUNT * 2;
+	int scenario, i, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("ethrotate", "no"));
+	/* These client settings must not change the server's compiled defaults. */
+	ut_assertok(env_set("tftptimeout", "1000"));
+	ut_assertok(env_set("tftptimeoutcountmax", "0"));
+	ut_assertok(env_set("netretry", "no"));
+	for (scenario = 0; scenario < 2; scenario++) {
+		memset(ctx, 0, sizeof(*ctx));
+		ctx->server_case = scenario;
+		ctx->failed_attempts = UINT_MAX;
+		ut_asserteq(CMD_RET_FAILURE, tftp_test_server_run(ctx));
+		ut_assertok(ctx->server_error);
+		ut_asserteq(1, ctx->server_attempt);
+		ut_asserteq(retries + 1, ctx->server_ticks);
+		ut_asserteq(scenario ? retries + 1 : 0, ctx->server_acks);
+		ut_asserteq(0, net_boot_file_size);
+	}
+	/* Exhaust listening, accepted-WRQ and partial-DATA retries in turn. */
+	for (scenario = 0; scenario < 4; scenario++) {
+		for (i = 0; i < ARRAY_SIZE(policies); i++) {
+			memset(ctx, 0, sizeof(*ctx));
+			ctx->server_case = scenario;
+			ctx->failed_attempts = 2;
+			ctx->error_code = 3;
+			ut_assertok(env_set("netretry", policies[i]));
+			ret = tftp_test_server_run(ctx);
+			ut_assertok(ctx->server_error);
+			ut_asserteq(i < 2 ? CMD_RET_FAILURE : CMD_RET_SUCCESS, ret);
+			ut_asserteq(i < 2 ? i + 1 : 3, ctx->server_attempt);
+			ut_asserteq(i < 2 ? 0 : sizeof(tftp_test_data), net_boot_file_size);
+			if (i >= 2)
+				ut_asserteq_mem(tftp_test_data, map_sysmem(TFTP_TEST_ADDR, 0),
+						sizeof(tftp_test_data));
+		}
+	}
+	ut_assertok(env_set("netretry", "once"));
+	for (i = 1; i <= 2; i++) {
+		memset(ctx, 0, sizeof(*ctx));
+		ctx->server_case = 3;
+		ctx->failed_attempts = 1;
+		ctx->error_code = i;
+		ut_asserteq(CMD_RET_FAILURE, tftp_test_server_run(ctx));
+		ut_asserteq(1, ctx->server_attempt);
+	}
+	/* Do not rotate a runtime still held by another client. */
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->server_case = 3;
+	ctx->failed_attempts = 1;
+	ctx->error_code = 3;
+	ut_assertok(net_lwip_start(&shared, NET_LWIP_ADDR_ENV_STRICT));
+	ret = tftp_test_server_run(ctx);
+	i = net_lwip_poll();
+	net_lwip_stop(&shared);
+	ut_asserteq(CMD_RET_FAILURE, ret);
+	ut_assert(i >= 0);
+	ut_asserteq(1, ctx->server_attempt);
+
+	ut_assertok(env_set("tftptimeout", NULL));
+	ut_assertok(env_set("tftptimeoutcountmax", NULL));
+	ut_assertok(env_set("netretry", "no"));
+	ut_assertok(env_set("ethrotate", NULL));
+	return 0;
+}
+#endif
+
 static int tftp_test_addresses(struct unit_test_state *uts,
 			       struct tftp_test_context *ctx)
 {
@@ -461,6 +744,12 @@ static int tftp_test_addresses(struct unit_test_state *uts,
 		ut_asserteq_str("01010204.img", ctx->filename);
 		ut_asserteq(string_to_ip("1.1.2.4").s_addr, ctx->local_ip.s_addr);
 	}
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+	memset(ctx, 0, sizeof(*ctx));
+	ut_assertok(tftp_test_server_run(ctx));
+	ut_assertok(ctx->server_error);
+	ut_asserteq(sizeof(tftp_test_data), net_boot_file_size);
+#endif
 	/* A valid global address must not hide an unset/invalid indexed one. */
 	ut_assertok(env_set("ipaddr", "1.1.2.3"));
 	for (i = 0; i < 2; i++) {
@@ -470,6 +759,9 @@ static int tftp_test_addresses(struct unit_test_state *uts,
 		ut_asserteq(CMD_RET_FAILURE, ret);
 		ut_asserteq(0, ctx->requests);
 		ut_asserteq(0, net_boot_file_size);
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+		ut_asserteq(CMD_RET_FAILURE, run_command("tftpsrv 2000000", 0));
+#endif
 	}
 	ut_assertok(env_set("ethact", "eth@10002000"));
 	ut_assertok(env_set("ethrotate", NULL));
@@ -508,9 +800,54 @@ static int tftp_test_zero_address(struct unit_test_state *uts,
 		ut_asserteq(1, ctx->requests);
 		ut_asserteq(32, net_boot_file_size);
 	}
+#if IS_ENABLED(CONFIG_NET_LWIP) && IS_ENABLED(CONFIG_CMD_TFTPSRV)
+	memcpy(saved, buffer, sizeof(saved));
+	memset(ctx, 0, sizeof(*ctx));
+	sys_timeout(1, tftp_test_server_tick, ctx);
+	ret = run_command("tftpsrv 0", 0);
+	sys_untimeout(tftp_test_server_tick, ctx);
+	memcpy(received, buffer, sizeof(received));
+	memcpy(buffer, saved, sizeof(saved));
+	ut_assertok(ret);
+	ut_assertok(ctx->server_error);
+	ut_asserteq(0, env_get_hex("fileaddr", 1));
+	ut_asserteq_mem(tftp_test_data, received, sizeof(received));
+#endif
 	unmap_sysmem(buffer);
 	ut_assertok(env_set("loadaddr", "2000000"));
 	image_load_addr = TFTP_TEST_ADDR;
+	return 0;
+}
+
+static int tftp_test_protected_autostart(struct unit_test_state *uts,
+					 struct tftp_test_context *ctx)
+{
+	char * const argv[] = { "tftpboot", "2000000", "update.bin" };
+	int enabled, helper, ret;
+
+	for (enabled = 0; enabled < 2; enabled++) {
+		ut_assertok(env_set("autostart", enabled ? "yes" : "no"));
+		ut_assertok(env_set(".flags", "autostart:br"));
+		for (helper = 0; helper < 3; helper++) {
+			memset(ctx, 0, sizeof(*ctx));
+			switch (helper) {
+			case 0:
+				ret = tftpb_run(TFTP_TEST_ADDR, "update.bin");
+				break;
+			case 1:
+				ret = tftpb_run_timeout(TFTP_TEST_ADDR, "update.bin", 100, 0);
+				break;
+			default:
+				ret = tftpb_run_argv(3, argv);
+			}
+			/* Do not override protection when suppression is required. */
+			ut_asserteq(enabled, !!ret);
+			ut_asserteq(!enabled, ctx->requests);
+			ut_assert(!ctx->autostart);
+			ut_asserteq_str(enabled ? "yes" : "no", env_get("autostart"));
+		}
+		ut_assertok(env_set(".flags", NULL));
+	}
 	return 0;
 }
 
@@ -538,8 +875,13 @@ static int tftp_test_download(struct unit_test_state *uts,
 	ut_assertok(tftp_test_protected_autostart(uts, ctx));
 
 #if IS_ENABLED(CONFIG_NET_LWIP)
-	ut_assertok(tftp_test_addresses(uts, ctx));
+	if (IS_ENABLED(CONFIG_NET_TFTP_VARS))
+		ut_assertok(tftp_test_restarts(uts, ctx));
 	ut_assertok(tftp_test_options(uts, ctx));
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+	ut_assertok(tftp_test_server_policy(uts, ctx));
+#endif
+	ut_assertok(tftp_test_addresses(uts, ctx));
 #endif
 	ut_assertok(tftp_test_filenames(uts, ctx));
 	ut_assertok(tftp_test_zero_address(uts, ctx));
@@ -721,6 +1063,13 @@ static int dm_test_tftp_download_only(struct unit_test_state *uts)
 	sandbox_eth_set_priv(0, NULL);
 	sandbox_eth_set_tx_handler(1, NULL);
 	sandbox_eth_set_priv(1, NULL);
+#if IS_ENABLED(CONFIG_NET_LWIP)
+	sys_untimeout(tftp_test_tick, &ctx);
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+	sys_untimeout(tftp_test_server_tick, &ctx);
+#endif
+#endif
+	env_set(".flags", NULL);
 	image_load_addr = saved_load_addr;
 	memcpy(net_boot_file_name, saved_bootfile, sizeof(saved_bootfile));
 	for (i = 0; i < ARRAY_SIZE(vars); i++) {

@@ -30,6 +30,7 @@ struct tftp_protocol_test {
 	unsigned int server_phase;
 	int error;
 	int read_error;
+	err_t send_error;
 	bool initialized;
 	bool fail_data_alloc;
 	bool window_requested;
@@ -73,7 +74,7 @@ static err_t tftp_test_output(struct netif *netif, struct pbuf *p,
 					  offset + sizeof("timeout"));
 	}
 	test->sent++;
-	return ERR_OK;
+	return test->send_error;
 }
 
 static void tftp_test_close(void *handle)
@@ -200,7 +201,7 @@ static int tftp_test_oack(struct unit_test_state *uts,
 		ut_assertok(tftp_test_start(test, false));
 		memcpy(packet + 2, invalid[i], lengths[i]);
 		ut_assertok(tftp_test_input(test, packet, lengths[i] + 2, 0));
-		ut_asserteq(8, test->error);
+		ut_asserteq(TFTP_ERROR_LOCAL, test->error);
 		ut_asserteq(1, test->closed);
 		ut_asserteq(5, test->opcode);
 	}
@@ -218,7 +219,7 @@ static int tftp_test_oack(struct unit_test_state *uts,
 	/* A write request without tsize must reject an unsolicited tsize. */
 	ut_assertok(tftp_test_start(test, true));
 	ut_assertok(tftp_test_input(test, valid, sizeof(valid), 0));
-	ut_asserteq(8, test->error);
+	ut_asserteq(TFTP_ERROR_LOCAL, test->error);
 	return 0;
 }
 
@@ -314,7 +315,7 @@ static int tftp_test_data_alloc_retry(struct unit_test_state *uts,
 	test->read_error = -EIO;
 	timer_test_add_offset(40);
 	sys_check_timeouts();
-	ut_asserteq(2, test->error);
+	ut_asserteq(TFTP_ERROR_LOCAL, test->error);
 	ut_asserteq(1, test->closed);
 	ut_asserteq(1, test->reads);
 	sent = test->sent;
@@ -474,8 +475,62 @@ static int tftp_test_stale_control(struct unit_test_state *uts,
 		ut_assertok(tftp_test_input(test, invalid, sizeof(invalid), 0));
 		ut_asserteq(5, test->opcode);
 		ut_asserteq(8, test->block);
-		ut_asserteq(8, test->error);
+		ut_asserteq(TFTP_ERROR_LOCAL, test->error);
 		ut_asserteq(1, test->closed);
+	}
+	return 0;
+}
+
+static int tftp_test_request_send_errors(struct unit_test_state *uts,
+					 struct tftp_protocol_test *test)
+{
+	static const err_t errors[] = { ERR_RTE, ERR_IF, ERR_ABRT, ERR_MEM, ERR_ARG };
+	static const u8 data[] = { 0, 3, 0, 1, 'x' };
+	static const u8 ack[] = { 0, 4, 0, 0 };
+	int i, put, exhaust;
+	err_t ret;
+
+	for (put = 0; put < 2; put++) {
+		for (exhaust = 0; exhaust < 2; exhaust++) {
+			for (i = 0; i < ARRAY_SIZE(errors); i++) {
+				if (test->initialized)
+					tftp_cleanup();
+				memset(test, 0, sizeof(*test));
+				ipaddr_aton("1.1.2.2", &test->server);
+				ut_assertok(tftp_init_client(&tftp_test_callbacks));
+				test->initialized = true;
+				test->send_error = errors[i];
+				ut_assertok(tftp_set_timeout(30, 1));
+				if (put)
+					ret = tftp_put(test, &test->server, 69, "file",
+						       TFTP_MODE_OCTET);
+				else
+					ret = tftp_get(test, &test->server, 69, "file",
+						       TFTP_MODE_OCTET);
+				ut_asserteq(i < 3 ? ERR_OK : errors[i], ret);
+				ut_asserteq(1, test->sent);
+				if (!exhaust)
+					test->send_error = ERR_OK;
+				timer_test_add_offset(31);
+				sys_check_timeouts();
+				ut_asserteq(i < 3 ? 2 : 1, test->sent);
+				ut_asserteq(0, test->error);
+				if (i >= 3)
+					continue;
+				if (exhaust) {
+					timer_test_add_offset(31);
+					sys_check_timeouts();
+					ut_asserteq(TFTP_ERROR_TIMEOUT, test->error);
+					ut_asserteq(1, test->closed);
+				} else {
+					ret = tftp_test_input(test, put ? ack : data,
+							      put ? sizeof(ack) : sizeof(data), 0);
+					ut_assertok(ret);
+					ut_asserteq(0, test->error);
+					ut_asserteq(put ? 3 : 4, test->opcode);
+				}
+			}
+		}
 	}
 	return 0;
 }
@@ -549,7 +604,7 @@ static int tftp_test_timeout_option(struct unit_test_state *uts,
 				/* Reject unrequested or non-echoed timeout values. */
 				ut_assertok(tftp_test_input(test, bad, sizeof(bad), 0));
 			}
-			ut_asserteq(8, test->error);
+			ut_asserteq(TFTP_ERROR_LOCAL, test->error);
 			ut_asserteq(1, test->closed);
 		}
 	}
@@ -641,7 +696,7 @@ static int tftp_test_windows(struct unit_test_state *uts,
 		ut_assertok(tftp_test_start_window(test, false, 4));
 		ut_assert(test->window_requested);
 		ut_assertok(tftp_test_input(test, bad[i], bad_len[i], 0));
-		ut_asserteq(8, test->error);
+		ut_asserteq(TFTP_ERROR_LOCAL, test->error);
 		ut_asserteq(1, test->closed);
 	}
 	ut_assertok(tftp_test_start_window(test, false, 4));
@@ -706,7 +761,7 @@ static int tftp_test_windows(struct unit_test_state *uts,
 	ut_assertok(tftp_test_start_window(test, false, 1));
 	ut_assert(!test->window_requested);
 	ut_assertok(tftp_test_input(test, one, sizeof(one), 0));
-	ut_asserteq(8, test->error); /* Unrequested option. */
+	ut_asserteq(TFTP_ERROR_LOCAL, test->error); /* Unrequested option. */
 
 	ut_assertok(tftp_test_start_window(test, false, 65535));
 	ut_assertok(tftp_test_input(test, rollover, sizeof(rollover), 0));
@@ -872,6 +927,8 @@ static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 		ret = tftp_test_duplicate_oack(uts, &test);
 	if (!ret)
 		ret = tftp_test_stale_control(uts, &test);
+	if (!ret)
+		ret = tftp_test_request_send_errors(uts, &test);
 	if (!ret)
 		ret = tftp_test_timeout_range(uts, &test);
 	if (!ret)

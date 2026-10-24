@@ -30,8 +30,8 @@ file is passed to bootm after the transfer completes. Otherwise, the command
 returns without booting the file; boot scripts can use commands such as
 bootm, booti or bootefi to boot from the load address.
 
-The transfer is aborted if no transfer has started after about 50 seconds or
-if Ctrl-C is pressed.
+If no transfer starts after about 50 seconds, *netretry* controls whether
+the command retries or aborts. Ctrl-C always aborts the command.
 
 Example
 -------

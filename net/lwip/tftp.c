@@ -46,6 +46,7 @@ struct tftp_ctx {
 	bool upload;
 	bool wrq_accepted;
 	u32 listen_retries;
+	bool retry;
 	char fname[TFTP_MAX_FILENAME_LEN + 1];
 };
 
@@ -188,7 +189,7 @@ static void tftp_close(void *handle)
 static int tftp_complete(struct tftp_ctx *ctx, ulong addr, const char *fname)
 {
 	if (ctx->done != SUCCESS)
-		return -EIO;
+		return ctx->done == FAILURE && ctx->retry ? -EAGAIN : -EIO;
 	if (!ctx->upload && env_set_hex("fileaddr", addr)) {
 		log_err("fileaddr not updated\n");
 		return -EIO;
@@ -252,6 +253,12 @@ static void tftp_error(void *handle, int err, const char *msg, int size)
 	char message[100];
 
 	ctx->done = FAILURE;
+	/* Match the legacy client's server-error and retry-exhaustion policy.
+	 * Local validation and memory-write failures must not be retried.
+	 */
+	ctx->retry = err == TFTP_ERROR_TIMEOUT ||
+		(err >= 0 && err != TFTP_ERROR_FILE_NOT_FOUND &&
+		 err != TFTP_ERROR_ACCESS_VIOLATION);
 	memset(message, 0, sizeof(message));
 	memcpy(message, msg, LWIP_MIN(sizeof(message) - 1, (size_t)size));
 
@@ -480,6 +487,7 @@ static void no_request(void *arg)
 
 	printf("Timeout!\n");
 	ctx->done = FAILURE;
+	ctx->retry = true;
 }
 
 static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
@@ -572,10 +580,20 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (tftpsrv_loop(&net, laddr) < 0)
-		ret = CMD_RET_FAILURE;
-	else
+	net_try_count = 1;
+	net_restart_wrap = 0;
+	for (;;) {
+		ret = tftpsrv_loop(&net, laddr);
+		if (ret != -EAGAIN)
+			break;
+		puts("Starting again\n\n");
+		ret = net_lwip_restart(&net);
+		if (ret)
+			break;
+	}
+	if (!ret)
 		image_load_addr = laddr;
+	ret = ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 
 out:
 	net_lwip_stop(&net);
@@ -594,10 +612,10 @@ static void tftp_default_filename(struct net_lwip_ctx *net, char *fname,
 	printf("*** Warning: no boot file name; using '%s'\n", fname);
 }
 
-static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
-		   char *const argv[], enum tftp_operation operation)
+static int do_tftp(int argc, char *const argv[], enum tftp_operation operation)
 {
-	struct net_lwip_ctx net = {};
+	struct net_lwip_ctx local = {};
+	struct net_lwip_ctx *net = &local;
 	u32 timeout_msecs = UBOOT_TFTP_TIMEOUT_MS;
 	u32 max_retries = UBOOT_TFTP_MAX_RETRIES;
 	int ret = CMD_RET_SUCCESS;
@@ -767,27 +785,38 @@ static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
 		goto out;
 	}
 
-	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
+	if (net_lwip_start(net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
+	net_try_count = 1;
+	net_restart_wrap = 0;
 
-	if (tftp_check_ip(&net)) {
-		ret = CMD_RET_FAILURE;
-		goto out;
+	for (;;) {
+		ret = tftp_check_ip(net);
+		if (ret)
+			break;
+		/* Rotation may select an interface with a different IP address. */
+		if (!fname || !*fname)
+			tftp_default_filename(net, default_fname, sizeof(default_fname));
+		ret = tftp_loop(net, operation, laddr, size,
+				fname && *fname ? fname : default_fname, srvip,
+				port, srcport, timeout_msecs, max_retries);
+		if (ret != -EAGAIN)
+			break;
+		/* The failed transfer's PCB and timers are already gone. Never
+		 * change interfaces underneath another shared-runtime client.
+		 */
+		puts("Starting again\n\n");
+		ret = net_lwip_restart(net);
+		if (ret)
+			break;
 	}
-	if (!fname || !*fname) {
-		tftp_default_filename(&net, default_fname, sizeof(default_fname));
-		fname = default_fname;
-	}
-
-	if (tftp_loop(&net, operation, laddr, size, fname, srvip,
-		      port, srcport, timeout_msecs, max_retries) < 0)
-		ret = CMD_RET_FAILURE;
-	else if (operation == TFTP_DOWNLOAD)
+	if (!ret && operation == TFTP_DOWNLOAD)
 		image_load_addr = laddr;
+	ret = ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 out:
-	net_lwip_stop(&net);
+	net_lwip_stop(net);
 	free(arg_copy);
 	return ret;
 }
@@ -796,7 +825,7 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
-	ret = do_tftp(cmdtp, flag, argc, argv, TFTP_DOWNLOAD);
+	ret = do_tftp(argc, argv, TFTP_DOWNLOAD);
 	if (ret || !net_boot_file_size)
 		return ret;
 	/* The transfer's callbacks and runtime attachment are already gone. */
@@ -805,5 +834,5 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 int do_tftpput(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	return do_tftp(cmdtp, flag, argc, argv, TFTP_UPLOAD);
+	return do_tftp(argc, argv, TFTP_UPLOAD);
 }
