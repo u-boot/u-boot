@@ -5,7 +5,7 @@ ifneq ($(filter y,$(CONFIG_CMD_BOOTP) $(CONFIG_CMD_DHCP)),)
 obj-y += dhcp.o
 endif
 obj-$(CONFIG_DNS) += dns.o
-obj-$(CONFIG_LWIP_ICMP_SHOW_UNREACH) += icmp_unreach.o
+obj-$(CONFIG_PROT_ICMP_LWIP) += icmp_unreach.o
 obj-$(CONFIG_CMD_NFS) += nfs.o
 obj-$(CONFIG_CMD_TFTPBOOT) += tftp.o
 obj-$(CONFIG_WGET) += wget.o

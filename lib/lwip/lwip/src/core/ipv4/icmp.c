@@ -258,13 +258,23 @@ icmp_input(struct pbuf *p, struct netif *inp)
       if (type == ICMP_DUR) {
         MIB2_STATS_INC(mib2.icmpindestunreachs);
 #ifdef ICMP_DEST_UNREACH_CB
+        /* Unlike echo requests, errors have not been checked above. */
+#if CHECKSUM_CHECK_ICMP
+        IF__NETIF_CHECKSUM_ENABLED(inp, NETIF_CHECKSUM_CHECK_ICMP) {
+          if (inet_chksum_pbuf(p) != 0) {
+            ICMP_STATS_INC(icmp.chkerr);
+            goto icmperr;
+          }
+        }
+#endif
         /*
          * The callback receives the IP packet (not the ICMP message) so that
          * it can extract the source address for example
          */
-        pbuf_add_header(p, IP_HLEN);
-        ICMP_DEST_UNREACH_CB(code, p);
-        pbuf_remove_header(p, IP_HLEN);
+        if (pbuf_add_header(p, hlen) == 0) {
+          ICMP_DEST_UNREACH_CB(code, p);
+          pbuf_remove_header(p, hlen);
+        }
 #endif
       } else if (type == ICMP_TE) {
         MIB2_STATS_INC(mib2.icmpintimeexcds);

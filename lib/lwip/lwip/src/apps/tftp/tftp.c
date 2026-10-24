@@ -175,6 +175,33 @@ transfer_timed_out(void)
   close_handle();
 }
 
+/**
+ * Fail the active transfer on a matching ICMP port-unreachable error.
+ * The caller must validate the ICMP packet and the quoted local IP address.
+ *
+ * @param addr Quoted destination IP address
+ * @param local_port Quoted UDP source port, in host byte order
+ * @param remote_port Quoted UDP destination port, in host byte order
+ */
+void
+tftp_handle_port_unreachable(const ip_addr_t *addr, u16_t local_port,
+                             u16_t remote_port)
+{
+  static const char msg[] = "Port unreachable";
+  u16_t port = tftp_state.port ? tftp_state.port : tftp_req.port;
+
+  if ((tftp_state.handle == NULL) || (tftp_state.upcb == NULL) ||
+      !port || (remote_port != port) ||
+      (local_port != tftp_state.upcb->local_port) ||
+      !ip_addr_eq(addr, &tftp_state.addr)) {
+    return;
+  }
+
+  tftp_state.ctx->error(tftp_state.handle, TFTP_ERROR_PORT_UNREACHABLE,
+                        msg, sizeof(msg) - 1);
+  close_handle();
+}
+
 static struct pbuf*
 init_packet(u16_t opcode, u16_t extra, size_t size)
 {

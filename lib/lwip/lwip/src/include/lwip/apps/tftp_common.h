@@ -52,6 +52,7 @@ extern "C" {
 
 /* Negative callback errors are not TFTP wire error codes. */
 enum tftp_error {
+  TFTP_ERROR_PORT_UNREACHABLE = -3,
   TFTP_ERROR_LOCAL            = -2,
   TFTP_ERROR_TIMEOUT          = -1,
   TFTP_ERROR_FILE_NOT_FOUND    = 1,
@@ -114,6 +115,8 @@ struct tftp_context {
 
 err_t tftp_init_common(u8_t mode, const struct tftp_context* ctx);
 err_t tftp_set_timeout(u32_t timeout_msecs, u32_t max_retries);
+void tftp_handle_port_unreachable(const ip_addr_t *addr, u16_t local_port,
+                                  u16_t remote_port);
 void tftp_cleanup(void);
 
 #ifdef __cplusplus

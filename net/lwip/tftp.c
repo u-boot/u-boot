@@ -257,6 +257,7 @@ static void tftp_error(void *handle, int err, const char *msg, int size)
 	 * Local validation and memory-write failures must not be retried.
 	 */
 	ctx->retry = err == TFTP_ERROR_TIMEOUT ||
+		err == TFTP_ERROR_PORT_UNREACHABLE ||
 		(err >= 0 && err != TFTP_ERROR_FILE_NOT_FOUND &&
 		 err != TFTP_ERROR_ACCESS_VIOLATION);
 	memset(message, 0, sizeof(message));

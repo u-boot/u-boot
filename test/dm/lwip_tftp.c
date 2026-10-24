@@ -13,6 +13,7 @@
 #include <dm/test.h>
 #include <lwip/apps/tftp_client.h>
 #include <lwip/apps/tftp_server.h>
+#include <lwip/icmp.h>
 #include <lwip/timeouts.h>
 #include <lwip/udp.h>
 #include <test/ut.h>
@@ -177,6 +178,61 @@ static int tftp_test_start_window(struct tftp_protocol_test *test, bool put,
 static int tftp_test_start(struct tftp_protocol_test *test, bool put)
 {
 	return tftp_test_start_window(test, put, 1);
+}
+
+static int tftp_test_icmp_chain(struct unit_test_state *uts,
+				struct tftp_protocol_test *test,
+				struct netif *netif)
+{
+	u8 packet[IP_HDR_SIZE + 8 + IP_UDP_HDR_SIZE] = {};
+	struct ip_udp_hdr *ip = (void *)packet;
+	struct icmp_hdr *icmp = (void *)(packet + IP_HDR_SIZE);
+	struct ip_udp_hdr *quoted = (void *)(icmp + 1);
+	struct pbuf *p, *tail;
+	unsigned int split;
+
+	/* Split in both the quoted IP and UDP headers, at odd offsets too. */
+	for (split = IP_HDR_SIZE + 8; split < sizeof(packet); split++) {
+		ut_assertok(tftp_test_start(test, false));
+		memset(packet, 0, sizeof(packet));
+		ip->ip_hl_v = 0x45;
+		ip->ip_len = htons(sizeof(packet));
+		ip->ip_ttl = 64;
+		ip->ip_p = IPPROTO_ICMP;
+		ip->ip_src.s_addr = ip4_addr_get_u32(ip_2_ip4(&test->server));
+		ip->ip_dst.s_addr = ip4_addr_get_u32(netif_ip4_addr(netif));
+		ip->ip_sum = compute_ip_checksum(ip, IP_HDR_SIZE);
+		icmp->type = ICMP_DUR;
+		icmp->code = ICMP_DUR_PORT;
+		quoted->ip_hl_v = 0x45;
+		quoted->ip_len = htons(IP_UDP_HDR_SIZE);
+		quoted->ip_ttl = 64;
+		quoted->ip_p = IPPROTO_UDP;
+		quoted->ip_src = ip->ip_dst;
+		quoted->ip_dst = ip->ip_src;
+		quoted->udp_src = htons(test->port);
+		quoted->udp_dst = htons(69);
+		quoted->udp_len = htons(UDP_HDR_SIZE);
+		quoted->ip_sum = compute_ip_checksum(quoted, IP_HDR_SIZE);
+		icmp->chksum = compute_ip_checksum(icmp, sizeof(packet) - IP_HDR_SIZE);
+		p = pbuf_alloc(PBUF_RAW, split, PBUF_RAM);
+		ut_assertnonnull(p);
+		tail = pbuf_alloc(PBUF_RAW, sizeof(packet) - split, PBUF_RAM);
+		if (!tail) {
+			pbuf_free(p);
+			return -ENOMEM;
+		}
+		pbuf_take(p, packet, split);
+		pbuf_take(tail, packet + split, sizeof(packet) - split);
+		pbuf_cat(p, tail);
+		ut_asserteq(ERR_OK, ip4_input(p, netif));
+		ut_asserteq(TFTP_ERROR_PORT_UNREACHABLE, test->error);
+		ut_asserteq(1, test->closed);
+		/* A repeated error after close must not call the old handle. */
+		tftp_handle_port_unreachable(&test->server, test->port, 69);
+		ut_asserteq(1, test->closed);
+	}
+	return 0;
 }
 
 static int tftp_test_oack(struct unit_test_state *uts,
@@ -937,6 +993,8 @@ static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 		ret = tftp_test_server_retries(uts, &test);
 	if (!ret)
 		ret = tftp_test_windows(uts, &test);
+	if (!ret)
+		ret = tftp_test_icmp_chain(uts, &test, net.netif);
 #if IS_ENABLED(CONFIG_CMD_TFTPSRV)
 	if (!ret)
 		ret = tftp_test_server_command(uts, &test);

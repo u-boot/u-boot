@@ -16,6 +16,8 @@
 #include <dm/test.h>
 #include <test/ut.h>
 #if IS_ENABLED(CONFIG_NET_LWIP)
+#include <lwip/icmp.h>
+#include <lwip/prot/udp.h>
 #include <lwip/timeouts.h>
 #include <lwip/udp.h>
 #endif
@@ -29,6 +31,24 @@ enum tftp_test_probe {
 	TFTP_PROBE_SILENT,
 	TFTP_PROBE_DATA,
 	TFTP_PROBE_OACK,
+};
+
+enum tftp_test_icmp {
+	TFTP_ICMP_NONE,
+	TFTP_ICMP_REQUEST,
+	TFTP_ICMP_TRANSFER,
+	TFTP_ICMP_OPTIONS,
+	TFTP_ICMP_CHECKSUM,
+	TFTP_ICMP_SHORT,
+	TFTP_ICMP_LOCAL_IP,
+	TFTP_ICMP_PEER_IP,
+	TFTP_ICMP_LOCAL_PORT,
+	TFTP_ICMP_PEER_PORT,
+	TFTP_ICMP_FRAGMENT,
+	TFTP_ICMP_IHL,
+	TFTP_ICMP_OTHER_CODE,
+	TFTP_ICMP_OLD_PORT,
+	TFTP_ICMP_COUNT,
 };
 
 struct tftp_test_context {
@@ -67,8 +87,92 @@ struct tftp_test_context {
 	unsigned int failed_attempts;
 	unsigned int server_case;
 	int server_error;
+	enum tftp_test_icmp icmp;
+	bool icmp_sent;
 	unsigned int timeout_ticks;
 };
+
+#if IS_ENABLED(CONFIG_NET_LWIP)
+/*
+ * Queue an ICMP error quoting this outgoing datagram, not an artificial
+ * TFTP callback. Return one when it replaces the normal server response.
+ */
+static int tftp_test_icmp_reply(struct udevice *dev, struct ethernet_hdr *eth,
+				struct ip_udp_hdr *ip)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct tftp_test_context *ctx = priv->priv;
+	unsigned int hlen = IP_HDR_SIZE + (ctx->icmp == TFTP_ICMP_OPTIONS ? 4 : 0);
+	unsigned int icmp_len = 8 + hlen + UDP_HDR_SIZE;
+	struct ethernet_hdr *reply_eth;
+	struct ip_udp_hdr *reply_ip, *quoted;
+	struct icmp_hdr *icmp;
+	struct udp_hdr *udp;
+
+	if (ctx->icmp_sent)
+		return 0;
+	if (priv->recv_packets >= PKTBUFSRX)
+		return -ENOSPC;
+	ctx->icmp_sent = true;
+	reply_eth = (void *)priv->recv_packet_buffer[priv->recv_packets];
+	memcpy(reply_eth->et_dest, eth->et_src, ARP_HLEN);
+	memcpy(reply_eth->et_src, priv->fake_host_hwaddr, ARP_HLEN);
+	reply_eth->et_protlen = htons(PROT_IP);
+	reply_ip = (void *)(reply_eth + 1);
+	memset(reply_ip, 0, hlen + icmp_len);
+	reply_ip->ip_hl_v = 0x40 | (hlen / 4);
+	reply_ip->ip_ttl = 64;
+	reply_ip->ip_p = IPPROTO_ICMP;
+	reply_ip->ip_src = ip->ip_dst;
+	reply_ip->ip_dst = ip->ip_src;
+	icmp = (void *)((u8 *)reply_ip + hlen);
+	icmp->type = ICMP_DUR;
+	icmp->code = ctx->icmp == TFTP_ICMP_OTHER_CODE ? ICMP_DUR_HOST : ICMP_DUR_PORT;
+	quoted = (void *)(icmp + 1);
+	memcpy(quoted, ip, IP_HDR_SIZE);
+	quoted->ip_hl_v = 0x40 | (hlen / 4);
+	quoted->ip_len = htons(ntohs(ip->ip_len) + hlen - IP_HDR_SIZE);
+	udp = (void *)((u8 *)quoted + hlen);
+	memcpy(udp, &ip->udp_src, UDP_HDR_SIZE);
+	switch (ctx->icmp) {
+	case TFTP_ICMP_SHORT:
+		icmp_len--;
+		break;
+	case TFTP_ICMP_LOCAL_IP:
+		quoted->ip_src.s_addr ^= htonl(1);
+		break;
+	case TFTP_ICMP_PEER_IP:
+		quoted->ip_dst.s_addr ^= htonl(1);
+		break;
+	case TFTP_ICMP_LOCAL_PORT:
+		udp->src ^= htons(1);
+		break;
+	case TFTP_ICMP_PEER_PORT:
+		udp->dest ^= htons(1);
+		break;
+	case TFTP_ICMP_FRAGMENT:
+		quoted->ip_off = htons(1);
+		break;
+	case TFTP_ICMP_IHL:
+		quoted->ip_hl_v = 0x44;
+		break;
+	case TFTP_ICMP_OLD_PORT:
+		udp->dest = htons(69);
+		break;
+	default:
+		break;
+	}
+	quoted->ip_sum = 0;
+	quoted->ip_sum = compute_ip_checksum(quoted, hlen);
+	icmp->chksum = compute_ip_checksum(icmp, icmp_len);
+	if (ctx->icmp == TFTP_ICMP_CHECKSUM)
+		icmp->chksum ^= htons(1);
+	reply_ip->ip_len = htons(hlen + icmp_len);
+	reply_ip->ip_sum = compute_ip_checksum(reply_ip, hlen);
+	priv->recv_packet_length[priv->recv_packets++] = ETHER_HDR_SIZE + hlen + icmp_len;
+	return ctx->icmp <= TFTP_ICMP_OPTIONS;
+}
+#endif
 
 static ulong tftp_test_option(const char *packet, size_t len, const char *option)
 {
@@ -153,6 +257,14 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 	opcode = get_unaligned_be16(ip + 1);
 	if (opcode == 4 && ctx->probe == TFTP_PROBE_NONE) {
 		ctx->server_acks++;
+#if IS_ENABLED(CONFIG_NET_LWIP)
+		if (ctx->icmp == TFTP_ICMP_TRANSFER) {
+			int ret = tftp_test_icmp_reply(dev, eth, ip);
+
+			if (ret < 0)
+				return ret;
+		}
+#endif
 		return 0;
 	}
 	if (opcode == 4 && ctx->probe >= TFTP_PROBE_DATA) {
@@ -197,6 +309,15 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 				"timeout\0" "1" : "timeout\0" "5";
 			data_len = 10;
 		}
+#if IS_ENABLED(CONFIG_NET_LWIP)
+		if (ctx->icmp && ctx->icmp != TFTP_ICMP_TRANSFER &&
+		    ctx->icmp != TFTP_ICMP_OLD_PORT) {
+			int ret = tftp_test_icmp_reply(dev, eth, ip);
+
+			if (ret)
+				return ret < 0 ? ret : 0;
+		}
+#endif
 		if (ctx->requests <= ctx->drop_requests)
 			return 0;
 		if (ctx->error_requests)
@@ -214,6 +335,14 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 		reply_opcode = 4;
 		block = get_unaligned_be16((u8 *)(ip + 1) + 2);
 		data_len = 0;
+#if IS_ENABLED(CONFIG_NET_LWIP)
+		if (ctx->icmp == TFTP_ICMP_TRANSFER || ctx->icmp == TFTP_ICMP_OLD_PORT) {
+			int ret = tftp_test_icmp_reply(dev, eth, ip);
+
+			if (ret)
+				return ret < 0 ? ret : 0;
+		}
+#endif
 		if (ctx->partial && ctx->requests == 1)
 			return 0;
 	} else {
@@ -474,6 +603,60 @@ static int tftp_test_retry_command(struct tftp_test_context *ctx, bool put)
 	return ret;
 }
 
+static int tftp_test_icmp_errors(struct unit_test_state *uts,
+				 struct tftp_test_context *ctx)
+{
+	struct net_lwip_ctx shared = {};
+	int i, put, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("ethrotate", "no"));
+	ut_assertok(env_set("netretry", "once"));
+	for (put = 0; put <= IS_ENABLED(CONFIG_CMD_TFTPPUT); put++) {
+		for (i = TFTP_ICMP_REQUEST; i < TFTP_ICMP_COUNT; i++) {
+			if (!put && i == TFTP_ICMP_OLD_PORT)
+				continue;
+			memset(ctx, 0, sizeof(*ctx));
+			ctx->icmp = i;
+			ctx->partial = !put && i == TFTP_ICMP_TRANSFER;
+			/* A broken ICMP path must time out, not hang this test. */
+			sys_timeout(100, tftp_test_tick, ctx);
+			ret = run_command(put ? "tftpput 2000000 20 file" :
+					  "tftpboot 2000000 file", 0);
+			sys_untimeout(tftp_test_tick, ctx);
+			ut_assertok(ret);
+			ut_assert(ctx->icmp_sent);
+			ut_asserteq(i <= TFTP_ICMP_OPTIONS ? 2 : 1, ctx->requests);
+			ut_asserteq(0, ctx->timeout_ticks);
+			ut_asserteq(put ? 32 : sizeof(tftp_test_data), net_boot_file_size);
+		}
+	}
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->icmp = TFTP_ICMP_REQUEST;
+	ut_assertok(env_set("netretry", "no"));
+	sys_timeout(100, tftp_test_tick, ctx);
+	ret = run_command("tftpboot 2000000 file", 0);
+	sys_untimeout(tftp_test_tick, ctx);
+	ut_asserteq(CMD_RET_FAILURE, ret);
+	ut_asserteq(1, ctx->requests);
+	ut_asserteq(0, ctx->timeout_ticks);
+	ut_asserteq(0, net_boot_file_size);
+
+	/* An ICMP error cannot restart a runtime held by another client. */
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->icmp = TFTP_ICMP_REQUEST;
+	ut_assertok(env_set("netretry", "once"));
+	ut_assertok(net_lwip_start(&shared, NET_LWIP_ADDR_ENV_STRICT));
+	ret = run_command("tftpboot 2000000 file", 0);
+	i = net_lwip_poll();
+	net_lwip_stop(&shared);
+	ut_asserteq(CMD_RET_FAILURE, ret);
+	ut_assert(i >= 0);
+	ut_asserteq(1, ctx->requests);
+	ut_assertok(env_set("netretry", "no"));
+	return 0;
+}
+
 static int tftp_test_restarts(struct unit_test_state *uts,
 			      struct tftp_test_context *ctx)
 {
@@ -717,6 +900,16 @@ static int tftp_test_server_policy(struct unit_test_state *uts,
 	ut_assert(i >= 0);
 	ut_asserteq(1, ctx->server_attempt);
 
+	/* A matching error for ACK(0) restarts before the transfer times out. */
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->server_case = 1;
+	ctx->failed_attempts = 1;
+	ctx->icmp = TFTP_ICMP_TRANSFER;
+	ut_assertok(tftp_test_server_run(ctx));
+	ut_assertok(ctx->server_error);
+	ut_assert(ctx->icmp_sent);
+	ut_asserteq(2, ctx->server_attempt);
+	ut_asserteq(3, ctx->server_ticks);
 	ut_assertok(env_set("tftptimeout", NULL));
 	ut_assertok(env_set("tftptimeoutcountmax", NULL));
 	ut_assertok(env_set("netretry", "no"));
@@ -875,6 +1068,7 @@ static int tftp_test_download(struct unit_test_state *uts,
 	ut_assertok(tftp_test_protected_autostart(uts, ctx));
 
 #if IS_ENABLED(CONFIG_NET_LWIP)
+	ut_assertok(tftp_test_icmp_errors(uts, ctx));
 	if (IS_ENABLED(CONFIG_NET_TFTP_VARS))
 		ut_assertok(tftp_test_restarts(uts, ctx));
 	ut_assertok(tftp_test_options(uts, ctx));
