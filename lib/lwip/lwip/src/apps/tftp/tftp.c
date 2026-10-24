@@ -934,6 +934,21 @@ tftp_set_timeout(u32_t timeout_msecs, u32_t max_retries)
 }
 
 /** @ingroup tftp
+ * Bind the TFTP client to a local UDP port.
+ * @param port Local UDP port
+ * @return lwIP error code returned by udp_bind()
+ */
+err_t
+tftp_client_bind(u16_t port)
+{
+  LWIP_ERROR("TFTP client is not enabled (tftp_init)",
+             (tftp_state.tftp_mode & LWIP_TFTP_MODE_CLIENT) != 0,
+             return ERR_VAL);
+
+  return udp_bind(tftp_state.upcb, IP_ANY_TYPE, port);
+}
+
+/** @ingroup tftp
  * Deinitialize ("turn off") TFTP client/server.
  */
 void tftp_cleanup(void)

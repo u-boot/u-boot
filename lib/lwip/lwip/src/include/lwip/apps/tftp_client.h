@@ -44,6 +44,7 @@ enum tftp_transfer_mode {
 };
 
 err_t tftp_init_client(const struct tftp_context* ctx);
+err_t tftp_client_bind(u16_t port);
 void tftp_client_set_blksize(u16_t blksize);
 void tftp_client_set_tsize(u32_t tsize);
 u32_t tftp_client_get_tsize(void);

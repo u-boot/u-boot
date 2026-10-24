@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright 2026 James Hilliard <james.hilliard1@gmail.com> */
 
+#include <command.h>
 #include <dm.h>
 #include <env.h>
+#include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <net.h>
 #include <time.h>
 #include <asm/unaligned.h>
@@ -24,6 +27,7 @@ struct tftp_protocol_test {
 	unsigned int closed;
 	unsigned int written;
 	unsigned int reads;
+	unsigned int server_phase;
 	int error;
 	int read_error;
 	bool initialized;
@@ -602,11 +606,61 @@ static int tftp_test_server_retries(struct unit_test_state *uts,
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+static void tftp_test_server_input(void *arg)
+{
+	static const char wrq[] = "\000\002file\000octet";
+	static const u8 data[] = { 0, 3, 0, 1, 'a', 'b', 'c' };
+	struct tftp_protocol_test *test = arg;
+
+	if (!test->server_phase++) {
+		test->port = 69;
+		test->error = tftp_test_input(test, wrq, sizeof(wrq), 0);
+		/* Lose DATA 1 long enough for the server to retransmit ACK 0. */
+		timer_test_add_offset(5001);
+		sys_timeout(1, tftp_test_server_input, test);
+	} else {
+		test->error = tftp_test_input(test, data, sizeof(data), 0);
+	}
+}
+
+static int tftp_test_server_command(struct unit_test_state *uts,
+				    struct tftp_protocol_test *test)
+{
+	int ret;
+
+	if (test->initialized)
+		tftp_cleanup();
+	memset(test, 0, sizeof(*test));
+	ipaddr_aton("1.1.2.2", &test->server);
+	ut_assertok(env_set("autostart", "yes"));
+	sys_timeout(1, tftp_test_server_input, test);
+	ret = run_command("tftpsrv 2000000", 0);
+	sys_untimeout(tftp_test_server_input, test);
+	ut_assertok(ret);
+	ut_assertok(test->error);
+	ut_asserteq(2, test->server_phase);
+	ut_asserteq(3, test->sent);
+	ut_asserteq(4, test->opcode);
+	ut_asserteq(1, test->block);
+	ut_asserteq(0x2000000, image_load_addr);
+	ut_asserteq_str("3", env_get("filesize"));
+	ut_asserteq_str("2000000", env_get("fileaddr"));
+	ut_asserteq_str("yes", env_get("autostart"));
+	ut_asserteq_mem("abc", map_sysmem(0x2000000, 3), 3);
+	return 0;
+}
+#endif
+
 static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 {
-	static const char * const vars[] = { "ethact", "ipaddr", "netmask" };
+	static const char * const vars[] = {
+		"ethact", "ipaddr", "netmask", "fileaddr", "filesize", "autostart",
+	};
 	struct tftp_protocol_test test = {};
 	struct net_lwip_ctx net = {};
+	ulong load_addr = image_load_addr;
+	u32 size = net_boot_file_size;
 	char *saved[ARRAY_SIZE(vars)] = {};
 	netif_output_fn output;
 	int i, ret = -ENOMEM;
@@ -644,12 +698,18 @@ static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 		ret = tftp_test_timeout_option(uts, &test);
 	if (!ret)
 		ret = tftp_test_server_retries(uts, &test);
+#if IS_ENABLED(CONFIG_CMD_TFTPSRV)
+	if (!ret)
+		ret = tftp_test_server_command(uts, &test);
+#endif
 	if (test.initialized)
 		tftp_cleanup();
 	net.netif->output = output;
 	tftp_test_active = NULL;
 	net_lwip_stop(&net);
 restore_env:
+	image_load_addr = load_addr;
+	net_boot_file_size = size;
 	for (i = 0; i < ARRAY_SIZE(vars); i++)
 		if (env_set(vars[i], saved[i]))
 			ret = -EINVAL;

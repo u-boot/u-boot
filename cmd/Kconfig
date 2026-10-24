@@ -2166,17 +2166,6 @@ config CMD_TFTPPUT
 	help
 	  TFTP put command, for uploading files to a server
 
-config NET_TFTP_VARS
-	bool "Control TFTP timeout and count through environment"
-	depends on CMD_TFTPBOOT
-	default y
-	help
-	  If set, allows controlling the TFTP timeout through the
-	  environment variable tftptimeout, and the TFTP maximum
-	  timeout count through the variable tftptimeoutcountmax.
-	  If unset, timeout and maximum are hard-defined as 1 second
-	  and 10 timouts per TFTP transfer.
-
 config CMD_RARP
 	bool "rarpboot"
 	help
@@ -2236,6 +2225,16 @@ config CMD_WOL
 	  Wait for wake-on-lan Magic Packet
 
 endif  # if NET_LEGACY
+
+config NET_TFTP_VARS
+	bool "Control TFTP transfer options through environment"
+	depends on CMD_TFTPBOOT
+	default y
+	help
+	  Allow tftpblocksize, tftpwindowsize, tftptimeout and
+	  tftptimeoutcountmax to override the TFTP client's compiled-in
+	  block size, receive window, timeout and retry-count defaults.
+	  The receive server uses its compiled-in timeout and retry count.
 
 config CMD_DHCP
 	bool "dhcp"
