@@ -28,14 +28,21 @@ enum done_state {
 	ABORTED
 };
 
+enum tftp_operation {
+	TFTP_DOWNLOAD,
+	TFTP_UPLOAD,
+};
+
 struct tftp_ctx {
 	ulong daddr;
 	ulong size;
+	ulong total_size;
 	ulong block_count;
 	ulong hash_count;
 	ulong start_time;
 	enum done_state done;
 	bool is_server;
+	bool upload;
 	bool wrq_accepted;
 	u32 listen_retries;
 	char fname[TFTP_MAX_FILENAME_LEN + 1];
@@ -61,8 +68,6 @@ static struct tftp_ctx *tftpsrv_active_ctx;
 static int store_block(struct tftp_ctx *ctx, void *src, u16_t len)
 {
 	ulong store_addr = ctx->daddr;
-	ulong tftp_tsize;
-	ulong pos;
 	void *ptr;
 
 	if (CONFIG_IS_ENABLED(LMB)) {
@@ -80,13 +85,31 @@ static int store_block(struct tftp_ctx *ctx, void *src, u16_t len)
 
 	ctx->daddr += len;
 	ctx->size += len;
+
+	return 0;
+}
+
+static ulong tftp_transfer_size(struct tftp_ctx *ctx)
+{
+	if (ctx->upload)
+		return ctx->total_size;
+	if (!ctx->is_server)
+		return tftp_client_get_tsize();
+
+	return 0;
+}
+
+static void tftp_show_progress(struct tftp_ctx *ctx)
+{
+	ulong tftp_tsize = tftp_transfer_size(ctx);
+	ulong pos;
+
 	ctx->block_count++;
 
-	tftp_tsize = ctx->is_server ? 0 : tftp_client_get_tsize();
 	if (tftp_tsize) {
 		pos = clamp(ctx->size, 0UL, tftp_tsize);
 
-		while (ctx->hash_count < pos * 50 / tftp_tsize) {
+		while (ctx->hash_count < (u64)pos * 50 / tftp_tsize) {
 			putc('#');
 			ctx->hash_count++;
 		}
@@ -97,8 +120,6 @@ static int store_block(struct tftp_ctx *ctx, void *src, u16_t len)
 				puts("\n\t ");
 		}
 	}
-
-	return 0;
 }
 
 static void *tftp_open(const char *fname, const char *mode, u8_t is_write)
@@ -132,10 +153,10 @@ static void tftp_close(void *handle)
 	}
 	ctx->done = SUCCESS;
 
-	tftp_tsize = ctx->is_server ? 0 : tftp_client_get_tsize();
+	tftp_tsize = tftp_transfer_size(ctx);
 	if (tftp_tsize) {
 		/* Print hash marks for the last packet received */
-		while (ctx->hash_count < 49) {
+		while (ctx->hash_count < 50) {
 			putc('#');
 			ctx->hash_count++;
 		}
@@ -146,7 +167,7 @@ static void tftp_close(void *handle)
 	elapsed = get_timer(ctx->start_time);
 	if (elapsed > 0) {
 		puts("\n\t ");	/* Line up with "Loading: " */
-		print_size(ctx->size / elapsed * 1000, "/s");
+		print_size((u64)ctx->size * 1000 / elapsed, "/s");
 	}
 	puts("\ndone\n");
 	printf("Bytes transferred = %lu (%lx hex)\n", ctx->size, ctx->size);
@@ -159,7 +180,28 @@ static void tftp_close(void *handle)
 
 static int tftp_read(void *handle, void *buf, int bytes)
 {
-	return 0;
+	struct tftp_ctx *ctx = handle;
+	ulong remaining;
+	ulong len;
+	void *ptr;
+
+	if (bytes <= 0 || ctx->size >= ctx->total_size) {
+		len = 0;
+	} else {
+		remaining = ctx->total_size - ctx->size;
+		len = min_t(ulong, bytes, remaining);
+
+		ptr = map_sysmem(ctx->daddr, len);
+		memcpy(buf, ptr, len);
+		unmap_sysmem(ptr);
+
+		ctx->daddr += len;
+		ctx->size += len;
+	}
+
+	tftp_show_progress(ctx);
+
+	return len;
 }
 
 static int tftp_write(void *handle, struct pbuf *p)
@@ -173,6 +215,7 @@ static int tftp_write(void *handle, struct pbuf *p)
 			return -1;
 		}
 	}
+	tftp_show_progress(ctx);
 
 	return 0;
 }
@@ -197,18 +240,59 @@ static const struct tftp_context tftp_context = {
 	tftp_error
 };
 
-static int tftp_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
-		     ip_addr_t srvip, u16 srvport, u16 srcport,
-		     u32 timeout_msecs, u32 max_retries)
+static int tftp_get_blocksize(enum tftp_operation operation, u16 *blksize)
 {
-	int blksize = CONFIG_TFTP_BLOCKSIZE;
+	const char *ep = NULL;
+	ulong value = CONFIG_TFTP_BLOCKSIZE;
+	ulong max_blksize = 1468;
+
+	/* Keep uploads within the Ethernet MTU, like legacy. Downloads may
+	 * use the pbuf budget sized for full-MTU fragments in lwipopts.h.
+	 * CONFIG_TFTP_BLOCKSIZE is the default, not the receive limit.
+	 */
+	if (operation == TFTP_DOWNLOAD && IP_REASSEMBLY)
+		max_blksize = min_t(ulong, 65464,
+				    IP_REASS_MAX_PBUFS * IP_FRAG_MTU_USABLE - UDP_HDR_SIZE - 4);
+	if (IS_ENABLED(CONFIG_NET_TFTP_VARS))
+		ep = env_get("tftpblocksize");
+
+	if (ep && strict_strtoul(ep, 10, &value)) {
+		log_err("error: invalid TFTP block size\n");
+		return -EINVAL;
+	}
+	if (value < 8) {
+		log_err("error: TFTP block size must be at least 8 bytes\n");
+		return -EINVAL;
+	}
+	if (value > max_blksize) {
+		printf("Capping TFTP block size to %lu (was %lu)\n",
+		       max_blksize, value);
+		value = max_blksize;
+	}
+
+	*blksize = value;
+
+	return 0;
+}
+
+static int tftp_loop(struct net_lwip_ctx *net,
+		     enum tftp_operation operation,
+		     ulong addr, ulong size, char *fname, ip_addr_t srvip,
+		     u16 srvport, u16 srcport, u32 timeout_msecs,
+		     u32 max_retries)
+{
 	struct tftp_ctx ctx;
-	const char *ep;
 	bool initialized = false;
+	u16 blksize;
 	int ret = -1;
 	err_t err;
 
-	if (!fname || addr == 0)
+	if (!fname || !*fname || !addr)
+		return -EINVAL;
+	if (operation == TFTP_UPLOAD &&
+	    (size > U32_MAX || addr + size < addr))
+		return -E2BIG;
+	if (tftp_get_blocksize(operation, &blksize))
 		return -1;
 
 	if (!srvport)
@@ -217,13 +301,22 @@ static int tftp_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.done = NOT_DONE;
 	ctx.daddr = addr;
+	ctx.total_size = size;
+	ctx.upload = operation == TFTP_UPLOAD;
 
 	printf("Using %s device\n", net->dev->name);
-	printf("TFTP from server %s; our IP address is %s\n",
-	       ipaddr_ntoa(&srvip), env_get("ipaddr"));
+	printf("TFTP %s server %s; our IP address is %s\n",
+	       ctx.upload ? "to" : "from", ipaddr_ntoa(&srvip),
+	       env_get("ipaddr"));
 	printf("Filename '%s'.\n", fname);
-	printf("Load address: 0x%lx\n", ctx.daddr);
-	printf("Loading: ");
+	if (ctx.upload) {
+		printf("Save address: 0x%lx\n", ctx.daddr);
+		printf("Save size:    0x%lx\n", ctx.total_size);
+		printf("Saving: ");
+	} else {
+		printf("Load address: 0x%lx\n", ctx.daddr);
+		printf("Loading: ");
+	}
 
 	err = tftp_init_client(&tftp_context);
 	if (err != ERR_OK) {
@@ -246,16 +339,21 @@ static int tftp_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 		goto out_cleanup;
 	}
 
-	ep = IS_ENABLED(CONFIG_NET_TFTP_VARS) ? env_get("tftpblocksize") : NULL;
-	if (ep)
-		blksize = simple_strtol(ep, NULL, 10);
 	tftp_client_set_blksize(blksize);
 
 	ctx.start_time = get_timer(0);
-	err = tftp_get(&ctx, &srvip, srvport, fname, TFTP_MODE_OCTET);
+	if (ctx.upload) {
+		tftp_client_set_tsize(size);
+		err = tftp_put(&ctx, &srvip, srvport, fname,
+			       TFTP_MODE_OCTET);
+	} else {
+		err = tftp_get(&ctx, &srvip, srvport, fname,
+			       TFTP_MODE_OCTET);
+	}
 	/* might return different errors, like routing problems */
 	if (err != ERR_OK) {
-		printf("tftp_get() error %d\n", err);
+		printf("tftp_%s() error %d\n", ctx.upload ? "put" : "get",
+		       err);
 		goto out_cleanup;
 	}
 
@@ -273,12 +371,14 @@ out_cleanup:
 		tftp_cleanup();
 
 	if (ctx.done == SUCCESS) {
-		if (env_set_hex("fileaddr", addr)) {
-			log_err("fileaddr not updated\n");
-			return -1;
+		if (!ctx.upload) {
+			if (env_set_hex("fileaddr", addr)) {
+				log_err("fileaddr not updated\n");
+				return -1;
+			}
+			efi_set_bootdev("Net", "", fname, map_sysmem(addr, 0),
+					ctx.size);
 		}
-		efi_set_bootdev("Net", "", fname, map_sysmem(addr, 0),
-				ctx.size);
 		ret = 0;
 	}
 
@@ -420,7 +520,26 @@ out:
 	return ret;
 }
 
-int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int tftp_default_filename(char *fname, size_t size)
+{
+	const char *ipaddr = env_get("ipaddr");
+	ip_addr_t addr;
+
+	if (!ipaddr || !ipaddr_aton(ipaddr, &addr)) {
+		log_err("error: ipaddr has to be set\n");
+		return -EINVAL;
+	}
+
+	snprintf(fname, size, "%02X%02X%02X%02X.img",
+		 ip4_addr1(ip_2_ip4(&addr)), ip4_addr2(ip_2_ip4(&addr)),
+		 ip4_addr3(ip_2_ip4(&addr)), ip4_addr4(ip_2_ip4(&addr)));
+	printf("*** Warning: no boot file name; using '%s'\n", fname);
+
+	return 0;
+}
+
+static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[], enum tftp_operation operation)
 {
 	struct net_lwip_ctx net = {};
 	u32 timeout_msecs = UBOOT_TFTP_TIMEOUT_MS;
@@ -431,64 +550,61 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char *fname = NULL;
 	char *server_ip = NULL;
 	char *server_port = NULL;
+	char default_fname[sizeof("FFFFFFFF.img")];
 	char *end;
 	ip_addr_t srvip;
 	u16 srcport = 0;
 	u16 port = TFTP_PORT;
 	ulong laddr;
+	ulong size = 0;
 	ulong addr;
 	const char *ep;
-	long value;
+	ulong value;
 
 	laddr = env_get_ulong("loadaddr", 16, image_load_addr);
 
-	switch (argc) {
-	case 1:
-		fname = env_get("bootfile");
-		break;
-	case 2:
-		/*
-		 * Only one arg - accept two forms:
-		 * Just load address, or just boot file name. The latter
-		 * form must be written in a format which can not be
-		 * mis-interpreted as a valid number.
-		 */
-		addr = hextoul(argv[1], &end);
-		if (end == (argv[1] + strlen(argv[1]))) {
-			laddr = addr;
-			fname = env_get("bootfile");
-		} else {
-			arg_copy = strdup(argv[1]);
-			arg = arg_copy;
-			if (!arg) {
-				ret = CMD_RET_FAILURE;
-				goto out;
-			}
-		}
-		break;
-	case 3:
-		laddr = hextoul(argv[1], NULL);
-		arg_copy = strdup(argv[2]);
-		arg = arg_copy;
-		if (!arg) {
-			ret = CMD_RET_FAILURE;
+	if (operation == TFTP_UPLOAD) {
+		if (argc < 3 || argc > 4 ||
+		    strict_strtoul(argv[1], 16, &laddr) ||
+		    strict_strtoul(argv[2], 16, &size)) {
+			ret = CMD_RET_USAGE;
 			goto out;
 		}
-		break;
-	default:
-		ret = CMD_RET_USAGE;
-		goto out;
-	}
-
-	if (!arg)
-		arg = fname;
-	if (arg && *arg) {
-		if (!arg_copy) {
-			arg_copy = strdup(arg);
-			if (!arg_copy) {
-				ret = CMD_RET_FAILURE;
+		if (argc == 4)
+			arg = argv[3];
+	} else {
+		switch (argc) {
+		case 1:
+			arg = env_get("bootfile");
+			break;
+		case 2:
+			/* Accept either a load address or a file name. */
+			addr = hextoul(argv[1], &end);
+			if (end == argv[1] + strlen(argv[1])) {
+				laddr = addr;
+				arg = env_get("bootfile");
+			} else {
+				arg = argv[1];
+			}
+			break;
+		case 3:
+			if (strict_strtoul(argv[1], 16, &laddr)) {
+				ret = CMD_RET_USAGE;
 				goto out;
 			}
+			arg = argv[2];
+			break;
+		default:
+			ret = CMD_RET_USAGE;
+			goto out;
+		}
+	}
+
+	if (arg && *arg) {
+		arg_copy = strdup(arg);
+		if (!arg_copy) {
+			ret = CMD_RET_FAILURE;
+			goto out;
 		}
 		fname = arg_copy;
 		end = strchr(fname, ':');
@@ -517,21 +633,20 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 	}
 
-	if (!server_ip)
+	if (!server_ip || !*server_ip)
 		server_ip = env_get("tftpserverip");
-	if (!server_ip)
+	if (!server_ip || !*server_ip)
 		server_ip = env_get("serverip");
-	if (!server_ip) {
+	if (!server_ip || !*server_ip) {
 		log_err("error: tftpserverip/serverip has to be set\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
 
-	if (!server_port)
+	if (!server_port || !*server_port)
 		server_port = env_get("tftpdstp");
-	if (server_port) {
-		value = simple_strtol(server_port, NULL, 10);
-		if (value < 0 || value > 0xffff) {
+	if (server_port && *server_port) {
+		if (strict_strtoul(server_port, 10, &value) || value > U16_MAX) {
 			log_err("error: invalid TFTP destination port\n");
 			ret = CMD_RET_FAILURE;
 			goto out;
@@ -540,9 +655,8 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	ep = env_get("tftpsrcp");
-	if (ep) {
-		value = simple_strtol(ep, NULL, 10);
-		if (value < 0 || value > 0xffff) {
+	if (ep && *ep) {
+		if (strict_strtoul(ep, 10, &value) || value > U16_MAX) {
 			log_err("error: invalid TFTP source port\n");
 			ret = CMD_RET_FAILURE;
 			goto out;
@@ -553,14 +667,12 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (IS_ENABLED(CONFIG_NET_TFTP_VARS)) {
 		ep = env_get("tftptimeout");
 		if (ep && *ep) {
-			ulong timeout;
-
-			if (strict_strtoul(ep, 10, &timeout) || timeout > U32_MAX / 4) {
+			if (strict_strtoul(ep, 10, &value) || value > U32_MAX / 4) {
 				log_err("error: invalid TFTP timeout\n");
 				ret = CMD_RET_FAILURE;
 				goto out;
 			}
-			timeout_msecs = timeout;
+			timeout_msecs = value;
 		}
 		if (timeout_msecs < 1000) {
 			printf("TFTP timeout (%u ms) too low, set min = 1000 ms\n",
@@ -569,12 +681,11 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 
 		ep = env_get("tftptimeoutcountmax");
-		if (ep) {
-			value = simple_strtol(ep, NULL, 10);
-			if (value < 0) {
-				printf("TFTP timeout count max (%ld) negative, set to 0\n",
-				       value);
-				value = 0;
+		if (ep && *ep) {
+			if (strict_strtoul(ep, 10, &value) || value > U32_MAX) {
+				log_err("error: invalid TFTP timeout count max\n");
+				ret = CMD_RET_FAILURE;
+				goto out;
 			}
 			max_retries = value;
 		}
@@ -586,8 +697,16 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (!fname) {
-		log_err("error: no file name\n");
+	if (!fname || !*fname) {
+		if (tftp_default_filename(default_fname,
+					  sizeof(default_fname))) {
+			ret = CMD_RET_FAILURE;
+			goto out;
+		}
+		fname = default_fname;
+	}
+	if (strlen(fname) > TFTP_MAX_FILENAME_LEN) {
+		log_err("error: TFTP file name is too long\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -598,18 +717,35 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
+	if (operation == TFTP_UPLOAD &&
+	    (size > U32_MAX || laddr + size < laddr)) {
+		log_err("error: TFTP upload range is too large\n");
+		ret = CMD_RET_FAILURE;
+		goto out;
+	}
+
 	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
 
-	if (tftp_loop(&net, laddr, fname, srvip, port, srcport,
-		      timeout_msecs, max_retries) < 0)
+	if (tftp_loop(&net, operation, laddr, size, fname, srvip,
+		      port, srcport, timeout_msecs, max_retries) < 0)
 		ret = CMD_RET_FAILURE;
-	else
+	else if (operation == TFTP_DOWNLOAD)
 		image_load_addr = laddr;
 out:
 	net_lwip_stop(&net);
 	free(arg_copy);
 	return ret;
+}
+
+int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	return do_tftp(cmdtp, flag, argc, argv, TFTP_DOWNLOAD);
+}
+
+int do_tftpput(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	return do_tftp(cmdtp, flag, argc, argv, TFTP_UPLOAD);
 }

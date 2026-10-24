@@ -2160,12 +2160,6 @@ config BOOTP_RANDOM_XID
 	  Selecting this will allow for a random transaction ID to get
 	  selected for each BOOTP/DHCPv4 exchange.
 
-config CMD_TFTPPUT
-	bool "tftp put"
-	depends on CMD_TFTPBOOT
-	help
-	  TFTP put command, for uploading files to a server
-
 config CMD_RARP
 	bool "rarpboot"
 	help
@@ -2225,6 +2219,13 @@ config CMD_WOL
 	  Wait for wake-on-lan Magic Packet
 
 endif  # if NET_LEGACY
+
+config CMD_TFTPPUT
+	bool "tftp put"
+	depends on CMD_TFTPBOOT
+	help
+	  Enable the tftpput command for uploading a memory range to a TFTP
+	  server.
 
 config NET_TFTP_VARS
 	bool "Control TFTP transfer options through environment"
