@@ -503,6 +503,31 @@ static int tftp_test_download(struct unit_test_state *uts,
 	ut_assertok(env_set("tftptimeout", NULL));
 #endif
 
+#if IS_ENABLED(CONFIG_CMD_ELF_BOOTVX)
+	/* Stop before the VxWorks handoff by deliberately omitting bootaddr. */
+	ut_assertok(env_set("bootaddr", NULL));
+	ut_assertok(env_set("loadaddr", "2000000"));
+	ut_assertok(env_set("bootfile", "update.bin"));
+	*net_boot_file_name = '\0';
+	ut_assertok(env_set("autostart", "yes"));
+	for (i = 0; i < 3; i++) {
+		memset(ctx, 0, sizeof(*ctx));
+		ctx->fail = i == 1;
+		ctx->empty = i == 2;
+		image_load_addr = TFTP_TEST_ADDR + 4096;
+		net_boot_file_size = 1234;
+		ut_asserteq(CMD_RET_FAILURE, run_command("bootvx tftp", 0));
+		ut_asserteq(1, ctx->requests);
+		ut_assert(!ctx->autostart);
+		ut_asserteq_str("yes", env_get("autostart"));
+		ut_asserteq(i ? 0 : sizeof(tftp_test_data), net_boot_file_size);
+		if (!i) {
+			ut_asserteq(TFTP_TEST_ADDR, image_load_addr);
+			ut_asserteq_mem(tftp_test_data, buffer, sizeof(tftp_test_data));
+		}
+	}
+#endif
+
 	for (i = 0; i < ARRAY_SIZE(autostart); i++) {
 		timeout = i & 1 ? NULL : "7000";
 		retries = i & 1 ? NULL : "09";
