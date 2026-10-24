@@ -11,7 +11,7 @@ config DFU_OVER_USB
 
 config DFU_OVER_TFTP
 	bool
-	depends on NET_LEGACY
+	depends on NET
 
 config DFU_WRITE_ALT
 	bool
@@ -20,9 +20,10 @@ if DFU
 config DFU_TFTP
 	bool "DFU via TFTP"
 	depends on NETDEVICES
-	depends on !NET_LWIP
 	select UPDATE_COMMON
 	select DFU_OVER_TFTP
+	select CMD_NET
+	select CMD_TFTPBOOT
 	help
 	  This option allows performing update of DFU-managed medium with data
 	  sent via TFTP boot.
