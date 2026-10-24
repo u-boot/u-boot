@@ -112,7 +112,7 @@ def spi_pre_commands(ubman, freq):
     bus, cs, mode, part_name, timeout = get_params_spi(ubman)
 
     output = ubman.run_command(f'sf probe {bus}:{cs} {freq} {mode}')
-    if not 'SF: Detected' in output:
+    if not 'SF:    Detected' in output:
         pytest.fail('No SPI device available')
 
     if not part_name in output:

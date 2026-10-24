@@ -70,7 +70,7 @@ def sf_prepare(ubman, env__sf_config):
     cmd = 'sf probe %d %d' % (probe_id, sf_params['speed'])
 
     output = ubman.run_command(cmd)
-    assert 'SF: Detected' in output, 'No Flash device available'
+    assert 'SF:    Detected' in output, 'No Flash device available'
 
     m = re.search('page size (.+?) Bytes', output)
     assert m, 'SPI Flash page size not recognized'

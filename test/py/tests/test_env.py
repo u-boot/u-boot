@@ -595,7 +595,7 @@ def test_env_spi_flash(state_test_env):
         spi_flash_img = mk_env_spi_flash_single(state_test_env)
 
         response = c.run_command('sf probe')
-        assert 'SF: Detected m25p16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB' in response
+        assert 'SF:    Detected m25p16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB' in response
 
         # force env location: SF
         response = c.run_command('env select SPIFlash')
