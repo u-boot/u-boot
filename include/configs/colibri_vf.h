@@ -45,7 +45,7 @@
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START ""
 
-#define DFU_ALT_NAND_INFO "vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
+#define DFU_ALT_NAND_INFO "vf-bcb part 0 1;u-boot part 0 2;ubi part 0 4"
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
