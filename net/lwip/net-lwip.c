@@ -553,25 +553,26 @@ int net_lwip_restart(struct net_lwip_ctx *ctx)
 
 /**
  * net_lwip_refresh - Refresh environment addressing for the shared interface
- * @ctx: Active environment-addressed client attachment
+ * @ctx: Active client attachment
  *
- * Address-less clients take priority, so flexible-client refreshes are
- * deferred until the last such client detaches. A refresh which would change
- * the address while a strict client is attached fails with -EBUSY.
+ * The address configuration owner may refresh after publishing its acquired
+ * configuration and retiring DHCP/BOOTP, before starting an autoload transfer.
+ * Flexible-client refreshes are deferred while that owner remains attached.
+ * A refresh which would change the address while a strict client is attached
+ * fails with -EBUSY.
  *
  * Return: 0 on success, or a negative error code.
  */
 int net_lwip_refresh(struct net_lwip_ctx *ctx)
 {
 	if (!ctx || ctx->netif != net_lwip_runtime.netif ||
-	    ctx->dev != net_lwip_runtime.dev ||
-	    ctx->addr_mode == NET_LWIP_ADDR_NONE)
+	    ctx->dev != net_lwip_runtime.dev || !net_lwip_runtime.users)
 		return -EINVAL;
 
-	if (net_lwip_runtime.no_addr_users)
+	if (net_lwip_runtime.no_addr_users && ctx->addr_mode != NET_LWIP_ADDR_NONE)
 		return 0;
 
-	return net_lwip_configure(ctx->addr_mode);
+	return net_lwip_configure(NET_LWIP_ADDR_ENV_FLEXIBLE);
 }
 
 /*

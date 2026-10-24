@@ -304,6 +304,10 @@ static int _dm_test_lwip_runtime(struct unit_test_state *uts,
 #if CONFIG_IS_ENABLED(PROT_DHCP_LWIP)
 	ut_assertok(lwip_test_dhcp_stop(uts, no_addr_client->netif));
 #endif
+	/* The configuration owner can publish its lease before autoload. */
+	ut_assertok(net_lwip_refresh(no_addr_client));
+	ip4addr_aton("1.1.2.4", &expected);
+	ut_assert(ip4_addr_cmp(netif_ip4_addr(client_b->netif), &expected));
 	net_lwip_stop(no_addr_client);
 	ip4addr_aton("1.1.2.4", &expected);
 	ut_assert(ip4_addr_cmp(netif_ip4_addr(client_b->netif), &expected));

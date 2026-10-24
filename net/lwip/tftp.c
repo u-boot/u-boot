@@ -612,10 +612,11 @@ static void tftp_default_filename(struct net_lwip_ctx *net, char *fname,
 	printf("*** Warning: no boot file name; using '%s'\n", fname);
 }
 
-static int do_tftp(int argc, char *const argv[], enum tftp_operation operation)
+static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
+		   struct net_lwip_ctx *parent)
 {
 	struct net_lwip_ctx local = {};
-	struct net_lwip_ctx *net = &local;
+	struct net_lwip_ctx *net = parent ?: &local;
 	u32 timeout_msecs = UBOOT_TFTP_TIMEOUT_MS;
 	u32 max_retries = UBOOT_TFTP_MAX_RETRIES;
 	int ret = CMD_RET_SUCCESS;
@@ -785,12 +786,14 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation)
 		goto out;
 	}
 
-	if (net_lwip_start(net, NET_LWIP_ADDR_ENV_STRICT)) {
-		ret = CMD_RET_FAILURE;
-		goto out;
+	if (!parent) {
+		if (net_lwip_start(net, NET_LWIP_ADDR_ENV_STRICT)) {
+			ret = CMD_RET_FAILURE;
+			goto out;
+		}
+		net_try_count = 1;
+		net_restart_wrap = 0;
 	}
-	net_try_count = 1;
-	net_restart_wrap = 0;
 
 	for (;;) {
 		ret = tftp_check_ip(net);
@@ -802,7 +805,8 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation)
 		ret = tftp_loop(net, operation, laddr, size,
 				fname && *fname ? fname : default_fname, srvip,
 				port, srcport, timeout_msecs, max_retries);
-		if (ret != -EAGAIN)
+		/* Autoload retries must reacquire the parent's boot configuration. */
+		if (ret != -EAGAIN || parent)
 			break;
 		/* The failed transfer's PCB and timers are already gone. Never
 		 * change interfaces underneath another shared-runtime client.
@@ -814,18 +818,38 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation)
 	}
 	if (!ret && operation == TFTP_DOWNLOAD)
 		image_load_addr = laddr;
-	ret = ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+	if (!parent)
+		ret = ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 out:
-	net_lwip_stop(net);
+	if (!parent)
+		net_lwip_stop(net);
 	free(arg_copy);
 	return ret;
+}
+
+/**
+ * net_lwip_tftp_download() - Attempt autoload using the caller's runtime
+ * @net: Active attachment with configured addressing and DHCP already retired
+ * @argc: Number of command arguments
+ * @argv: BOOTP/DHCP command arguments, using the tftpboot argument syntax
+ *
+ * Keep runtime and retry ownership with BOOTP/DHCP. All TFTP callbacks and
+ * timers are removed before returning. The caller handles autostart after
+ * releasing its own resources.
+ *
+ * Return: 0 on success, -EAGAIN for a retryable transfer failure, or another
+ * nonzero value for a terminal error.
+ */
+int net_lwip_tftp_download(struct net_lwip_ctx *net, int argc, char *const argv[])
+{
+	return do_tftp(argc, argv, TFTP_DOWNLOAD, net);
 }
 
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
-	ret = do_tftp(argc, argv, TFTP_DOWNLOAD);
+	ret = do_tftp(argc, argv, TFTP_DOWNLOAD, NULL);
 	if (ret || !net_boot_file_size)
 		return ret;
 	/* The transfer's callbacks and runtime attachment are already gone. */
@@ -834,5 +858,5 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 int do_tftpput(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	return do_tftp(argc, argv, TFTP_UPLOAD);
+	return do_tftp(argc, argv, TFTP_UPLOAD, NULL);
 }
