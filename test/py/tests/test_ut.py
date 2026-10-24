@@ -674,6 +674,10 @@ def test_ut(ut_ubman, ut_subtest):
         with ut_ubman.disable_check('unknown_command'):
             output = ut_ubman.run_command('ut ' + ut_subtest)
         assert 'Unknown command \'quux\' - try \'help\'' in output
+    elif ut_subtest == 'dm dm_test_lwip_net_loop':
+        # An '## Error: ...' message is expected.
+        with ut_ubman.disable_check('error_notification'):
+            output = ut_ubman.run_command('ut ' + ut_subtest)
     else:
         output = ut_ubman.run_command('ut ' + ut_subtest)
     assert output.endswith('failures: 0')

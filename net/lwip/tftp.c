@@ -153,7 +153,6 @@ static void tftp_close(void *handle)
 		return;
 	}
 	ctx->done = SUCCESS;
-	net_boot_file_size = ctx->size;
 
 	tftp_tsize = tftp_transfer_size(ctx);
 	if (tftp_tsize) {
@@ -173,11 +172,26 @@ static void tftp_close(void *handle)
 	}
 	puts("\ndone\n");
 	printf("Bytes transferred = %lu (%lx hex)\n", ctx->size, ctx->size);
+}
 
+/* Publish completion only after teardown and the fallible environment writes. */
+static int tftp_complete(struct tftp_ctx *ctx, ulong addr, const char *fname)
+{
+	if (ctx->done != SUCCESS)
+		return -EIO;
+	if (!ctx->upload && env_set_hex("fileaddr", addr)) {
+		log_err("fileaddr not updated\n");
+		return -EIO;
+	}
 	if (env_set_hex("filesize", ctx->size)) {
 		log_err("filesize not updated\n");
-		return;
+		return -EIO;
 	}
+	net_boot_file_size = ctx->size;
+	if (!ctx->upload)
+		efi_set_bootdev("Net", "", fname, map_sysmem(addr, 0), ctx->size);
+
+	return 0;
 }
 
 static int tftp_read(void *handle, void *buf, int bytes)
@@ -328,7 +342,6 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	struct tftp_ctx ctx;
 	bool initialized = false;
 	u16 blksize;
-	int ret = -1;
 	err_t err;
 
 	if (!fname || !*fname || !addr)
@@ -427,19 +440,7 @@ out_cleanup:
 	if (initialized)
 		tftp_cleanup();
 
-	if (ctx.done == SUCCESS) {
-		if (!ctx.upload) {
-			if (env_set_hex("fileaddr", addr)) {
-				log_err("fileaddr not updated\n");
-				return -1;
-			}
-			efi_set_bootdev("Net", "", fname, map_sysmem(addr, 0),
-					ctx.size);
-		}
-		ret = 0;
-	}
-
-	return ret;
+	return tftp_complete(&ctx, addr, fname);
 }
 
 static void no_request(void *arg)
@@ -512,15 +513,7 @@ out_cleanup:
 
 	tftp_cleanup();
 
-	if (ctx.done == SUCCESS) {
-		if (env_set_hex("fileaddr", addr)) {
-			log_err("fileaddr not updated\n");
-			goto out;
-		}
-		efi_set_bootdev("Net", "", ctx.fname, map_sysmem(addr, 0),
-				ctx.size);
-		ret = 0;
-	}
+	ret = tftp_complete(&ctx, addr, ctx.fname);
 
 out:
 	tftpsrv_active_ctx = NULL;
@@ -536,6 +529,7 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	ulong laddr;
 	ulong addr;
 
+	net_boot_file_size = 0;
 	if (!IS_ENABLED(CONFIG_CMD_TFTPSRV))
 		return CMD_RET_FAILURE;
 
@@ -619,6 +613,7 @@ static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
 	const char *ep;
 	ulong value;
 
+	net_boot_file_size = 0;
 	laddr = env_get_ulong("loadaddr", 16, image_load_addr);
 
 	if (operation == TFTP_UPLOAD) {

@@ -4,6 +4,7 @@
 
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <hexdump.h>
@@ -700,12 +701,16 @@ void net_process_received_packet(uchar *in_packet, int len)
 
 int net_loop(enum proto_t protocol)
 {
-	char *argv[1];
-
 	switch (protocol) {
 	case TFTPGET:
-		argv[0] = "tftpboot";
-		return do_tftpb(NULL, 0, 1, argv);
+		/* Match the legacy loop, not the shell command's return value.
+		 * In particular, bubt treats a positive result as downloaded data.
+		 * Its caller supplies the load address and filename directly.
+		 */
+		net_boot_file_size = 0;
+		if (tftpb_run(image_load_addr, net_boot_file_name))
+			return -EINVAL;
+		return !!net_boot_file_size;
 	default:
 		return -EINVAL;
 	}
