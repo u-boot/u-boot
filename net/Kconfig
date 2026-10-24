@@ -46,6 +46,15 @@ config NETCONSOLE
 	  Support the 'nc' input/output device for networked console.
 	  See doc/usage/netconsole.rst for details.
 
+config TFTP_WINDOWSIZE
+	int "TFTP window size"
+	default 1
+	range 1 65535
+	help
+	  Default receive window for TFTP downloads (RFC 7440). The server
+	  may select a smaller window or decline the option. One preserves
+	  the original stop-and-wait protocol. Override with tftpwindowsize.
+
 config ARP_TIMEOUT
 	int "Milliseconds before trying ARP again"
 	default 5000
@@ -94,15 +103,6 @@ config NET_MAXDEFRAG
 	  This defines the size of the statically allocated buffer
 	  used for reassembly, and thus an upper bound for the size of
 	  IP datagrams that can be received.
-
-config TFTP_WINDOWSIZE
-	int "TFTP window size"
-	default 1
-	help
-	  Default TFTP window size.
-	  RFC7440 defines an optional window size of transmits,
-	  before an ack response is required.
-	  The default TFTP implementation implies a window size of 1.
 
 config TFTP_TSIZE
 	bool "Track TFTP transfers based on file size option"

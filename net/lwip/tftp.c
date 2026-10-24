@@ -341,6 +341,8 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	const struct tftp_request_timeout *request = tftp_get_request_timeout();
 	struct tftp_ctx ctx;
 	bool initialized = false;
+	const char *window_env = NULL;
+	ulong windowsize = CONFIG_TFTP_WINDOWSIZE;
 	u16 blksize;
 	err_t err;
 
@@ -351,6 +353,14 @@ static int tftp_loop(struct net_lwip_ctx *net,
 		return -E2BIG;
 	if (tftp_get_blocksize(operation, &blksize))
 		return -1;
+	if (IS_ENABLED(CONFIG_NET_TFTP_VARS))
+		window_env = env_get("tftpwindowsize");
+	if (operation == TFTP_DOWNLOAD &&
+	    ((window_env && strict_strtoul(window_env, 10, &windowsize)) ||
+	     !windowsize || windowsize > U16_MAX)) {
+		log_err("error: TFTP window size must be between 1 and 65535\n");
+		return -EINVAL;
+	}
 
 	if (!srvport)
 		srvport = TFTP_PORT;
@@ -410,6 +420,8 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	}
 
 	tftp_client_set_blksize(blksize);
+	if (operation == TFTP_DOWNLOAD)
+		tftp_client_set_windowsize(windowsize);
 
 	ctx.start_time = get_timer(0);
 	if (ctx.upload) {

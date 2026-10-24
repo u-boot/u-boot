@@ -32,6 +32,7 @@ struct tftp_protocol_test {
 	int read_error;
 	bool initialized;
 	bool fail_data_alloc;
+	bool window_requested;
 	char timeout[4];
 };
 
@@ -56,6 +57,10 @@ static err_t tftp_test_output(struct netif *netif, struct pbuf *p,
 	test->port = get_unaligned_be16(packet + IP_HDR_SIZE);
 	test->opcode = get_unaligned_be16(packet + IP_UDP_HDR_SIZE);
 	test->block = get_unaligned_be16(packet + IP_UDP_HDR_SIZE + 2);
+	if (test->opcode == 1 || test->opcode == 2)
+		test->window_requested = pbuf_memfind(p, "windowsize",
+						      sizeof("windowsize"),
+						    IP_UDP_HDR_SIZE) != 0xffff;
 	if (test->opcode == 1 || test->opcode == 2) {
 		u16 offset = pbuf_memfind(p, "timeout", sizeof("timeout"), IP_UDP_HDR_SIZE);
 
@@ -145,7 +150,8 @@ static int tftp_test_input(struct tftp_protocol_test *test, const void *data,
 	return 0;
 }
 
-static int tftp_test_start(struct tftp_protocol_test *test, bool put)
+static int tftp_test_start_window(struct tftp_protocol_test *test, bool put,
+				  u16 windowsize)
 {
 	err_t err;
 
@@ -158,9 +164,15 @@ static int tftp_test_start(struct tftp_protocol_test *test, bool put)
 		return err;
 	test->initialized = true;
 	tftp_client_set_blksize(1024);
+	tftp_client_set_windowsize(windowsize);
 	if (put)
 		return tftp_put(test, &test->server, 69, "file", TFTP_MODE_OCTET);
 	return tftp_get(test, &test->server, 69, "file", TFTP_MODE_OCTET);
+}
+
+static int tftp_test_start(struct tftp_protocol_test *test, bool put)
+{
+	return tftp_test_start_window(test, put, 1);
 }
 
 static int tftp_test_oack(struct unit_test_state *uts,
@@ -606,6 +618,108 @@ static int tftp_test_server_retries(struct unit_test_state *uts,
 	return 0;
 }
 
+static int tftp_test_windows(struct unit_test_state *uts,
+			     struct tftp_protocol_test *test)
+{
+	static const char oack[] = "\000\006blksize\0008\000windowsize\0002";
+	static const char one[] = "\000\006blksize\0008\000windowsize\0001";
+	static const char ignored[] = "\000\006blksize\0008";
+	static const char rollover[] = "\000\006blksize\0008\000windowsize\0004";
+	static const char * const bad[] = {
+		"\000\006windowsize\0000", "\000\006windowsize\0005",
+		"\000\006windowsize\00065536", "\000\006windowsize\000-1",
+		"\000\006windowsize\0002\000windowsize\0002",
+	};
+	static const unsigned int bad_len[] = { 15, 15, 19, 16, 28 };
+	u8 data[4 + 512] = { 0, 3, 0, 1 };
+	unsigned int sent, i;
+
+	for (i = 0; i < ARRAY_SIZE(bad); i++) {
+		ut_assertok(tftp_test_start_window(test, false, 4));
+		ut_assert(test->window_requested);
+		ut_assertok(tftp_test_input(test, bad[i], bad_len[i], 0));
+		ut_asserteq(8, test->error);
+		ut_asserteq(1, test->closed);
+	}
+	ut_assertok(tftp_test_start_window(test, false, 4));
+	ut_asserteq(ERR_ARG, tftp_client_set_windowsize(0));
+	ut_assertok(tftp_set_timeout(30, 1));
+	ut_assertok(tftp_test_input(test, oack, sizeof(oack), 5));
+	ut_asserteq(0, test->block);
+	sent = test->sent;
+	ut_assertok(tftp_test_input(test, data, 12, 0)); /* DATA 1 */
+	ut_asserteq(sent, test->sent);
+	put_unaligned_be16(2, data + 2);
+	ut_assertok(tftp_test_input(test, data, 12, 0));
+	ut_asserteq(sent + 1, test->sent);
+	ut_asserteq(2, test->block);
+	put_unaligned_be16(4, data + 2); /* Missing DATA 3. */
+	ut_assertok(tftp_test_input(test, data, 12, 0));
+	ut_asserteq(sent + 2, test->sent);
+	ut_asserteq(2, test->block);
+	ut_assertok(tftp_test_input(test, data, 12, 0));
+	ut_asserteq(sent + 2, test->sent);
+	ut_asserteq(16, test->written);
+	for (i = 3; i <= 5; i++) {
+		put_unaligned_be16(i, data + 2);
+		ut_assertok(tftp_test_input(test, data, 12, 0));
+	}
+	ut_asserteq(4, test->block);
+	timer_test_add_offset(40); /* Lost the tail of the window. */
+	sys_check_timeouts();
+	ut_asserteq(5, test->block);
+	for (i = 6; i <= 7; i++) {
+		put_unaligned_be16(i, data + 2);
+		ut_assertok(tftp_test_input(test, data, 12, 0));
+	}
+	ut_asserteq(7, test->block);
+	put_unaligned_be16(8, data + 2);
+	ut_assertok(tftp_test_input(test, data, 4, 0));
+	ut_asserteq(8, test->block);
+	ut_asserteq(56, test->written);
+	ut_asserteq(1, test->closed);
+
+	/* Negotiated one, omitted option, and a server without OACK support. */
+	for (i = 0; i < 3; i++) {
+		ut_assertok(tftp_test_start_window(test, false, 4));
+		if (i < 2) {
+			ut_assertok(tftp_test_input(test, i ? ignored : one,
+						    i ? sizeof(ignored) : sizeof(one), 0));
+			/* A duplicate OACK must still be accepted after selecting one. */
+			ut_assertok(tftp_test_input(test, i ? ignored : one,
+						    i ? sizeof(ignored) : sizeof(one), 0));
+		}
+		put_unaligned_be16(1, data + 2);
+		ut_assertok(tftp_test_input(test, data, i == 2 ? sizeof(data) : 12, 0));
+		ut_asserteq(1, test->block);
+		ut_asserteq(0, test->closed);
+		ut_asserteq(0, test->error);
+		put_unaligned_be16(2, data + 2);
+		ut_assertok(tftp_test_input(test, data, 4, 0));
+		ut_asserteq(1, test->closed);
+	}
+	ut_assertok(tftp_test_start_window(test, true, 4));
+	ut_assert(!test->window_requested);
+	ut_assertok(tftp_test_start_window(test, false, 1));
+	ut_assert(!test->window_requested);
+	ut_assertok(tftp_test_input(test, one, sizeof(one), 0));
+	ut_asserteq(8, test->error); /* Unrequested option. */
+
+	ut_assertok(tftp_test_start_window(test, false, 65535));
+	ut_assertok(tftp_test_input(test, rollover, sizeof(rollover), 0));
+	for (i = 1; i <= 65536; i++) {
+		put_unaligned_be16(i, data + 2);
+		ut_assertok(tftp_test_input(test, data, 12, 0));
+	}
+	ut_asserteq(0, test->block);
+	ut_asserteq(65536 * 8, test->written);
+	ut_asserteq(0, test->error);
+	put_unaligned_be16(1, data + 2);
+	ut_assertok(tftp_test_input(test, data, 4, 0));
+	ut_asserteq(1, test->closed);
+	return 0;
+}
+
 #if IS_ENABLED(CONFIG_CMD_TFTPSRV)
 static void tftp_test_server_input(void *arg)
 {
@@ -698,6 +812,8 @@ static int dm_test_lwip_tftp_protocol(struct unit_test_state *uts)
 		ret = tftp_test_timeout_option(uts, &test);
 	if (!ret)
 		ret = tftp_test_server_retries(uts, &test);
+	if (!ret)
+		ret = tftp_test_windows(uts, &test);
 #if IS_ENABLED(CONFIG_CMD_TFTPSRV)
 	if (!ret)
 		ret = tftp_test_server_command(uts, &test);
