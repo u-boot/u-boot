@@ -504,7 +504,8 @@ int net_loop(enum proto_t protocol);
  * dhcp_run() - Run DHCP on the current ethernet device
  *
  * This temporarily sets autoload and restores its exact original value,
- * including NFS and an unset variable.
+ * including NFS and an unset variable. Downloads never automatically boot;
+ * the caller owns the resulting image. The autostart variable is restored.
  *
  * @addr: Address to load the file into (0 if @autoload is false)
  * @fname: Filename of file to load (NULL if @autoload is false or to use the
@@ -527,13 +528,25 @@ int dhcp_run(ulong addr, const char *fname, bool autoload);
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
- * tftpb_run() - Run TFTP on the current ethernet device
+ * tftpb_run() - Download via TFTP without automatically booting the image
  *
  * @addr: Address to load the file into
  * @fname: Filename of file to load (NULL to use the default filename)
  * @return 0 if OK, -ENOENT if ant file was not found
  */
 int tftpb_run(ulong addr, const char *fname);
+
+/**
+ * tftpb_run_argv() - Run TFTP arguments without automatically booting
+ *
+ * Preserves the exact autostart value on success and failure. This form also
+ * supports the legacy command's optional IPv6 argument.
+ *
+ * @argc: Number of command arguments
+ * @argv: Command arguments, including the command name
+ * Return: command status (see enum command_ret_t)
+ */
+int tftpb_run_argv(int argc, char *const argv[]);
 
 /**
  * tftpb_run_timeout() - Download via TFTP with an initial server-probe timeout

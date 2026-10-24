@@ -42,7 +42,7 @@ static int do_get_tftp(struct pxe_context *ctx, const char *file_path,
 		num_args = 3;
 	}
 
-	if (do_tftpb(ctx->cmdtp, 0, num_args, tftp_argv))
+	if (tftpb_run_argv(num_args, tftp_argv))
 		return -ENOENT;
 
 	ret = pxe_get_file_size(sizep);
