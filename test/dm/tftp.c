@@ -47,6 +47,7 @@ struct tftp_test_context {
 	ulong ack_delay;
 	unsigned int advertised_timeout;
 	char filename[64];
+	struct in_addr local_ip;
 	u16 blocksize;
 	u16 windowsize;
 	u16 port;
@@ -148,6 +149,7 @@ static int tftp_test_tx_handler(struct udevice *dev, void *packet,
 		if (!ctx->requests++)
 			ctx->request_start = get_timer(0);
 		strlcpy(ctx->filename, (char *)(ip + 1) + 2, sizeof(ctx->filename));
+		ctx->local_ip = ip->ip_src;
 		ctx->blocksize = tftp_test_option((char *)(ip + 1), request_len, "blksize");
 		ctx->windowsize = tftp_test_option((char *)(ip + 1), request_len, "windowsize");
 		ctx->port = ntohs(ip->udp_dst);
@@ -439,6 +441,79 @@ static int tftp_test_protected_autostart(struct unit_test_state *uts,
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_NET_LWIP)
+static int tftp_test_addresses(struct unit_test_state *uts,
+			       struct tftp_test_context *ctx)
+{
+	int i, put, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("ethrotate", "no"));
+	ut_assertok(env_set("ethact", "eth@10003000"));
+	ut_assertok(env_set("ipaddr5", "1.1.2.4"));
+	ut_assertok(env_set("netmask5", "255.255.255.0"));
+	ut_assertok(env_set("bootfile", NULL));
+	ut_assertok(env_set("ipaddr", NULL));
+	for (put = 0; put <= IS_ENABLED(CONFIG_CMD_TFTPPUT); put++) {
+		memset(ctx, 0, sizeof(*ctx));
+		ut_assertok(run_command(put ? "tftpput 2000000 20" : "tftpboot 2000000", 0));
+		ut_asserteq(1, ctx->requests);
+		ut_asserteq_str("01010204.img", ctx->filename);
+		ut_asserteq(string_to_ip("1.1.2.4").s_addr, ctx->local_ip.s_addr);
+	}
+	/* A valid global address must not hide an unset/invalid indexed one. */
+	ut_assertok(env_set("ipaddr", "1.1.2.3"));
+	for (i = 0; i < 2; i++) {
+		ut_assertok(env_set("ipaddr5", i ? "invalid" : NULL));
+		memset(ctx, 0, sizeof(*ctx));
+		ret = run_command("tftpboot 2000000 explicit.bin", 0);
+		ut_asserteq(CMD_RET_FAILURE, ret);
+		ut_asserteq(0, ctx->requests);
+		ut_asserteq(0, net_boot_file_size);
+	}
+	ut_assertok(env_set("ethact", "eth@10002000"));
+	ut_assertok(env_set("ethrotate", NULL));
+	return 0;
+}
+#endif
+
+static int tftp_test_zero_address(struct unit_test_state *uts,
+				  struct tftp_test_context *ctx)
+{
+	static const char * const commands[] = { "tftpboot 0 file", "tftpboot 0", "tftpboot" };
+	void *buffer = map_sysmem(0, sizeof(tftp_test_data));
+	u8 saved[sizeof(tftp_test_data)];
+	u8 received[sizeof(tftp_test_data)];
+	int i, ret;
+
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("loadaddr", "0"));
+	ut_assertok(env_set("bootfile", "file"));
+	for (i = 0; i < ARRAY_SIZE(commands); i++) {
+		memcpy(saved, buffer, sizeof(saved));
+		memset(ctx, 0, sizeof(*ctx));
+		ret = run_command(commands[i], 0);
+		/* Restore sandbox RAM even if the command failed. */
+		memcpy(received, buffer, sizeof(received));
+		memcpy(buffer, saved, sizeof(saved));
+		ut_assertok(ret);
+		ut_asserteq(1, ctx->requests);
+		ut_asserteq(0, image_load_addr);
+		ut_asserteq(0, env_get_hex("fileaddr", 1));
+		ut_asserteq_mem(tftp_test_data, received, sizeof(received));
+	}
+	if (IS_ENABLED(CONFIG_NET_LWIP) && IS_ENABLED(CONFIG_CMD_TFTPPUT)) {
+		memset(ctx, 0, sizeof(*ctx));
+		ut_assertok(run_command("tftpput 0 20 file", 0));
+		ut_asserteq(1, ctx->requests);
+		ut_asserteq(32, net_boot_file_size);
+	}
+	unmap_sysmem(buffer);
+	ut_assertok(env_set("loadaddr", "2000000"));
+	image_load_addr = TFTP_TEST_ADDR;
+	return 0;
+}
+
 static int tftp_test_download(struct unit_test_state *uts,
 			      struct tftp_test_context *ctx)
 {
@@ -463,9 +538,11 @@ static int tftp_test_download(struct unit_test_state *uts,
 	ut_assertok(tftp_test_protected_autostart(uts, ctx));
 
 #if IS_ENABLED(CONFIG_NET_LWIP)
+	ut_assertok(tftp_test_addresses(uts, ctx));
 	ut_assertok(tftp_test_options(uts, ctx));
 #endif
 	ut_assertok(tftp_test_filenames(uts, ctx));
+	ut_assertok(tftp_test_zero_address(uts, ctx));
 
 	/* A previous DHCP/download must not override the next command's env. */
 	ut_assertok(env_set("autostart", "no"));
@@ -616,7 +693,7 @@ static int dm_test_tftp_download_only(struct unit_test_state *uts)
 		"ipaddr", "serverip", "netmask", "gatewayip", "netretry", "tftpsrcp",
 		"tftpdstp", "tftpserverip", "fileaddr", "filesize",
 		"bootaddr", "loadaddr", "bootfile", "ethrotate", ".flags",
-		"tftpblocksize", "tftpwindowsize",
+		"tftpblocksize", "tftpwindowsize", "ipaddr5", "netmask5",
 	};
 	char saved_bootfile[sizeof(net_boot_file_name)];
 	ulong saved_load_addr = image_load_addr;
@@ -637,9 +714,13 @@ static int dm_test_tftp_download_only(struct unit_test_state *uts)
 
 	sandbox_eth_set_tx_handler(0, tftp_test_tx_handler);
 	sandbox_eth_set_priv(0, &ctx);
+	sandbox_eth_set_tx_handler(1, tftp_test_tx_handler);
+	sandbox_eth_set_priv(1, &ctx);
 	ret = tftp_test_download(uts, &ctx);
 	sandbox_eth_set_tx_handler(0, NULL);
 	sandbox_eth_set_priv(0, NULL);
+	sandbox_eth_set_tx_handler(1, NULL);
+	sandbox_eth_set_priv(1, NULL);
 	image_load_addr = saved_load_addr;
 	memcpy(net_boot_file_name, saved_bootfile, sizeof(saved_bootfile));
 	for (i = 0; i < ARRAY_SIZE(vars); i++) {

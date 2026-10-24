@@ -55,6 +55,16 @@ struct tftp_ctx {
  */
 static struct tftp_ctx *tftpsrv_active_ctx;
 
+static int tftp_check_ip(struct net_lwip_ctx *net)
+{
+	if (ip4_addr_isany_val(*netif_ip4_addr(net->netif))) {
+		log_err("error: IP address for %s has to be set\n", net->dev->name);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 /**
  * store_block() - copy received data
  *
@@ -346,7 +356,7 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	u16 blksize;
 	err_t err;
 
-	if (!fname || !*fname || !addr)
+	if (!fname || !*fname)
 		return -EINVAL;
 	if (operation == TFTP_UPLOAD &&
 	    (size > U32_MAX || addr + size < addr))
@@ -373,9 +383,9 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	net_boot_file_size = 0;
 
 	printf("Using %s device\n", net->dev->name);
-	printf("TFTP %s server %s; our IP address is %s\n",
+	printf("TFTP %s server %s; our IP address is %pI4\n",
 	       ctx.upload ? "to" : "from", ipaddr_ntoa(&srvip),
-	       env_get("ipaddr"));
+	       &netif_ip4_addr(net->netif)->addr);
 	printf("Filename '%s'.\n", fname);
 	if (ctx.upload) {
 		printf("Save address: 0x%lx\n", ctx.daddr);
@@ -475,18 +485,11 @@ static void no_request(void *arg)
 static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
 {
 	struct tftp_ctx ctx;
-	const char *ipaddr;
 	int ret = -1;
 	err_t err;
 
-	if (addr == 0)
+	if (tftp_check_ip(net))
 		return -1;
-
-	ipaddr = env_get("ipaddr");
-	if (!ipaddr || !*ipaddr) {
-		log_err("error: ipaddr has to be set\n");
-		return -1;
-	}
 
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.done = NOT_DONE;
@@ -495,7 +498,8 @@ static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
 	net_boot_file_size = 0;
 
 	printf("Using %s device\n", net->dev->name);
-	printf("Listening for TFTP transfer on %s\n", ipaddr);
+	printf("Listening for TFTP transfer on %pI4\n",
+	       &netif_ip4_addr(net->netif)->addr);
 	printf("Load address: 0x%lx\n", ctx.daddr);
 
 	tftpsrv_active_ctx = &ctx;
@@ -563,12 +567,6 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (!laddr) {
-		log_err("error: no load address\n");
-		ret = CMD_RET_FAILURE;
-		goto out;
-	}
-
 	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
@@ -586,22 +584,14 @@ out:
 	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
 
-static int tftp_default_filename(char *fname, size_t size)
+static void tftp_default_filename(struct net_lwip_ctx *net, char *fname,
+				  size_t size)
 {
-	const char *ipaddr = env_get("ipaddr");
-	ip_addr_t addr;
-
-	if (!ipaddr || !ipaddr_aton(ipaddr, &addr)) {
-		log_err("error: ipaddr has to be set\n");
-		return -EINVAL;
-	}
+	const ip4_addr_t *addr = netif_ip4_addr(net->netif);
 
 	snprintf(fname, size, "%02X%02X%02X%02X.img",
-		 ip4_addr1(ip_2_ip4(&addr)), ip4_addr2(ip_2_ip4(&addr)),
-		 ip4_addr3(ip_2_ip4(&addr)), ip4_addr4(ip_2_ip4(&addr)));
+		 ip4_addr1(addr), ip4_addr2(addr), ip4_addr3(addr), ip4_addr4(addr));
 	printf("*** Warning: no boot file name; using '%s'\n", fname);
-
-	return 0;
 }
 
 static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -764,22 +754,8 @@ static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
 		goto out;
 	}
 
-	if (!fname || !*fname) {
-		if (tftp_default_filename(default_fname,
-					  sizeof(default_fname))) {
-			ret = CMD_RET_FAILURE;
-			goto out;
-		}
-		fname = default_fname;
-	}
-	if (strlen(fname) > TFTP_MAX_FILENAME_LEN) {
+	if (fname && strlen(fname) > TFTP_MAX_FILENAME_LEN) {
 		log_err("error: TFTP file name is too long\n");
-		ret = CMD_RET_FAILURE;
-		goto out;
-	}
-
-	if (!laddr) {
-		log_err("error: no load address\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -794,6 +770,15 @@ static int do_tftp(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
+	}
+
+	if (tftp_check_ip(&net)) {
+		ret = CMD_RET_FAILURE;
+		goto out;
+	}
+	if (!fname || !*fname) {
+		tftp_default_filename(&net, default_fname, sizeof(default_fname));
+		fname = default_fname;
 	}
 
 	if (tftp_loop(&net, operation, laddr, size, fname, srvip,
