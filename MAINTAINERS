@@ -1457,6 +1457,7 @@ POWERPC
 M:	Bradley Morgan <brads@mainlining.org>
 S:	Maintained
 F:	arch/powerpc/
+N:	mpc8
 
 POWERPC MPC8XX
 M:	Christophe Leroy (CS GROUP) <chleroy@kernel.org>
