@@ -99,6 +99,7 @@ struct tftp_context {
 #define LWIP_TFTP_MODE_CLIENTSERVER (LWIP_TFTP_MODE_SERVER | LWIP_TFTP_MODE_CLIENT)
 
 err_t tftp_init_common(u8_t mode, const struct tftp_context* ctx);
+err_t tftp_set_timeout(u32_t timeout_msecs, u32_t max_retries);
 void tftp_cleanup(void);
 
 #ifdef __cplusplus

@@ -79,13 +79,6 @@
 #endif
 
 /**
- * TFTP timer cyclic interval
- */
-#if !defined TFTP_TIMER_MSECS || defined __DOXYGEN__
-#define TFTP_TIMER_MSECS      (TFTP_TIMEOUT_MSECS / 10)
-#endif
-
-/**
  * Max. length of TFTP filename
  */
 #if !defined TFTP_MAX_FILENAME_LEN || defined __DOXYGEN__

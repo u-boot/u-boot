@@ -716,7 +716,7 @@ int net_loop(enum proto_t protocol)
 u32_t sys_now(void)
 {
 #if CONFIG_IS_ENABLED(SANDBOX_TIMER)
-	return timer_early_get_count();
+	return timer_early_get_count() / 1000;
 #else
 	return get_timer(0);
 #endif
