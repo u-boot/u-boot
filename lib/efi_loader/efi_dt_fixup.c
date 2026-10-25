@@ -14,6 +14,7 @@
 #include <mapmem.h>
 
 const efi_guid_t efi_guid_dt_fixup_protocol = EFI_DT_FIXUP_PROTOCOL_GUID;
+const efi_guid_t efi_guid_dt_fixup_protocol2 = EFI_DT_FIXUP_PROTOCOL2_GUID;
 
 /**
  * efi_reserve_memory() - add reserved memory to memory map
@@ -132,10 +133,68 @@ void efi_carve_out_dt_rsv(void *fdt)
 }
 
 /**
+ * efi_dt_fixup_int() - fix up device tree
+ *
+ * This function also implements legacy functionality for older
+ * versions of the EFI_DT_FIXUP_PROTOCOL.
+ *
+ * @dtb:		device tree provided by caller
+ * @buffer_size:	size of buffer for the device tree including free space
+ * @flags:		bit field designating action to be performed
+ * Return:		status code
+ */
+static efi_status_t
+efi_dt_fixup_int(void *dtb, efi_uintn_t *buffer_size, u32 flags)
+{
+	efi_status_t ret;
+	size_t required_size;
+	size_t total_size;
+	struct bootm_headers img = { 0 };
+
+	if (!dtb || !buffer_size || !flags || (flags & ~EFI_DT_ALL))
+		return EFI_INVALID_PARAMETER;
+
+	if (fdt_check_header(dtb))
+		return EFI_INVALID_PARAMETER;
+
+	if (flags & EFI_DT_APPLY_FIXUPS) {
+		/* Check size */
+		required_size = fdt_off_dt_strings(dtb) +
+				fdt_size_dt_strings(dtb) +
+				CONFIG_SYS_FDT_PAD;
+		total_size = fdt_totalsize(dtb);
+		if (required_size < total_size)
+			required_size = total_size;
+		if (required_size > *buffer_size) {
+			*buffer_size = required_size;
+			return EFI_BUFFER_TOO_SMALL;
+		}
+
+		fdt_set_totalsize(dtb, *buffer_size);
+		if (image_setup_libfdt(&img, dtb, false)) {
+			log_err("failed to process device tree\n");
+			return EFI_INVALID_PARAMETER;
+		}
+	}
+	if (flags & EFI_DT_RESERVE_MEMORY)
+		efi_carve_out_dt_rsv(dtb);
+
+	if (flags & EFI_DT_INSTALL_TABLE) {
+		ret = efi_install_configuration_table(&efi_guid_fdt, dtb);
+		if (ret != EFI_SUCCESS) {
+			log_err("failed to install device tree\n");
+			return ret;
+		}
+	}
+
+	return EFI_SUCCESS;
+}
+
+/**
  * efi_dt_fixup() - fix up device tree
  *
  * This function implements the Fixup() service of the
- * EFI Device Tree Fixup Protocol.
+ * EFI Device Tree Fixup Protocol up to revision 0.05.
  *
  * @this:		instance of the protocol
  * @dtb:		device tree provided by caller
@@ -148,54 +207,46 @@ efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
 	     efi_uintn_t *buffer_size, u32 flags)
 {
 	efi_status_t ret;
-	size_t required_size;
-	size_t total_size;
-	struct bootm_headers img = { 0 };
 
 	EFI_ENTRY("%p, %p, %p, %d", this, dtb, buffer_size, flags);
 
-	if (this != &efi_dt_fixup_prot || !dtb || !buffer_size ||
-	    !flags || (flags & ~EFI_DT_ALL)) {
+	if (this != &efi_dt_fixup_prot) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-	if (fdt_check_header(dtb)) {
+
+	ret = efi_dt_fixup_int(dtb, buffer_size, flags);
+
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_dt_fixup2() - fix up device tree
+ *
+ * This function implements the Fixup() service of the
+ * EFI Device Tree Fixup Protocol since revision v0.06.
+ *
+ * @this:		instance of the protocol
+ * @dtb:		device tree provided by caller
+ * @buffer_size:	size of buffer for the device tree including free space
+ * Return:		status code
+ */
+static efi_status_t __maybe_unused EFIAPI
+efi_dt_fixup2(struct efi_dt_fixup_protocol2 *this, void *dtb,
+	      efi_uintn_t *buffer_size)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p, %p", this, dtb, buffer_size);
+
+	if (this != &efi_dt_fixup_prot2) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-	if (flags & EFI_DT_APPLY_FIXUPS) {
-		/* Check size */
-		required_size = fdt_off_dt_strings(dtb) +
-				fdt_size_dt_strings(dtb) +
-				CONFIG_SYS_FDT_PAD;
-		total_size = fdt_totalsize(dtb);
-		if (required_size < total_size)
-			required_size = total_size;
-		if (required_size > *buffer_size) {
-			*buffer_size = required_size;
-			ret = EFI_BUFFER_TOO_SMALL;
-			goto out;
-		}
 
-		fdt_set_totalsize(dtb, *buffer_size);
-		if (image_setup_libfdt(&img, dtb, false)) {
-			log_err("failed to process device tree\n");
-			ret = EFI_INVALID_PARAMETER;
-			goto out;
-		}
-	}
-	if (flags & EFI_DT_RESERVE_MEMORY)
-		efi_carve_out_dt_rsv(dtb);
+	ret = efi_dt_fixup_int(dtb, buffer_size, EFI_DT_APPLY_FIXUPS);
 
-	if (flags & EFI_DT_INSTALL_TABLE) {
-		ret = efi_install_configuration_table(&efi_guid_fdt, dtb);
-		if (ret != EFI_SUCCESS) {
-			log_err("failed to install device tree\n");
-			goto out;
-		}
-	}
-
-	ret = EFI_SUCCESS;
 out:
 	return EFI_EXIT(ret);
 }
@@ -203,4 +254,9 @@ out:
 struct efi_dt_fixup_protocol efi_dt_fixup_prot = {
 	.revision = EFI_DT_FIXUP_PROTOCOL_REVISION,
 	.fixup = efi_dt_fixup
+};
+
+struct efi_dt_fixup_protocol2 efi_dt_fixup_prot2 = {
+	.revision = EFI_DT_FIXUP_PROTOCOL_REVISION,
+	.fixup = efi_dt_fixup2
 };

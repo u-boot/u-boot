@@ -23,6 +23,12 @@
 		    EFI_DT_RESERVE_MEMORY | \
 		    EFI_DT_INSTALL_TABLE)
 
+/**
+ * struct efi_dt_fixup_protocol - EFI_DT_FIXUP_PROTOCOL up to v0.05
+ *
+ * @revision:		protocol revision
+ * @fixup:		fixup service function
+ */
 struct efi_dt_fixup_protocol {
 	u64 revision;
 	efi_status_t (EFIAPI *fixup) (struct efi_dt_fixup_protocol *this,
@@ -31,5 +37,20 @@ struct efi_dt_fixup_protocol {
 				      u32 flags);
 };
 
+/**
+ * struct efi_dt_fixup_protocol2 - EFI_DT_FIXUP_PROTOCOL since v0.06
+ *
+ * @revision:		protocol revision
+ * @fixup:		fixup service function
+ */
+struct efi_dt_fixup_protocol2 {
+	u64 revision;
+	efi_status_t (EFIAPI *fixup) (struct efi_dt_fixup_protocol2 *this,
+				      void *dtb,
+				      efi_uintn_t *buffer_size);
+};
+
 extern struct efi_dt_fixup_protocol efi_dt_fixup_prot;
 extern const efi_guid_t efi_guid_dt_fixup_protocol;
+extern struct efi_dt_fixup_protocol2 efi_dt_fixup_prot2;
+extern const efi_guid_t efi_guid_dt_fixup_protocol2;

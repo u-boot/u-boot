@@ -68,6 +68,8 @@ efi_status_t efi_root_node_register(void)
 		 /* Device-tree fix-up protocol */
 		 &efi_guid_dt_fixup_protocol,
 		 &efi_dt_fixup_prot,
+		 &efi_guid_dt_fixup_protocol2,
+		 &efi_dt_fixup_prot2,
 #endif
 #if IS_ENABLED(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2)
 		 &efi_guid_unicode_collation_protocol2,
