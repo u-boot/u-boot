@@ -161,6 +161,7 @@ config REMOTEPROC_TI_IPU
 
 config REMOTEPROC_MAX_FW_SIZE
 	hex "Maximum size of firmware file that needs to be loaded to the remote processor"
+	depends on REMOTEPROC
 	default 0x10000
 	help
 	  Maximum size of the firmware file (elf, binary) that needs to be
