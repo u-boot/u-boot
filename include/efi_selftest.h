@@ -142,6 +142,56 @@ int efi_st_strcmp_16_8(const u16 *buf1, const unsigned char *buf2);
 void *efi_st_get_config_table(const efi_guid_t *guid);
 
 /**
+ * efi_st_f2h() - convert FDT value to host endianness.
+ *
+ * UEFI code is always low endian. The FDT is big endian.
+ *
+ * @val:	FDT value
+ * Return:	converted value
+ */
+uint32_t efi_st_f2h(fdt32_t val);
+
+/**
+ * efi_st_fdt_find_node() - find a device-tree node
+ *
+ * The root node or one of its direct children can be retrieved.
+ *
+ * @fdt:	flat device-tree
+ * @node:	name of the node or NULL for the root node
+ * Return:	pointer to the first byte of the node, or NULL
+ */
+const void *efi_st_fdt_find_node(const void *fdt, const u16 *node);
+
+/**
+ * efi_st_fdt_get_property() - return location of an FDT property
+ *
+ * A property of the root node or one of its direct children can be retrieved.
+ *
+ * @fdt:	flat device-tree
+ * @property:	name of the property
+ * @node:	name of the node or NULL for root node
+ * @len:	length of the property
+ * Return:	location of the property value, or NULL
+ */
+const void *efi_st_fdt_get_property(const void *fdt, const u16 *property,
+				    const u16 *node, u32 *len);
+
+/**
+ * efi_st_fdt_get_string() - return string value of a property of an FDT node
+ *
+ * A string property of the root node or one of its direct children can be
+ * retrieved. The caller is responsible for calling FreePool() for the returned
+ * buffer.
+ *
+ * @fdt:	flat device-tree
+ * @property:	name of the property
+ * @node:	name of the node or NULL for root node
+ * Return:	allocated copy of the property string, or NULL
+ */
+char *efi_st_fdt_get_string(const void *fdt, const u16 *property,
+			    const u16 *node);
+
+/**
  * efi_st_get_key() - reads an Unicode character from the input device
  *
  * Return:	Unicode character
