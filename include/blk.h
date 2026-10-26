@@ -759,7 +759,7 @@ enum uclass_id blk_get_uclass_id(const char *uclass_idname);
  * @argv: Command arguments
  * @uclass_id: Interface type
  * @cur_devnump: Current device number for this interface type
- * Return: 0 if OK, CMD_RET_ERROR on error
+ * Return: 0 if OK, CMD_RET_FAILURE on error
  */
 int blk_common_cmd(int argc, char *const argv[], enum uclass_id uclass_id,
 		   int *cur_devnump);
