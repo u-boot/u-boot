@@ -127,9 +127,11 @@ static struct cpg_core_clk r8a7795_core_clks[] __initdata = {
 };
 
 static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("3dge",			 112,	R8A7795_CLK_ZG),
 	DEF_MOD("fdp1-1",		 118,	R8A7795_CLK_S0D1),
 	DEF_MOD("fdp1-0",		 119,	R8A7795_CLK_S0D1),
+#endif
 	DEF_MOD("tmu4",			 121,	R8A7795_CLK_S0D6),
 	DEF_MOD("tmu3",			 122,	R8A7795_CLK_S3D2),
 	DEF_MOD("tmu2",			 123,	R8A7795_CLK_S3D2),
@@ -140,6 +142,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("scif3",		 204,	R8A7795_CLK_S3D4),
 	DEF_MOD("scif1",		 206,	R8A7795_CLK_S3D4),
 	DEF_MOD("scif0",		 207,	R8A7795_CLK_S3D4),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("msiof3",		 208,	R8A7795_CLK_MSO),
 	DEF_MOD("msiof2",		 209,	R8A7795_CLK_MSO),
 	DEF_MOD("msiof1",		 210,	R8A7795_CLK_MSO),
@@ -147,6 +150,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("sys-dmac2",		 217,	R8A7795_CLK_S3D1),
 	DEF_MOD("sys-dmac1",		 218,	R8A7795_CLK_S3D1),
 	DEF_MOD("sys-dmac0",		 219,	R8A7795_CLK_S0D3),
+#endif
 	DEF_MOD("sceg-pub",		 229,	R8A7795_CLK_CR),
 	DEF_MOD("cmt3",			 300,	R8A7795_CLK_R),
 	DEF_MOD("cmt2",			 301,	R8A7795_CLK_R),
@@ -166,6 +170,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("usb-dmac0",		 330,	R8A7795_CLK_S3D1),
 	DEF_MOD("usb-dmac1",		 331,	R8A7795_CLK_S3D1),
 	DEF_MOD("rwdt",			 402,	R8A7795_CLK_R),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("intc-ex",		 407,	R8A7795_CLK_CP),
 	DEF_MOD("intc-ap",		 408,	R8A7795_CLK_S0D3),
 	DEF_MOD("audmac1",		 501,	R8A7795_CLK_S1D2),
@@ -178,12 +183,14 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("drif10",		 513,	R8A7795_CLK_S3D2),
 	DEF_MOD("drif01",		 514,	R8A7795_CLK_S3D2),
 	DEF_MOD("drif00",		 515,	R8A7795_CLK_S3D2),
+#endif
 	DEF_MOD("hscif4",		 516,	R8A7795_CLK_S3D1),
 	DEF_MOD("hscif3",		 517,	R8A7795_CLK_S3D1),
 	DEF_MOD("hscif2",		 518,	R8A7795_CLK_S3D1),
 	DEF_MOD("hscif1",		 519,	R8A7795_CLK_S3D1),
 	DEF_MOD("hscif0",		 520,	R8A7795_CLK_S3D1),
 	DEF_MOD("thermal",		 522,	R8A7795_CLK_CP),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("pwm",			 523,	R8A7795_CLK_S0D12),
 	DEF_MOD("fcpvd2",		 601,	R8A7795_CLK_S0D2),
 	DEF_MOD("fcpvd1",		 602,	R8A7795_CLK_S0D2),
@@ -202,12 +209,14 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("vspbd",		 626,	R8A7795_CLK_S0D1),
 	DEF_MOD("vspi1",		 630,	R8A7795_CLK_S0D1),
 	DEF_MOD("vspi0",		 631,	R8A7795_CLK_S0D1),
+#endif
 	DEF_MOD("ehci3",		 700,	R8A7795_CLK_S3D2),
 	DEF_MOD("ehci2",		 701,	R8A7795_CLK_S3D2),
 	DEF_MOD("ehci1",		 702,	R8A7795_CLK_S3D2),
 	DEF_MOD("ehci0",		 703,	R8A7795_CLK_S3D2),
 	DEF_MOD("hsusb",		 704,	R8A7795_CLK_S3D2),
 	DEF_MOD("hsusb3",		 705,	R8A7795_CLK_S3D2),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("cmm3",			 708,	R8A7795_CLK_S2D1),
 	DEF_MOD("cmm2",			 709,	R8A7795_CLK_S2D1),
 	DEF_MOD("cmm1",			 710,	R8A7795_CLK_S2D1),
@@ -231,12 +240,15 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("vin2",			 809,	R8A7795_CLK_S0D2),
 	DEF_MOD("vin1",			 810,	R8A7795_CLK_S0D2),
 	DEF_MOD("vin0",			 811,	R8A7795_CLK_S0D2),
+#endif
 	DEF_MOD("etheravb",		 812,	R8A7795_CLK_S0D6),
 	DEF_MOD("sata0",		 815,	R8A7795_CLK_S3D2),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("imr3",			 820,	R8A7795_CLK_S0D2),
 	DEF_MOD("imr2",			 821,	R8A7795_CLK_S0D2),
 	DEF_MOD("imr1",			 822,	R8A7795_CLK_S0D2),
 	DEF_MOD("imr0",			 823,	R8A7795_CLK_S0D2),
+#endif
 	DEF_MOD("gpio7",		 905,	R8A7795_CLK_S3D4),
 	DEF_MOD("gpio6",		 906,	R8A7795_CLK_S3D4),
 	DEF_MOD("gpio5",		 907,	R8A7795_CLK_S3D4),
@@ -245,19 +257,24 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("gpio2",		 910,	R8A7795_CLK_S3D4),
 	DEF_MOD("gpio1",		 911,	R8A7795_CLK_S3D4),
 	DEF_MOD("gpio0",		 912,	R8A7795_CLK_S3D4),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("can-fd",		 914,	R8A7795_CLK_S3D2),
 	DEF_MOD("can-if1",		 915,	R8A7795_CLK_S3D4),
 	DEF_MOD("can-if0",		 916,	R8A7795_CLK_S3D4),
+#endif
 	DEF_MOD("rpc-if",		 917,	R8A7795_CLK_RPCD2),
 	DEF_MOD("i2c6",			 918,	R8A7795_CLK_S0D6),
 	DEF_MOD("i2c5",			 919,	R8A7795_CLK_S0D6),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("adg",			 922,	R8A7795_CLK_S0D4),
+#endif
 	DEF_MOD("i2c-dvfs",		 926,	R8A7795_CLK_CP),
 	DEF_MOD("i2c4",			 927,	R8A7795_CLK_S0D6),
 	DEF_MOD("i2c3",			 928,	R8A7795_CLK_S0D6),
 	DEF_MOD("i2c2",			 929,	R8A7795_CLK_S3D2),
 	DEF_MOD("i2c1",			 930,	R8A7795_CLK_S3D2),
 	DEF_MOD("i2c0",			 931,	R8A7795_CLK_S3D2),
+#ifdef CONFIG_CLK_RENESAS_FULL
 	DEF_MOD("ssi-all",		1005,	R8A7795_CLK_S3D4),
 	DEF_MOD("ssi9",			1006,	MOD_CLK_ID(1005)),
 	DEF_MOD("ssi8",			1007,	MOD_CLK_ID(1005)),
@@ -284,6 +301,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("scu-src2",		1029,	MOD_CLK_ID(1017)),
 	DEF_MOD("scu-src1",		1030,	MOD_CLK_ID(1017)),
 	DEF_MOD("scu-src0",		1031,	MOD_CLK_ID(1017)),
+#endif
 };
 
 /*
