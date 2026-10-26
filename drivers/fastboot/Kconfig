@@ -282,6 +282,25 @@ config FASTBOOT_MBR_NAME
 	  specified on the "fastboot flash" command line matches the value
 	  defined here. The default target name for updating MBR is "mbr".
 
+config FASTBOOT_CMD_FLASHING
+	bool "Enable the 'flashing lock/unlock/get_unlock_ability' commands"
+	depends on FASTBOOT_FLASH && AVB_VERIFY && OPTEE_TA_AVB
+	select SHA256
+	help
+	  Add the Android "flashing lock", "flashing unlock" and "flashing
+	  get_unlock_ability" commands and the "unlocked" variable. The device
+	  lock state is the one AVB enforces, kept by the OP-TEE AVB TA. While
+	  the device is locked, the commands that change the storage or run
+	  code ("flash", "erase", "boot", "oem format/partconf/bootbus/run",
+	  "UCmd", "ACmd") are refused. As required by AVB, the userdata (and
+	  metadata) partition is erased before the state changes in either
+	  direction, and the TA resets the rollback indexes on a state change.
+	  Unlocking is only allowed when Android's "OEM unlocking" developer
+	  setting, kept by PersistentDataBlockService in the frp partition of
+	  the fastboot flash device, is enabled and the partition's digest is
+	  valid; a device without an frp partition can only be unlocked from
+	  the U-Boot shell.
+
 config FASTBOOT_CMD_OEM_FORMAT
 	bool "Enable the 'oem format' command"
 	depends on FASTBOOT_FLASH_MMC && CMD_GPT

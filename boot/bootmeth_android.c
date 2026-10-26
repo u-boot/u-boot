@@ -48,6 +48,11 @@ struct android_priv {
 	u32 header_version;
 	u32 boot_img_size;
 	u32 vendor_boot_img_size;
+	/* Where boot and vendor_boot were loaded, and the partition sizes */
+	ulong boot_addr;
+	ulong boot_part_size;
+	ulong vendor_boot_addr;
+	ulong vendor_boot_part_size;
 };
 
 static int android_check(struct udevice *dev, struct bootflow_iter *iter)
@@ -235,7 +240,7 @@ static int android_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret < 0)
 		return log_msg_ret("bcb read", ret);
 
-	priv = malloc(sizeof(struct android_priv));
+	priv = calloc(1, sizeof(struct android_priv));
 	if (!priv)
 		return log_msg_ret("buf", -ENOMEM);
 
@@ -353,7 +358,8 @@ static int android_read_file(struct udevice *dev, struct bootflow *bflow,
  * Return: 0 if OK, negative errno on failure.
  */
 static int read_slotted_partition(struct blk_desc *desc, const char *const name,
-				  const char slot[2], ulong image_size, ulong addr)
+				  const char slot[2], ulong image_size, ulong addr,
+				  ulong *part_size)
 {
 	struct disk_partition partition;
 	char partname[PART_NAME_LEN];
@@ -395,6 +401,9 @@ static int read_slotted_partition(struct blk_desc *desc, const char *const name,
 	n = blk_dread(desc, partition.start, num_blks, map_sysmem(addr, 0));
 	if (n < num_blks)
 		return log_msg_ret("part read", -EIO);
+
+	if (part_size)
+		*part_size = (ulong)partition.size * desc->blksz;
 
 	return 0;
 }
@@ -440,15 +449,43 @@ static int run_avb_verification(struct bootflow *bflow)
 	enum avb_boot_state boot_state;
 	char *extra_args;
 	char slot_suffix[3] = "";
+	char partname[PART_NAME_LEN];
 	bool unlocked = false;
 	int ret;
 
-	avb_ops = avb_ops_alloc(desc->devnum);
+	avb_ops = avb_ops_alloc(desc->uclass_id, desc->devnum);
 	if (!avb_ops)
 		return log_msg_ret("avb ops", -ENOMEM);
 
 	if (priv->slot)
 		sprintf(slot_suffix, "_%s", priv->slot);
+
+	/*
+	 * Hand libavb the buffers boot and vendor_boot were loaded into by
+	 * boot_android_normal(), so the bytes it hashes are the bytes that get
+	 * booted and the partitions are read only once. vendor_boot exists from
+	 * boot image header version 3 on.
+	 */
+	snprintf(partname, sizeof(partname), "boot%s", slot_suffix);
+	ret = avb_ops_add_preloaded(avb_ops, partname,
+				    map_sysmem(priv->boot_addr, 0),
+				    priv->boot_img_size, priv->boot_part_size);
+	if (ret) {
+		ret = log_msg_ret("avb preload boot", ret);
+		goto out;
+	}
+	if (priv->header_version >= 3) {
+		snprintf(partname, sizeof(partname), "vendor_boot%s",
+			 slot_suffix);
+		ret = avb_ops_add_preloaded(avb_ops, partname,
+					    map_sysmem(priv->vendor_boot_addr, 0),
+					    priv->vendor_boot_img_size,
+					    priv->vendor_boot_part_size);
+		if (ret) {
+			ret = log_msg_ret("avb preload vendor_boot", ret);
+			goto out;
+		}
+	}
 
 	ret = avb_ops->read_is_device_unlocked(avb_ops, &unlocked);
 	if (ret != AVB_IO_RESULT_OK) {
@@ -566,6 +603,26 @@ static int boot_android_normal(struct bootflow *bflow)
 	ulong loadaddr = env_get_hex("loadaddr", 0);
 	ulong vloadaddr = env_get_hex("vendor_boot_comp_addr_r", 0);
 
+	/*
+	 * Load the images first and verify them in place: libavb hashes these
+	 * buffers (see run_avb_verification()), so a storage device that
+	 * returns different data on a second read cannot slip past the check.
+	 */
+	ret = read_slotted_partition(desc, "boot", priv->slot, priv->boot_img_size,
+				     loadaddr, &priv->boot_part_size);
+	if (ret < 0)
+		return log_msg_ret("read boot", ret);
+	priv->boot_addr = loadaddr;
+
+	if (priv->header_version >= 3) {
+		ret = read_slotted_partition(desc, "vendor_boot", priv->slot,
+					     priv->vendor_boot_img_size, vloadaddr,
+					     &priv->vendor_boot_part_size);
+		if (ret < 0)
+			return log_msg_ret("read vendor_boot", ret);
+		priv->vendor_boot_addr = vloadaddr;
+	}
+
 	ret = run_avb_verification(bflow);
 	if (ret < 0)
 		return log_msg_ret("avb", ret);
@@ -575,18 +632,8 @@ static int boot_android_normal(struct bootflow *bflow)
 	if (ret < 0)
 		return log_msg_ret("read slot", ret);
 
-	ret = read_slotted_partition(desc, "boot", priv->slot, priv->boot_img_size,
-				     loadaddr);
-	if (ret < 0)
-		return log_msg_ret("read boot", ret);
-
-	if (priv->header_version >= 3) {
-		ret = read_slotted_partition(desc, "vendor_boot", priv->slot,
-					     priv->vendor_boot_img_size, vloadaddr);
-		if (ret < 0)
-			return log_msg_ret("read vendor_boot", ret);
+	if (priv->header_version >= 3)
 		set_avendor_bootimg_addr(vloadaddr);
-	}
 	set_abootimg_addr(loadaddr);
 
 	if (priv->slot)

@@ -45,6 +45,13 @@ const char *blk_get_uclass_name(enum uclass_id uclass_id)
 	return drv ? drv->uclass_idname : NULL;
 }
 
+enum uclass_id blk_get_uclass_id(const char *uclass_idname)
+{
+	struct blk_driver *drv = blk_driver_lookup_typename(uclass_idname);
+
+	return drv ? drv->uclass_id : UCLASS_INVALID;
+}
+
 /**
  * get_desc() - Get the block device descriptor for the given device number
  *

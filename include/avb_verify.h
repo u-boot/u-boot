@@ -7,8 +7,9 @@
 #define _AVB_VERIFY_H
 
 #include <../lib/libavb/libavb.h>
+#include <blk.h>
 #include <mapmem.h>
-#include <mmc.h>
+#include <part.h>
 
 #define AVB_MAX_ARGS			1024
 #define VERITY_TABLE_OPT_RESTART	"restart_on_corruption"
@@ -22,29 +23,67 @@ enum avb_boot_state {
 	AVB_RED,
 };
 
+#define AVB_MAX_PRELOADED	4
+
+/**
+ * struct avb_preloaded - a partition already loaded into memory by the caller
+ *
+ * libavb hashes the preloaded bytes instead of reading the partition again,
+ * so what gets verified is exactly what the bootloader goes on to boot.
+ *
+ * @name: partition name including the slot suffix, e.g. "boot_a"
+ * @addr: start of the buffer holding the partition data
+ * @size: number of bytes loaded so far
+ * @max_size: capacity of the buffer (at most the partition size)
+ */
+struct avb_preloaded {
+	char name[32];
+	void *addr;
+	size_t size;
+	size_t max_size;
+};
+
 struct AvbOpsData {
 	struct AvbOps ops;
-	int mmc_dev;
+	enum uclass_id uclass_id;
+	int dev_num;
 	enum avb_boot_state boot_state;
 #ifdef CONFIG_OPTEE_TA_AVB
 	struct udevice *tee;
 	u32 session;
 #endif
+	struct avb_preloaded preloaded[AVB_MAX_PRELOADED];
+	int num_preloaded;
 };
 
-struct mmc_part {
-	int dev_num;
-	struct mmc *mmc;
-	struct blk_desc *mmc_blk;
+struct avb_blk_part {
+	struct blk_desc *blk;
 	struct disk_partition info;
 };
 
-enum mmc_io_type {
-	IO_READ,
-	IO_WRITE
+enum avb_io_type {
+	AVB_IO_READ,
+	AVB_IO_WRITE
 };
 
-AvbOps *avb_ops_alloc(int boot_device);
+AvbOps *avb_ops_alloc(enum uclass_id uclass_id, int dev_num);
+
+/**
+ * avb_ops_add_preloaded() - register a partition that is already in memory
+ *
+ * @ops: AvbOps from avb_ops_alloc()
+ * @partition: partition name including the slot suffix, e.g. "boot_a"
+ * @addr: buffer holding the first @size bytes of the partition
+ * @size: bytes loaded in @addr
+ * @max_size: capacity of @addr; a hash descriptor covering more than this
+ *	fails verification instead of overflowing the buffer
+ * Return: 0 on success, -ENOSPC when no slot is left, -EINVAL on a bad name
+ */
+int avb_ops_add_preloaded(AvbOps *ops, const char *partition, void *addr,
+			  size_t size, size_t max_size);
+#ifdef CONFIG_OPTEE_TA_AVB
+AvbIOResult avb_write_lock_state(AvbOps *ops, bool locked);
+#endif
 void avb_ops_free(AvbOps *ops);
 
 /**
@@ -78,7 +117,7 @@ const char *str_avb_slot_error(AvbSlotVerifyResult res);
  * I/O helper inline functions
  * ============================================================================
  */
-static inline uint64_t calc_offset(struct mmc_part *part, int64_t offset)
+static inline uint64_t calc_offset(struct avb_blk_part *part, int64_t offset)
 {
 	u64 part_size = part->info.size * part->info.blksz;
 
@@ -110,10 +149,24 @@ static inline int get_boot_device(AvbOps *ops)
 	if (ops) {
 		data = ops->user_data;
 		if (data)
-			return data->mmc_dev;
+			return data->dev_num;
 	}
 
 	return -1;
+}
+
+/* Mirrors get_boot_device(): no ops means no interface, not a default one */
+static inline enum uclass_id get_boot_interface(AvbOps *ops)
+{
+	struct AvbOpsData *data;
+
+	if (ops) {
+		data = ops->user_data;
+		if (data)
+			return data->uclass_id;
+	}
+
+	return UCLASS_INVALID;
 }
 
 #endif /* _AVB_VERIFY_H */

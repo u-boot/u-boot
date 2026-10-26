@@ -128,6 +128,7 @@ struct dwc2_core_regs {
 int dwc2_core_reset(struct dwc2_core_regs *regs);
 int dwc2_flush_tx_fifo(struct dwc2_core_regs *regs, const int num);
 int dwc2_flush_rx_fifo(struct dwc2_core_regs *regs);
+bool dwc2_iddig_filter_enabled(struct dwc2_core_regs *regs);
 
 /* Core Global Register */
 #define GOTGCTL_CHIRPEN				BIT(27)

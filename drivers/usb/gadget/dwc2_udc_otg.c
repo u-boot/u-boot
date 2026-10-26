@@ -1129,7 +1129,8 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 		if (plat->force_b_session_valid &&
 		    !plat->force_vbus_detection) {
 			/* Override VBUS detection: enable then value*/
-			setbits_le32(&usbotg_reg->global_regs.gotgctl, GOTGCTL_VBVALOEN);
+			setbits_le32(&usbotg_reg->global_regs.gotgctl,
+				     GOTGCTL_VBVALOEN | GOTGCTL_DBNCE_FLTR_BYPASS);
 			setbits_le32(&usbotg_reg->global_regs.gotgctl, GOTGCTL_VBVALOVAL);
 		} else {
 			/* Enable VBUS sensing */
@@ -1139,7 +1140,7 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 		if (plat->force_b_session_valid) {
 			/* Override B session bits: enable then value */
 			setbits_le32(&usbotg_reg->global_regs.gotgctl,
-				     GOTGCTL_AVALOEN | GOTGCTL_BVALOEN);
+				     GOTGCTL_AVALOEN | GOTGCTL_BVALOEN | GOTGCTL_DBNCE_FLTR_BYPASS);
 			setbits_le32(&usbotg_reg->global_regs.gotgctl,
 				     GOTGCTL_AVALOVAL | GOTGCTL_BVALOVAL);
 		} else {
@@ -1148,6 +1149,9 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 				     GGPIO_STM32_OTG_GCCFG_IDEN);
 		}
 	}
+
+	if (dwc2_iddig_filter_enabled(usbotg_reg))
+		mdelay(100);
 
 	ret = dwc2_udc_probe(plat);
 	if (ret)

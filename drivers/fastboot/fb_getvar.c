@@ -28,6 +28,9 @@ static void getvar_has_slot(char *var_parameter, char *response);
 static void getvar_partition_type(char *part_name, char *response);
 static void getvar_partition_size(char *part_name, char *response);
 static void getvar_is_userspace(char *var_parameter, char *response);
+#if CONFIG_IS_ENABLED(FASTBOOT_CMD_FLASHING)
+static void getvar_unlocked(char *var_parameter, char *response);
+#endif
 
 static const struct {
 	const char *variable;
@@ -87,6 +90,12 @@ static const struct {
 		.variable = "partition-size",
 		.dispatch = getvar_partition_size,
 		.list = false
+#endif
+#if CONFIG_IS_ENABLED(FASTBOOT_CMD_FLASHING)
+	}, {
+		.variable = "unlocked",
+		.dispatch = getvar_unlocked,
+		.list = true
 #endif
 	}, {
 		.variable = "is-userspace",
@@ -354,3 +363,16 @@ void fastboot_getvar(char *cmd_parameter, char *response)
 		fastboot_fail("Variable not implemented", response);
 	}
 }
+
+#if CONFIG_IS_ENABLED(FASTBOOT_CMD_FLASHING)
+/* "yes" when the device is unlocked according to the AVB TA, else "no" */
+static void getvar_unlocked(char *var_parameter, char *response)
+{
+	bool unlocked;
+
+	if (fastboot_flashing_is_unlocked(&unlocked, response))
+		return;
+
+	fastboot_okay(unlocked ? "yes" : "no", response);
+}
+#endif

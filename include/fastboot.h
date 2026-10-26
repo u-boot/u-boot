@@ -53,8 +53,22 @@ enum {
 	FASTBOOT_COMMAND_OEM_BOARD,
 	FASTBOOT_COMMAND_ACMD,
 	FASTBOOT_COMMAND_UCMD,
+	FASTBOOT_COMMAND_FLASHING_LOCK,
+	FASTBOOT_COMMAND_FLASHING_UNLOCK,
+	FASTBOOT_COMMAND_FLASHING_GET_UNLOCK_ABILITY,
 	FASTBOOT_COMMAND_COUNT
 };
+
+/**
+ * fastboot_flashing_is_unlocked() - read the AVB device lock state
+ *
+ * Available with CONFIG_FASTBOOT_CMD_FLASHING.
+ *
+ * @unlocked: set to the state on success
+ * @response: fastboot response buffer, filled on failure
+ * Return: 0 on success, -1 otherwise
+ */
+int fastboot_flashing_is_unlocked(bool *unlocked, char *response);
 
 /**
  * Reboot reasons

@@ -29,6 +29,17 @@ integration in ``common/avb_verify.c`` and the platform port under
 
 For additional details check [1]_.
 
+Only mmc is started by AVB itself. Any other interface must already be
+enumerated when AVB runs, either by the board code or by a command such as
+``usb start``, or the partition lookup fails. ``avb init`` only records the
+interface and device number; the device is resolved on the first partition
+access.
+
+If the Android images live on another interface while the AVB trusted
+application keeps its state in eMMC RPMB, the trusted application's first
+RPMB request is also the first eMMC access, and it is made from within a
+supplicant RPC. That needs OP-TEE to tolerate a nested RPMB announcement.
+
 AVB using OP-TEE (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -74,13 +85,80 @@ Note that device lock state and rollback protection are only enforced when
 backed by OP-TEE (see `AVB using OP-TEE (optional)`_); without it,
 verification is advisory regardless of the root key source.
 
+Provisioning the root key digest in the TEE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With ``AVB_ROOT_KEY_TEE`` the trusted digest is the SHA-256 of the public key
+in the AVB key format (the 1032-byte blob for a 4096-bit RSA key, the same
+encoding that vbmeta embeds), not of the PEM file. Compute it on the host from
+the private key used to sign vbmeta::
+
+   $ avbtool extract_public_key --key key.pem --output key.avbpubkey
+   $ sha256sum key.avbpubkey
+   7728e30f50bfa5cea165f473175a08803f6a8346642b5aa10913e9d9e6defef6  key.avbpubkey
+
+and store it from the U-Boot shell as the named persistent value, which the
+AVB TA keeps in RPMB-backed secure storage::
+
+   => avb init 0
+   => avb write_pvalue_hex avb.root_pub_digest 7728e30f...defef6
+   => avb read_pvalue_hex avb.root_pub_digest 32
+
+Until the value exists, ``avb verify`` and the Android bootmeth fail with
+"Public keys are not accepted"; a wrong digest is rejected the same way; the
+value persists across reboots. Provisioning is a one-time factory step and
+should happen before the device is locked; see the note above on protecting
+the value from normal-world writes.
+
+Device lock state
+-----------------
+
+The AVB TA stores the device lock state next to the rollback indexes. A
+locked device refuses to boot on any verification error and reports
+``androidboot.verifiedbootstate=green``; an unlocked device boots with
+verification errors tolerated (``orange``) and rollback protection off.
+Changing the state resets all rollback indexes in the TA.
+
+From the U-Boot shell::
+
+   => avb init 0
+   => avb lock
+   => avb unlock
+   => avb is_unlocked
+
+Over fastboot, with ``CONFIG_FASTBOOT_CMD_FLASHING``, using the standard
+Android commands::
+
+   $ fastboot flashing get_unlock_ability    # OKAY 1
+   $ fastboot flashing unlock                # erases userdata and metadata first
+   $ fastboot flashing lock                  # likewise
+   $ fastboot getvar unlocked                # yes / no
+
+As AVB requires, both transitions erase userdata (and metadata) before the
+state changes and are refused if userdata cannot be erased. On slow
+(emulated) storage the erase can take minutes; a TCP client may time out
+meanwhile, the device still completes the operation.
+
+While the device is locked, ``flash``, ``erase``, ``boot``, ``oem format``,
+``oem partconf``, ``oem bootbus``, ``oem run``, ``UCmd`` and ``ACmd`` are
+refused; ``flashing unlock`` is the only way to change its partitions.
+``get_unlock_ability`` reports Android's "OEM unlocking" developer setting
+the way PersistentDataBlockService stores it in the frp partition of the
+fastboot flash device: the SHA-256 digest in its first 32 bytes must match
+the rest of the partition and its last byte must be non-zero. ``flashing
+unlock`` is refused otherwise, so a device without an frp partition (or a
+flash back end without a partition table) can only be unlocked from the
+U-Boot shell with ``avb unlock``. Locking or unlocking a device that is
+already in that state is refused without erasing anything.
+
 AVB 2.0 U-Boot shell commands
 -----------------------------
 
 Provides CLI interface to invoke AVB 2.0 verification + misc. commands for
 different testing purposes::
 
-    avb init <dev> - initialize avb 2 for <dev>
+    avb init [<interface>] <dev> - initialize avb 2 for hex <dev> on
+        <interface> (mmc, nvme, usb, ...; defaults to mmc)
     avb read_rb <num> - read rollback index at location <num>
     avb write_rb <num> <rb> - write rollback index <rb> to <num>
     avb is_unlocked - returns unlock status of the device
@@ -93,6 +171,13 @@ different testing purposes::
         <partname> by <offset> using data from <addr>
     avb read_pvalue <name> <bytes> - read a persistent value <name>
     avb write_pvalue <name> <value> - write a persistent value <name>
+    avb read_pvalue_hex <name> <bytes> - read a persistent value <name>
+        and print it as hex
+    avb write_pvalue_hex <name> <hex> - write the bytes given as a hex
+        string to persistent value <name>
+    avb lock - lock the device (verification errors stop the boot);
+        resets all rollback indexes
+    avb unlock - unlock the device; resets all rollback indexes
     avb verify [slot_suffix] - run verification process using hash data
         from vbmeta structure
         [slot_suffix] - _a, _b, etc (if vbmeta partition is slotted)
@@ -133,6 +218,12 @@ OP-TEE::
    CONFIG_OPTEE=y
    CONFIG_OPTEE_TA_AVB=y
    CONFIG_SUPPORT_EMMC_RPMB=y
+
+and, to take the root key digest from the TEE and to lock/unlock over
+fastboot::
+
+   CONFIG_AVB_ROOT_KEY_TEE=y
+   CONFIG_FASTBOOT_CMD_FLASHING=y
 
 Then add ``avb verify`` invocation to your android boot sequence of commands,
 e.g.::
