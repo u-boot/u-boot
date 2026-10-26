@@ -18,7 +18,13 @@ CONFIG_SPL_BSS_MAX_SIZE=0x1000
 CONFIG_PCI=y
 CONFIG_SYS_MONITOR_BASE=0x00000000
 # CONFIG_EFI_UNICODE_CAPITALIZATION is not set
+# CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2 is not set
+# CONFIG_SMBIOS is not set
 # CONFIG_BOOTSTD is not set
+# CONFIG_BOOTM_PLAN9 is not set
+# CONFIG_BOOTM_RTEMS is not set
+# CONFIG_BOOTM_VXWORKS is not set
+# CONFIG_CMD_ELF_BOOTVX is not set
 CONFIG_USE_BOOTARGS=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setexpr dloadaddr ${loadaddr} + 0x200000 && setexpr dloadaddr ${dloadaddr} \\\\& 0xffc00000 && setexpr kloadaddr ${dloadaddr} + 0x200000 && tftp ${dloadaddr} Image-r8a77951-salvator-x.dtb && tftp ${kloadaddr} Image && booti ${kloadaddr} - ${dloadaddr}"
