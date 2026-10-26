@@ -3,7 +3,7 @@
 imx95_frdm
 =======================
 
-U-Boot for the NXP i.MX95 15x15 FRDM board
+U-Boot for the NXP i.MX95 15x15 FRDM board & i.MX95 19x19 FRDM PRO board
 
 Quick Start
 -----------
@@ -73,6 +73,13 @@ i.MX95 B0 silicon version on 15x15 LPDDR4X FRDM Board
    $ make board=mx95lp4x-15 oei=ddr DEBUG=1 r=B0 all
    $ cp build/mx95lp4x-15/ddr/oei-m33-ddr.bin $(srctree)
 
+i.MX95 B0 silicon version on 19x19 LPDDR5 FRDM PRO Board
+
+.. code-block:: bash
+
+   $ make board=mx95lp5-19 oei=ddr DEBUG=1 r=B0 all
+   $ cp build/mx95lp5-19/ddr/oei-m33-ddr.bin $(srctree)
+
 Get and Build System Manager Image
 --------------------------------------
 
@@ -88,8 +95,20 @@ branch: master
    $ export TOOLS=$PWD
    $ git clone -b master https://github.com/nxp-imx/imx-sm.git
    $ cd imx-sm
+
+i.MX95 B0 silicon version on 15x15 LPDDR4X FRDM Board
+
+.. code-block:: bash
+
    $ make config=mx95evk all
    $ cp build/mx95evk/m33_image.bin $(srctree)
+
+i.MX95 B0 silicon version on 19x19 LPDDR5 FRDM PRO Board
+
+.. code-block:: bash
+
+   $ make config=other/mx95frdm-pro all
+   $ cp build/other/mx95frdm-pro/m33_image.bin $(srctree)
 
 Get and Build the ARM Trusted Firmware
 --------------------------------------
@@ -117,6 +136,14 @@ i.MX95 B0 silicon version on 15x15 LPDDR4X FRDM Board
 
    $ export CROSS_COMPILE=aarch64-poky-linux-
    $ make imx95_15x15_frdm_defconfig
+   $ make
+
+i.MX95 B0 silicon version on 19x19 LPDDR5 FRDM PRO Board
+
+.. code-block:: bash
+
+   $ export CROSS_COMPILE=aarch64-poky-linux-
+   $ make imx95_19x19_frdm_pro_defconfig
    $ make
 
 Copy imx-boot-imx95.bin to the MicroSD card:

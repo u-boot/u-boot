@@ -592,16 +592,40 @@ u32 get_lpuart_clk(void)
 
 void init_uart_clk(u32 index)
 {
+	u32 gate;
+
 	switch (index) {
 	case LPUART1_CLK_ROOT:
-		/* 24M */
-		ccm_lpcg_on(CCGR_URT1, false);
-		ccm_clk_root_cfg(LPUART1_CLK_ROOT, OSC_24M_CLK, 1);
-		ccm_lpcg_on(CCGR_URT1, true);
+		gate = CCGR_URT1;
+		break;
+	case LPUART2_CLK_ROOT:
+		gate = CCGR_URT2;
+		break;
+	case LPUART3_CLK_ROOT:
+		gate = CCGR_URT3;
+		break;
+	case LPUART4_CLK_ROOT:
+		gate = CCGR_URT4;
+		break;
+	case LPUART5_CLK_ROOT:
+		gate = CCGR_URT5;
+		break;
+	case LPUART6_CLK_ROOT:
+		gate = CCGR_URT6;
+		break;
+	case LPUART7_CLK_ROOT:
+		gate = CCGR_URT7;
+		break;
+	case LPUART8_CLK_ROOT:
+		gate = CCGR_URT8;
 		break;
 	default:
-		break;
+		return;
 	}
+
+	ccm_lpcg_on(gate, false);
+	ccm_clk_root_cfg(index, OSC_24M_CLK, 1);
+	ccm_lpcg_on(gate, true);
 }
 
 void init_clk_usdhc(u32 index)

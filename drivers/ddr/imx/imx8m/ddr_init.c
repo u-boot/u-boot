@@ -9,6 +9,46 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/delay.h>
+
+/* GPC registers for the DDRMIX (DDR1) power domain */
+#ifdef CONFIG_IMX8MP
+#define GPC_PGC_CPU_MAPPING		0x1cc
+#define GPC_PGC_CPU_MAPPING_ALL		0x003fffff
+#define GPC_PU_PGC_SW_PUP_REQ		0x0d8
+#define GPC_PU_PGC_SW_PDN_REQ		0x0e4
+#define GPC_PU_PWRHSK			0x190
+#define GPC_DDR1_SW_Pxx_REQ		BIT(19)
+#define GPC_DDRMIX_ADB400_SYNC		BIT(11)
+#define GPC_DDRMIX_ADB400_ACK		BIT(27)
+/* DDRMIX is PGC 31 and occupies 0xfc0 - 0xfff */
+#define GPC_PGC_DDR1_CTRL		0xfc0
+#else
+/*
+ * i.MX8MQ shares the registers used by the power up procedure, but has
+ * different ADB400 handshake bits. It doesn't use the DDRMIX reset, though.
+ */
+#define GPC_PGC_CPU_MAPPING		0x0ec
+#define GPC_PGC_CPU_MAPPING_ALL		0x0000ffff
+#define GPC_PU_PGC_SW_PUP_REQ		0x0f8
+#define GPC_PU_PGC_SW_PDN_REQ		0x104
+#define GPC_PU_PWRHSK			0x1fc
+#define GPC_DDR1_SW_Pxx_REQ		BIT(5)
+#define GPC_DDRMIX_ADB400_SYNC		BIT(2)
+#define GPC_DDRMIX_ADB400_ACK		BIT(20)
+/* DDR1 is a PU type PGC and occupies 0xd40 - 0xd7f */
+#define GPC_PGC_DDR1_CTRL		0xd40
+#endif
+#define GPC_PGC_CTRL_PCR		BIT(0)
+
+/* The DDRMIX clock gate is named differently on i.MX8MQ */
+#ifdef CONFIG_IMX8MQ
+#define CCGR_DDRMIX			CCGR_DRAM1
+#else
+#define CCGR_DDRMIX			CCGR_DDR1
+#endif
+
+static bool ddrmix_initialized;
 
 static unsigned int g_cdd_rr_max[4];
 static unsigned int g_cdd_rw_max[4];
@@ -310,12 +350,164 @@ void update_umctl2_rank_space_setting(unsigned int pstat_num)
 	}
 }
 
+/*
+ * Stop all DRAM traffic and the periodic controller activity, so that the
+ * DDRC and the PHY are idle when the resets below are asserted.
+ */
+static void ddrc_quiesce(void)
+{
+	unsigned int tmp;
+
+	/* There is nothing to do if the DDRC is still held in reset */
+	if (reg32_read(SRC_DDRC_RCR_ADDR) & SRC_DDR1_RCR_PRESET_N_MASK)
+		return;
+
+	/* Block the AXI port from accepting further transactions */
+	reg32_write(DDRC_PCTRL_0(0), 0x0);
+
+	/* Disable auto-refresh, self-refresh, powerdown and dfi_dram_clk_disable */
+	reg32_write(DDRC_RFSHCTL3(0), 0x1);
+	clrbits_le32(DDRC_PWRCTL(0), 0xb);
+
+	/*
+	 * Wait for the controller to fall back to normal operating mode, in
+	 * case it was in self-refresh or powerdown. A previous init may have
+	 * failed half way through, so this must not wait forever.
+	 */
+	tmp = 1000;
+	while (tmp-- && (reg32_read(DDRC_STAT(0)) & 0x3) != 0x1)
+		udelay(1);
+}
+
+/*
+ * Assert the whole reset chain, including PwrOkIn, and hold it. Unlike on the
+ * initial power up, the PHY is running here, so it needs a PwrOkIn low phase of
+ * a defined length to clear its internal state.
+ */
+static void ddrmix_assert_resets(void)
+{
+	reg32_write(SRC_DDRC_RCR_ADDR,
+		    SRC_DDR1_ENABLE_MASK | SRC_DDR1_RCR_ALL_RESET_MASK);
+	mdelay(1);
+}
+
+static int poll_bits_clear(ulong reg, u32 mask, unsigned int timeout_us)
+{
+	do {
+		if (!(reg32_read(reg) & mask))
+			return 0;
+		udelay(1);
+	} while (timeout_us--);
+
+	return -ETIMEDOUT;
+}
+
+/*
+ * Power cycle the DDRMIX power domain. Asserting the resets alone leaves parts
+ * of the PHY state intact, only removing the power actually returns it to the
+ * power-on defaults.
+ *
+ * The order of the steps below follows dram_enter_retention() in TF-A
+ * (plat/imx/imx8m/ddr/dram_retention.c), which powers the DDRMIX down for DRAM
+ * retention suspend.
+ */
+static void ddrmix_reset(void)
+{
+	/*
+	 * pwrdnreqn_async adbm/adbs of ddr: request the ADB400 bridge to drain,
+	 * wait for it to acknowledge and release the request again, which is
+	 * also the reset value of GPC_PU_PWRHSK.
+	 */
+	clrbits_le32(GPC_BASE_ADDR + GPC_PU_PWRHSK, GPC_DDRMIX_ADB400_SYNC);
+	if (poll_bits_clear(GPC_BASE_ADDR + GPC_PU_PWRHSK,
+			    GPC_DDRMIX_ADB400_ACK, 10000))
+		printf("DDR: timeout on the DDRMIX ADB400 handshake\n");
+	setbits_le32(GPC_BASE_ADDR + GPC_PU_PWRHSK, GPC_DDRMIX_ADB400_SYNC);
+
+	/* Remove PowerOk and hold the DDRMIX in reset */
+	ddrmix_assert_resets();
+
+	/* Stop the DDRMIX clock while the domain is powered down */
+	clock_enable(CCGR_DDRMIX, false);
+
+	/*
+	 * The DDR1 domain must be mapped to the A53 domain, otherwise the
+	 * requests below are ignored. Map all domains, just like the normal
+	 * power up procedure further down does.
+	 */
+	reg32_write(GPC_BASE_ADDR + GPC_PGC_CPU_MAPPING, GPC_PGC_CPU_MAPPING_ALL);
+
+	/*
+	 * Enable the PHY isolation. Without PCR set, the requests below only run
+	 * the isolation handshake and leave the domain powered.
+	 */
+	setbits_le32(GPC_BASE_ADDR + GPC_PGC_DDR1_CTRL, GPC_PGC_CTRL_PCR);
+
+	setbits_le32(GPC_BASE_ADDR + GPC_PU_PGC_SW_PDN_REQ, GPC_DDR1_SW_Pxx_REQ);
+	if (poll_bits_clear(GPC_BASE_ADDR + GPC_PU_PGC_SW_PDN_REQ,
+			    GPC_DDR1_SW_Pxx_REQ, 10000))
+		printf("DDR: timeout powering down the DDRMIX\n");
+
+	udelay(100);
+
+	setbits_le32(GPC_BASE_ADDR + GPC_PU_PGC_SW_PUP_REQ, GPC_DDR1_SW_Pxx_REQ);
+	if (poll_bits_clear(GPC_BASE_ADDR + GPC_PU_PGC_SW_PUP_REQ,
+			    GPC_DDR1_SW_Pxx_REQ, 10000))
+		printf("DDR: timeout powering up the DDRMIX\n");
+
+	/* Leave the power gating cell as we found it */
+	clrbits_le32(GPC_BASE_ADDR + GPC_PGC_DDR1_CTRL, GPC_PGC_CTRL_PCR);
+
+	clock_enable(CCGR_DDRMIX, true);
+}
+
+/*
+ * The power up procedure in ddr_init() assumes a DDRMIX that is still in its
+ * power-on state. That is not the case if ddr_init() has already been run, for
+ * example by a board that probes several DDR configurations: the DDRC is in
+ * normal operating mode and the PHY holds the results of the last training run
+ * in registers that are not covered by ddrphy_cfg[]. Starting a new training
+ * run from there either fails outright or, worse, reports a successful training
+ * while leaving the DRAM completely non-functional.
+ *
+ * Return the DDRMIX to a defined state, so that the regular power up procedure
+ * can be applied again.
+ */
+static void ddrmix_cold_reset(void)
+{
+	debug("DDRINFO: cold reset the DDRMIX\n");
+
+	ddrc_quiesce();
+
+	/*
+	 * Park DfiClk on the bypass clock. The PHY must not see the DRAM PLL
+	 * being reprogrammed for the next run while it is still out of reset,
+	 * and the DDRC APB clock has to keep running to be able to release the
+	 * resets again.
+	 */
+	dram_enable_bypass(MHZ(100));
+
+	ddrmix_reset();
+}
+
 int ddr_init(struct dram_timing_info *dram_timing)
 {
 	unsigned int tmp, initial_drate, target_freq;
 	int ret;
 
 	debug("DDRINFO: start DRAM init\n");
+
+	/*
+	 * Return the DDRMIX to a defined state if it has been initialized
+	 * before. This is also needed if the previous init failed half way
+	 * through, so the flag is set unconditionally below.
+	 *
+	 * This is not implemented for i.MX8MQ, which has a second DDR domain
+	 * that would need its own handling.
+	 */
+	if (!IS_ENABLED(CONFIG_IMX8MQ) && ddrmix_initialized)
+		ddrmix_cold_reset();
+	ddrmix_initialized = true;
 
 	/* Step1: Follow the power up procedure */
 	if (is_imx8mq()) {
@@ -333,8 +525,8 @@ int ddr_init(struct dram_timing_info *dram_timing)
 			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV4));
 
 	/* disable iso */
-	reg32_write(0x303A00EC, 0x0000ffff); /* PGC_CPU_MAPPING */
-	reg32setbit(0x303A00F8, 5); /* PU_PGC_SW_PUP_REQ */
+	reg32_write(GPC_BASE_ADDR + GPC_PGC_CPU_MAPPING, GPC_PGC_CPU_MAPPING_ALL);
+	setbits_le32(GPC_BASE_ADDR + GPC_PU_PGC_SW_PUP_REQ, GPC_DDR1_SW_Pxx_REQ);
 
 	initial_drate = dram_timing->fsp_msg[0].drate;
 	/* default to the frequency point 0 clock */

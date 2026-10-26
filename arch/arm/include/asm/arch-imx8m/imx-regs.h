@@ -130,10 +130,20 @@
 #define SRC_SCR_M4C_NON_SCLR_RST_MASK	BIT(0)
 #define SRC_DDR1_ENABLE_MASK		0x8F000000UL
 #define SRC_DDR2_ENABLE_MASK		0x8F000000UL
+#define SRC_DDR1_RCR_SYS_RESET_MASK	BIT(4)
 #define SRC_DDR1_RCR_PHY_PWROKIN_N_MASK	BIT(3)
 #define SRC_DDR1_RCR_PHY_RESET_MASK	BIT(2)
 #define SRC_DDR1_RCR_CORE_RESET_N_MASK	BIT(1)
 #define SRC_DDR1_RCR_PRESET_N_MASK	BIT(0)
+/*
+ * All of the above, a set bit always means "reset asserted". Bit 5
+ * (DDRC1_PHY_WRST) is left out, the power up procedure doesn't use it either.
+ */
+#define SRC_DDR1_RCR_ALL_RESET_MASK	(SRC_DDR1_RCR_SYS_RESET_MASK | \
+					 SRC_DDR1_RCR_PHY_PWROKIN_N_MASK | \
+					 SRC_DDR1_RCR_PHY_RESET_MASK | \
+					 SRC_DDR1_RCR_CORE_RESET_N_MASK | \
+					 SRC_DDR1_RCR_PRESET_N_MASK)
 
 #define SNVS_LPSR			0x4c
 #define SNVS_LPLVDR			0x64

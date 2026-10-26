@@ -1267,18 +1267,6 @@ int imx9_probe_mu(void)
 	if (ret)
 		return ret;
 
-	ret = uclass_get_device_by_name(UCLASS_CLK, "protocol@14", &dev);
-	if (ret)
-		return ret;
-
-	ret = devm_scmi_of_get_channel(dev);
-	if (ret)
-		return ret;
-
-	ret = uclass_get_device_by_name(UCLASS_PINCTRL, "protocol@19", &dev);
-	if (ret)
-		return ret;
-
 #if defined(CONFIG_SPL_BUILD)
 	ret = uclass_get_device_by_name(UCLASS_MISC, "mailbox@47530000", &dev);
 #else
@@ -1357,6 +1345,9 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 			env_loc = ENVL_MMC;
 		break;
 	}
+
+	if (env_loc == ENVL_UNKNOWN && IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+		env_loc = ENVL_NOWHERE;
 
 	return env_loc;
 }

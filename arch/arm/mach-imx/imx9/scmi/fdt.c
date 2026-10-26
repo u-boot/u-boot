@@ -620,6 +620,18 @@ static void ft_disable_periph(void *blob, u32 fuse_bank, u32 fuse_word,
 	}
 }
 
+static void ft_fixup_thermal(void *blob)
+{
+	static const char * const zones[] = { "a55-thermal", "ana-thermal" };
+	int i, ret;
+
+	for (i = 0; i < ARRAY_SIZE(zones); i++) {
+		ret = fixup_thermal_trips(blob, zones[i]);
+		if (ret && ret != -FDT_ERR_NOTFOUND)
+			printf("Failed to update %s trip(s)\n", zones[i]);
+	}
+}
+
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	/* Common peripheral disable fuse process */
@@ -627,6 +639,8 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	ft_disable_periph(blob, 2, 2, f18_grp, ARRAY_SIZE(f18_grp), false);
 	ft_disable_periph(blob, 2, 3, f19_grp, ARRAY_SIZE(f19_grp), false);
 	ft_disable_periph(blob, 2, 4, f20_grp, ARRAY_SIZE(f20_grp), false);
+
+	ft_fixup_thermal(blob);
 
 	return 0;
 }

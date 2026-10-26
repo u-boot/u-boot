@@ -71,15 +71,17 @@ u32 get_nr_cpus(void)
 u32 get_cpu_rev(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
 	u32 reg = readl(&anatop->digprog_sololite);
 	u32 type = ((reg >> 16) & 0xff);
 	u32 major, cfg = 0;
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
-		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-		cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
+		if (type == MXC_CPU_MX6DL || type == MXC_CPU_MX6Q)
+			cfg = readl(&scu->config) & 3;
+
 		if (type == MXC_CPU_MX6DL) {
 			if (!cfg)
 				type = MXC_CPU_MX6SOLO;
@@ -795,3 +797,34 @@ void gpr_init(void)
 		writel(0x007F007F, &iomux->gpr[7]);
 	}
 }
+
+#if IS_ENABLED(CONFIG_IMX_BOOTAUX) && IS_ENABLED(CONFIG_MX6SX)
+/*
+ * Memory map conversion table as seen by Cortex-M4 and Cortex-A9 cores.
+ *
+ * Based on Table 2-1 and Table 2-2 from i.MX6SoloX Application
+ * Processor Reference Manual, Rev. 4, and from the
+ * imx_rproc_att_imx6sx struct from the Linux kernel remoteproc
+ * driver drivers/remoteproc/imx_rproc.c
+ */
+static const struct rproc_att hostmap[] = {
+	/* aux core , host core,  size */
+	{ 0x208f8000, 0x008f8000, 0x00004000 }, /* OCRAM_S */
+	{ 0x208fc000, 0x008fc000, 0x00004000 }, /* OCRAM_S alias */
+	{ 0x00000000, 0x007f8000, 0x00008000 }, /* TCML alias */
+	{ 0x1fff8000, 0x007f8000, 0x00008000 }, /* TCML */
+	{ 0x20000000, 0x00800000, 0x00008000 }, /* TCMU */
+	{ 0x20900000, 0x00900000, 0x00020000 }, /* OCRAM */
+	{ 0x20920000, 0x00920000, 0x00060000 }, /* OCRAM alias */
+	{ 0x20980000, 0x00980000, 0x00040000 }, /* L2 cache used as OCRAM */
+	{ 0x209c0000, 0x009c0000, 0x00040000 }, /* L2 cache used as OCRAM alias */
+	{ 0x10000000, 0x80000000, 0x0fff8000 }, /* DDR code alias */
+	{ 0x80000000, 0x80000000, 0x60000000 }, /* MMDc x32 DDR (CM4 view) */
+	{ /* sentinel */ }
+};
+
+const struct rproc_att *imx_bootaux_get_hostmap(void)
+{
+	return hostmap;
+}
+#endif

@@ -281,34 +281,24 @@ static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 static int delete_node(void *blob, const char *node)
 {
 	int nodeoffset;
-	int err;
 
 	nodeoffset = fdt_path_offset(blob, node);
 	if (nodeoffset < 0)
-		return -ENXIO;
+		return nodeoffset;
 
-	err = fdt_del_node(blob, nodeoffset);
-	if (err)
-		return -EINVAL;
-
-	return 0;
+	return fdt_del_node(blob, nodeoffset);
 }
 
 static int change_property(void *blob, const char *node, const char *property,
 			   const void *value, int len)
 {
 	int nodeoffset;
-	int err;
 
 	nodeoffset = fdt_path_offset(blob, node);
 	if (nodeoffset < 0)
-		return -ENXIO;
+		return nodeoffset;
 
-	err = fdt_setprop(blob, nodeoffset, property, value, len);
-	if (err)
-		return -EINVAL;
-
-	return 0;
+	return fdt_setprop(blob, nodeoffset, property, value, len);
 }
 
 static void update_fdt_gpu_industrial_frequencies(void *blob)
@@ -327,24 +317,29 @@ static void update_fdt_gpu_industrial_frequencies(void *blob)
 	gpu_assigned_clocks[0] = cpu_to_fdt32(625000000); /* Core Clock */
 	gpu_assigned_clocks[1] = cpu_to_fdt32(625000000); /* Shader Clock */
 
-	err = change_property(blob, "/bus@53100000/gpu@53100000",
+	err = change_property(blob, "/bus@53000000/gpu@53100000",
 			      "assigned-clock-rates", gpu_assigned_clocks,
 			      sizeof(gpu_assigned_clocks));
-	if (err && err != ENXIO)
+	/* NXP kernels before 6.18 use bus@53100000 */
+	if (err == -FDT_ERR_NOTFOUND)
+		err = change_property(blob, "/bus@53100000/gpu@53100000",
+				      "assigned-clock-rates", gpu_assigned_clocks,
+				      sizeof(gpu_assigned_clocks));
+	if (err && err != -FDT_ERR_NOTFOUND)
 		printf("Failed to set assigned-clock-rates for GPU0: %s\n",
 		       fdt_strerror(err));
 
 	err = change_property(blob, "/bus@54100000/gpu@54100000",
 			      "assigned-clock-rates", gpu_assigned_clocks,
 			      sizeof(gpu_assigned_clocks));
-	if (err && err != ENXIO)
+	if (err && err != -FDT_ERR_NOTFOUND)
 		printf("Failed to set assigned-clock-rates for GPU1: %s\n",
 		       fdt_strerror(err));
 
 	err = change_property(blob, "/bus@54100000/imx8_gpu1_ss@80000000",
 			      "operating-points", &gpu_opp_table,
 			      sizeof(gpu_opp_table));
-	if (err && err != ENXIO)
+	if (err && err != -FDT_ERR_NOTFOUND)
 		printf("Failed to set operating-points for GPU: %s\n",
 		       fdt_strerror(err));
 }
@@ -354,12 +349,12 @@ static void update_fdt_cpu_industrial_frequencies(void *blob)
 	int err;
 
 	err = delete_node(blob, "/opp-table-0/opp-1200000000");
-	if (err && err != -ENXIO)
+	if (err && err != -FDT_ERR_NOTFOUND)
 		printf("Failed to delete 1.2 GHz node on A53: %s\n",
 		       fdt_strerror(err));
 
 	err = delete_node(blob, "/opp-table-1/opp-1596000000");
-	if (err && err != -ENXIO)
+	if (err && err != -FDT_ERR_NOTFOUND)
 		printf("Failed to delete 1.596 GHz node on A72: %s\n",
 		       fdt_strerror(err));
 }
