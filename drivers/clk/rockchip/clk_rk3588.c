@@ -1959,9 +1959,6 @@ static void rk3588_clk_init(struct rk3588_clk_priv *priv)
 static int rk3588_clk_probe(struct udevice *dev)
 {
 	struct rk3588_clk_priv *priv = dev_get_priv(dev);
-	int ret;
-
-	priv->sync_kernel = false;
 
 #ifdef CONFIG_XPL_BUILD
 	rockchip_pll_set_rate(&rk3588_pll_clks[B0PLL], priv->cru,
@@ -1969,8 +1966,8 @@ static int rk3588_clk_probe(struct udevice *dev)
 	rockchip_pll_set_rate(&rk3588_pll_clks[B1PLL], priv->cru,
 			      B1PLL, LPLL_HZ);
 	if (!priv->armclk_enter_hz) {
-		ret = rockchip_pll_set_rate(&rk3588_pll_clks[LPLL], priv->cru,
-					    LPLL, LPLL_HZ);
+		rockchip_pll_set_rate(&rk3588_pll_clks[LPLL], priv->cru,
+				      LPLL, LPLL_HZ);
 		priv->armclk_enter_hz =
 			rockchip_pll_get_rate(&rk3588_pll_clks[LPLL],
 					      priv->cru, LPLL);
@@ -1983,13 +1980,6 @@ static int rk3588_clk_probe(struct udevice *dev)
 		return PTR_ERR(priv->grf);
 
 	rk3588_clk_init(priv);
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-	else
-		priv->sync_kernel = true;
 
 	return 0;
 }
