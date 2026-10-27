@@ -8,6 +8,7 @@
 #include <memalign.h>
 #include <part.h>
 #include <ubi_uboot.h>
+#include <dm/device.h>
 
 static inline struct ubi_device *get_ubi_device(void)
 {
@@ -90,6 +91,14 @@ static int part_test_ubi(struct blk_desc *dev_desc)
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
 	if (!get_ubi_device())
+		return -1;
+
+	/*
+	 * Only the block device UBI itself created holds UBI volumes. Without
+	 * this, every readable block device in the system is claimed as soon as
+	 * a UBI device is attached anywhere.
+	 */
+	if (!dev_desc->bdev || dev_desc->bdev->driver != DM_DRIVER_GET(ubi_blk))
 		return -1;
 
 	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
