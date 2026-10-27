@@ -1391,6 +1391,7 @@ config LMB_LIMIT_DMA_BELOW_RAM_TOP
 	bool
 	depends on LMB
 	default y if ARCH_BCM283X || ARCH_MVEBU || ARCH_ROCKCHIP || STARFIVE_JH7110
+	default y if SANDBOX
 	help
 	  Some architectures can not DMA above ram_top boundary,
 	  which is after 4 GiB or 32-bit boundary too. Limit the
