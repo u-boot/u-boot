@@ -85,7 +85,7 @@ ENTRY(sha256_armv8_ce_process)
 	ld1		{v12.4s-v15.4s}, [x8]
 
 	/* load state */
-	ldp		dga, dgb, [x0]
+	ld1		{dgav.4s, dgbv.4s}, [x0]
 
 	/* load input */
 0:	ld1		{v16.4s-v19.4s}, [x1], #64
@@ -129,6 +129,6 @@ ENTRY(sha256_armv8_ce_process)
 	cbnz		w2, 0b
 
 	/* store new state */
-3:	stp		dga, dgb, [x0]
+3:	st1		{dgav.4s, dgbv.4s}, [x0]
 	ret
 ENDPROC(sha256_armv8_ce_process)
