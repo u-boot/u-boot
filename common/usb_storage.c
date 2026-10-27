@@ -1513,6 +1513,11 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	blksz = be32_to_cpu(cap[1]);
 
 	debug("Capacity = 0x%08x, blocksz = 0x%08x\n", capacity, blksz);
+	if (!blk_valid_blksz(blksz)) {
+		printf("LUN %d: unsupported block size %u, skipping\n",
+		       dev_desc->lun, blksz);
+		return 0;
+	}
 	dev_desc->lba = capacity;
 	dev_desc->blksz = blksz;
 	dev_desc->log2blksz = LOG2(dev_desc->blksz);
