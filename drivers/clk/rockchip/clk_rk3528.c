@@ -1601,8 +1601,6 @@ static int rk3528_clk_init(struct rk3528_clk_priv *priv)
 {
 	int ret;
 
-	priv->sync_kernel = false;
-
 #ifdef CONFIG_XPL_BUILD
 	/*
 	 * BOOTROM:
@@ -1683,20 +1681,8 @@ static int rk3528_clk_init(struct rk3528_clk_priv *priv)
 static int rk3528_clk_probe(struct udevice *dev)
 {
 	struct rk3528_clk_priv *priv = dev_get_priv(dev);
-	int ret;
 
-	ret = rk3528_clk_init(priv);
-	if (ret)
-		return ret;
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-	else
-		priv->sync_kernel = true;
-
-	return 0;
+	return rk3528_clk_init(priv);
 }
 
 static int rk3528_clk_ofdata_to_platdata(struct udevice *dev)
