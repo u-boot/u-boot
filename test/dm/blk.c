@@ -9,6 +9,7 @@
 #include <sandbox_host.h>
 #include <usb.h>
 #include <asm/state.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -112,6 +113,46 @@ static int dm_test_blk_find(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_blk_find, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/* Test that a block device with an unsupported block size is refused */
+static int dm_test_blk_blksz(struct unit_test_state *uts)
+{
+	static const ulong good[] = { DEFAULT_BLKSZ, SZ_4K, BLK_MAX_BLKSZ };
+	static const ulong bad[] = { 256, 520, 3 * DEFAULT_BLKSZ,
+				     2 * BLK_MAX_BLKSZ };
+	struct udevice *blk, *dev;
+	struct blk_desc *desc;
+	char label[10];
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(good); i++) {
+		snprintf(label, sizeof(label), "good%d", i);
+		ut_assertok(host_create_device(label, false, good[i], &dev));
+		ut_assertok(blk_get_from_parent(dev, &blk));
+		desc = dev_get_uclass_plat(blk);
+		ut_asserteq(good[i], desc->blksz);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(bad); i++) {
+		snprintf(label, sizeof(label), "bad%d", i);
+		ut_assertok(host_create_device(label, false, bad[i], &dev));
+		ut_asserteq(-EINVAL, blk_get_from_parent(dev, &blk));
+	}
+
+	/* A device without a medium has no block size yet */
+	ut_assertok(host_create_device("none", false, 0, &dev));
+	ut_assertok(blk_get_from_parent(dev, &blk));
+
+	/* The block size and its log2 must agree */
+	ut_assertok(host_create_device("log2", false, DEFAULT_BLKSZ, &dev));
+	ut_assertok(blk_find_from_parent(dev, &blk));
+	desc = dev_get_uclass_plat(blk);
+	desc->log2blksz = 10;
+	ut_asserteq(-EINVAL, device_probe(blk));
+
+	return 0;
+}
+DM_TEST(dm_test_blk_blksz, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test that block device numbering works as expected */
 static int dm_test_blk_devnum(struct unit_test_state *uts)
