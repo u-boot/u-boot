@@ -2873,7 +2873,6 @@ static void rk3568_clk_init(struct rk3568_clk_priv *priv)
 {
 	int ret;
 
-	priv->sync_kernel = false;
 	if (!priv->armclk_enter_hz) {
 		priv->armclk_enter_hz =
 			rockchip_pll_get_rate(&rk3568_pll_clks[APLL],
@@ -2912,20 +2911,12 @@ static void rk3568_clk_init(struct rk3568_clk_priv *priv)
 static int rk3568_clk_probe(struct udevice *dev)
 {
 	struct rk3568_clk_priv *priv = dev_get_priv(dev);
-	int ret;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (IS_ERR(priv->grf))
 		return PTR_ERR(priv->grf);
 
 	rk3568_clk_init(priv);
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-	else
-		priv->sync_kernel = true;
 
 	return 0;
 }
