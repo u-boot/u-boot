@@ -258,7 +258,7 @@ static int virtio_blk_probe(struct udevice *dev)
 	if (virtio_has_feature(dev, VIRTIO_BLK_F_BLK_SIZE)) {
 		virtio_cread(dev, struct virtio_blk_config, blk_size, &blk_size);
 		desc->blksz = blk_size;
-		if (!is_power_of_2(blk_size) || desc->blksz < 512)
+		if (!blk_valid_blksz(blk_size))
 			return -EIO;
 	} else {
 		desc->blksz = 512;

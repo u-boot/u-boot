@@ -67,8 +67,9 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 	file = argv[1];
 	if (argc > 2) {
 		blksz = dectoul(argv[2], NULL);
-		if (blksz < DEFAULT_BLKSZ || !is_power_of_2(blksz)) {
-			printf("blksz must be >= 512 and power of 2\n");
+		if (!blk_valid_blksz(blksz)) {
+			printf("blksz must be a power of 2 from %d to %d\n",
+			       DEFAULT_BLKSZ, BLK_MAX_BLKSZ);
 			return CMD_RET_FAILURE;
 		}
 	}
