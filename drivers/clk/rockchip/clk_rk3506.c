@@ -1107,14 +1107,8 @@ static void rk3506_clk_init_xpl(void)
 static int rk3506_clk_probe(struct udevice *dev)
 {
 	struct rk3506_clk_priv *priv = dev_get_priv(dev);
-	int ret;
 
 	rk3506_clk_init(priv);
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		log_debug("clk_set_defaults failed: ret=%d\n", ret);
 
 	return 0;
 }
