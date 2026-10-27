@@ -503,6 +503,7 @@ config MMC_SANDBOX
 
 config MMC_SDHCI
 	bool "Secure Digital Host Controller Interface support"
+	imply LMB_LIMIT_DMA_BELOW_RAM_TOP
 	help
 	  This selects the generic Secure Digital Host Controller Interface.
 	  It is used by manufacturers such as Texas Instruments(R), Ricoh(R)
