@@ -42,6 +42,7 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
+#include <linux/log2.h>
 #include <linux/sizes.h>
 #include <mach/gpio.h>
 #include <power/regulator.h>
@@ -658,11 +659,6 @@ static void bcm2835_set_clock(struct bcm2835_host *host, unsigned int clock)
 
 	/* Set the timeout to 500ms */
 	writel(host->mmc->clock / 2, host->ioaddr + SDTOUT);
-}
-
-static inline int is_power_of_2(u64 x)
-{
-	return !(x & (x - 1));
 }
 
 static int bcm2835_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
