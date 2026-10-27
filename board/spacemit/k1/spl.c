@@ -332,7 +332,7 @@ int read_ddr_info(struct ddr_cfg *cfg)
 	struct tlvinfo_header *tlv_hdr;
 	struct tlvinfo_tlv *tlv_entry;
 	u32 size, entry_size;
-	int ret, i;
+	int ret, i = 0;
 	bool found = false;
 
 	if (!cfg)
