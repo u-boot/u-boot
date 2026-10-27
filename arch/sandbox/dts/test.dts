@@ -189,6 +189,18 @@
 		};
 	};
 
+	fs_loader: fs-loader {
+		bootph-all;
+		compatible = "u-boot,fs-loader";
+		phandlepart = <&mmc12 1>;
+	};
+
+	fip_loader: fip-loader {
+		bootph-all;
+		compatible = "u-boot,fip-loader";
+		phandlepart = <&mmc13 1>;
+	};
+
 	cedit: cedit {
 	};
 
@@ -1398,6 +1410,20 @@
 		filename = "mmc11.img";
 	};
 
+	/* This is used for FS Loader tests */
+	mmc12: mmc12 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc12.img";
+	};
+
+	/* This is used for FIP Loader tests */
+	mmc13: mmc13 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc13.img";
+	};
+
 	pch {
 		compatible = "sandbox,pch";
 	};
@@ -2142,6 +2168,18 @@
 
 		ethphy1: ethernet-phy@1 {
 			reg = <1>;
+		};
+
+		ethernet-phy@2 {
+			reg = <2>;
+
+			firmware-loader = <&fs_loader>;
+		};
+
+		ethernet-phy@3 {
+			reg = <3>;
+
+			firmware-loader = <&fip_loader>;
 		};
 	};
 
