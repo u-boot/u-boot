@@ -237,6 +237,7 @@ struct dw_eth_dev {
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;
 #if CONFIG_IS_ENABLED(DM_GPIO)
+	struct gpio_dt_spec reset_gpio_spec;
 	struct gpio_desc reset_gpio;
 #endif
 #ifdef CONFIG_CLK

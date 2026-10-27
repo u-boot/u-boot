@@ -984,6 +984,15 @@ int designware_eth_probe(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
 
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	ret = gpio_request_parsed(dev, &priv->reset_gpio_spec,
+				  &priv->reset_gpio);
+	if (ret && ret != -ENOENT) {
+		err = ret;
+		goto gpio_err;
+	}
+#endif
+
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
 	if (dev_read_bool(dev, "snps,bitbang-mii")) {
 		ret = dw_bb_mdio_init(dev->name, dev);
@@ -1015,6 +1024,11 @@ int designware_eth_probe(struct udevice *dev)
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
 mdio_err:
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	if (dm_gpio_is_valid(&priv->reset_gpio))
+		dm_gpio_free(dev, &priv->reset_gpio);
+gpio_err:
+#endif
 
 #ifdef CONFIG_CLK
 clk_err:
@@ -1033,6 +1047,10 @@ static int designware_eth_remove(struct udevice *dev)
 	free(priv->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	if (dm_gpio_is_valid(&priv->reset_gpio))
+		dm_gpio_free(dev, &priv->reset_gpio);
+#endif
 
 #ifdef CONFIG_CLK
 	return clk_release_all(priv->clocks, priv->clock_count);
@@ -1073,8 +1091,8 @@ int designware_eth_of_to_plat(struct udevice *dev)
 	if (dev_read_bool(dev, "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 
-	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
-		&priv->reset_gpio, reset_flags);
+	ret = gpio_parse_by_name(dev, "snps,reset-gpio", 0, reset_flags,
+				 &priv->reset_gpio_spec);
 	if (ret == 0) {
 		ret = dev_read_u32_array(dev, "snps,reset-delays-us",
 					 dw_pdata->reset_delays, 3);
