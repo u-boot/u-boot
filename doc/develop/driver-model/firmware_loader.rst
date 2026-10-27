@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. Copyright (C) 2018-2019 Intel Corporation <www.intel.com>
 
-File System Firmware Loader
+Firmware Loader
 ===========================
 
 This is firmware loader for U-Boot framework, which has very close
@@ -13,8 +13,16 @@ and binary) from the storage device in file system format into target location
 such as memory, then consumer driver such as FPGA driver can program FPGA image
 from the target location into FPGA.
 
-To enable firmware loader, CONFIG_FS_LOADER need to be set at
+FIP firmware loader can be used to load a firmware from a specific FIP entry
+referenced by the specific UUID into target location such as memory, then
+consumer driver such as PHY driver can load such firmware to make the PHY
+operational.
+
+To enable file system firmware loader, CONFIG_FS_LOADER need to be set at
 <board_name>_defconfig such as "CONFIG_FS_LOADER=y".
+
+To enable FIP firmware loader, CONFIG_FIP_LOADER need to be set at
+<board_name>_defconfig such as "CONFIG_FIP_LOADER=y".
 
 Firmware Loader API core features
 ---------------------------------
@@ -23,11 +31,11 @@ Firmware storage device described in device tree source
 -------------------------------------------------------
 For passing data like storage device phandle and partition where the
 firmware loading from to the firmware loader driver, those data could be
-defined in fs-loader node as shown in below:
+defined in fw-loader node as shown in below:
 
 Example for block device::
 
-	fs_loader0: fs-loader {
+	fw_loader0: fs-loader {
 		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&mmc 1>;
@@ -40,20 +48,31 @@ device, it can be described in FDT as shown in below:
 
 Example for ubi::
 
-	fs_loader1: fs-loader {
+	fw_loader1: fs-loader {
 		bootph-all;
 		compatible = "u-boot,fs-loader";
 		mtdpart = "UBI",
 		ubivol = "ubi0";
 	};
 
+(FIP loader follow the same exact implementation by just using the
+dedicated compatible "u-boo,fip-loader")
+
 Then, firmware-loader property can be added with any device node, which
 driver would use the firmware loader for loading.
 
 The value of the firmware-loader property should be set with phandle
-of the fs-loader node. For example::
+of the fw-loader node. For example::
 
-	firmware-loader = <&fs_loader0>;
+	firmware-loader = <&fw_loader0>;
+
+And firmware loader device can be reached by the use get_fw_loader_from_node API:
+
+For example:
+
+.. code-block:: c
+
+	get_fw_loader_from_node(dev_ofnode(dev), &fw_loader);
 
 If there are majority of devices using the same fs-loader node, then
 firmware-loader property can be added under /chosen node instead of
@@ -63,7 +82,7 @@ For example::
 
 	/{
 		chosen {
-			firmware-loader = <&fs_loader0>;
+			firmware-loader = <&fw_loader0>;
 		};
 	};
 
@@ -119,6 +138,44 @@ File system firmware Loader API
 
 .. code-block:: c
 
+	int get_fw_loader_from_node(ofnode node, struct udevice **dev);
+
+Get firmware loader from referenced node
+
+Parameters:
+
+* ofnode \*node: node where the "firmware-loader" phandle needs to be parsed
+* struct udevice \**dev:  pointer where to store the firmware loader device
+
+Returns:
+	0 on success
+	-ve when error
+
+Description:
+	Parse the "firmware-loader" phandle from the passed node and
+	probe and put the matching firmware loader device in the dev pointer.
+
+.. code-block:: c
+
+	int request_firmware_size(struct udevice *dev, const char *name)
+
+Get firmware size from Firmware Loader driver
+
+Parameters:
+
+* struct udevice \*dev: An instance of a driver
+* const char \*name: name of firmware file
+
+Returns:
+	size of firmware
+	-ve when error
+
+Description:
+	Get the firmware size before reading it to validate how much buffer
+	is needed for it
+
+.. code-block:: c
+
 	int request_firmware_into_buf(struct udevice *dev,
 				      const char *name,
 				      void *buf, size_t size, u32 offset)
@@ -151,4 +208,24 @@ instance:
 		return ret;
 
 	request_firmware_into_buf(dev, filename, buffer_location, buffer_size,
-				 offset_ofreading);
+				  offset_ofreading);
+
+Example of request_firmware_into_buf API from a "firmware-loader" defined in
+the device node and dynamic buffer allocation:
+
+.. code-block:: c
+
+	ret = get_fw_loader_from_node(dev_ofnode(dev), &fw_loader);
+	if (ret)
+		return ret;
+
+	buffer_size = request_firmware_size(fw_loader, filename);
+	if (buffer_size <= 0)
+		return buffer_size < 0 ? buffer_size : -EINVAL;
+
+	buffer_location = calloc(buffer_size, sizeof(*buffer_location));
+	if (!buffer_location)
+		return -ENOMEM;
+
+	request_firmware_into_buf(fw_loader, filename, buffer_location, buffer_size,
+				  offset_ofreading);
