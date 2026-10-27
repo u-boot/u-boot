@@ -467,6 +467,20 @@ void pmbus_print_status_word(struct udevice *chip);
 int pmbus_regulator_read_temp(struct udevice *reg_dev, int *temp_mc);
 
 /*
+ * pmbus_regulator_read_vout_command() - the output voltage setpoint
+ *
+ * Read VOUT_COMMAND (21h), decoded like READ_VOUT through the chip's
+ * pmbus_driver_info and VOUT_MODE. regulator_get_value() returns
+ * READ_VOUT, the output as measured, which on a regulator with a load
+ * line (droop) sits below the setpoint under load; this returns the
+ * setpoint itself, which is what regulator_set_value() writes.
+ *
+ * Returns 0 on success, or a negative errno (-ENODEV if reg is not a
+ * probed pmbus regulator, -EIO on bus error).
+ */
+int pmbus_regulator_read_vout_command(struct udevice *reg_dev, int *uV);
+
+/*
  * Look up the pmbus_driver_info of a probed UCLASS_REGULATOR device at
  * (bus_seq, addr) that is driven by a pmbus_helper based chip driver
  * (mpq8785, pmbus_generic, ...). Probes the device so its identify

@@ -5,6 +5,7 @@
 
 #include <config.h>
 #include <linux/libfdt.h>
+#include <linux/string.h>
 #include <fdt_support.h>
 
 #include <asm/io.h>
@@ -71,6 +72,19 @@ int fdt_set_iommu_prop(void *blob, int off, int smmu_ph, u32 *ids, int num_ids)
 	return 0;
 }
 
+static int fdt_icid_node_offset(void *blob, struct icid_id_table *entry)
+{
+	int off;
+
+	off = fdt_node_offset_by_compat_reg(blob, entry->compat,
+					    entry->compat_addr);
+	if (off < 0 && !strcmp(entry->compat, "snps,dwc3"))
+		off = fdt_node_offset_by_compat_reg(blob, "fsl,ls1028a-dwc3",
+						    entry->compat_addr);
+
+	return off;
+}
+
 static int fdt_fixup_icid_tbl(void *blob, int smmu_ph,
 		       struct icid_id_table *tbl, int size)
 {
@@ -80,9 +94,7 @@ static int fdt_fixup_icid_tbl(void *blob, int smmu_ph,
 		if (!tbl[i].compat)
 			continue;
 
-		off = fdt_node_offset_by_compat_reg(blob,
-						    tbl[i].compat,
-						    tbl[i].compat_addr);
+		off = fdt_icid_node_offset(blob, &tbl[i]);
 		if (off > 0) {
 			err = fdt_set_iommu_prop(blob, off, smmu_ph,
 						 &tbl[i].id, 1);

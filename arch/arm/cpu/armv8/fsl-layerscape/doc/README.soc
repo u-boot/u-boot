@@ -331,6 +331,13 @@ LX2160A SoC has 2 more similar SoC personalities
 2)LX2080A, few difference w.r.t. LX2160A:
        a) Eight 64-bit ARM v8 Cortex-A72 CPUs
 
+SerDes 1 lane grouping
+  SRDS_PRTCL_S1 is latched at reset. U-Boot can still configure SD1 before
+  the MC starts:
+  1x100GE + 4x25G, 2x40GE, 1x40GE + 4x10G or 1x100GE + 4x10G.
+  See 'serdes1' in doc/README.fsl-hwconfig, and the 'lx2160_serdes status'
+  command.
+
 
 LS1028A
 --------

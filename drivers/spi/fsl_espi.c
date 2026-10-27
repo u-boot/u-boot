@@ -325,9 +325,10 @@ void espi_claim_bus(struct fsl_spi_slave *fsl, unsigned int cs)
 		out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
 			| ESPI_CSMODE_CI_INACTIVEHIGH);
 
-	/* Character bit order: msb first */
-	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
-		| ESPI_CSMODE_REV_MSB_FIRST);
+	/* Character bit order: msb first, unless the caller asked for lsb first */
+	if (!(mode & SPI_LSB_FIRST))
+		out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])
+			| ESPI_CSMODE_REV_MSB_FIRST);
 
 	/* Character length in bits, between 0x3~0xf, i.e. 4bits~16bits */
 	out_be32(&espi->csmode[cs], in_be32(&espi->csmode[cs])

@@ -34,20 +34,10 @@ static int pmbus_regulator_select_page(struct pmbus_regulator_priv *priv)
 	return dm_i2c_write(priv->i2c_dev, PMBUS_PAGE, &p, 1);
 }
 
-static int pmbus_regulator_get_value(struct udevice *dev)
+static int pmbus_regulator_vout_to_uv(struct pmbus_regulator_priv *priv,
+				      u16 raw, u8 vout_mode)
 {
-	struct pmbus_regulator_priv *priv = dev_get_priv(dev);
-	u8 vout_mode = 0;
-	u16 raw = 0;
 	s64 uv;
-	int ret;
-
-	ret = pmbus_regulator_select_page(priv);
-	if (ret)
-		return ret;
-	pmbus_read_byte(priv->i2c_dev, PMBUS_VOUT_MODE, &vout_mode);
-	if (pmbus_read_word(priv->i2c_dev, PMBUS_READ_VOUT, &raw))
-		return -EIO;
 
 	if (priv->info)
 		uv = pmbus_reg2data(priv->info, PSC_VOLTAGE_OUT, raw, vout_mode);
@@ -59,6 +49,23 @@ static int pmbus_regulator_get_value(struct udevice *dev)
 	if (uv < INT_MIN)
 		uv = INT_MIN;
 	return (int)uv;
+}
+
+static int pmbus_regulator_get_value(struct udevice *dev)
+{
+	struct pmbus_regulator_priv *priv = dev_get_priv(dev);
+	u8 vout_mode = 0;
+	u16 raw = 0;
+	int ret;
+
+	ret = pmbus_regulator_select_page(priv);
+	if (ret)
+		return ret;
+	pmbus_read_byte(priv->i2c_dev, PMBUS_VOUT_MODE, &vout_mode);
+	if (pmbus_read_word(priv->i2c_dev, PMBUS_READ_VOUT, &raw))
+		return -EIO;
+
+	return pmbus_regulator_vout_to_uv(priv, raw, vout_mode);
 }
 
 static int pmbus_regulator_set_value(struct udevice *dev, int uV)
@@ -144,6 +151,15 @@ const struct dm_regulator_ops pmbus_regulator_ops = {
 	.set_enable = pmbus_regulator_set_enable,
 };
 
+static struct pmbus_regulator_priv *
+pmbus_regulator_dev_priv(struct udevice *dev)
+{
+	if (!dev || !dev->driver || dev->driver->ops != &pmbus_regulator_ops)
+		return NULL;
+
+	return dev_get_priv(dev);
+}
+
 int pmbus_regulator_read_temp(struct udevice *reg_dev, int *temp_mc)
 {
 	struct pmbus_regulator_priv *priv;
@@ -153,7 +169,7 @@ int pmbus_regulator_read_temp(struct udevice *reg_dev, int *temp_mc)
 
 	if (!reg_dev || !temp_mc)
 		return -EINVAL;
-	priv = dev_get_priv(reg_dev);
+	priv = pmbus_regulator_dev_priv(reg_dev);
 	if (!priv || !priv->i2c_dev)
 		return -ENODEV;
 
@@ -175,6 +191,30 @@ int pmbus_regulator_read_temp(struct udevice *reg_dev, int *temp_mc)
 		udeg = pmbus_reg2data_linear11(raw);
 
 	*temp_mc = (int)(udeg / 1000);
+	return 0;
+}
+
+int pmbus_regulator_read_vout_command(struct udevice *reg_dev, int *uV)
+{
+	struct pmbus_regulator_priv *priv;
+	u8 vout_mode = 0;
+	u16 raw = 0;
+	int ret;
+
+	if (!reg_dev || !uV)
+		return -EINVAL;
+	priv = pmbus_regulator_dev_priv(reg_dev);
+	if (!priv || !priv->i2c_dev)
+		return -ENODEV;
+
+	ret = pmbus_regulator_select_page(priv);
+	if (ret)
+		return ret;
+	if (pmbus_read_byte(priv->i2c_dev, PMBUS_VOUT_MODE, &vout_mode) ||
+	    pmbus_read_word(priv->i2c_dev, PMBUS_VOUT_COMMAND, &raw))
+		return -EIO;
+
+	*uV = pmbus_regulator_vout_to_uv(priv, raw, vout_mode);
 	return 0;
 }
 

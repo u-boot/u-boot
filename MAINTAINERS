@@ -1451,7 +1451,8 @@ F:	drivers/power/
 F:	include/power/
 
 POWERPC
-S:	Orphan (Since 2022-10-21)
+M:	Bradley Morgan <brads@mainlining.org>
+S:	Maintained
 F:	arch/powerpc/
 
 POWERPC MPC8XX

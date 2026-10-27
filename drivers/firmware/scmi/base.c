@@ -338,7 +338,12 @@ static int scmi_base_discover_agent_int(struct udevice *dev, u32 agent_id,
 		.out_msg = (u8 *)&out,
 		.out_msg_sz = sizeof(out),
 	};
+	u32 dummy;
 	int ret;
+
+	ret = scmi_protocol_message_attrs_int(dev, SCMI_BASE_DISCOVER_AGENT, &dummy);
+	if (ret)
+		return -EOPNOTSUPP;
 
 	ret = devm_scmi_process_msg(dev, &msg);
 	if (ret)
