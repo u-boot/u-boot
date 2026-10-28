@@ -1234,6 +1234,10 @@ static int cleanup_nodes_for_efi(void *blob)
 #define OPTEE_SHM_SIZE 0x00400000
 static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 {
+	/* CAAM job ring reserved by OP-TEE on i.MX8M (CFG_JR_INDEX = 2) */
+	static const char * const optee_jr_path[] = {
+		"/soc@0/bus@30800000/crypto@30900000/jr@3000",
+	};
 	struct fdt_memory carveout;
 	const char *path, *subpath;
 	phys_addr_t optee_start;
@@ -1305,7 +1309,11 @@ static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 		return ret;
 	}
 
-	return 0;
+	/*
+	 * OP-TEE uses this job ring from the secure world. Disable it so
+	 * the OS does not try to probe a ring it cannot access.
+	 */
+	return disable_fdt_nodes(fdt, optee_jr_path, ARRAY_SIZE(optee_jr_path));
 }
 
 int ft_system_setup(void *blob, struct bd_info *bd)
