@@ -1671,8 +1671,10 @@ static int fit_handle_file(struct image_tool_params *params)
 			 MKIMAGE_DTC, params->dtc, tmpfile, params->datafile);
 		debug("Trying to execute \"%s\"\n", cmd);
 	} else {
-		snprintf(cmd, sizeof(cmd), "cp \"%s\" \"%s\"",
-			 params->imagefile, tmpfile);
+		/* Copy the image in process: mkimage must not need a shell. */
+		if (copyfile(params->imagefile, tmpfile) < 0)
+			goto err_system;
+		*cmd = '\0';
 	}
 	if (strlen(cmd) >= MKIMAGE_MAX_DTC_CMDLINE_LEN - 1) {
 		fprintf(stderr, "WARNING: command-line for FIT creation might be truncated and will probably fail.\n");
