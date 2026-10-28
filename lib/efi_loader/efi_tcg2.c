@@ -1168,8 +1168,8 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	efi_guid_t null_guid = NULL_GUID;
 	gpt_header *gpt_h;
 	gpt_entry *entry = NULL;
-	gpt_entry *gpt_e;
 	u32 num_of_valid_entry = 0;
+	u32 num_entries;
 	u32 event_size;
 	u32 i;
 
@@ -1235,17 +1235,15 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	}
 
 	/* count valid GPT entry */
-	gpt_e = entry;
-	for (i = 0; i < gpt_h->num_partition_entries; i++) {
-		if (guidcmp(&null_guid, &gpt_e->partition_type_guid))
+	num_entries = le32_to_cpu(gpt_h->num_partition_entries);
+	for (i = 0; i < num_entries; i++) {
+		if (guidcmp(&null_guid, &entry[i].partition_type_guid))
 			num_of_valid_entry++;
-
-		gpt_e = (gpt_entry *)((u8 *)gpt_e + gpt_h->sizeof_partition_entry);
 	}
 
 	/* prepare event data for measurement */
 	event_size = sizeof(struct efi_gpt_data) +
-		(num_of_valid_entry * gpt_h->sizeof_partition_entry);
+		(num_of_valid_entry * sizeof(gpt_entry));
 	event = calloc(1, event_size);
 	if (!event) {
 		ret = EFI_OUT_OF_RESOURCES;
@@ -1255,17 +1253,13 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	put_unaligned_le64(num_of_valid_entry, &event->number_of_partitions);
 
 	/* copy valid GPT entry */
-	gpt_e = entry;
 	num_of_valid_entry = 0;
-	for (i = 0; i < gpt_h->num_partition_entries; i++) {
-		if (guidcmp(&null_guid, &gpt_e->partition_type_guid)) {
-			memcpy((u8 *)event->partitions +
-			       (num_of_valid_entry * gpt_h->sizeof_partition_entry),
-			       gpt_e, gpt_h->sizeof_partition_entry);
+	for (i = 0; i < num_entries; i++) {
+		if (guidcmp(&null_guid, &entry[i].partition_type_guid)) {
+			memcpy(&event->partitions[num_of_valid_entry],
+			       &entry[i], sizeof(gpt_entry));
 			num_of_valid_entry++;
 		}
-
-		gpt_e = (gpt_entry *)((u8 *)gpt_e + gpt_h->sizeof_partition_entry);
 	}
 
 	ret = measure_event(dev, 5, EV_EFI_GPT_EVENT, event_size, (u8 *)event);
