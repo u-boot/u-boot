@@ -10,6 +10,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <event.h>
 #include <asm/arch-andes/csr.h>
 
 #ifdef CONFIG_ANDES_L2_CACHE
@@ -29,6 +30,20 @@ void enable_caches(void)
 			log_debug("Failed to enable Andes L2 cache\n");
 	}
 }
+
+/*
+ * In U-Boot proper, enable_caches() runs before driver model is set up
+ * again after relocation and cannot find the L2 cache device. Run it
+ * again once driver model is ready.
+ */
+static int andes_l2_init_r(void)
+{
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		enable_caches();
+
+	return 0;
+}
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_R, andes_l2_init_r);
 
 static void cache_ops(int (*ops)(struct udevice *dev))
 {
