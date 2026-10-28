@@ -31,6 +31,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/iopoll.h>
 #include <wait_bit.h>
 #include <spi.h>
 #include <spi-mem.h>
@@ -857,6 +858,7 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 	void *bounce_buf = NULL;
 	unsigned int write_bytes;
 	int ret;
+	u32 cr;
 
 	/*
 	 * Use bounce buffer for non 32 bit aligned txbuf to avoid data
@@ -870,8 +872,14 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 		bb_txbuf = bounce_buf;
 	}
 
-	/* Configure the indirect read transfer bytes */
+	/* Configure the indirect write transfer bytes */
 	writel(n_tx, priv->regbase + CQSPI_REG_INDIRECTWRBYTES);
+
+	/* Clear all interrupts */
+	writel(CQSPI_IRQ_STATUS_MASK, priv->regbase + CQSPI_REG_IRQSTATUS);
+
+	/* Enable the write related interrupt status bits */
+	writel(CQSPI_IRQ_MASK_WR, priv->regbase + CQSPI_REG_IRQMASK);
 
 	/* Start the indirect write transfer */
 	writel(CQSPI_REG_INDIRECTWR_START,
@@ -891,9 +899,9 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 				bb_txbuf + rounddown(write_bytes, 4),
 				write_bytes % 4);
 
-		ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_SDRAMLEVEL,
-					CQSPI_REG_SDRAMLEVEL_WR_MASK <<
-					CQSPI_REG_SDRAMLEVEL_WR_LSB, 0, 10, 0);
+		ret = readl_poll_timeout(priv->regbase + CQSPI_REG_IRQSTATUS,
+					 cr, cr & CQSPI_REG_IRQ_IND_COMP,
+					 CQSPI_IND_WR_TIMEOUT_MS * 1000);
 		if (ret) {
 			printf("Indirect write timed out (%i)\n", ret);
 			goto failwr;
@@ -905,11 +913,15 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 
 	/* Check indirect done status */
 	ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_INDIRECTWR,
-				CQSPI_REG_INDIRECTWR_DONE, 1, 10, 0);
+				CQSPI_REG_INDIRECTWR_DONE, 1,
+				CQSPI_IND_WR_TIMEOUT_MS, 0);
 	if (ret) {
 		printf("Indirect write completion error (%i)\n", ret);
 		goto failwr;
 	}
+
+	/* Disable the interrupt status bits */
+	writel(0, priv->regbase + CQSPI_REG_IRQMASK);
 
 	/* Clear indirect completion status */
 	writel(CQSPI_REG_INDIRECTWR_DONE,
@@ -917,7 +929,8 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 
 	/* Check indirect done status */
 	ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_INDIRECTWR,
-				CQSPI_REG_INDIRECTWR_DONE, 0, 10, 0);
+				CQSPI_REG_INDIRECTWR_DONE, 0,
+				CQSPI_IND_WR_TIMEOUT_MS, 0);
 	if (ret) {
 		printf("Indirect write clear completion error (%i)\n", ret);
 		goto failwr;
@@ -933,6 +946,9 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 	return 0;
 
 failwr:
+	/* Disable the interrupt status bits */
+	writel(0, priv->regbase + CQSPI_REG_IRQMASK);
+
 	/* Cancel the indirect write */
 	writel(CQSPI_REG_INDIRECTWR_CANCEL,
 	       priv->regbase + CQSPI_REG_INDIRECTWR);
