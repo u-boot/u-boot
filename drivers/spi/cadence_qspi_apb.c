@@ -934,10 +934,14 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 	while (remaining > 0) {
 		write_bytes = remaining > page_size ? page_size : remaining;
 		writesl(priv->ahbbase, bb_txbuf, write_bytes >> 2);
-		if (write_bytes % 4)
-			writesb(priv->ahbbase,
-				bb_txbuf + rounddown(write_bytes, 4),
-				write_bytes % 4);
+		if (write_bytes % 4) {
+			/* Pad with 0xff, which leaves the flash bits unchanged */
+			u32 temp = U32_MAX;
+
+			memcpy(&temp, bb_txbuf + rounddown(write_bytes, 4),
+			       write_bytes % 4);
+			writel(temp, priv->ahbbase);
+		}
 
 		ret = readl_poll_timeout(priv->regbase + CQSPI_REG_IRQSTATUS,
 					 cr, cr & CQSPI_REG_IRQ_IND_COMP,
