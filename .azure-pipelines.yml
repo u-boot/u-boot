@@ -1,6 +1,6 @@
 variables:
   ubuntu_vm: ubuntu-24.04
-  macos_vm: macOS-14
+  macos_vm: macOS-26
   ci_runner_image: trini/u-boot-gitlab-ci-runner:noble-20251013-23Jan2026
   # Ensure we do a shallow clone
   Agent.Source.Git.ShallowFetchDepth: 1
