@@ -44,6 +44,10 @@ static void cache_ops(int (*ops)(struct udevice *dev))
 void flush_dcache_all(void)
 {
 	csr_write(CSR_UCCTLCOMMAND, CCTL_L1D_WBINVAL_ALL);
+
+#ifdef CONFIG_ANDES_L2_CACHE
+	cache_ops(cache_flush_all);
+#endif
 }
 
 void flush_dcache_range(unsigned long start, unsigned long end)
