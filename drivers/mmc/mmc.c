@@ -2555,7 +2555,7 @@ error:
 static int mmc_startup(struct mmc *mmc)
 {
 	int err, i;
-	uint mult, freq;
+	uint mult, freq, bl_len;
 	u64 cmult, csize;
 	struct mmc_cmd cmd;
 	struct blk_desc *bdesc;
@@ -2652,14 +2652,7 @@ static int mmc_startup(struct mmc *mmc)
 	mmc_select_mode(mmc, MMC_LEGACY);
 
 	mmc->dsr_imp = ((cmd.response[1] >> 12) & 0x1);
-	mmc->read_bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);
-#if CONFIG_IS_ENABLED(MMC_WRITE)
-
-	if (IS_SD(mmc))
-		mmc->write_bl_len = mmc->read_bl_len;
-	else
-		mmc->write_bl_len = 1 << ((cmd.response[3] >> 22) & 0xf);
-#endif
+	bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);
 
 	if (mmc->high_capacity) {
 		csize = (mmc->csd[1] & 0x3f) << 16
@@ -2672,18 +2665,21 @@ static int mmc_startup(struct mmc *mmc)
 	}
 
 	mmc->capacity_user = (csize + 1) << (cmult + 2);
-	mmc->capacity_user *= mmc->read_bl_len;
+	mmc->capacity_user *= bl_len;
 	mmc->capacity_boot = 0;
 	mmc->capacity_rpmb = 0;
 	for (i = 0; i < 4; i++)
 		mmc->capacity_gp[i] = 0;
 
-	if (mmc->read_bl_len > MMC_MAX_BLOCK_LEN)
-		mmc->read_bl_len = MMC_MAX_BLOCK_LEN;
-
+	/*
+	 * Use 512-byte blocks whatever READ_BL_LEN and WRITE_BL_LEN say. A
+	 * larger value is the most the card takes in one block, and a smaller
+	 * one, which the SD specification reserves, would give the block
+	 * device a block size the partition and filesystem code cannot use.
+	 */
+	mmc->read_bl_len = MMC_MAX_BLOCK_LEN;
 #if CONFIG_IS_ENABLED(MMC_WRITE)
-	if (mmc->write_bl_len > MMC_MAX_BLOCK_LEN)
-		mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
+	mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
 #endif
 
 	if ((mmc->dsr_imp) && (0xffffffff != mmc->dsr)) {
@@ -2764,14 +2760,6 @@ static int mmc_startup(struct mmc *mmc)
 		return err;
 
 	mmc->best_mode = mmc->selected_mode;
-
-	/* Fix the block length for DDR mode */
-	if (mmc->ddr_mode) {
-		mmc->read_bl_len = MMC_MAX_BLOCK_LEN;
-#if CONFIG_IS_ENABLED(MMC_WRITE)
-		mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
-#endif
-	}
 
 	/* fill in device description */
 	bdesc = mmc_get_blk_desc(mmc);
