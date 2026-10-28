@@ -33,6 +33,8 @@
 #define CQSPI_DUMMY_BYTES_MAX                   4
 #define CQSPI_DUMMY_CLKS_MAX                    31
 
+#define CQSPI_TAP_GRAN_SEL_MIN_FREQ		120000000
+
 #define CMD_4BYTE_FAST_READ			0x0C
 #define CMD_4BYTE_OCTAL_READ			0x7c
 #define CMD_4BYTE_READ				0x13
@@ -118,6 +120,8 @@
 
 #define CQSPI_REG_IRQSTATUS                     0x40
 #define CQSPI_REG_IRQMASK                       0x44
+#define CQSPI_REG_ECO                           0x48
+#define CQSPI_REG_ECO_TAP_GRAN_SEL              BIT(0)
 
 #define CQSPI_REG_INDIRECTRD                    0x60
 #define CQSPI_REG_INDIRECTRD_START              BIT(0)

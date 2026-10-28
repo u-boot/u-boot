@@ -381,6 +381,15 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_priv *priv)
 		 << CQSPI_REG_CONFIG_CHIPSELECT_LSB);
 	writel(reg, priv->regbase + CQSPI_REG_CONFIG);
 
+	/*
+	 * Versal OSPI needs the tap granularity selection in the ECO
+	 * register for reference clocks of 120 MHz and above.
+	 */
+	if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
+	    priv->ref_clk_hz >= CQSPI_TAP_GRAN_SEL_MIN_FREQ)
+		writel(CQSPI_REG_ECO_TAP_GRAN_SEL,
+		       priv->regbase + CQSPI_REG_ECO);
+
 	cadence_qspi_apb_controller_enable(priv->regbase);
 }
 
