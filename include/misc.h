@@ -6,7 +6,11 @@
 #ifndef _MISC_H_
 #define _MISC_H_
 
+#include <linux/errno.h>
+
 struct udevice;
+
+#if CONFIG_IS_ENABLED(MISC)
 
 /**
  * misc_read() - Read the device to buffer, optional.
@@ -77,6 +81,39 @@ int misc_call(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
  *	   previous state was "enabled"
  */
 int misc_set_enabled(struct udevice *dev, bool val);
+
+#else /* !MISC */
+
+static inline int misc_read(struct udevice *dev, int offset, void *buf,
+			    int size)
+{
+	return -ENOSYS;
+}
+
+static inline int misc_write(struct udevice *dev, int offset,
+			     const void *buf, int size)
+{
+	return -ENOSYS;
+}
+
+static inline int misc_ioctl(struct udevice *dev, unsigned long request,
+			     void *buf)
+{
+	return -ENOSYS;
+}
+
+static inline int misc_call(struct udevice *dev, int msgid, void *tx_msg,
+			    int tx_size, void *rx_msg, int rx_size)
+{
+	return -ENOSYS;
+}
+
+static inline int misc_set_enabled(struct udevice *dev, bool val)
+{
+	return -ENOSYS;
+}
+
+#endif /* MISC */
 
 /*
  * struct misc_ops - Driver model Misc operations
