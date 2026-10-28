@@ -1295,6 +1295,10 @@ static int sqfs_split_path(char **file, char **dir, const char *path)
 
 	*file = NULL;
 	*dir = NULL;
+
+	if (!path)
+		return -EINVAL;
+
 	dirc = NULL;
 	basec = NULL;
 	bname = NULL;
@@ -1561,6 +1565,10 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 		dirs->entry = NULL;
 		sqfs_closedir(dirsp);
 		dirsp = NULL;
+		if (!resolved) {
+			ret = -EINVAL;
+			goto out;
+		}
 		ret = sqfs_read_nest(resolved, buf, offset, len, actread);
 		free(resolved);
 		goto out;
@@ -1848,6 +1856,10 @@ static int sqfs_size_nest(const char *filename, loff_t *size)
 		 */
 		sqfs_closedir(dirsp);
 		dirsp = NULL;
+		if (!resolved) {
+			ret = -EINVAL;
+			break;
+		}
 		ret = sqfs_size(resolved, size);
 		free(resolved);
 		break;
