@@ -344,11 +344,34 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_priv *priv)
 	/* Configure the remap address register, no remap */
 	writel(0, priv->regbase + CQSPI_REG_REMAP);
 
+	/* Clear the read instruction register */
+	writel(0, priv->regbase + CQSPI_REG_RD_INSTR);
+
+	/* Reset the PHY delay lines */
+	writel(CQSPI_REG_PHY_CONFIG_RESET_FLD_MASK,
+	       priv->regbase + CQSPI_REG_PHY_CONFIG);
+
+	/* Disable the DQS and clear the read capture delay */
+	reg = readl(priv->regbase + CQSPI_REG_RD_DATA_CAPTURE);
+	reg &= ~CQSPI_REG_READCAPTURE_DQS_ENABLE;
+	reg &= ~(CQSPI_REG_RD_DATA_CAPTURE_DELAY_MASK
+		 << CQSPI_REG_RD_DATA_CAPTURE_DELAY_LSB);
+	writel(reg, priv->regbase + CQSPI_REG_RD_DATA_CAPTURE);
+
 	/* Indirect mode configurations */
 	writel(priv->fifo_depth / 2, priv->regbase + CQSPI_REG_SRAMPARTITION);
 
 	/* Disable all interrupts */
 	writel(0, priv->regbase + CQSPI_REG_IRQMASK);
+
+	/* Disable DTR, PHY and direct access mode, clear the chip select */
+	reg = readl(priv->regbase + CQSPI_REG_CONFIG);
+	reg &= ~CQSPI_REG_CONFIG_DTR_PROT_EN_MASK;
+	reg &= ~CQSPI_REG_CONFIG_PHY_ENABLE_MASK;
+	reg &= ~CQSPI_REG_CONFIG_DIRECT;
+	reg &= ~(CQSPI_REG_CONFIG_CHIPSELECT_MASK
+		 << CQSPI_REG_CONFIG_CHIPSELECT_LSB);
+	writel(reg, priv->regbase + CQSPI_REG_CONFIG);
 
 	cadence_qspi_apb_controller_enable(priv->regbase);
 }
