@@ -42,6 +42,14 @@ struct cache_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*disable)(struct udevice *dev);
+
+	/**
+	 * flush_all() - Write back and invalidate the whole cache
+	 *
+	 * @dev:	Device to check (UCLASS_CACHE)
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*flush_all)(struct udevice *dev);
 };
 
 #define cache_get_ops(dev)	((struct cache_ops *)(dev)->driver->ops)
@@ -70,4 +78,12 @@ int cache_enable(struct udevice *dev);
  * Return: 0 if OK, -ve on error
  */
 int cache_disable(struct udevice *dev);
+
+/**
+ * cache_flush_all() - Write back and invalidate the whole cache
+ *
+ * @dev:	Device to check (UCLASS_CACHE)
+ * Return: 0 if OK, -ve on error
+ */
+int cache_flush_all(struct udevice *dev);
 #endif
