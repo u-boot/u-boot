@@ -1456,6 +1456,7 @@ F:	include/power/
 POWERPC
 M:	Bradley Morgan <brads@mainlining.org>
 S:	Maintained
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-ppc.git
 F:	arch/powerpc/
 N:	mpc8
 
