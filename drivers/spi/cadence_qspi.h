@@ -192,6 +192,7 @@
 #define CQSPI_DFLT_DMA_PERIPH_CFG               0x602
 #define CQSPI_DFLT_DST_CTRL_REG_VAL             0xF43FFA00
 
+#define CQSPI_DMA_DST_STS_BUSY                  BIT(0)
 #define CQSPI_DMA_DST_I_STS_DONE                BIT(1)
 #define CQSPI_DMA_TIMEOUT                       10000000
 
