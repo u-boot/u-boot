@@ -91,7 +91,7 @@ static int andes_l2_enable(struct udevice *dev)
 	return 0;
 }
 
-static int andes_l2_disable(struct udevice *dev)
+static int andes_l2_flush_all(struct udevice *dev)
 {
 	struct andes_l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
@@ -109,8 +109,19 @@ static int andes_l2_disable(struct udevice *dev)
 				hang();
 			}
 		}
-		clrbits_le32(&regs->control, L2_ENABLE);
 	}
+
+	return 0;
+}
+
+static int andes_l2_disable(struct udevice *dev)
+{
+	struct andes_l2_plat *plat = dev_get_plat(dev);
+	struct l2cache *regs = plat->regs;
+
+	andes_l2_flush_all(dev);
+	if (regs)
+		clrbits_le32(&regs->control, L2_ENABLE);
 
 	return 0;
 }
@@ -192,6 +203,7 @@ static const struct udevice_id andes_l2_cache_ids[] = {
 static const struct cache_ops andes_l2_cache_ops = {
 	.enable		= andes_l2_enable,
 	.disable	= andes_l2_disable,
+	.flush_all	= andes_l2_flush_all,
 };
 
 U_BOOT_DRIVER(andes_l2_cache) = {
