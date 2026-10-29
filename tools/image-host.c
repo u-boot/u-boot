@@ -1763,7 +1763,7 @@ int fit_pre_load_data(const char *keydir, void *keydest, void *fit)
 	int pre_load_noffset;
 	const char *algo_name;
 	const char *key_name;
-	char *name;
+	const char *name;
 	int ret;
 
 	if (!keydir || !keydest || !fit)
