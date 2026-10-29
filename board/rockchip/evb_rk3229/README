@@ -3,7 +3,7 @@ Get the Source and prebuild binary
 
   > mkdir ~/evb_rk3229
   > cd ~/evb_rk3229
-  > git clone git://git.denx.de/u-boot.git
+  > git clone https://git.u-boot-project.org/u-boot/u-boot.git
   > git clone https://github.com/OP-TEE/optee_os.git
   > git clone https://github.com/rockchip-linux/rkbin.git
   > git clone https://github.com/rockchip-linux/rkdeveloptool.git

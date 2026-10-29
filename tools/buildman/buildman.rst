@@ -179,7 +179,7 @@ Setting up
    .. code-block:: bash
 
       cd /path/to/u-boot
-      git clone git://git.denx.de/u-boot.git .
+      git clone https://git.u-boot-project.org/u-boot/u-boot.git .
       git checkout -b my-branch origin/main
       # Add some commits to the branch, reading for testing
 
