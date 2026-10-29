@@ -42,51 +42,55 @@ struct rpmb_dev_info {
 
 static void release_mmc(struct optee_private *priv)
 {
-	int rc;
-
 	if (!priv->rpmb_mmc)
 		return;
-
-	rc = blk_select_hwpart_devnum(UCLASS_MMC, priv->rpmb_dev_id,
-				      priv->rpmb_original_part);
-	if (rc)
-		debug("%s: blk_select_hwpart_devnum() failed: %d\n",
-		      __func__, rc);
 
 	priv->rpmb_mmc = NULL;
 }
 
+/*
+ * The RPMB hardware partition is selected for the duration of a single
+ * request only. Between two requests other users of the same eMMC, for
+ * instance libavb reading the user area while verifying a chain of
+ * partitions, switch the device back to the user area. Keeping RPMB
+ * selected across requests would make those reads, and the following RPMB
+ * frames, hit the wrong partition. get_mmc() therefore selects the RPMB
+ * partition on every call, and restore_part() puts the previous one back
+ * once the frames have been routed.
+ */
 static struct mmc *get_mmc(struct optee_private *priv, int dev_id)
 {
 	struct mmc *mmc;
 	int rc;
 
-	if (priv->rpmb_mmc && priv->rpmb_dev_id == dev_id)
-		return priv->rpmb_mmc;
+	if (!priv->rpmb_mmc || priv->rpmb_dev_id != dev_id) {
+		release_mmc(priv);
 
-	release_mmc(priv);
+		mmc = find_mmc_device(dev_id);
+		if (!mmc) {
+			debug("Cannot find RPMB device\n");
+			return NULL;
+		}
+		if (mmc_init(mmc)) {
+			log(LOGC_BOARD, LOGL_ERR, "%s:MMC device %d init failed\n",
+			    __func__, dev_id);
+			return NULL;
+		}
+		if (!(mmc->version & MMC_VERSION_MMC)) {
+			debug("Device id %d is not an eMMC device\n", dev_id);
+			return NULL;
+		}
+		if (mmc->version < MMC_VERSION_4_41) {
+			debug("Device id %d: RPMB not supported before version 4.41\n",
+			      dev_id);
+			return NULL;
+		}
 
-	mmc = find_mmc_device(dev_id);
-	if (!mmc) {
-		debug("Cannot find RPMB device\n");
-		return NULL;
-	}
-	if (mmc_init(mmc)) {
-		log(LOGC_BOARD, LOGL_ERR, "%s:MMC device %d init failed\n", __func__, dev_id);
-		return NULL;
-	}
-	if (!(mmc->version & MMC_VERSION_MMC)) {
-		debug("Device id %d is not an eMMC device\n", dev_id);
-		return NULL;
-	}
-	if (mmc->version < MMC_VERSION_4_41) {
-		debug("Device id %d: RPMB not supported before version 4.41\n",
-		      dev_id);
-		return NULL;
+		priv->rpmb_mmc = mmc;
+		priv->rpmb_dev_id = dev_id;
 	}
 
-	priv->rpmb_original_part = mmc_get_blk_desc(mmc)->hwpart;
-
+	priv->rpmb_original_part = mmc_get_blk_desc(priv->rpmb_mmc)->hwpart;
 	rc = blk_select_hwpart_devnum(UCLASS_MMC, dev_id, MMC_PART_RPMB);
 	if (rc) {
 		debug("Device id %d: cannot select RPMB partition: %d\n",
@@ -94,9 +98,18 @@ static struct mmc *get_mmc(struct optee_private *priv, int dev_id)
 		return NULL;
 	}
 
-	priv->rpmb_mmc = mmc;
-	priv->rpmb_dev_id = dev_id;
-	return mmc;
+	return priv->rpmb_mmc;
+}
+
+static void restore_part(struct optee_private *priv)
+{
+	int rc;
+
+	rc = blk_select_hwpart_devnum(UCLASS_MMC, priv->rpmb_dev_id,
+				      priv->rpmb_original_part);
+	if (rc)
+		debug("%s: blk_select_hwpart_devnum() failed: %d\n",
+		      __func__, rc);
 }
 
 static u32 rpmb_get_dev_info(u16 dev_id, struct rpmb_dev_info *info)
@@ -130,6 +143,7 @@ static u32 rpmb_process_request(struct optee_private *priv, void *req,
 {
 	struct rpmb_req *sreq = req;
 	struct mmc *mmc;
+	int rc;
 
 	if (req_size < sizeof(*sreq))
 		return TEE_ERROR_BAD_PARAMETERS;
@@ -139,9 +153,11 @@ static u32 rpmb_process_request(struct optee_private *priv, void *req,
 		mmc = get_mmc(priv, sreq->dev_id);
 		if (!mmc)
 			return TEE_ERROR_ITEM_NOT_FOUND;
-		if (mmc_rpmb_route_frames(mmc, RPMB_REQ_DATA(req),
-					  req_size - sizeof(struct rpmb_req),
-					  rsp, rsp_size))
+		rc = mmc_rpmb_route_frames(mmc, RPMB_REQ_DATA(req),
+					   req_size - sizeof(struct rpmb_req),
+					   rsp, rsp_size);
+		restore_part(priv);
+		if (rc)
 			return TEE_ERROR_BAD_PARAMETERS;
 		return TEE_SUCCESS;
 
