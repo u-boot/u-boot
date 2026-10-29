@@ -30,6 +30,7 @@
 #define BCB_PART_NAME "misc"
 #define BOOT_PART_NAME "boot"
 #define VENDOR_BOOT_PART_NAME "vendor_boot"
+#define INIT_BOOT_PART_NAME "init_boot"
 #define SLOT_LEN 2
 
 /**
@@ -41,6 +42,16 @@
  * @boot_mode: Requested boot mode (normal, recovery, bootloader)
  * @slot: Nul-terminated partition slot suffix read from BCB ("a\0" or "b\0")
  * @header_version: Android boot image header version
+ * @boot_img_size: Size of the boot image (from its header)
+ * @vendor_boot_img_size: Size of the vendor_boot image, header version >= 3
+ * @init_boot_img_size: Size of the init_boot image, header version >= 4 and
+ *	the partition exists (0 otherwise)
+ * @boot_addr: Where the boot image was loaded (0 if not loaded)
+ * @boot_part_size: Size of the boot partition in bytes
+ * @vendor_boot_addr: Where the vendor_boot image was loaded (0 if not loaded)
+ * @vendor_boot_part_size: Size of the vendor_boot partition in bytes
+ * @init_boot_addr: Where the init_boot image was loaded (0 if not loaded)
+ * @init_boot_part_size: Size of the init_boot partition in bytes
  */
 struct android_priv {
 	enum android_boot_mode boot_mode;
@@ -48,11 +59,13 @@ struct android_priv {
 	u32 header_version;
 	u32 boot_img_size;
 	u32 vendor_boot_img_size;
-	/* Where boot and vendor_boot were loaded, and the partition sizes */
+	u32 init_boot_img_size;
 	ulong boot_addr;
 	ulong boot_part_size;
 	ulong vendor_boot_addr;
 	ulong vendor_boot_part_size;
+	ulong init_boot_addr;
+	ulong init_boot_part_size;
 };
 
 static int android_check(struct udevice *dev, struct bootflow_iter *iter)
@@ -71,7 +84,25 @@ static int android_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
-static int scan_boot_part(struct udevice *blk, struct android_priv *priv)
+/**
+ * scan_image_part() - Read and check the header of an Android image partition
+ *
+ * @blk: Block device holding the partition
+ * @name: Partition name without the slot suffix
+ * @slot: Nul-terminated slot suffix ("a\0") or NULL without A/B
+ * @hdr_size: Size of the image header to read
+ * @is_hdr: Checks the magic of the header
+ * @get_size: Computes the image size from the header
+ * @img_sizep: Returns the image size
+ * @hdr_versionp: If not NULL, returns the boot image header version
+ * Return: 0 if OK, -ENOENT if the partition does not exist, other negative
+ *	errno on failure
+ */
+static int scan_image_part(struct udevice *blk, const char *name,
+			   const char *slot, ulong hdr_size,
+			   bool (*is_hdr)(const void *),
+			   bool (*get_size)(const void *, u32 *),
+			   u32 *img_sizep, u32 *hdr_versionp)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(blk);
 	struct disk_partition partition;
@@ -80,16 +111,16 @@ static int scan_boot_part(struct udevice *blk, struct android_priv *priv)
 	char *buf;
 	int ret;
 
-	if (priv->slot)
-		sprintf(partname, BOOT_PART_NAME "_%s", priv->slot);
+	if (slot)
+		snprintf(partname, sizeof(partname), "%s_%s", name, slot);
 	else
-		sprintf(partname, BOOT_PART_NAME);
+		snprintf(partname, sizeof(partname), "%s", name);
 
 	ret = part_get_info_by_name(desc, partname, &partition);
 	if (ret < 0)
-		return log_msg_ret("part info", ret);
+		return log_msg_ret("part info", -ENOENT);
 
-	num_blks = DIV_ROUND_UP(sizeof(struct andr_boot_img_hdr_v0), desc->blksz);
+	num_blks = DIV_ROUND_UP(hdr_size, desc->blksz);
 	bufsz = num_blks * desc->blksz;
 	buf = malloc(bufsz);
 	if (!buf)
@@ -101,66 +132,53 @@ static int scan_boot_part(struct udevice *blk, struct android_priv *priv)
 		return log_msg_ret("part read", -EIO);
 	}
 
-	if (!is_android_boot_image_header(buf)) {
+	if (!is_hdr(buf)) {
 		free(buf);
-		return log_msg_ret("header", -ENOENT);
+		return log_msg_ret("header", -EINVAL);
 	}
 
-	if (!android_image_get_bootimg_size(buf, &priv->boot_img_size)) {
+	if (!get_size(buf, img_sizep)) {
 		free(buf);
-		return log_msg_ret("get bootimg size", -EINVAL);
+		return log_msg_ret("get image size", -EINVAL);
 	}
 
-	priv->header_version = ((struct andr_boot_img_hdr_v0 *)buf)->header_version;
+	if (hdr_versionp)
+		*hdr_versionp = ((struct andr_boot_img_hdr_v0 *)buf)->header_version;
 
 	free(buf);
 
 	return 0;
 }
 
+static int scan_boot_part(struct udevice *blk, struct android_priv *priv)
+{
+	return scan_image_part(blk, BOOT_PART_NAME, priv->slot,
+			       sizeof(struct andr_boot_img_hdr_v0),
+			       is_android_boot_image_header,
+			       android_image_get_bootimg_size,
+			       &priv->boot_img_size, &priv->header_version);
+}
+
 static int scan_vendor_boot_part(struct udevice *blk, struct android_priv *priv)
 {
-	struct blk_desc *desc = dev_get_uclass_plat(blk);
-	struct disk_partition partition;
-	char partname[PART_NAME_LEN];
-	ulong num_blks, bufsz;
-	char *buf;
-	int ret;
+	return scan_image_part(blk, VENDOR_BOOT_PART_NAME, priv->slot,
+			       sizeof(struct andr_vnd_boot_img_hdr),
+			       is_android_vendor_boot_image_header,
+			       android_image_get_vendor_bootimg_size,
+			       &priv->vendor_boot_img_size, NULL);
+}
 
-	if (priv->slot)
-		sprintf(partname, VENDOR_BOOT_PART_NAME "_%s", priv->slot);
-	else
-		sprintf(partname, VENDOR_BOOT_PART_NAME);
-
-	ret = part_get_info_by_name(desc, partname, &partition);
-	if (ret < 0)
-		return log_msg_ret("part info", ret);
-
-	num_blks = DIV_ROUND_UP(sizeof(struct andr_vnd_boot_img_hdr), desc->blksz);
-	bufsz = num_blks * desc->blksz;
-	buf = malloc(bufsz);
-	if (!buf)
-		return log_msg_ret("buf", -ENOMEM);
-
-	ret = blk_read(blk, partition.start, num_blks, buf);
-	if (ret != num_blks) {
-		free(buf);
-		return log_msg_ret("part read", -EIO);
-	}
-
-	if (!is_android_vendor_boot_image_header(buf)) {
-		free(buf);
-		return log_msg_ret("header", -ENOENT);
-	}
-
-	if (!android_image_get_vendor_bootimg_size(buf, &priv->vendor_boot_img_size)) {
-		free(buf);
-		return log_msg_ret("get vendor bootimg size", -EINVAL);
-	}
-
-	free(buf);
-
-	return 0;
+/*
+ * init_boot carries the generic ramdisk since Android 13 (boot image header
+ * version 4) and uses the boot image format, with a kernel size of 0.
+ */
+static int scan_init_boot_part(struct udevice *blk, struct android_priv *priv)
+{
+	return scan_image_part(blk, INIT_BOOT_PART_NAME, priv->slot,
+			       sizeof(struct andr_boot_img_hdr_v0),
+			       is_android_boot_image_header,
+			       android_image_get_bootimg_size,
+			       &priv->init_boot_img_size, NULL);
 }
 
 static int android_read_slot_from_bcb(struct bootflow *bflow, bool decrement)
@@ -305,6 +323,22 @@ static int android_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	}
 
 	/*
+	 * Header version 4 devices normally have init_boot, but a device may
+	 * still keep the generic ramdisk in boot: a missing partition is not
+	 * an error, a broken one is.
+	 */
+	if (priv->header_version >= 4) {
+		ret = scan_init_boot_part(bflow->blk, priv);
+		if (ret == -ENOENT) {
+			log_debug("no init_boot partition\n");
+			priv->init_boot_img_size = 0;
+		} else if (ret < 0) {
+			log_debug("scan init_boot failed: err=%d\n", ret);
+			goto free_priv;
+		}
+	}
+
+	/*
 	 * Ignoring return code for the following configurations:
 	 * these are not mandatory for booting.
 	 */
@@ -442,7 +476,9 @@ static int run_avb_verification(struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
 	struct android_priv *priv = bflow->bootmeth_priv;
-	const char * const requested_partitions[] = {"boot", "vendor_boot", NULL};
+	/* boot, vendor_boot, init_boot and the terminator */
+	const char *requested_partitions[4];
+	int num_requested = 0;
 	struct AvbOps *avb_ops;
 	AvbSlotVerifyResult result;
 	AvbSlotVerifyData *out_data = NULL;
@@ -461,10 +497,21 @@ static int run_avb_verification(struct bootflow *bflow)
 		sprintf(slot_suffix, "_%s", priv->slot);
 
 	/*
-	 * Hand libavb the buffers boot and vendor_boot were loaded into by
+	 * Verify what gets booted: boot always, vendor_boot from header version
+	 * 3 and init_boot when the device has one (header version 4). All of
+	 * them are hash partitions in vbmeta.
+	 */
+	requested_partitions[num_requested++] = BOOT_PART_NAME;
+	if (priv->header_version >= 3)
+		requested_partitions[num_requested++] = VENDOR_BOOT_PART_NAME;
+	if (priv->init_boot_addr)
+		requested_partitions[num_requested++] = INIT_BOOT_PART_NAME;
+	requested_partitions[num_requested] = NULL;
+
+	/*
+	 * Hand libavb the buffers the images were loaded into by
 	 * boot_android_normal(), so the bytes it hashes are the bytes that get
-	 * booted and the partitions are read only once. vendor_boot exists from
-	 * boot image header version 3 on.
+	 * booted and the partitions are read only once.
 	 */
 	snprintf(partname, sizeof(partname), "boot%s", slot_suffix);
 	ret = avb_ops_add_preloaded(avb_ops, partname,
@@ -483,6 +530,18 @@ static int run_avb_verification(struct bootflow *bflow)
 					    priv->vendor_boot_part_size);
 		if (ret) {
 			ret = log_msg_ret("avb preload vendor_boot", ret);
+			goto out;
+		}
+	}
+	if (priv->init_boot_addr) {
+		snprintf(partname, sizeof(partname), "init_boot%s",
+			 slot_suffix);
+		ret = avb_ops_add_preloaded(avb_ops, partname,
+					    map_sysmem(priv->init_boot_addr, 0),
+					    priv->init_boot_img_size,
+					    priv->init_boot_part_size);
+		if (ret) {
+			ret = log_msg_ret("avb preload init_boot", ret);
 			goto out;
 		}
 	}
@@ -602,6 +661,7 @@ static int boot_android_normal(struct bootflow *bflow)
 	int ret;
 	ulong loadaddr = env_get_hex("loadaddr", 0);
 	ulong vloadaddr = env_get_hex("vendor_boot_comp_addr_r", 0);
+	ulong iloadaddr = env_get_hex("init_boot_comp_addr_r", 0);
 
 	/*
 	 * Load the images first and verify them in place: libavb hashes these
@@ -623,6 +683,19 @@ static int boot_android_normal(struct bootflow *bflow)
 		priv->vendor_boot_addr = vloadaddr;
 	}
 
+	if (priv->init_boot_img_size) {
+		if (!iloadaddr) {
+			log_err("init_boot_comp_addr_r is not set\n");
+			return log_msg_ret("init_boot addr", -EINVAL);
+		}
+		ret = read_slotted_partition(desc, "init_boot", priv->slot,
+					     priv->init_boot_img_size, iloadaddr,
+					     &priv->init_boot_part_size);
+		if (ret < 0)
+			return log_msg_ret("read init_boot", ret);
+		priv->init_boot_addr = iloadaddr;
+	}
+
 	ret = run_avb_verification(bflow);
 	if (ret < 0)
 		return log_msg_ret("avb", ret);
@@ -634,6 +707,8 @@ static int boot_android_normal(struct bootflow *bflow)
 
 	if (priv->header_version >= 3)
 		set_avendor_bootimg_addr(vloadaddr);
+	/* bootm takes the generic ramdisk from init_boot when set */
+	set_ainit_bootimg_addr(priv->init_boot_addr ? iloadaddr : -1);
 	set_abootimg_addr(loadaddr);
 
 	if (priv->slot)

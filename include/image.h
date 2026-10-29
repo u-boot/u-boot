@@ -2210,9 +2210,17 @@ void set_abootimg_addr(ulong addr);
 /**
  * get_ainit_bootimg_addr() - Get Android init boot image address
  *
- * Return: Android init boot image address
+ * Return: Android init boot image address, -1 if there is none
  */
 ulong get_ainit_bootimg_addr(void);
+
+/**
+ * set_ainit_bootimg_addr() - Set Android init boot image address
+ *
+ * @addr: Address of the init_boot image, -1 if the ramdisk is in the boot
+ *	image
+ */
+void set_ainit_bootimg_addr(ulong addr);
 
 /**
  * get_avendor_bootimg_addr() - Get Android vendor boot image address
