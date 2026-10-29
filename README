@@ -59,10 +59,7 @@ https://git.u-boot-project.org/u-boot/u-boot
 
 The "Tags" links on this page allow you to download tarballs of
 any version you might be interested in. Official releases are also
-available from the DENX file server through HTTPS or FTP.
-https://ftp.denx.de/pub/u-boot/
-ftp://ftp.denx.de/pub/u-boot/
-
+available from the OSUOSL file server through HTTPS: https://u-boot.osuosl.org/.
 
 Where we come from:
 ===================
