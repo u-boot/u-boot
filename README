@@ -47,8 +47,8 @@ In case you have questions about, problems with or contributions for
 U-Boot, you should send a message to the U-Boot mailing list at
 <u-boot@lists.u-boot-project.org>. There is also an archive of previous traffic
 on the mailing list - please search the archive before asking FAQ's.
-Please see https://lists.u-boot-project.org/pipermail/u-boot and
-https://marc.info/?l=u-boot
+Please see https://lists.u-boot-project.org/pipermail/u-boot,
+https://lore.kernel.org/u-boot/ and https://marc.info/?l=u-boot
 
 Where to get source code:
 =========================
