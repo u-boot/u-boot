@@ -48,7 +48,7 @@
 #define CCGR_DDRMIX			CCGR_DDR1
 #endif
 
-static bool ddrmix_initialized;
+static bool ddrmix_initialized __section(".data");
 
 static unsigned int g_cdd_rr_max[4];
 static unsigned int g_cdd_rw_max[4];
