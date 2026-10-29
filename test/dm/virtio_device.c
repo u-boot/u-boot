@@ -100,6 +100,7 @@ DM_TEST(dm_test_virtio_all_ops, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 static int dm_test_virtio_remove(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
+	struct virtio_dev_priv *uc_priv;
 	u8 status;
 
 	/* check probe success */
@@ -110,16 +111,24 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 	ut_assertok(device_find_first_child(bus, &dev));
 	ut_assertnonnull(dev);
 
-	/* set driver status to VIRTIO_CONFIG_S_DRIVER_OK */
-	ut_assertok(virtio_set_status(dev, VIRTIO_CONFIG_S_DRIVER_OK));
+	/* Probe the driver so removal must release a real queue */
+	ut_assertok(device_probe(dev));
+	uc_priv = dev_get_uclass_priv(bus);
+	ut_asserteq(1, list_count_nodes(&uc_priv->vqs));
 
 	/* check the device can be successfully removed */
-	dev_or_flags(dev, DM_FLAG_ACTIVATED);
 	ut_asserteq(-EKEYREJECTED, device_remove(bus, DM_REMOVE_ACTIVE_ALL));
 
 	ut_asserteq(false, device_active(dev));
-	virtio_get_status(dev, &status);
-	ut_assertok(status);
+	ut_assertok(virtio_get_status(dev, &status));
+	ut_asserteq(0, status);
+	ut_assert(list_empty(&uc_priv->vqs));
+
+	/* Reprobing must not accumulate queues from the previous instance */
+	ut_assertok(device_probe(dev));
+	ut_asserteq(1, list_count_nodes(&uc_priv->vqs));
+	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
+	ut_assert(list_empty(&uc_priv->vqs));
 
 	return 0;
 }

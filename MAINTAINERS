@@ -1883,7 +1883,7 @@ S:	Maintained
 F:	drivers/virtio/
 F:	cmd/virtio.c
 F:	include/virtio*.h
-F:	test/dm/virtio.c
+F:	test/dm/virtio*.c
 F:	doc/develop/driver-model/virtio.rst
 
 WATCHDOG

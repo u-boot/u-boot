@@ -226,7 +226,7 @@ error_available:
 
 static void virtio_pci_del_vq(struct virtqueue *vq)
 {
-	struct virtio_pci_priv *priv = dev_get_priv(vq->vdev);
+	struct virtio_pci_priv *priv = dev_get_priv(vq->vdev->parent);
 	unsigned int index = vq->index;
 
 	iowrite16(index, priv->ioaddr + VIRTIO_PCI_QUEUE_SEL);

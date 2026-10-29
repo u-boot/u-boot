@@ -25,6 +25,7 @@
 #include <virtio.h>
 #include <dm/lists.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 
 static const char *const virtio_drv_name[VIRTIO_ID_MAX_NUM] = {
 	[VIRTIO_ID_NET]		= VIRTIO_NET_DRV_NAME,
@@ -85,10 +86,25 @@ int virtio_set_status(struct udevice *vdev, u8 status)
 int virtio_reset(struct udevice *vdev)
 {
 	struct dm_virtio_ops *ops;
+	u8 status;
+	int ret;
 
 	ops = virtio_get_ops(vdev->parent);
 
-	return ops->reset(vdev->parent);
+	ret = ops->reset(vdev->parent);
+	if (ret)
+		return ret;
+
+	/* Wait for the device to stop accessing the queues before freeing them */
+	do {
+		ret = ops->get_status(vdev->parent, &status);
+		if (ret)
+			return ret;
+		if (status)
+			udelay(1000);
+	} while (status);
+
+	return ops->del_vqs(vdev->parent);
 }
 
 int virtio_get_features(struct udevice *vdev, u64 *features)

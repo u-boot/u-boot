@@ -102,19 +102,13 @@ static int virtio_9p_probe(struct udevice *dev)
 	return 0;
 }
 
-static int virtio_9p_remove(struct udevice *dev)
-{
-	virtio_del_vqs(dev);
-	return virtio_reset(dev);
-}
-
 U_BOOT_DRIVER(virtio_9p) = {
 	.name       = VIRTIO_9P_DRV_NAME,
 	.id         = UCLASS_9P,
 	.ops        = &virtio_9p_ops,
 	.bind       = virtio_9p_bind,
 	.probe      = virtio_9p_probe,
-	.remove     = virtio_9p_remove,
+	.remove     = virtio_reset,
 	.priv_auto  = sizeof(struct virtio_9p_priv),
 	.flags      = DM_FLAG_ACTIVE_DMA,
 };
