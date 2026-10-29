@@ -8228,21 +8228,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         ivt_data += b'\x00' * 36
         self._MakeInputFile('imx8m-ivt.bin', ivt_data)
 
-        # Mock run_cmd() so that when cst is invoked, it creates a fake output
-        # blob and returns success, thus covering the signing path
-        original = bintool.Bintool.run_cmd
-
-        def fake_cst_run_cmd(self_tool, *args, binary=False):
-            if self_tool.name == 'cst':
-                arg_list = list(args)
-                if '-o' in arg_list:
-                    idx = arg_list.index('-o')
-                    tools.write_file(arg_list[idx + 1], b'\x00' * 32)
-                return 'fake cst output'
-            return original(self_tool, *args, binary=binary)
-
-        with unittest.mock.patch.object(bintool.Bintool, 'run_cmd',
-                                        new=fake_cst_run_cmd):
+        with self._MockCstRunCmd():
             self._DoTestFile('vendor/nxp_imx8_csf.dts')
 
     def testNxpImx8mCSTSrkIndex(self):
