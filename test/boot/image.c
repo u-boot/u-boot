@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <errno.h>
 #include <image.h>
 #include <test/ut.h>
 #include <linux/libfdt.h>
@@ -77,6 +78,49 @@ static int test_fit_conf_find_compat(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(test_fit_conf_find_compat, 0);
+
+/* Test that external data properties must be exactly one cell long */
+static int test_fit_image_ext_data_len(struct unit_test_state *uts)
+{
+	static const struct {
+		const char *name;
+		int (*get)(const void *fit, int noffset, u32 *val);
+	} props[] = {
+		{ FIT_DATA_OFFSET_PROP, fit_image_get_data_offset },
+		{ FIT_DATA_POSITION_PROP, fit_image_get_data_position },
+		{ FIT_DATA_SIZE_PROP, fit_image_get_data_size },
+	};
+	fdt32_t cells[] = { cpu_to_fdt32(0x100), cpu_to_fdt32(0x200) };
+	int images, node, i;
+	char fit[512];
+	u32 val;
+
+	ut_assertok(fdt_create_empty_tree(fit, sizeof(fit)));
+	images = fdt_add_subnode(fit, 0, "images");
+	ut_assert(images >= 0);
+	node = fdt_add_subnode(fit, images, "kernel");
+	ut_assert(node >= 0);
+
+	for (i = 0; i < ARRAY_SIZE(props); i++) {
+		ut_asserteq(-ENOENT, props[i].get(fit, node, &val));
+
+		/* an empty or a two-cell property must not be read */
+		ut_assertok(fdt_setprop_empty(fit, node, props[i].name));
+		ut_asserteq(-EINVAL, props[i].get(fit, node, &val));
+		ut_assertok(fdt_setprop(fit, node, props[i].name, cells,
+					sizeof(cells)));
+		ut_asserteq(-EINVAL, props[i].get(fit, node, &val));
+
+		/* a single cell is read */
+		ut_assertok(fdt_setprop(fit, node, props[i].name, cells,
+					sizeof(cells[0])));
+		ut_assertok(props[i].get(fit, node, &val));
+		ut_asserteq(0x100, val);
+	}
+
+	return 0;
+}
+BOOTSTD_TEST(test_fit_image_ext_data_len, 0);
 
 /* Test of image phase */
 static int test_image_phase(struct unit_test_state *uts)
