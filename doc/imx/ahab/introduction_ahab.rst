@@ -292,7 +292,8 @@ scenario in i.MX 9x:
               │          │          │          │         │
 
 More details on the boot flow can be found in respective Security Reference
-Manual (SRM).
+Manual (SRM) and in the :doc:`i.MX93 Secure boot guide
+<guides/mx93_secure_boot>`.
 
 2. Generating a PKI tree
 ------------------------

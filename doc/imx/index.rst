@@ -11,3 +11,4 @@ architecture introduction and the i.MX93 secure boot guide.
    :maxdepth: 2
 
    ahab/introduction_ahab
+   ahab/guides/mx93_secure_boot
