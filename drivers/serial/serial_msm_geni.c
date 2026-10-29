@@ -110,7 +110,7 @@ unsigned long root_freq[] = {7372800,  14745600, 19200000, 29491200,
  *
  * Return: frequency, supported by clock supplier, multiple of clk_freq.
  */
-static int get_clk_cfg(unsigned long clk_freq)
+static unsigned long get_clk_cfg(unsigned long clk_freq)
 {
 	for (int i = 0; i < ARRAY_SIZE(root_freq); i++) {
 		if (!(root_freq[i] % clk_freq))
@@ -131,7 +131,7 @@ static int get_clk_cfg(unsigned long clk_freq)
  *
  * Return: frequency, supported by clock supplier, multiple of clk_freq.
  */
-static int get_clk_div_rate(u32 baud, u64 sampling_rate, u32 *clk_div)
+static unsigned long get_clk_div_rate(u32 baud, u64 sampling_rate, u32 *clk_div)
 {
 	unsigned long ser_clk;
 	unsigned long desired_clk;
@@ -351,16 +351,62 @@ static void qcom_geni_serial_start_rx(struct udevice *dev)
 	setbits_le32(priv->base + SE_GENI_M_IRQ_EN, M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
 }
 
-static void qcom_geni_serial_abort_rx(struct udevice *dev)
+static void qcom_geni_serial_stop_rx_fifo(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
+	u32 irq_en;
+	u32 s_irq_status;
+	u32 status;
+	u32 rx_fifo_status;
 
-	u32 irq_clear = S_CMD_DONE_EN | S_CMD_ABORT_EN;
+	/* Disable RX interrupts */
+	irq_en = readl(priv->base + SE_GENI_S_IRQ_EN);
+	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
+	writel(irq_en, priv->base + SE_GENI_S_IRQ_EN);
 
-	writel(S_GENI_CMD_ABORT, priv->base + SE_GENI_S_CMD_CTRL_REG);
+	irq_en = readl(priv->base + SE_GENI_M_IRQ_EN);
+	irq_en &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
+	writel(irq_en, priv->base + SE_GENI_M_IRQ_EN);
+
+	/* Check if secondary sequencer is active */
+	status = readl(priv->base + SE_GENI_STATUS);
+	if (!(status & S_GENI_CMD_ACTIVE))
+		return;
+
+	/* Send CANCEL command */
+	writel(S_GENI_CMD_CANCEL, priv->base + SE_GENI_S_CMD_CTRL_REG);
+
+	/* Poll for CANCEL completion */
 	qcom_geni_serial_poll_bit(dev, SE_GENI_S_CMD_CTRL_REG,
-					S_GENI_CMD_ABORT, false);
-	writel(irq_clear, priv->base + SE_GENI_S_IRQ_CLEAR);
+				  S_GENI_CMD_CANCEL, false);
+
+	/* Read IRQ status and check if S_RX_FIFO_LAST_EN is set */
+	s_irq_status = readl(priv->base + SE_GENI_S_IRQ_STATUS);
+
+	/* Flush/drain the RX FIFO if needed */
+	if (s_irq_status & S_RX_FIFO_LAST_EN) {
+		while ((rx_fifo_status = readl(priv->base + SE_GENI_RX_FIFO_STATUS)) &
+		       RX_FIFO_WC_MSK) {
+			readl(priv->base + SE_GENI_RX_FIFOn);
+		}
+	}
+
+	/* Clear all pending IRQ status bits */
+	writel(s_irq_status, priv->base + SE_GENI_S_IRQ_CLEAR);
+
+	/* Check if still active after CANCEL */
+	status = readl(priv->base + SE_GENI_STATUS);
+	if (status & S_GENI_CMD_ACTIVE) {
+		/* Send ABORT as fallback */
+		writel(S_GENI_CMD_ABORT, priv->base + SE_GENI_S_CMD_CTRL_REG);
+		qcom_geni_serial_poll_bit(dev, SE_GENI_S_CMD_CTRL_REG,
+					  S_GENI_CMD_ABORT, false);
+
+		/* Clear ABORT IRQ status */
+		s_irq_status = readl(priv->base + SE_GENI_S_IRQ_STATUS);
+		writel(s_irq_status, priv->base + SE_GENI_S_IRQ_CLEAR);
+	}
+
 	writel(FORCE_DEFAULT, priv->base + GENI_FORCE_DEFAULT_REG);
 }
 
@@ -368,7 +414,7 @@ static void msm_geni_serial_setup_rx(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	qcom_geni_serial_abort_rx(dev);
+	qcom_geni_serial_stop_rx_fifo(dev);
 
 	writel(UART_PACKING_CFG0, priv->base + SE_GENI_RX_PACKING_CFG0);
 	writel(UART_PACKING_CFG1, priv->base + SE_GENI_RX_PACKING_CFG1);
@@ -431,11 +477,9 @@ static int msm_serial_pending(struct udevice *dev, bool input)
 	if (input)
 		return readl(priv->base + SE_GENI_RX_FIFO_STATUS) &
 			   RX_FIFO_WC_MSK;
-	else
-		return readl(priv->base + SE_GENI_TX_FIFO_STATUS) &
-			   TX_FIFO_WC_MSK;
 
-	return 0;
+	return readl(priv->base + SE_GENI_TX_FIFO_STATUS) &
+			   TX_FIFO_WC_MSK;
 }
 
 static const struct dm_serial_ops msm_serial_ops = {
@@ -497,7 +541,7 @@ static inline void geni_serial_init(struct udevice *dev)
 	 * it else we could end up in data loss scenarios.
 	 */
 	qcom_geni_serial_poll_tx_done(dev);
-	qcom_geni_serial_abort_rx(dev);
+	qcom_geni_serial_stop_rx_fifo(dev);
 
 	writel(UART_PACKING_CFG0, base_address + SE_GENI_TX_PACKING_CFG0);
 	writel(UART_PACKING_CFG1, base_address + SE_GENI_TX_PACKING_CFG1);

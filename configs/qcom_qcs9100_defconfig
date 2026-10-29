@@ -4,6 +4,7 @@
 # a dedicated "uefi" partition for edk2/U-Boot)
 
 #include "qcom_defconfig"
+#include "board/qualcomm/exit-gunyah.config"
 
 # Address where U-Boot will be loaded
 CONFIG_TEXT_BASE=0xaf000000

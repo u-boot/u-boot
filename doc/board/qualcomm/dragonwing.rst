@@ -4,11 +4,11 @@
 Qualcomm DragonWing
 ========================================
 
-Qualcomm DragonWing are industrial-grade boards that provides various series of processors
-such as IQ6 (QCS615), IQ8 (QCS8300), IQ9 (QCS9100) and Q8 (QCS8550). These SoCs are used
-for factory/industry based applications. Note that the QCS8550 is a derivative of the
-SM8550 with the RF modem removed, so the SM8550 defconfig works for both the SM8550 and
-the QCS8550.
+Qualcomm DragonWing boards are industrial-grade platforms targeting factory
+and edge applications. They span multiple product families, including
+IQ6, IQ8, IQ9, and Q8, which are based on Qualcomm QCS615, QCS8300 (Monaco),
+QCS9100, and QCS8550 series SoCs respectively
+
 More information can be found on the `Qualcomm's IQ6 product page`_,
 `Qualcomm's IQ8 product page`_, `Qualcomm's IQ9 product page`_ and `Qualcomm's Q8 product page`_.
 
@@ -19,28 +19,73 @@ More information can be found on the `Qualcomm's IQ6 product page`_,
 
 Installation
 ------------
-First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``QCS615``, ``QCS8300``, ``QCS9100`` or ``SM8550``::
 
-  $ export CROSS_COMPILE=<aarch64 toolchain prefix>
-  $ make qcom_qcs8300_defconfig
-  $ make -j8
+Build Steps
+~~~~~~~~~~~
+
+Download the U-Boot source code. See the :doc:`../../build/source` documentation
+for instructions on obtaining the U-Boot source.
+
+Go to the U-Boot source directory:
+
+.. code-block:: bash
+
+  $ cd u-boot
+
+Configure the build for desired platform. This command creates the required
+configuration files in the .output directory. Following gives command for each
+platform (choose based on your platform):
+
+Generate the default configuration for the IQ-615 platform:
+
+.. code-block:: bash
+
+  $ make O=.output qcom_qcs615_defconfig
+
+Generate the default configuration for the IQ-8 platform:
+
+.. code-block:: bash
+
+  $ make O=.output qcom_monaco_defconfig
+
+Generate the default configuration for the IQ-9 platform:
+
+.. code-block:: bash
+
+  $ make O=.output qcom_lemans_defconfig
+
+Generate the default configuration for the Q8 platform:
+
+.. code-block:: bash
+
+  $ make O=.output qcom_sm8550_defconfig
+
+Compile the U-Boot source using the GCC cross compile toolchain:
+
+.. code-block:: bash
+
+  $ make -j8 CROSS_COMPILE=<aarch64 toolchain prefix> O=.output u-boot.mbn
+
+Flashing
+~~~~~~~~
 
 Although the board does not have secure boot set up by default,
 the firmware still expects firmware ELF images to be "signed" in the MBN format.
 This is handled automatically with mkmbn (see :doc:`signing` for more details).
 
 Just flash the resulting ``u-boot.mbn`` to the ``uefi_a`` partition
-on your device with ``fastboot flash uefi_a u-boot.mbn``.
+on your device with ``fastboot flash uefi_a .output/u-boot.mbn``.
 
 U-Boot should be running after a reboot (``fastboot reboot``).
 
-Note that fastboot is not yet supported in U-Boot on Dragonwing boards, as a result, to flash
-back the original firmware, or new versoins of the U-Boot, EDL mode must be used.
-
 A tool like bkerler's `edl`_ can be used for flashing with the firehose loader (for example, for QCS9100
-the firehose loader can be obtained from `dragonwing IQ9 bootbinaries`.) ::
+the firehose loader can be obtained from `dragonwing IQ9 bootbinaries`).
 
-$ edl.py --loader /path/to/prog_firehose_ddr.elf w uefi_a u-boot.mbn
+For example:
+
+.. code-block:: bash
+
+  $ edl.py --loader /path/to/prog_firehose_ddr.elf w uefi_a u-boot.mbn
 
 .. _edl: https://github.com/bkerler/edl
 .. _dragonwing IQ9 bootbinaries: https://artifacts.codelinaro.org/ui/native/qli-ci/flashable-binaries/qimpsdk/qcs9075-rb8-core-kit

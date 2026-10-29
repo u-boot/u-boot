@@ -70,7 +70,8 @@ int dram_init_banksize(void)
 				 (v == 1 ? ((struct ram_partition_entry_v1 *)(e))->field : \
 				  ((struct ram_partition_entry_v3 *)(e))->field))
 #define entry_start(v, e) entry_field(v, e, start_address)
-#define entry_length(v, e) entry_field(v, e, length)
+#define entry_length(v, e) (v > 1 ? ((struct ram_partition_entry_v3 *)(e))->available_length : \
+			    entry_field(v, e, length))
 #define entry_category(v, e) entry_field(v, e, partition_category)
 #define entry_domain(v, e) entry_field(v, e, partition_domain)
 #define entry_type(v, e) entry_field(v, e, partition_type)

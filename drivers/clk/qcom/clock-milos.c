@@ -130,9 +130,9 @@ static const struct qcom_reset_map milos_gcc_resets[] = {
 };
 
 static const struct qcom_power_map milos_gdscs[] = {
-	[UFS_PHY_GDSC] = { 0x77004 },
-	[UFS_MEM_PHY_GDSC] = { 0x9e000 },
-	[USB30_PRIM_GDSC] = { 0x39004 },
+	[UFS_PHY_GDSC] = { .reg = 0x77004, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[UFS_MEM_PHY_GDSC] = { .reg = 0x9e000, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[USB30_PRIM_GDSC] = { .reg = 0x39004, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
 };
 
 static struct msm_clk_data milos_gcc_data = {

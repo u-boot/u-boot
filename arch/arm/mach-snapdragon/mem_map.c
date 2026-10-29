@@ -120,6 +120,10 @@ static void configure_reserved_memory(void)
 		if (fdt_getprop(gd->fdt_blob, rmem, "compatible", NULL))
 			attrs = PTE_TYPE_VALID | PTE_BLOCK_MEMTYPE(MT_NORMAL);
 
+		// FIXME: Check the actual region for overlaps with U-Boot
+		if (!strncmp("bootloader@", fdt_get_name(gd->fdt_blob, rmem, NULL), strlen("bootloader@")))
+			continue;
+
 		if (i == N_RESERVED_REGIONS) {
 			log_err("Too many reserved regions!\n");
 			break;

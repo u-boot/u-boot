@@ -748,11 +748,14 @@ static const struct udevice_id qcom_spmi_pmic_gpio_ids[] = {
 	{ .compatible = "qcom,pm660l-gpio" },
 	{ .compatible = "qcom,pm7325-gpio" },
 	{ .compatible = "qcom,pm7550-gpio" },
+	{ .compatible = "qcom,pm8150l-gpio" },
 	{ .compatible = "qcom,pm8550-gpio" },
 	{ .compatible = "qcom,pm8550b-gpio" },
 	{ .compatible = "qcom,pm8550ve-gpio" },
 	{ .compatible = "qcom,pm8550vs-gpio" },
 	{ .compatible = "qcom,pm8998-gpio" },
+	{ .compatible = "qcom,pm8350c-gpio" },
+	{ .compatible = "qcom,pmk8350-gpio" },
 	{ .compatible = "qcom,pmk8550-gpio" },
 	{ .compatible = "qcom,pmr735d-gpio" },
 	{ }
@@ -782,7 +785,7 @@ static const struct pinconf_param qcom_spmi_pmic_pinctrl_conf_params[] = {
 	{ "drive-open-source", PIN_CONFIG_DRIVE_OPEN_SOURCE, 0 },
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, PMIC_GPIO_PULL_UP_30 },
-	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_UP, 0 },
+	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 0 },
 	{ "bias-high-impedance", PIN_CONFIG_BIAS_HIGH_IMPEDANCE, 0 },
 	{ "power-source", PIN_CONFIG_POWER_SOURCE, 0 },
 	{ "input-disable", PIN_CONFIG_INPUT_ENABLE, 0 },
@@ -866,10 +869,7 @@ static int qcom_spmi_pmic_pinctrl_pinconf_set(struct udevice *dev, unsigned int 
 		pad->pullup = PMIC_GPIO_PULL_UP_30;
 		break;
 	case PIN_CONFIG_BIAS_PULL_DOWN:
-		if (arg)
-			pad->pullup = PMIC_GPIO_PULL_DOWN;
-		else
-			pad->pullup = PMIC_GPIO_PULL_DISABLE;
+		pad->pullup = PMIC_GPIO_PULL_DOWN;
 		break;
 	case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
 		pad->is_enabled = false;

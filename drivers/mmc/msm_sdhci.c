@@ -70,8 +70,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 
 	var_info = (void *)dev_get_driver_data(dev);
 
-	if (dev_read_u32(dev, "max-frequency", (uint *)(&clk_rate)))
-		clk_rate = 201500000;
+	clk_rate = dev_read_u32_default(dev, "max-frequency", 201500000);
 
 	ret = clk_get_bulk(dev, &prv->clks);
 	if (ret) {

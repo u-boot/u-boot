@@ -14,7 +14,6 @@
 #include <efi_loader.h>
 #include <malloc.h>
 #include <mmc.h>
-#include <scsi.h>
 #include <part.h>
 #include <linux/err.h>
 
@@ -291,19 +290,10 @@ found:
  */
 void qcom_configure_capsule_updates(void)
 {
-	int ret = 0, partnum = -1, devnum;
+	int partnum = -1, devnum;
 	static char dfu_string[32] = { 0 };
 	enum target_part_type target_part_type = 0;
 	enum uclass_id dev_uclass;
-
-	if (IS_ENABLED(CONFIG_SCSI)) {
-		/* Scan for SCSI devices */
-		ret = scsi_scan(false);
-		if (ret) {
-			debug("Failed to scan SCSI devices: %d\n", ret);
-			return;
-		}
-	}
 
 	partnum = find_target_partition(&devnum, &dev_uclass, &target_part_type);
 	if (partnum < 0) {

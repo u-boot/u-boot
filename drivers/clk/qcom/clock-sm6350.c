@@ -160,8 +160,8 @@ static const struct qcom_reset_map sm6350_gcc_resets[] = {
 static const struct qcom_power_map sm6350_gdscs[] = {
 	[USB30_PRIM_GDSC] = { 0x1a004 },
 	[UFS_PHY_GDSC] = { 0x3a004 },
-	[HLOS1_VOTE_MMNOC_MMU_TBU_HF0_GDSC] = { 0xb7040 },
-	[HLOS1_VOTE_MMNOC_MMU_TBU_HF1_GDSC] = { 0xb7044 },
+	[HLOS1_VOTE_MMNOC_MMU_TBU_HF0_GDSC] = { .reg = 0xb7040, .flags = VOTABLE },
+	[HLOS1_VOTE_MMNOC_MMU_TBU_HF1_GDSC] = { .reg = 0xb7044, .flags = VOTABLE },
 };
 
 static struct msm_clk_data sm6350_gcc_data = {

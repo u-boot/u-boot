@@ -21,6 +21,7 @@
 #include <linux/sizes.h>
 #include <lmb.h>
 #include <malloc.h>
+#include <scsi.h>
 #include <soc/qcom/smem.h>
 #include <sort.h>
 #include <time.h>
@@ -396,6 +397,7 @@ int board_late_init(void)
 	u32 status = 0, fdt_status = 0;
 	phys_addr_t addr;
 	struct fdt_header *fdt_blob = (struct fdt_header *)gd->fdt_blob;
+	int ret;
 
 	/* We need to be fairly conservative here as we support boards with just 1G of TOTAL RAM */
 	status |= !lmb_alloc(SZ_128M, &addr) ?
@@ -449,6 +451,14 @@ int board_late_init(void)
 	qcom_late_init();
 
 	qcom_show_boot_context();
+
+	if (IS_ENABLED(CONFIG_SCSI)) {
+		/* Scan for SCSI devices */
+		ret = scsi_scan_new(false);
+		if (ret)
+			debug("Failed to scan SCSI devices: %d\n", ret);
+	}
+
 	/* Configure the dfu_string for capsule updates */
 	qcom_configure_capsule_updates();
 

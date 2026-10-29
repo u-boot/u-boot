@@ -6,12 +6,6 @@
  */
 
 / {
-	/* Will be removed when SMEM parsing is updated */
-	memory@80000000 {
-		device_type = "memory";
-		reg = <0x0 0x80000000 0x0 0x20000000>;
-	};
-
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};

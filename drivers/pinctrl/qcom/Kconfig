@@ -86,6 +86,14 @@ config PINCTRL_QCOM_QCS615
 	  Say Y here to enable support for pinctrl on the Snapdragon QCS615 SoC,
 	  as well as the associated GPIO driver.
 
+config PINCTRL_QCOM_QCS8300
+	bool "Qualcomm QCS8300 Pinctrl"
+	default y if PINCTRL_QCOM_GENERIC
+	select PINCTRL_QCOM
+	help
+	  Say Y here to enable support for pinctrl on the Snapdragon QCS8300 SoC,
+	  as well as the associated GPIO driver.
+
 config PINCTRL_QCOM_SA8775P
 	bool "Qualcomm SA8775P Pinctrl"
 	default y if PINCTRL_QCOM_GENERIC
