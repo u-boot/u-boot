@@ -9,49 +9,53 @@
 #include <malloc.h>
 #include <asm/arch/sys_proto.h>
 
-static void disable_thermal_cpu_nodes(void *blob, u32 num_disabled_cores, u32 max_cores)
+static void disable_thermal_cpu_nodes(void *blob)
 {
 	static const char * const thermal_path[] = {
-		"/thermal-zones/cpu-thermal/cooling-maps/map0"
+		"/thermal-zones/cpu-thermal/cooling-maps/map0",
+		"/thermal-zones/soc-thermal/cooling-maps/map0"
 	};
 
-	int nodeoff, cnt, i, ret, j;
-	u32 num_le32 = max_cores * 3;
-	u32 *cooling_dev = (u32 *)malloc(num_le32 * sizeof(__le32));
-
-	if (!cooling_dev) {
-		printf("failed to alloc cooling dev\n");
-		return;
-	}
+	int nodeoff, len, i, ret, j, k;
+	const fdt32_t *prop;
+	fdt32_t *cooling_dev;
 
 	for (i = 0; i < ARRAY_SIZE(thermal_path); i++) {
 		nodeoff = fdt_path_offset(blob, thermal_path[i]);
 		if (nodeoff < 0)
 			continue; /* Not found, skip it */
 
-		cnt = fdtdec_get_int_array_count(blob, nodeoff, "cooling-device",
-						 cooling_dev, num_le32);
-		if (cnt < 0)
+		prop = fdt_getprop(blob, nodeoff, "cooling-device", &len);
+		if (!prop || len % (3 * sizeof(fdt32_t)))
 			continue;
 
-		if (cnt != num_le32)
-			printf("Warning: %s, cooling-device count %d\n", thermal_path[i], cnt);
-
-		for (j = 0; j < cnt; j++)
-			cooling_dev[j] = cpu_to_fdt32(cooling_dev[j]);
-
-		ret = fdt_setprop(blob, nodeoff, "cooling-device", cooling_dev,
-				  sizeof(__le32) * (num_le32 - num_disabled_cores * 3));
-		if (ret < 0) {
-			printf("Warning: %s, cooling-device setprop failed %d\n",
-			       thermal_path[i], ret);
-			continue;
+		cooling_dev = malloc(len);
+		if (!cooling_dev) {
+			printf("failed to alloc cooling dev\n");
+			return;
 		}
 
-		printf("Update node %s, cooling-device prop\n", thermal_path[i]);
-	}
+		/* Drop the entries referring to a deleted node */
+		for (j = 0, k = 0; j < len / sizeof(fdt32_t); j += 3) {
+			if (fdt_node_offset_by_phandle(blob, fdt32_to_cpu(prop[j])) < 0)
+				continue;
+			cooling_dev[k++] = prop[j];
+			cooling_dev[k++] = prop[j + 1];
+			cooling_dev[k++] = prop[j + 2];
+		}
 
-	free(cooling_dev);
+		if (k * sizeof(fdt32_t) != len) {
+			ret = fdt_setprop(blob, nodeoff, "cooling-device", cooling_dev,
+					  k * sizeof(fdt32_t));
+			if (ret < 0)
+				printf("Warning: %s, cooling-device setprop failed %d\n",
+				       thermal_path[i], ret);
+			else
+				printf("Update node %s, cooling-device prop\n", thermal_path[i]);
+		}
+
+		free(cooling_dev);
+	}
 }
 
 int disable_cpu_nodes(void *blob, const char * const *nodes_path, u32 num_disabled_cores,
@@ -82,7 +86,7 @@ int disable_cpu_nodes(void *blob, const char * const *nodes_path, u32 num_disabl
 		}
 	}
 
-	disable_thermal_cpu_nodes(blob, num_disabled_cores, max_cores);
+	disable_thermal_cpu_nodes(blob);
 
 	return 0;
 }
