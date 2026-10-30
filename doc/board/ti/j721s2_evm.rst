@@ -281,6 +281,13 @@ https://www.ti.com/lit/pdf/spruj68 under the `Bootmode Settings` section.
 
 For SW1, the switch state in the "ON" position = 1.
 
+HSM M4F Loading
+----------------
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_hsm_m4f_loading
+    :end-before: .. k3_rst_include_end_hsm_m4f_loading
+
 Debugging U-Boot
 ----------------
 

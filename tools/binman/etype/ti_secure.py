@@ -59,6 +59,33 @@ class Entry_ti_secure(Entry_x509_cert):
               ( 0x02: Move the authenticated binary back to the header )
             - Upper Byte - The Host ID of the core owning the firewall
 
+        - proc-id: (optional) The processor ID of the core being booted.
+          Used in TIFS Boot Extension to identify the target core.
+
+        - flags-set: (optional) Configuration flags to set for the core being
+          booted. Used in TIFS Boot Extension.
+
+        - flags-clr: (optional) Configuration flags to clear for the core being
+          booted. Used in TIFS Boot Extension.
+
+        - reset-vector: (optional) The memory address where the core should
+          start execution after being released from reset. Used in TIFS Boot
+          Extension.
+
+        - dest-addr: (optional) The destination address to which the image
+          should be copied. Used in TIFS Load Extension.
+
+        - auth-type: (optional) This is an integer field that contains two pieces
+          of information used in TIFS Load Extension:
+
+            - Upper Byte - The Host ID of the core being booted
+            - Lower Byte - Load type (e.g., 0x00: Copy to dest-addr,
+              0x02: Authentication in place)
+
+        Note: The proc-id, flags-set, flags-clr, reset-vector, dest-addr, and
+        auth-type properties form a group. If any are present, all must be
+        specified together to configure loadable core boot parameters.
+
     Output files:
         - input.<unique_name> - input file passed to openssl
         - config.<unique_name> - input file generated for openssl (which is
@@ -116,6 +143,7 @@ class Entry_ti_secure(Entry_x509_cert):
         if auth_in_place:
             self.firewall_cert_data['auth_in_place'] = auth_in_place
             self.ReadFirewallNode()
+        self.ReadLoadableCoreNode()
         self.sha = fdt_util.GetInt(self._node, 'sha', 512)
         self.req_dist_name = {'C': 'US',
                 'ST': 'TX',
@@ -125,6 +153,43 @@ class Entry_ti_secure(Entry_x509_cert):
                 'CN': 'TI Support',
                 'emailAddress': 'support@ti.com'}
         self.debug = fdt_util.GetBool(self._node, 'debug', False)
+
+    def ReadLoadableCoreNode(self):
+        # Map DTS property names (with dashes) to Python dict keys (with underscores)
+        boot_ext_props = {
+            'proc-id': 'proc_id',
+            'flags-set': 'flags_set',
+            'flags-clr': 'flags_clr',
+            'reset-vector': 'reset_vector'
+        }
+        load_ext_props = {
+            'dest-addr': 'dest_addr',
+            'auth-type': 'auth_type'
+        }
+
+        self.boot_ext = self.ReadIntProps(boot_ext_props)
+        self.load_ext = self.ReadIntProps(load_ext_props)
+
+    def ReadIntProps(self, props_map):
+        props_dict = {}
+        missing_props = []
+
+        for dts_prop, dict_key in props_map.items():
+            val = fdt_util.GetInt(self._node, dts_prop)
+            if val is None:
+                missing_props.append(dts_prop)
+            else:
+                props_dict[dict_key] = val
+
+        # If all properties are missing, return None
+        if len(missing_props) == len(props_map):
+            return None
+
+        # If some but not all properties are present, raise an error
+        if len(missing_props) > 0:
+            self.Raise(f"Loadable core configuration incomplete. Missing properties: {','.join(missing_props)}")
+
+        return props_dict
 
     def ReadFirewallNode(self):
         self.firewall_cert_data['certificate'] = ""

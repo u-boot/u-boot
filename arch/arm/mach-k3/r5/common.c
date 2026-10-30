@@ -28,6 +28,7 @@ enum {
 	IMAGE_ID_TIFSSTUB_HS,
 	IMAGE_ID_TIFSSTUB_FS,
 	IMAGE_ID_TIFSSTUB_GP,
+	IMAGE_ID_HSM,
 	IMAGE_AMT,
 };
 
@@ -40,6 +41,7 @@ static const char *image_os_match[IMAGE_AMT] = {
 	"tifsstub-hs",
 	"tifsstub-fs",
 	"tifsstub-gp",
+	"hsm",
 };
 #endif
 
@@ -156,6 +158,23 @@ void __noreturn jump_to_image(struct spl_image_info *spl_image)
 	if (!fit_image_info[IMAGE_ID_DM_FW].image_start) {
 		size = load_firmware("name_mcur5f0_0fw", "addr_mcur5f0_0load",
 				     &loadaddr);
+	}
+
+	/*
+	 * It is assumed that remoteproc device 2 is the corresponding
+	 * Cortex-M4F HSM core. Make sure DT reflects the same.
+	 */
+	if (IS_ENABLED(CONFIG_REMOTEPROC_TI_K3_HSM_M4F)) {
+		ret = rproc_load(2, fit_image_info[IMAGE_ID_HSM].load,
+				 fit_image_info[IMAGE_ID_HSM].image_len);
+		if (ret)
+			panic("Error while loading HSM firmware, ret = %d\n", ret);
+
+		ret = rproc_start(2);
+		if (ret)
+			panic("Error while starting HSM core\n");
+
+		printf("Successfully loaded and started HSM core\n");
 	}
 
 	/*
@@ -330,17 +349,19 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 	int len;
 	int i;
 	const char *os;
-	u32 addr;
+	u32 addr, load_addr;
 
 	os = fdt_getprop(fit, node, "os", &len);
 	addr = fdt_getprop_u32_default_node(fit, node, 0, "entry", -1);
+	load_addr = fdt_getprop_u32_default_node(fit, node, 0, "load", 0);
 
-	debug("%s: processing image: addr=%x, size=%d, os=%s\n", __func__,
-	      addr, *p_size, os);
+	debug("%s: processing image: addr=%x, load=%x, size=%d, os=%s\n", __func__,
+	      addr, load_addr, *p_size, os);
 
 	for (i = 0; i < IMAGE_AMT; i++) {
 		if (!strcmp(os, image_os_match[i])) {
 			fit_image_info[i].image_start = addr;
+			fit_image_info[i].load = load_addr;
 			fit_image_info[i].image_len = *p_size;
 			debug("%s: matched image for ID %d\n", __func__, i);
 			break;
@@ -356,7 +377,7 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 	 * Only DM and the DTBs are being authenticated here,
 	 * rest will be authenticated when A72 cluster is up
 	 */
-	if ((i != IMAGE_ID_ATF) && (i != IMAGE_ID_OPTEE)) {
+	if ((i != IMAGE_ID_ATF) && (i != IMAGE_ID_OPTEE) && (i != IMAGE_ID_HSM)) {
 		ti_secure_image_check_binary(p_image, p_size);
 		ti_secure_image_post_process(p_image, p_size);
 	} else {

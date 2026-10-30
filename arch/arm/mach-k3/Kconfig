@@ -198,6 +198,22 @@ config K3_REMOTEPROC_PRU
 	imply REMOTEPROC_TI_PRU
 	default y if (SOC_K3_AM642 || SOC_K3_AM654)
 
+config K3_HSM_FW
+	bool "Package firmware for HSM core"
+	depends on (SOC_K3_J721S2 || SOC_K3_J784S4 || SOC_K3_J722S)
+	help
+	  Enabling this will indicate that the system has a HSM (High Security
+	  Module) M4 Core and the firmware for the core is available. When
+	  enabled, the firmware for HSM core will be packaged inside tispl.bin.
+
+config K3_HSM_LOAD_ADDR
+	hex "Load address of HSM image"
+	depends on K3_HSM_FW
+	default 0x82000000
+	help
+	  The load address for the HSM image. This value is used to build the
+	  FIT image header that places HSM image in memory.
+
 if CPU_V7R
 source "arch/arm/mach-k3/r5/Kconfig"
 endif
