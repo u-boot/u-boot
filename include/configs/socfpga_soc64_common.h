@@ -72,6 +72,7 @@
 #define BOOT_TARGET_DEVICES_QSPI(func)
 #endif
 
+#ifndef BOOTENV_DEV_QSPI
 #define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
 	"bootcmd_qspi=ubi detach; sf probe && " \
 	"setenv mtdids 'nor0=nor0,nand0=nand.0' && " \
@@ -86,6 +87,7 @@
 	"echo QSPI: Trying to boot script at ${scriptaddr} && " \
 	"source ${scriptaddr}; " \
 	"echo QSPI: SCRIPT FAILED: continuing...; ubi detach;\0"
+#endif
 
 #define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
 	"qspi "
