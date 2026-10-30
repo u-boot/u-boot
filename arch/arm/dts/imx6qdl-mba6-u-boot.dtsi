@@ -11,5 +11,10 @@
 		u-boot,mmc-env-offset = <0x100000>;
 		u-boot,mmc-env-offset-redundant = <0x110000>;
 	};
-};
 
+	sysinfo_board: sysinfo-board {
+		compatible = "tq,eeprom-sysinfo";
+		nvmem-cells = <&board_info>;
+		nvmem-cell-names = "device_info";
+	};
+};
