@@ -42,6 +42,7 @@ static unsigned int buffer_size;
   * pstore_read_kmsg_hdr() - Check kernel header and get compression flag if
   *                          available.
   * @buffer: Kernel messages buffer.
+  * @size: Length of the kernel messages in @buffer.
   * @compressed: Returns TRUE if kernel buffer is compressed, else FALSE.
   *
   * Check if buffer starts with a kernel header of the form:
@@ -51,7 +52,7 @@ static unsigned int buffer_size;
   *
   * Return: Length of kernel header.
   */
-static int pstore_read_kmsg_hdr(char *buffer, bool *compressed)
+static int pstore_read_kmsg_hdr(char *buffer, u32 size, bool *compressed)
 {
 	char *ptr = buffer;
 	*compressed = false;
@@ -59,9 +60,7 @@ static int pstore_read_kmsg_hdr(char *buffer, bool *compressed)
 	if (strncmp(RAMOOPS_KERNMSG_HDR, ptr, strlen(RAMOOPS_KERNMSG_HDR)) != 0)
 		return 0;
 
-	ptr += strlen(RAMOOPS_KERNMSG_HDR);
-
-	ptr = strchr(ptr, '\n');
+	ptr = memchr(buffer, '\n', size);
 	if (!ptr)
 		return 0;
 
@@ -92,13 +91,16 @@ static u32 pstore_get_buffer(u32 sig, phys_addr_t buffer, u32 size, char *dest)
 		(struct persistent_ram_buffer *)map_sysmem(buffer, size);
 	u32 dest_size;
 
+	if (size <= sizeof(*prb))
+		return 0;
+
 	if (sig == 0 || prb->sig == sig) {
 		if (prb->size == 0) {
 			log_debug("found existing empty buffer\n");
 			return 0;
 		}
 
-		if (prb->size > size) {
+		if (prb->size > size - sizeof(*prb) || prb->start > prb->size) {
 			log_debug("found existing invalid buffer, size %u, start %u\n",
 			          prb->size, prb->start);
 			return 0;
@@ -193,6 +195,9 @@ static int pstore_set(struct cmd_tbl *cmdtp, int flag,  int argc,
 
 	if (argc > 7)
 		pstore_ecc_size = hextoul(argv[7], NULL);
+
+	/* Size the buffer again for the new record sizes on next use */
+	buffer_size = 0;
 
 	if (pstore_length < (pstore_record_size + pstore_console_size
 			     + pstore_ftrace_size + pstore_pmsg_size)) {
@@ -293,7 +298,8 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 			if (size == 0)
 				continue;
 
-			header_len = pstore_read_kmsg_hdr(buffer, &compressed);
+			header_len = pstore_read_kmsg_hdr(buffer, size,
+							  &compressed);
 			if (header_len == 0) {
 				log_debug("no valid kernel header\n");
 				continue;
@@ -405,7 +411,7 @@ static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 		if (size == 0)
 			continue;
 
-		header_len = pstore_read_kmsg_hdr(buffer, &compressed);
+		header_len = pstore_read_kmsg_hdr(buffer, size, &compressed);
 		if (header_len == 0) {
 			log_debug("no valid kernel header\n");
 			continue;
