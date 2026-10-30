@@ -1105,6 +1105,13 @@ class TestFdtUtil(unittest.TestCase):
         finally:
             tools.outdir = old_outdir
 
+    def test_ensure_compiled_indir(self):
+        """Test providing directory as indir"""
+        indir = os.path.dirname(find_dtb_file('dtoc_test_include.dts'))
+        indir = os.path.join(indir, 'newinclude')
+        dtb = fdt_util.EnsureCompiled(find_dtb_file('dtoc_test_include.dts'), indir=[indir])
+        self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
+
     def test_get_phandle_name_offset(self):
         val = fdt_util.GetPhandleNameOffset(self.node, 'missing')
         self.assertIsNone(val)
