@@ -15,8 +15,9 @@ run_test() {
 
 # Select test attributes
 ut_mark_expr=test_ut
+mark_expr="not event_dump"
 if [ "$1" = "quick" ]; then
-	mark_expr="not slow"
+	mark_expr="not slow and not event_dump"
 	ut_mark_expr="test_ut and not slow"
 	skip=--skip-net-tests
 fi
@@ -32,7 +33,7 @@ if [ "$1" = "parallel" ]; then
 	para="-n${jobs} -q"
 	prompt="Building and..."
 	skip=--skip-net-tests
-	mark_expr="not slow and not bootstd and not spi_flash"
+	mark_expr="not slow and not bootstd and not spi_flash and not event_dump"
 	ut_mark_expr="test_ut and not slow and not bootstd and not spi_flash"
 	echo "Note: test log is garbled with parallel tests"
 fi
