@@ -216,29 +216,19 @@ config ADI_CARRIER_SOMCRR_COMMON
 	  Common code shared by the EV-SOMCRR carrier board support.
 	  Selected by the carrier board options.
 
-choice
-	prompt "Analog Devices SOM Carrier Board Variant"
-	depends on (SC59X || SC59X_64)
-	default ADI_CARRIER_SOMCRR_EZKIT
-	help
-	  Select the specific EV-SOMCRR carrier board that you are using.
-	  Using a SOM without a carrier board is not supported.
-
 config ADI_CARRIER_SOMCRR_EZKIT
-	bool "Support the EV-SOMCRR-EZKIT"
+	bool
 	select ADI_CARRIER_SOMCRR_COMMON
 	help
-	  Say y to include support for the EV-SOMCRR-EZKIT carrier board,
-	  which is compatible with the SC594 and SC598 SOMs.
+	  Support for the EV-SOMCRR-EZKIT carrier board, which is compatible
+	  with the SC594 and SC598 SOMs. Selected by the board target.
 
 config ADI_CARRIER_SOMCRR_EZLITE
-	bool "Support the EV-SOMCRR-EZLITE"
+	bool
 	select ADI_CARRIER_SOMCRR_COMMON
 	help
-	  Say y to include support for the EV-SOMCRR-EZLITE carrier board,
-	  which is compatible with the SC594 and SC598 SOMs.
-
-endchoice
+	  Support for the EV-SOMCRR-EZLITE carrier board, which is compatible
+	  with the SC594 and SC598 SOMs. Selected by the board target.
 
 config ADI_SPL_FORCE_BMODE
 	int "Force the SPL to use this BMODE device during next boot stage"
