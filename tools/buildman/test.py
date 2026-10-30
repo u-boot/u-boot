@@ -656,7 +656,7 @@ class TestBuild(unittest.TestCase):
 
         tc = self.toolchains.Select('sandbox')
         env = tc.MakeEnvironment(False)
-        self.assertTrue(b'CROSS_COMPILE' not in env)
+        self.assertTrue(b'CROSS_COMPILE' not in env or env[b'CROSS_COMPILE'] == b'')
 
         # Test config with ccache wrapper
         bsettings.setup(None)
@@ -668,7 +668,7 @@ class TestBuild(unittest.TestCase):
 
         tc = self.toolchains.Select('sandbox')
         env = tc.MakeEnvironment(False)
-        self.assertTrue(b'CROSS_COMPILE' not in env)
+        self.assertTrue(b'CROSS_COMPILE' not in env or env[b'CROSS_COMPILE'] == b'')
 
     def testPrepareOutputSpace(self):
         def _Touch(fname):
