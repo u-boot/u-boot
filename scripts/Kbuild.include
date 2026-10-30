@@ -114,8 +114,11 @@ cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
 ifneq ($(KBUILD_NOCMDDEP),1)
 # Check if both commands are the same including their order. Result is empty
 # string if equal. User may override this check using make KBUILD_NOCMDDEP=1
-cmd-check = $(filter-out $(subst $(space),$(space_escape),$(strip $(cmd_$@))), \
-                         $(subst $(space),$(space_escape),$(strip $(cmd_$1))))
+#
+# cmd_extra_<rule> is optional text compared and saved with the command, but
+# not passed to the shell. cmdflags_<target> is that text from the last build.
+cmd-check = $(filter-out $(subst $(space),$(space_escape),$(strip $(cmd_$@) $(cmdflags_$@))), \
+                         $(subst $(space),$(space_escape),$(strip $(cmd_$1) $(cmd_extra_$1))))
 else
 cmd-check = $(if $(strip $(cmd_$@)),,1)
 endif
@@ -127,6 +130,10 @@ endif
 # Replace >'< with >'\''< to be able to enclose the whole string in '...'
 # (needed for the shell)
 make-cmd = $(call escsq,$(subst $(pound),$$(pound),$(subst $$,$$$$,$(cmd_$(1)))))
+
+# Record cmd_extra_<rule> for the next cmd-check without putting it on a
+# shell command line.
+cmd_savecmdflags = $(if $(cmd_extra_$(1)),$(file >$(dot-target).cmdflags,cmdflags_$@ := $(subst $(pound),$$(pound),$(subst $$,$$$$,$(cmd_extra_$(1))))))
 
 # Find any prerequisites that are newer than target or that do not exist.
 # (This is not true for now; $? should contain any non-existent prerequisites,
@@ -145,15 +152,19 @@ if-changed-cond = $(newer-prereqs)$(cmd-check)$(check-FORCE)
 if_changed = $(if $(if-changed-cond),$(cmd_and_savecmd),@:)
 
 cmd_and_savecmd =                                                            \
+	$(cmd_prepare_$(1))$(cmd_savecmdflags)                               \
 	$(cmd);                                                              \
-	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd
+	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd;           \
+	$(if $(cmd_extra_$(1)),cat $(dot-target).cmdflags >> $(dot-target).cmd && rm -f $(dot-target).cmdflags;)
 
 # Execute the command and also postprocess generated .d dependencies file.
 if_changed_dep = $(if $(if-changed-cond),$(cmd_and_fixdep),@:)
 
 cmd_and_fixdep =                                                             \
+	$(cmd_prepare_$(1))$(cmd_savecmdflags)                               \
 	$(cmd);                                                              \
 	scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(dot-target).cmd;\
+	$(if $(cmd_extra_$(1)),cat $(dot-target).cmdflags >> $(dot-target).cmd && rm -f $(dot-target).cmdflags;) \
 	rm -f $(depfile)
 
 # Usage: $(call if_changed_rule,foo)

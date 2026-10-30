@@ -7,6 +7,9 @@ Dependencies
 For building U-Boot you need a GCC compiler for your host platform. If you
 are not building on the target platform you further need  a GCC cross compiler.
 
+GNU Make 4.0 or later is required to build U-Boot. Older versions are rejected
+with an error at the start of the build.
+
 Debian based
 ~~~~~~~~~~~~
 
