@@ -9,17 +9,21 @@
  * Author: Markus Niebel
  */
 
+#include <dm.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <mmc.h>
+#include <sysinfo.h>
 #include <power/pfuze100_pmic.h>
 #include <power/pmic.h>
 
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/mxc_i2c.h>
 
 #include "tqma6_emmc.h"
 #include "../common/tq_bb.h"
+#include "../common/tq_sysinfo.h"
 
 /*
  * Rev. 0200 and newer optionally implements GIGE errata fix.
@@ -39,6 +43,32 @@ int tqma6_has_enet_workaround(void)
 static const iomux_v3_cfg_t tqma6_revdet_pads[] = {
 	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_REVDET_PAD_CTRL),
 };
+
+static void tqma6_i2c_idle_bus(int seq)
+{
+	struct mxc_i2c_bus *i2c_bus;
+	struct udevice *bus;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, seq, &bus);
+	if (ret) {
+		printf("Failed to get I2C bus %d: %d\n", seq, ret);
+		return;
+	}
+
+	i2c_bus = dev_get_priv(bus);
+	if (!i2c_bus) {
+		printf("Failed to get private data for I2C bus %d\n", seq);
+		return;
+	}
+
+	ret = i2c_idle_bus(i2c_bus);
+	if (ret) {
+		printf("Failed to recover I2C bus %d: %d\n",
+		       seq, ret);
+		return;
+	}
+}
 
 #define TQMA6_REVDET_GPIO IMX_GPIO_NR(1, 6)
 
@@ -73,11 +103,12 @@ void tqma6_detect_enet_workaround(void)
 
 		ret = dm_gpio_request(&desc, "tqma6-revdet");
 		if (ret) {
-			if (ret == -EBUSY)
+			if (ret == -EBUSY) {
 				has_enet_workaround = 0;
-			else
+				tqma6_i2c_idle_bus(2);
+			} else {
 				pr_err("error: gpio request for enet workaround %d\n", ret);
-
+			}
 			return;
 		}
 
@@ -181,6 +212,7 @@ int board_late_init(void)
 {
 	char fdtfile[FDTFILE_STRLEN];
 	const char *config = tqma6_get_fdt_configuration();
+	int ret;
 
 	env_set("board_name", tqma6_get_boardname());
 
@@ -192,6 +224,10 @@ int board_late_init(void)
 			pr_err("ENV: Could not set kernel devicetree, ${fdtfile} remains unset\n");
 		}
 	}
+
+	ret = tq_common_sysinfo_setup();
+	if (ret)
+		pr_err("Failed to get sysinfo data: %d\n", ret);
 
 	tq_bb_board_late_init();
 

@@ -11,12 +11,15 @@
 
 #include <env.h>
 #include <env_internal.h>
+#include <sysinfo.h>
 #include <spl.h>
 
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <sysinfo/tq_eeprom.h>
 
 #include "../common/tq_bb.h"
+#include "../common/tq_sysinfo.h"
 
 #define UART_PAD_CTRL (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
@@ -102,6 +105,18 @@ const char *tq_bb_get_boardname(void)
 
 int tq_bb_board_late_init(void)
 {
+	struct udevice *sysinfo;
+	int ret;
+
+	ret = sysinfo_get_by_seq_and_detect(&sysinfo, 1);
+	if (ret) {
+		pr_err("Failed to get sysinfo data: %d\n", ret);
+	} else {
+		ret = tq_common_sysinfo_set_eeprom_macaddrs_by_index(sysinfo, 1, 1);
+		if (ret)
+			pr_err("Failed to set eth1addr: %d\n", ret);
+	}
+
 	board_late_mmc_env_init();
 	return 0;
 }
