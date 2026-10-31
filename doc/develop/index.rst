@@ -31,7 +31,6 @@ Implementation
 
    directories
    bloblist
-   imagemap
    bootstd/index
    ci_testing
    commands
@@ -46,6 +45,7 @@ Implementation
    cedit
    event
    global_data
+   imagemap
    lmb
    logging
    makefiles
