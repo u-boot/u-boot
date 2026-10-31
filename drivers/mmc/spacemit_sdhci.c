@@ -324,16 +324,6 @@ static int spacemit_sdhci_wait_dat0(struct udevice *dev, int state,
 	return 0;
 }
 
-static int spacemit_sdhci_get_b_max(struct udevice *dev, void *dst,
-				    lbaint_t blkcnt)
-{
-	struct mmc *mmc = mmc_get_mmc_dev(dev);
-
-	if (IS_ENABLED(CONFIG_SPL_BUILD) && mmc && IS_SD(mmc))
-		return 1;
-	return mmc->cfg->b_max;
-}
-
 static void spacemit_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
@@ -574,7 +564,6 @@ static int spacemit_sdhci_probe(struct udevice *dev)
 
 	spacemit_mmc_ops = sdhci_ops;
 	spacemit_mmc_ops.wait_dat0 = spacemit_sdhci_wait_dat0;
-	spacemit_mmc_ops.get_b_max = spacemit_sdhci_get_b_max;
 
 	ret = clk_get_bulk(dev, &plat->clks);
 	if (ret) {
