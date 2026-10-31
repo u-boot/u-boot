@@ -72,10 +72,11 @@ void *imagemap_lookup(struct udevice *dev, loff_t img_offset, ulong size)
 		 *
 		 *  2) img_offset - r->img_offset <= r->size
 		 *     The offset into the region does not exceed the
-		 *     region size.  This guard is essential: without it,
-		 *     the subtraction in (3) wraps to a huge value on
-		 *     LP64 where ulong and loff_t have the same rank
-		 *     and the arithmetic is performed as unsigned.
+		 *     region size.  This guard is essential: on LP64,
+		 *     ulong and loff_t have the same width, so the usual
+		 *     arithmetic conversions turn the subtraction in (3)
+		 *     unsigned and it wraps, making every range appear to
+		 *     fit.
 		 *
 		 *  3) size <= r->size - (img_offset - r->img_offset)
 		 *     The requested range fits in the remaining space.
