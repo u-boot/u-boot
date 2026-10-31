@@ -158,7 +158,8 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 		 * parsed any #config / :subimage suffix so the FIT
 		 * selection variables are populated.
 		 */
-		buf = imagemap_map(images->imagemap, 0, 64);
+		buf = imagemap_map(images->imagemap, 0,
+				   sizeof(struct legacy_img_hdr));
 		if (IS_ERR(buf)) {
 			puts("Cannot read image header from storage\n");
 			return PTR_ERR(buf);
