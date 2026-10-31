@@ -231,7 +231,8 @@ static int imagemap_test_map_extend(struct unit_test_state *uts)
 	struct imagemap_priv *priv;
 	struct mock_priv *mock;
 	u8 image[IMAGE_SIZE];
-	void *p1, *p2;
+	void *p1, *p2, *p3;
+	ulong p2_end;
 
 	for (int i = 0; i < IMAGE_SIZE; i++)
 		image[i] = (u8)(i & 0xff);
@@ -264,17 +265,15 @@ static int imagemap_test_map_extend(struct unit_test_state *uts)
 	 * With LMB allocation this cannot happen because each allocation
 	 * reserves distinct memory.
 	 */
-	{
-		void *p3 = imagemap_map(dev, 256, 128);
-		ulong p2_end = map_to_sysmem(p2) + 256;
+	p3 = imagemap_map(dev, 256, 128);
+	p2_end = map_to_sysmem(p2) + 256;
 
-		ut_assert(!IS_ERR(p3));
-		ut_asserteq(2, priv->regions.count);
-		/* New region must not overlap the extended first region */
-		ut_assert(map_to_sysmem(p3) >= p2_end ||
-			  map_to_sysmem(p3) + 128 <= map_to_sysmem(p2));
-		ut_asserteq_mem(image + 256, p3, 128);
-	}
+	ut_assert(!IS_ERR(p3));
+	ut_asserteq(2, priv->regions.count);
+	/* New region must not overlap the extended first region */
+	ut_assert(map_to_sysmem(p3) >= p2_end ||
+		  map_to_sysmem(p3) + 128 <= map_to_sysmem(p2));
+	ut_asserteq_mem(image + 256, p3, 128);
 
 	imagemap_cleanup(dev);
 
@@ -455,6 +454,7 @@ static int imagemap_test_read_oob(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	u8 image[IMAGE_SIZE];
+	u8 dst[64];
 	void *p;
 
 	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
@@ -464,8 +464,6 @@ static int imagemap_test_read_oob(struct unit_test_state *uts)
 	ut_assert(IS_ERR(p));
 
 	/* map_to should also fail */
-	u8 dst[64];
-
 	p = imagemap_map_to(dev, IMAGE_SIZE - 32, 64, dst);
 	ut_assert(IS_ERR(p));
 
