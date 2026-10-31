@@ -1163,10 +1163,10 @@ int fit_image_get_data(const void *fit, int noffset, const void **data,
 		}
 		*data = fit + offset;
 #if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
-		if (images.imagemap) {
+		if (bootm_imagemap(&images)) {
 			void *mapped;
 
-			mapped = imagemap_lookup(images.imagemap,
+			mapped = imagemap_lookup(bootm_imagemap(&images),
 						 offset, len);
 			if (mapped)
 				*data = mapped;
@@ -2212,6 +2212,7 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 	u8 img_comp = IH_COMP_NONE;
 	void *mapped;
 	void *dst;
+	struct udevice *imagemap = bootm_imagemap(images);
 	int ret;
 
 	if (CONFIG_IS_ENABLED(FIT_VERITY)) {
@@ -2242,11 +2243,11 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 	    !fit_image_get_load(fit, noffset, &img_load)) {
 		dst = map_sysmem(img_load, data_sz);
 
-		mapped = imagemap_map_to(images->imagemap, data_off, data_sz,
+		mapped = imagemap_map_to(imagemap, data_off, data_sz,
 					 dst);
 		unmap_sysmem(dst);
 	} else {
-		mapped = imagemap_map(images->imagemap, data_off, data_sz);
+		mapped = imagemap_map(imagemap, data_off, data_sz);
 	}
 
 	return IS_ERR(mapped) ? PTR_ERR(mapped) : 0;
@@ -2361,7 +2362,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	 * On-demand storage: pre-load external-data payloads into RAM (or leave
 	 * dm-verity filesystems on storage) before fit_image_select() verifies.
 	 */
-	if (CONFIG_IS_ENABLED(IMAGEMAP) && !tools_build() && images->imagemap) {
+	if (!tools_build() && bootm_imagemap(images)) {
 		bool early = false;
 
 		ret = fit_image_load_storage(images, fit, noffset, load_op,
@@ -2486,7 +2487,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		}
 
 		/* A storage-backed image was read straight to its load address */
-		if (!images->imagemap || data != load)
+		if (!bootm_imagemap(images) || data != load)
 			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
 			       prop_name, data, load);
 	} else {
