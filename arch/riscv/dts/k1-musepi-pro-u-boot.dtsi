@@ -105,9 +105,9 @@
 				regulator-name = "vdd_1v8";
 			};
 
+			/* vqmmc-supply of sdhci0, set by the MMC core in SPL */
 			aldo1 {
 				bootph-pre-ram;
-				regulator-name = "vdd_1v8_mmc";
 			};
 
 		};
