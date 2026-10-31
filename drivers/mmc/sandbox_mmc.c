@@ -29,6 +29,7 @@ struct sandbox_mmc_plat {
 struct sandbox_mmc_priv {
 	char *buf;
 	int csize;	/* CSIZE value to report */
+	int bl_len_shift;	/* READ_BL_LEN value to report */
 	int size;
 };
 
@@ -62,7 +63,7 @@ static int sandbox_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		break;
 	case MMC_CMD_SEND_CSD:
 		cmd->response[0] = 0;
-		cmd->response[1] = (MMC_BL_LEN_SHIFT << 16) |
+		cmd->response[1] = (priv->bl_len_shift << 16) |
 				   ((priv->csize >> 16) & 0x3f);
 		cmd->response[2] = (priv->csize & 0xffff) << 16;
 		cmd->response[3] = 0;
@@ -144,6 +145,13 @@ static const struct dm_mmc_ops sandbox_mmc_ops = {
 	.get_cd = sandbox_mmc_get_cd,
 };
 
+void sandbox_mmc_set_bl_len_shift(struct udevice *dev, int bl_len_shift)
+{
+	struct sandbox_mmc_priv *priv = dev_get_priv(dev);
+
+	priv->bl_len_shift = bl_len_shift;
+}
+
 static int sandbox_mmc_of_to_plat(struct udevice *dev)
 {
 	struct sandbox_mmc_plat *plat = dev_get_plat(dev);
@@ -169,6 +177,7 @@ static int sandbox_mmc_probe(struct udevice *dev)
 	struct sandbox_mmc_priv *priv = dev_get_priv(dev);
 	int ret;
 
+	priv->bl_len_shift = MMC_BL_LEN_SHIFT;
 	if (plat->fname) {
 		ret = os_map_file(plat->fname, OS_O_RDWR | OS_O_CREAT,
 				  (void **)&priv->buf, &priv->size);

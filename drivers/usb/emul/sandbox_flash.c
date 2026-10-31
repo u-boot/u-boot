@@ -13,6 +13,7 @@
 #include <scsi.h>
 #include <scsi_emul.h>
 #include <usb.h>
+#include <asm/test.h>
 
 /*
  * This driver emulates a flash stick using the UFI command specification and
@@ -355,6 +356,13 @@ static int sandbox_flash_probe(struct udevice *dev)
 	info->block_size = SANDBOX_FLASH_BLOCK_LEN;
 
 	return 0;
+}
+
+void sandbox_flash_set_block_size(struct udevice *dev, int block_size)
+{
+	struct sandbox_flash_priv *priv = dev_get_priv(dev);
+
+	priv->eminfo.block_size = block_size;
 }
 
 static int sandbox_flash_remove(struct udevice *dev)

@@ -84,6 +84,57 @@ static int dm_test_usb_flash(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_usb_flash, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
+/* Test that a flash stick reporting an unsupported block size is refused */
+static int dm_test_usb_flash_blksz(struct unit_test_state *uts)
+{
+	static const struct {
+		int blksz;
+		bool ok;
+	} cases[] = {
+		{ 256, false },
+		{ 520, false },
+		{ 2 * BLK_MAX_BLKSZ, false },
+		{ SZ_4K, true },
+	};
+	struct udevice *dev, *emul, *blk;
+	struct blk_desc *desc;
+	int i, ret;
+
+	state_set_skip_delays(true);
+	ut_assertok(usb_init());
+	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
+	ut_assertok(uclass_get_device_by_name(UCLASS_USB_EMUL, "flash-stick@0",
+					      &emul));
+
+	for (i = 0; i < ARRAY_SIZE(cases); i++) {
+		/* Probe the stick again, so that it reads the block size */
+		console_record_reset();
+		sandbox_flash_set_block_size(emul, cases[i].blksz);
+		ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
+		ut_assertok(device_chld_unbind(dev, NULL));
+		ut_assertok(device_probe(dev));
+
+		ret = device_find_first_child_by_uclass(dev, UCLASS_BLK, &blk);
+		if (!cases[i].ok) {
+			/* usb_stor_get_info() refuses the LUN */
+			ut_assert_nextline("LUN 0: unsupported block size %d, skipping",
+					   cases[i].blksz);
+			ut_assert_console_end();
+			ut_asserteq(-ENODEV, ret);
+			continue;
+		}
+		ut_assert_console_end();
+		ut_assertok(ret);
+		desc = dev_get_uclass_plat(blk);
+		ut_asserteq(cases[i].blksz, desc->blksz);
+	}
+
+	ut_assertok(usb_stop());
+
+	return 0;
+}
+DM_TEST(dm_test_usb_flash_blksz, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
+
 /* test that we can handle multiple storage devices */
 static int dm_test_usb_multi(struct unit_test_state *uts)
 {

@@ -28,7 +28,14 @@
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <linux/printk.h>
+#include <linux/sizes.h>
 #include <u-boot/crc.h>
+
+/*
+ * Largest partition entry array accepted, as in Linux (KMALLOC_MAX_SIZE with
+ * 4KiB pages): 32768 entries, far more than any tool writes
+ */
+#define GPT_ENTRIES_MAX_SIZE	SZ_4M
 
 /* GUID for basic data partitons */
 #if CONFIG_IS_ENABLED(EFI_PARTITION)
@@ -89,10 +96,11 @@ static int get_bootable(gpt_entry *p)
 }
 
 static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
-		lbaint_t lastlba)
+		lbaint_t lastlba, unsigned long blksz)
 {
 	uint32_t crc32_backup = 0;
 	uint32_t calc_crc32;
+	u32 header_size, entry_size, num_entries;
 
 	/* Check the GPT header signature */
 	if (le64_to_cpu(gpt_h->signature) != GPT_HEADER_SIGNATURE_UBOOT) {
@@ -103,12 +111,22 @@ static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
 		return -1;
 	}
 
+	/*
+	 * The CRC covers header_size bytes, so the header has to fit in the
+	 * one block that was read into gpt_h
+	 */
+	header_size = le32_to_cpu(gpt_h->header_size);
+	if (header_size < sizeof(gpt_header) || header_size > blksz) {
+		log_debug("GPT: header_size incorrect: %u not in %zu..%lu\n",
+			  header_size, sizeof(gpt_header), blksz);
+		return -1;
+	}
+
 	/* Check the GUID Partition Table CRC */
 	memcpy(&crc32_backup, &gpt_h->header_crc32, sizeof(crc32_backup));
 	memset(&gpt_h->header_crc32, 0, sizeof(gpt_h->header_crc32));
 
-	calc_crc32 = efi_crc32((const unsigned char *)gpt_h,
-		le32_to_cpu(gpt_h->header_size));
+	calc_crc32 = efi_crc32((const unsigned char *)gpt_h, header_size);
 
 	memcpy(&gpt_h->header_crc32, &crc32_backup, sizeof(crc32_backup));
 
@@ -140,6 +158,24 @@ static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
 	if (le64_to_cpu(gpt_h->last_usable_lba) > lastlba) {
 		log_debug("GPT: last_usable_lba incorrect: %llX > " LBAF "\n",
 			  le64_to_cpu(gpt_h->last_usable_lba), lastlba);
+		return -1;
+	}
+
+	/*
+	 * The partition entries are used as an array of gpt_entry, read into
+	 * a buffer whose size is the product of these two fields, worked out
+	 * in 32 bits and then rounded up to whole blocks
+	 */
+	entry_size = le32_to_cpu(gpt_h->sizeof_partition_entry);
+	if (entry_size != sizeof(gpt_entry)) {
+		log_debug("GPT: sizeof_partition_entry incorrect: %u != %zu\n",
+			  entry_size, sizeof(gpt_entry));
+		return -1;
+	}
+	num_entries = le32_to_cpu(gpt_h->num_partition_entries);
+	if (num_entries > GPT_ENTRIES_MAX_SIZE / entry_size) {
+		log_debug("GPT: num_partition_entries too large: %u\n",
+			  num_entries);
 		return -1;
 	}
 
@@ -839,6 +875,33 @@ int gpt_repair_headers(struct blk_desc *desc)
 	return ret;
 }
 
+int part_get_gpt(struct blk_desc *desc, gpt_header *gpt_h, gpt_entry **gpt_pte)
+{
+	int r;
+
+	/* Find the GPT as find_valid_gpt() does */
+	r = is_gpt_valid(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, gpt_h, gpt_pte);
+	if (r == 1)
+		return 0;
+
+	if (is_gpt_valid(desc, desc->lba - 1, gpt_h, gpt_pte) != 1) {
+		/* is_gpt_valid() may leave a freed array here */
+		*gpt_pte = NULL;
+		return -EINVAL;
+	}
+
+	/*
+	 * If the primary GPT is not valid, give the backup header as the
+	 * primary header that gpt_repair_headers() writes from it. A primary
+	 * header marked to be ignored (ChromeOS) is never repaired, so give
+	 * the backup header as it is then.
+	 */
+	if (r != 2)
+		restore_primary_gpt_header(gpt_h, desc);
+
+	return 0;
+}
+
 int gpt_verify_partitions(struct blk_desc *desc,
 			  struct disk_partition *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte)
@@ -925,7 +988,7 @@ int is_valid_gpt_buf(struct blk_desc *desc, void *buf)
 	/* determine start of GPT Header in the buffer */
 	gpt_h = buf + (GPT_PRIMARY_PARTITION_TABLE_LBA * desc->blksz);
 	if (validate_gpt_header(gpt_h, GPT_PRIMARY_PARTITION_TABLE_LBA,
-				desc->lba))
+				desc->lba, desc->blksz))
 		return -1;
 
 	/* determine start of GPT Entries in the buffer */
@@ -1095,7 +1158,8 @@ static int is_gpt_valid(struct blk_desc *desc, u64 lba, gpt_header *pgpt_head,
 		return 2;
 	}
 
-	if (validate_gpt_header(pgpt_head, (lbaint_t)lba, desc->lba))
+	if (validate_gpt_header(pgpt_head, (lbaint_t)lba, desc->lba,
+				desc->blksz))
 		return 0;
 
 	if (desc->sig_type == SIG_TYPE_NONE) {

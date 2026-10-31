@@ -10,6 +10,8 @@
 #include <bouncebuf.h>
 #include <dm/uclass-id.h>
 #include <efi.h>
+#include <linux/log2.h>
+#include <linux/sizes.h>
 
 #ifdef CONFIG_SYS_64BIT_LBA
 typedef uint64_t lbaint_t;
@@ -22,8 +24,27 @@ typedef ulong lbaint_t;
 #define LBAFU "%" LBAFlength "u"
 
 #define DEFAULT_BLKSZ		512
+/* Largest block size supported, as in Linux */
+#define BLK_MAX_BLKSZ		SZ_64K
 
 struct udevice;
+
+/**
+ * blk_valid_blksz() - Check that a block size is supported
+ *
+ * The block, partition and filesystem code size buffers by the block size,
+ * expect a block to hold at least a 512-byte boot sector and convert between
+ * bytes and blocks with log2(block size), so a device is only usable with a
+ * block size that is a power of two from DEFAULT_BLKSZ to BLK_MAX_BLKSZ.
+ *
+ * @blksz: Block size in bytes
+ * Return: true if @blksz is supported, false if not
+ */
+static inline bool blk_valid_blksz(unsigned long blksz)
+{
+	return blksz >= DEFAULT_BLKSZ && blksz <= BLK_MAX_BLKSZ &&
+	       is_power_of_2(blksz);
+}
 
 static inline bool blk_enabled(void)
 {

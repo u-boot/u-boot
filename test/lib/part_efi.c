@@ -12,6 +12,7 @@
 #include <part.h>
 #include <part_efi.h>
 #include <asm/byteorder.h>
+#include <u-boot/crc.h>
 #include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -279,5 +280,226 @@ static int lib_test_gpt_blkmap(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_test_gpt_blkmap, 0);
+
+/**
+ * gpt_sizes_check() - check the size fields of a GPT header one by one
+ *
+ * Give the primary header of a good table each set of sizes in turn, with
+ * both CRCs recomputed over what those sizes cover, as a crafted disk would
+ * have them. Only the checks on the sizes themselves can then refuse it.
+ *
+ * @uts:	test state
+ * @dev:	blkmap device with nothing mapped yet
+ * @lba:	size of the device in blocks
+ * @buf:	memory to back the device with, @lba blocks of DEFAULT_BLKSZ
+ * @hdr:	two blocks of memory, to rewrite the header in
+ * Return: 0 if OK, other value on error
+ */
+static int gpt_sizes_check(struct unit_test_state *uts, struct udevice *dev,
+			   lbaint_t lba, void *buf, gpt_header *hdr)
+{
+	static const struct {
+		u32 header_size;
+		u32 num_entries;
+		u32 entry_size;
+		int ret;
+	} cases[] = {
+		{ sizeof(gpt_header), GPT_ENTRY_NUMBERS, sizeof(gpt_entry), 0 },
+		/* the reserved rest of the block may be part of the header */
+		{ DEFAULT_BLKSZ, GPT_ENTRY_NUMBERS, sizeof(gpt_entry), 0 },
+		/* a header longer than the block it is read from */
+		{ DEFAULT_BLKSZ + 1, GPT_ENTRY_NUMBERS, sizeof(gpt_entry), -1 },
+		{ sizeof(gpt_header) - 1, GPT_ENTRY_NUMBERS, sizeof(gpt_entry),
+		  -1 },
+		/* entries are only ever read as a gpt_entry array */
+		{ sizeof(gpt_header), GPT_ENTRY_NUMBERS, sizeof(gpt_entry) / 2,
+		  -1 },
+		{ sizeof(gpt_header), GPT_ENTRY_NUMBERS, sizeof(gpt_entry) * 2,
+		  -1 },
+		/* an array whose size comes to a single entry in 32 bits */
+		{ sizeof(gpt_header), U32_MAX / sizeof(gpt_entry) + 2,
+		  sizeof(gpt_entry), -1 },
+	};
+
+	char str_disk_guid[UUID_STR_LEN + 1] =
+		"8d60b397-1bb6-4d33-80ee-b1587d24c2f8";
+	const unsigned long blksz = DEFAULT_BLKSZ;
+	struct disk_partition parts[1], info;
+	struct blk_desc *desc;
+	struct udevice *blk;
+	gpt_entry *gpt_pte;
+	gpt_header orig, written, backup;
+	void *entries;
+	int i, ret;
+
+	ut_assertok(blkmap_map_mem(dev, 0, lba, buf));
+	ut_assertok(blk_get_from_parent(dev, &blk));
+	desc = dev_get_uclass_plat(blk);
+
+	memset(parts, '\0', sizeof(parts));
+	strcpy((char *)parts[0].name, "first");
+	parts[0].size = 0x100;
+	disk_partition_set_uuid(&parts[0],
+				"a2a0d0eb-e5b9-3344-87c0-68b6b72699c7");
+	ut_assertok(gpt_restore(desc, str_disk_guid, parts, 1));
+	ut_asserteq(1, blk_dread(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, 1, hdr));
+	memcpy(&orig, hdr, sizeof(orig));
+
+	for (i = 0; i < ARRAY_SIZE(cases); i++) {
+		u32 header_size = cases[i].header_size;
+		u32 array_size;
+
+		/* start from the primary header as it is on the disk */
+		memset(hdr, '\0', 2 * blksz);
+		ut_asserteq(1, blk_dread(desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+					 1, hdr));
+
+		hdr->header_size = cpu_to_le32(header_size);
+		hdr->num_partition_entries = cpu_to_le32(cases[i].num_entries);
+		hdr->sizeof_partition_entry = cpu_to_le32(cases[i].entry_size);
+
+		/* the array CRC covers the size as the parser works it out */
+		array_size = cases[i].num_entries * cases[i].entry_size;
+		entries = buf + le64_to_cpu(hdr->partition_entry_lba) * blksz;
+		hdr->partition_entry_array_crc32 =
+			cpu_to_le32(crc32(0, entries, array_size));
+		hdr->header_crc32 = 0;
+		hdr->header_crc32 = cpu_to_le32(crc32(0, (void *)hdr,
+						      header_size));
+		ut_asserteq(1, blk_dwrite(desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+					  1, hdr));
+		memcpy(&written, hdr, sizeof(written));
+
+		/*
+		 * efi_tcg2 measures the GPT this gives: the header just
+		 * written if it is valid, else the backup header turned into
+		 * the primary one, which is then the header gpt_restore() wrote
+		 */
+		memset(hdr, '\0', 2 * blksz);
+		gpt_pte = NULL;
+		ret = part_get_gpt(desc, hdr, &gpt_pte);
+		free(gpt_pte);
+		ut_assertf(!ret, "case %d: GPT not found: %d\n", i, ret);
+		if (cases[i].ret)
+			ut_asserteq_mem(&orig, hdr, sizeof(gpt_header));
+		else
+			ut_asserteq_mem(&written, hdr, sizeof(gpt_header));
+
+		/*
+		 * Read it back into a buffer as large as the one above, so
+		 * that a header longer than its block is refused by the size
+		 * check rather than by a CRC over whatever follows the buffer
+		 */
+		memset(hdr, '\0', 2 * blksz);
+		gpt_pte = NULL;
+		ret = gpt_verify_headers(desc, hdr, &gpt_pte);
+		free(gpt_pte);
+		ut_assertf(ret == cases[i].ret,
+			   "case %d: header %u, %u entries of %u: %d\n", i,
+			   header_size, cases[i].num_entries,
+			   cases[i].entry_size, ret);
+
+		/*
+		 * fastboot checks a GPT it is sent in memory the same way.
+		 * There a header longer than its block is also refused by its
+		 * CRC, which then takes in the first entry that follows it.
+		 */
+		ut_asserteq(cases[i].ret, is_valid_gpt_buf(desc, buf));
+
+		/* either way the disk still reads, from the backup if needed */
+		desc->part_type = PART_TYPE_UNKNOWN;
+		part_init(desc);
+		ut_asserteq(PART_TYPE_EFI, desc->part_type);
+		ut_assertok(part_get_info(desc, 1, &info));
+		ut_asserteq_str((char *)parts[0].name, (char *)info.name);
+		ut_asserteq_64(parts[0].size, info.size);
+	}
+
+	/*
+	 * A primary header marked to be ignored is never repaired, so the
+	 * backup header is given as it is
+	 */
+	memset(hdr, '\0', 2 * blksz);
+	memcpy(hdr, &orig, sizeof(orig));
+	hdr->signature = cpu_to_le64(GPT_HEADER_CHROMEOS_IGNORE);
+	ut_asserteq(1, blk_dwrite(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, 1,
+				  hdr));
+	ut_asserteq(1, blk_dread(desc, lba - 1, 1, hdr));
+	memcpy(&backup, hdr, sizeof(backup));
+	memset(hdr, '\0', 2 * blksz);
+	gpt_pte = NULL;
+	ret = part_get_gpt(desc, hdr, &gpt_pte);
+	free(gpt_pte);
+	ut_assertok(ret);
+	ut_asserteq_64(lba - 1, le64_to_cpu(hdr->my_lba));
+	ut_asserteq_mem(&backup, hdr, sizeof(gpt_header));
+
+	/*
+	 * With the primary header valid again but not its entries, and the
+	 * backup header broken, there is no GPT left, and no entries either
+	 */
+	memset(hdr, '\0', 2 * blksz);
+	memcpy(hdr, &orig, sizeof(orig));
+	ut_asserteq(1, blk_dwrite(desc, GPT_PRIMARY_PARTITION_TABLE_LBA, 1,
+				  hdr));
+	ut_asserteq(1, blk_dread(desc, le64_to_cpu(orig.partition_entry_lba),
+				 1, hdr));
+	((gpt_entry *)hdr)->partition_name[0] ^= 1;
+	ut_asserteq(1, blk_dwrite(desc, le64_to_cpu(orig.partition_entry_lba),
+				  1, hdr));
+	ut_asserteq(1, blk_dread(desc, lba - 1, 1, hdr));
+	hdr->signature = 0;
+	ut_asserteq(1, blk_dwrite(desc, lba - 1, 1, hdr));
+	gpt_pte = (gpt_entry *)hdr;
+	ut_asserteq(-EINVAL, part_get_gpt(desc, hdr, &gpt_pte));
+	ut_assertnull(gpt_pte);
+
+	return 0;
+}
+
+/*
+ * A GPT header gives its own size and the size of its partition entries, and
+ * its CRCs cover only what those say, so a CRC does not show that either size
+ * is one the parser can use. Check that a primary header with a size the
+ * parser cannot use is refused, CRCs or not, and that the backup is used, for
+ * the GPT efi_tcg2 measures too.
+ */
+static int lib_test_gpt_sizes(struct unit_test_state *uts)
+{
+	const unsigned long blksz = DEFAULT_BLKSZ;
+	const lbaint_t lba = 0x400;
+	struct udevice *dev;
+	gpt_header *hdr;
+	int ret, err;
+	void *buf;
+
+	buf = memalign(ARCH_DMA_MINALIGN, lba * blksz);
+	ut_assertnonnull(buf);
+	memset(buf, '\0', lba * blksz);
+
+	hdr = malloc_cache_aligned(2 * blksz);
+	if (!hdr) {
+		free(buf);
+		ut_assertnonnull(hdr);
+	}
+	ret = blkmap_create(GPT_TEST_LABEL, &dev);
+	if (ret) {
+		free(hdr);
+		free(buf);
+		ut_assertok(ret);
+	}
+
+	/* clean up here, as lib_test_gpt_blkmap() explains */
+	ret = gpt_sizes_check(uts, dev, lba, buf, hdr);
+	err = blkmap_destroy(dev);
+	free(hdr);
+	free(buf);
+	if (ret)
+		return ret;
+	ut_assertok(err);
+
+	return 0;
+}
+LIB_TEST(lib_test_gpt_sizes, 0);
 
 #endif /* BLKMAP */

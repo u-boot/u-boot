@@ -28,6 +28,18 @@
  * to use large numbers of partitions */
 #define MAX_EXT_PARTS 256
 
+/*
+ * A link to the next extended partition table adds no partition, so tables
+ * linking back to each other do not advance part_num. As Linux does in
+ * parse_extended(), stop after MAX_EXT_EMPTY tables in a row that hold no
+ * partition, so that such a loop ends after a few reads. Also stop after
+ * MAX_EXT_TABLES tables in all, as many as MAX_EXT_PARTS partitions need,
+ * so that tables with and without partitions in turn cannot make a walk
+ * read more.
+ */
+#define MAX_EXT_EMPTY	16
+#define MAX_EXT_TABLES	MAX_EXT_PARTS
+
 static inline int is_extended(int part_type)
 {
     return (part_type == DOS_PART_TYPE_EXTENDED ||
@@ -126,6 +138,42 @@ static int part_test_dos(struct blk_desc *desc)
 	return 0;
 }
 
+/**
+ * dos_next_table() - Follow the link from a partition table to the next one
+ *
+ * Only the first link of a table is followed: fdisk numbers the logical
+ * partitions along that chain.
+ *
+ * @buffer:		Partition table just read
+ * @ext_part_sector:	Sector of that table (0 for the MBR), updated to the
+ *			sector of the next table
+ * @relative:		Start of the extended partition, which the links of
+ *			its tables are relative to, set from the link in the
+ *			MBR
+ * Return:		true if the table links to a next one, false if not
+ */
+static bool dos_next_table(unsigned char *buffer, lbaint_t *ext_part_sector,
+			   lbaint_t *relative)
+{
+	dos_partition_t *pt;
+	int i;
+
+	pt = (dos_partition_t *)(buffer + DOS_PART_TBL_OFFSET);
+	for (i = 0; i < 4; i++, pt++) {
+		if (is_extended(pt->sys_ind)) {
+			lbaint_t lba_start = get_unaligned_le32(&pt->start_sect) +
+					     *relative;
+
+			if (!*ext_part_sector)
+				*relative = lba_start;
+			*ext_part_sector = lba_start;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /*  Print a partition that is relative to its Extended partition table
  */
 static void print_partition_extended(struct blk_desc *desc,
@@ -135,65 +183,61 @@ static void print_partition_extended(struct blk_desc *desc,
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, desc->blksz);
 	dos_partition_t *pt;
+	int tables, empty = 0;
 	int i;
 
-	/* set a maximum recursion level */
-	if (part_num > MAX_EXT_PARTS)
-	{
-		printf("** Nested DOS partitions detected, stopping **\n");
-		return;
-    }
+	for (tables = 0; ; tables++) {
+		int prev_num = part_num;
 
-	if (blk_dread(desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
-		printf ("** Can't read partition table on %d:" LBAFU " **\n",
-			desc->devnum, ext_part_sector);
-		return;
-	}
-	i=test_block_type(buffer);
-	if (i != DOS_MBR) {
-		printf ("bad MBR sector signature 0x%02x%02x\n",
-			buffer[DOS_PART_MAGIC_OFFSET],
-			buffer[DOS_PART_MAGIC_OFFSET + 1]);
-		return;
-	}
-
-	if (!ext_part_sector)
-		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
-
-	/* Print all primary/logical partitions */
-	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
-	for (i = 0; i < 4; i++, pt++) {
-		/*
-		 * fdisk does not show the extended partitions that
-		 * are not in the MBR
-		 */
-
-		if ((pt->sys_ind != 0) &&
-		    (ext_part_sector == 0 || !is_extended (pt->sys_ind)) ) {
-			print_one_part(pt, ext_part_sector, part_num, disksig);
+		/* bound the walk */
+		if (part_num > MAX_EXT_PARTS || tables >= MAX_EXT_TABLES ||
+		    empty >= MAX_EXT_EMPTY) {
+			printf("** Nested DOS partitions detected, stopping **\n");
+			return;
 		}
 
-		/* Reverse engr the fdisk part# assignment rule! */
-		if ((ext_part_sector == 0) ||
-		    (pt->sys_ind != 0 && !is_extended (pt->sys_ind)) ) {
-			part_num++;
+		if (blk_dread(desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
+			printf("** Can't read partition table on %d:" LBAFU " **\n",
+			       desc->devnum, ext_part_sector);
+			return;
 		}
-	}
-
-	/* Follows the extended partitions */
-	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
-	for (i = 0; i < 4; i++, pt++) {
-		if (is_extended (pt->sys_ind)) {
-			lbaint_t lba_start
-				= get_unaligned_le32 (&pt->start_sect) + relative;
-
-			print_partition_extended(desc, lba_start,
-						 !ext_part_sector ? lba_start :
-						 relative, part_num, disksig);
+		i = test_block_type(buffer);
+		if (i != DOS_MBR) {
+			printf("bad MBR sector signature 0x%02x%02x\n",
+			       buffer[DOS_PART_MAGIC_OFFSET],
+			       buffer[DOS_PART_MAGIC_OFFSET + 1]);
+			return;
 		}
-	}
 
-	return;
+		if (!ext_part_sector)
+			disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
+
+		/* Print all primary/logical partitions */
+		pt = (dos_partition_t *)(buffer + DOS_PART_TBL_OFFSET);
+		for (i = 0; i < 4; i++, pt++) {
+			/*
+			 * fdisk does not show the extended partitions that
+			 * are not in the MBR
+			 */
+
+			if ((pt->sys_ind != 0) &&
+			    (ext_part_sector == 0 || !is_extended(pt->sys_ind))) {
+				print_one_part(pt, ext_part_sector, part_num,
+					       disksig);
+			}
+
+			/* Reverse engr the fdisk part# assignment rule! */
+			if ((ext_part_sector == 0) ||
+			    (pt->sys_ind != 0 && !is_extended(pt->sys_ind))) {
+				part_num++;
+			}
+		}
+		empty = part_num > prev_num ? 0 : empty + 1;
+
+		/* Follows the extended partitions */
+		if (!dos_next_table(buffer, &ext_part_sector, &relative))
+			break;
+	}
 }
 
 /**
@@ -220,93 +264,92 @@ static int part_get_info_extended(struct blk_desc *desc,
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, desc->blksz);
 	struct disk_partition wdinfo = { 0 };
 	dos_partition_t *pt;
+	int tables, empty = 0;
 	int i, ret;
 	int dos_type;
 
-	/* set a maximum recursion level */
-	if (part_num > MAX_EXT_PARTS)
-	{
-		printf("** Nested DOS partitions detected, stopping **\n");
-		return -1;
-    }
+	for (tables = 0; ; tables++) {
+		int prev_num = part_num;
 
-	if (blk_dread(desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
-		printf ("** Can't read partition table on %d:" LBAFU " **\n",
-			desc->devnum, ext_part_sector);
-		return -1;
-	}
-	if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
-		buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) {
-		printf ("bad MBR sector signature 0x%02x%02x\n",
-			buffer[DOS_PART_MAGIC_OFFSET],
-			buffer[DOS_PART_MAGIC_OFFSET + 1]);
-		return -1;
-	}
+		/* bound the walk */
+		if (part_num > MAX_EXT_PARTS || tables >= MAX_EXT_TABLES ||
+		    empty >= MAX_EXT_EMPTY) {
+			printf("** Nested DOS partitions detected, stopping **\n");
+			return -1;
+		}
 
-	if (CONFIG_IS_ENABLED(PARTITION_UUIDS) && !ext_part_sector)
-		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
+		if (blk_dread(desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
+			printf("** Can't read partition table on %d:" LBAFU " **\n",
+			       desc->devnum, ext_part_sector);
+			return -1;
+		}
+		if (buffer[DOS_PART_MAGIC_OFFSET] != 0x55 ||
+		    buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) {
+			printf("bad MBR sector signature 0x%02x%02x\n",
+			       buffer[DOS_PART_MAGIC_OFFSET],
+			       buffer[DOS_PART_MAGIC_OFFSET + 1]);
+			return -1;
+		}
 
-	if (info) {
-		ret = part_get_info_whole_disk(desc, &wdinfo);
-		if (ret)
-			return ret;
-	}
+		if (CONFIG_IS_ENABLED(PARTITION_UUIDS) && !ext_part_sector)
+			disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 
-	/* Print all primary/logical partitions */
-	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
-	for (i = 0; i < 4; i++, pt++) {
-		/*
-		 * fdisk does not show the extended partitions that
-		 * are not in the MBR
-		 */
-		if (((pt->boot_ind & ~0x80) == 0) &&
-		    (pt->sys_ind != 0) &&
-		    (part_num == which_part) &&
-		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
-			if (info) {
-				if (wdinfo.blksz > DOS_PART_DEFAULT_SECTOR)
-					info->blksz = wdinfo.blksz;
-				else
-					info->blksz = DOS_PART_DEFAULT_SECTOR;
-				info->start = (lbaint_t)(ext_part_sector +
-							 get_unaligned_le32(&pt->start_sect));
-				info->size  = (lbaint_t)get_unaligned_le32(&pt->nr_sects);
-				part_set_generic_name(desc, part_num,
-						      (char *)info->name);
-				snprintf(info->type, sizeof(info->type), "0x%x", pt->sys_ind);
-				info->bootable = get_bootable(pt);
-				if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
-					char str[12];
+		if (info) {
+			ret = part_get_info_whole_disk(desc, &wdinfo);
+			if (ret)
+				return ret;
+		}
 
-					sprintf(str, "%08x-%02x", disksig, part_num);
-					disk_partition_set_uuid(info, str);
+		/* Print all primary/logical partitions */
+		pt = (dos_partition_t *)(buffer + DOS_PART_TBL_OFFSET);
+		for (i = 0; i < 4; i++, pt++) {
+			/*
+			 * fdisk does not show the extended partitions that
+			 * are not in the MBR
+			 */
+			if (((pt->boot_ind & ~0x80) == 0) &&
+			    (pt->sys_ind != 0) &&
+			    (part_num == which_part) &&
+			    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
+				if (info) {
+					if (wdinfo.blksz > DOS_PART_DEFAULT_SECTOR)
+						info->blksz = wdinfo.blksz;
+					else
+						info->blksz = DOS_PART_DEFAULT_SECTOR;
+					info->start = ext_part_sector +
+						get_unaligned_le32(&pt->start_sect);
+					info->size = get_unaligned_le32(&pt->nr_sects);
+					part_set_generic_name(desc, part_num,
+							      (char *)info->name);
+					snprintf(info->type, sizeof(info->type),
+						 "0x%x", pt->sys_ind);
+					info->bootable = get_bootable(pt);
+					if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
+						/* part_num may take three digits */
+						char str[UUID_STR_LEN + 1];
+
+						snprintf(str, sizeof(str), "%08x-%02x",
+							 disksig, part_num);
+						disk_partition_set_uuid(info, str);
+					}
+					info->sys_ind = pt->sys_ind;
 				}
-				info->sys_ind = pt->sys_ind;
+				if (mbr)
+					memcpy(mbr, pt, sizeof(*mbr));
+				return 0;
 			}
-			if (mbr)
-				memcpy(mbr, pt, sizeof(*mbr));
-			return 0;
-		}
 
-		/* Reverse engr the fdisk part# assignment rule! */
-		if ((ext_part_sector == 0) ||
-		    (pt->sys_ind != 0 && !is_extended (pt->sys_ind)) ) {
-			part_num++;
+			/* Reverse engr the fdisk part# assignment rule! */
+			if ((ext_part_sector == 0) ||
+			    (pt->sys_ind != 0 && !is_extended(pt->sys_ind))) {
+				part_num++;
+			}
 		}
-	}
+		empty = part_num > prev_num ? 0 : empty + 1;
 
-	/* Follows the extended partitions */
-	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
-	for (i = 0; i < 4; i++, pt++) {
-		if (is_extended (pt->sys_ind)) {
-			lbaint_t lba_start
-				= get_unaligned_le32 (&pt->start_sect) + relative;
-
-			return part_get_info_extended(desc, lba_start,
-				 ext_part_sector == 0 ? lba_start : relative,
-						      part_num, which_part, info,
-						      mbr, disksig);
-		}
+		/* Follows the extended partitions */
+		if (!dos_next_table(buffer, &ext_part_sector, &relative))
+			break;
 	}
 
 	/* Check for DOS PBR if no partition is found */

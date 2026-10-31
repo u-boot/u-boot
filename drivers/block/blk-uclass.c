@@ -828,6 +828,21 @@ static int part_create_block_devices(struct udevice *blk_dev)
 
 static int blk_post_probe(struct udevice *dev)
 {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
+		struct blk_desc *desc = dev_get_uclass_plat(dev);
+
+		/* A removable device without a medium has no size yet */
+		if (!desc->blksz && !desc->lba)
+			return 0;
+
+		if (!blk_valid_blksz(desc->blksz) ||
+		    desc->log2blksz != LOG2(desc->blksz)) {
+			log_err("%s: unsupported block size %lu (log2 %d)\n",
+				dev->name, desc->blksz, desc->log2blksz);
+			return -EINVAL;
+		}
+	}
+
 	if (CONFIG_IS_ENABLED(PARTITIONS) && blk_enabled()) {
 		struct blk_desc *desc = dev_get_uclass_plat(dev);
 

@@ -4,6 +4,7 @@
 #define __BTRFS_COMPAT_H__
 
 #include <linux/errno.h>
+#include <linux/log2.h>
 #include <fs_internal.h>
 #include <u-boot/uuid.h>
 
@@ -72,11 +73,6 @@ static inline int __btrfs_devread(struct blk_desc *desc,
 static inline void uuid_unparse(const u8 *uuid, char *out)
 {
 	return uuid_bin_to_str((unsigned char *)uuid, out, 0);
-}
-
-static inline int is_power_of_2(unsigned long n)
-{
-	return (n != 0 && ((n & (n - 1)) == 0));
 }
 
 #endif

@@ -680,6 +680,33 @@ int get_disk_guid(struct blk_desc *desc, char *guid);
  */
 int part_get_gpt_pte(struct blk_desc *desc, int part, gpt_entry *gpt_e);
 
+/**
+ * part_get_gpt() - Get the GPT the partitions of a disk are found in
+ *
+ * Read the GPT as the partition driver does: the primary one if it is valid,
+ * else the backup one. If the primary GPT is not valid, the backup header is
+ * turned into the primary header that gpt_repair_headers() writes from it. If
+ * the primary header is marked to be ignored (ChromeOS 'IGNOREME'), the backup
+ * header is given as it is. Nothing is written to the disk.
+ *
+ * @desc:	block device descriptor
+ * @gpt_h:	buffer of @desc->blksz bytes, filled with the header
+ * @gpt_pte:	set to the partition entries, which the caller frees, or to
+ *		NULL on error
+ *
+ * Return:	0 on success, -EINVAL if no valid GPT was read from the disk,
+ *		-ENOSYS if GPT support is not built in
+ */
+int part_get_gpt(struct blk_desc *desc, gpt_header *gpt_h, gpt_entry **gpt_pte);
+
+#else
+static inline int part_get_gpt(struct blk_desc *desc, gpt_header *gpt_h,
+			       gpt_entry **gpt_pte)
+{
+	*gpt_pte = NULL;
+
+	return -ENOSYS;
+}
 #endif
 
 #if CONFIG_IS_ENABLED(DOS_PARTITION)

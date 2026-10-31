@@ -124,6 +124,36 @@ long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time);
 int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str);
 
 /**
+ * sandbox_flash_set_block_size() - Set the block size a flash stick reports
+ *
+ * @dev:	USB flash-stick emulator
+ * @block_size:	Block size in bytes
+ *
+ * The host reads it when it next probes the stick's mass-storage device.
+ */
+void sandbox_flash_set_block_size(struct udevice *dev, int block_size);
+
+/**
+ * sandbox_scsi_set_block_size() - Set the block size a SCSI disk reports
+ *
+ * @dev:	Sandbox SCSI controller
+ * @block_size:	Block size in bytes
+ *
+ * The host reads it when it next scans the bus.
+ */
+void sandbox_scsi_set_block_size(struct udevice *dev, int block_size);
+
+/**
+ * sandbox_mmc_set_bl_len_shift() - Set the READ_BL_LEN an SD card reports
+ *
+ * @dev:	Sandbox MMC controller
+ * @bl_len_shift: log2 of the block length, as the CSD's READ_BL_LEN field
+ *
+ * The host reads it when it next initialises the card.
+ */
+void sandbox_mmc_set_bl_len_shift(struct udevice *dev, int bl_len_shift);
+
+/**
  * sandbox_osd_get_mem() - get the internal memory of a sandbox OSD
  *
  * @dev:	OSD device for which to access the internal memory for

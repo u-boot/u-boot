@@ -3,10 +3,13 @@
  * Copyright (C) 2020 Sean Anderson <sean.anderson@seco.com>
  */
 
+#include <blk.h>
 #include <dm.h>
 #include <env.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <part.h>
+#include <part_dos.h>
 #include <part_efi.h>
 #include <dm/test.h>
 #include <test/ut.h>
@@ -248,3 +251,221 @@ static int dm_test_part_get_info_by_uuid(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_part_get_info_by_uuid, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/**
+ * dos_set_entry() - fill in one entry of a DOS partition table
+ *
+ * @pt:		entry to fill in
+ * @sys_ind:	partition type
+ * @start:	first sector, relative to what the table type says
+ * @size:	number of sectors
+ */
+static void dos_set_entry(dos_partition_t *pt, u8 sys_ind, u32 start,
+			  u32 size)
+{
+	memset(pt, '\0', sizeof(*pt));
+	pt->sys_ind = sys_ind;
+	pt->start_sect = cpu_to_le32(start);
+	pt->nr_sects = cpu_to_le32(size);
+}
+
+/**
+ * dos_write_table() - write a DOS partition table to a sector
+ *
+ * @desc:	block device to write to, with 512-byte blocks
+ * @lba:	sector to write the table to
+ * @pt:		the four entries of the table
+ * Return: 0 if OK, -EIO if the sector could not be written
+ */
+static int dos_write_table(struct blk_desc *desc, lbaint_t lba,
+			   const dos_partition_t pt[4])
+{
+	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, 512);
+
+	memset(buf, '\0', 512);
+	memcpy(buf + DOS_PART_TBL_OFFSET, pt, 4 * sizeof(*pt));
+	buf[DOS_PART_MAGIC_OFFSET] = 0x55;
+	buf[DOS_PART_MAGIC_OFFSET + 1] = 0xaa;
+
+	return blk_dwrite(desc, lba, 1, buf) == 1 ? 0 : -EIO;
+}
+
+/*
+ * A link from one extended partition table to the next adds no partition,
+ * so a walk through tables that link to each other in a loop finds no more
+ * partitions as it goes. Check that it ends anyway, both when looking for a
+ * partition and when listing them, and that a table holding only a link is
+ * still followed.
+ */
+static int dm_test_part_dos_ext_loop(struct unit_test_state *uts)
+{
+	struct disk_partition info;
+	dos_partition_t pt[4];
+	struct blk_desc *desc;
+
+	ut_asserteq(2, blk_get_device_by_str("mmc", "2", &desc));
+	ut_asserteq(512, desc->blksz);
+
+	/* an MBR with one extended partition, from sector 2 */
+	memset(pt, '\0', sizeof(pt));
+	dos_set_entry(&pt[0], DOS_PART_TYPE_EXTENDED, 2, 100);
+	ut_assertok(dos_write_table(desc, 0, pt));
+
+	/*
+	 * logical partition 5 in a table of its own, then a table holding only
+	 * a link, then logical partition 6; a link is relative to the extended
+	 * partition, a partition to its own table
+	 */
+	dos_set_entry(&pt[0], 0x83, 1, 4);
+	dos_set_entry(&pt[1], DOS_PART_TYPE_EXTENDED, 10, 10);
+	ut_assertok(dos_write_table(desc, 2, pt));
+	memset(pt, '\0', sizeof(pt));
+	dos_set_entry(&pt[0], DOS_PART_TYPE_EXTENDED, 20, 10);
+	ut_assertok(dos_write_table(desc, 12, pt));
+	dos_set_entry(&pt[0], 0x83, 1, 4);
+	dos_set_entry(&pt[1], DOS_PART_TYPE_EXTENDED, 30, 10);
+	ut_assertok(dos_write_table(desc, 22, pt));
+
+	/* then a table with no partition, only a link back to itself */
+	memset(pt, '\0', sizeof(pt));
+	dos_set_entry(&pt[0], DOS_PART_TYPE_EXTENDED, 30, 10);
+	ut_assertok(dos_write_table(desc, 32, pt));
+
+	ut_assertok(part_get_info_by_type(desc, 5, PART_TYPE_DOS, &info));
+	ut_asserteq(3, info.start);
+	ut_asserteq(4, info.size);
+	ut_assertok(part_get_info_by_type(desc, 6, PART_TYPE_DOS, &info));
+	ut_asserteq(23, info.start);
+	ut_asserteq(4, info.size);
+
+	/* there is no partition 7, and looking for it has to end */
+	ut_asserteq(-ENOENT,
+		    part_get_info_by_type(desc, 7, PART_TYPE_DOS, &info));
+	ut_assert_nextline("** Nested DOS partitions detected, stopping **");
+	ut_assert_console_end();
+
+	/* and so does listing them, once the table is detected as DOS */
+	part_init(desc);
+	ut_asserteq(PART_TYPE_DOS, desc->part_type);
+	part_print(desc);
+	ut_assert_skip_to_line("%3d\t%-10d\t%-10d\t%08x-%02x\t%02x", 6, 23, 4,
+			       0, 6, 0x83);
+	ut_assert_nextline("** Nested DOS partitions detected, stopping **");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_part_dos_ext_loop, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
+
+/**
+ * dos_write_chain() - write a chain of extended partition tables
+ *
+ * The MBR holds an extended partition from sector 2, whose first table
+ * holds logical partition 5 and a link, then come @empty tables holding only
+ * a link, and then a table holding logical partition 6.
+ *
+ * @desc:	block device to write to, with 512-byte blocks
+ * @empty:	number of tables holding only a link
+ * Return: sector where partition 6 starts, or -EIO on error
+ */
+static int dos_write_chain(struct blk_desc *desc, int empty)
+{
+	dos_partition_t pt[4];
+	int i;
+
+	memset(pt, '\0', sizeof(pt));
+	dos_set_entry(&pt[0], DOS_PART_TYPE_EXTENDED, 2, 1000);
+	if (dos_write_table(desc, 0, pt))
+		return -EIO;
+
+	/* table n is at sector 2 + 10 * n, its link 10 * (n + 1) */
+	for (i = 0; i <= empty + 1; i++) {
+		memset(pt, '\0', sizeof(pt));
+		if (i == 0 || i == empty + 1)
+			dos_set_entry(&pt[0], 0x83, 1, 4);
+		if (i <= empty)
+			dos_set_entry(&pt[1], DOS_PART_TYPE_EXTENDED,
+				      10 * (i + 1), 10);
+		if (dos_write_table(desc, 2 + 10 * i, pt))
+			return -EIO;
+	}
+
+	return 2 + 10 * (empty + 1) + 1;
+}
+
+/*
+ * Check that a walk through the extended partition tables follows up to 15
+ * tables in a row holding no partition, as a damaged but valid chain may
+ * have, but gives up at the 16th
+ */
+static int dm_test_part_dos_ext_empty(struct unit_test_state *uts)
+{
+	struct disk_partition info;
+	struct blk_desc *desc;
+	int start;
+
+	ut_asserteq(2, blk_get_device_by_str("mmc", "2", &desc));
+	ut_asserteq(512, desc->blksz);
+
+	start = dos_write_chain(desc, 15);
+	ut_assert(start > 0);
+	ut_assertok(part_get_info_by_type(desc, 6, PART_TYPE_DOS, &info));
+	ut_asserteq(start, info.start);
+	ut_assert_console_end();
+
+	ut_assert(dos_write_chain(desc, 16) > 0);
+	ut_assertok(part_get_info_by_type(desc, 5, PART_TYPE_DOS, &info));
+	ut_asserteq(-ENOENT,
+		    part_get_info_by_type(desc, 6, PART_TYPE_DOS, &info));
+	ut_assert_nextline("** Nested DOS partitions detected, stopping **");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_part_dos_ext_empty, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
+
+/*
+ * Partition numbers above 255 take three digits in the UUID made up for a
+ * DOS partition, from the disk signature and the partition number
+ */
+static int dm_test_part_dos_uuid(struct unit_test_state *uts)
+{
+	struct disk_partition info;
+	dos_partition_t pt[4];
+	struct blk_desc *desc;
+	int part;
+
+	if (!CONFIG_IS_ENABLED(PARTITION_UUIDS))
+		return -EAGAIN;
+
+	ut_asserteq(2, blk_get_device_by_str("mmc", "2", &desc));
+	ut_asserteq(512, desc->blksz);
+
+	/* an extended partition from sector 2 */
+	memset(pt, '\0', sizeof(pt));
+	dos_set_entry(&pt[0], DOS_PART_TYPE_EXTENDED, 2, 512);
+	ut_assertok(dos_write_table(desc, 0, pt));
+
+	/*
+	 * holding logical partitions 5 to 256, each of one sector after its
+	 * table, with the tables two sectors apart from sector 2 on
+	 */
+	for (part = 5; part <= 256; part++) {
+		memset(pt, '\0', sizeof(pt));
+		dos_set_entry(&pt[0], 0x83, 1, 1);
+		if (part < 256)
+			dos_set_entry(&pt[1], DOS_PART_TYPE_EXTENDED,
+				      (part - 4) * 2, 2);
+		ut_assertok(dos_write_table(desc, 2 + (part - 5) * 2, pt));
+	}
+
+	ut_assertok(part_get_info_by_type(desc, 255, PART_TYPE_DOS, &info));
+	ut_asserteq(2 + 250 * 2 + 1, info.start);
+	ut_asserteq_str("00000000-ff", disk_partition_uuid(&info));
+	ut_assertok(part_get_info_by_type(desc, 256, PART_TYPE_DOS, &info));
+	ut_asserteq(2 + 251 * 2 + 1, info.start);
+	ut_asserteq_str("00000000-100", disk_partition_uuid(&info));
+
+	return 0;
+}
+DM_TEST(dm_test_part_dos_uuid, UTF_SCAN_PDATA | UTF_SCAN_FDT);
