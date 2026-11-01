@@ -80,9 +80,40 @@ FIT image at NOR offset 0x1000000::
   /configurations/conf-<carrier>
 
 ``${carrier}`` selects the carrier set (``conf-<carrier>``, ``dpc-``,
-``dpl-``). It is set on every boot. For debug, to enforce another carrier::
+``dpl-``). It is set on every boot, from the first of:
 
-  => setenv carrier nbv32 && saveenv && reset
+1. the environment. For debug, to enforce another carrier::
+
+     => setenv carrier nbv32 && saveenv && reset
+
+2. the RCW build stamp, see below,
+
+3. ``nbv30``, the built-in default.
+
+RCW build stamp
+^^^^^^^^^^^^^^^
+
+The RCW sets the SerDes protocols and the pinmux.
+Its PBI writes the carrier it was built for into
+DCFG SCRATCHRW13 (0x01e00230)::
+
+   31   28 27   24 23   16 15    8 7     0
+  +-------+-------+-------+-------+-------+
+  |CARRIER|  TAG  |  YY   |  MM   |  DD   |
+  +-------+-------+-------+-------+-------+
+
+``TAG`` is 0xB; any other value, such as the reset value 0, means no
+stamp. ``YY MM DD`` is the RCW build date in BCD, for the operator only.
+
+======= ==================================================
+CARRIER ``${carrier}``
+======= ==================================================
+0       none: one RCW for every carrier, it names none
+1       ``nbv30`` (NBV30, NBV31)
+2       ``nbv32``
+3       ``nbv32-40g``: NBV32 with SerDes 1 protocol 20 (2x 40GE)
+4..F    unassigned, treated like 0
+======= ==================================================
 
 Boot flow
 ---------
