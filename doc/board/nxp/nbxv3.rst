@@ -112,8 +112,14 @@ CARRIER ``${carrier}``
 1       ``nbv30`` (NBV30, NBV31)
 2       ``nbv32``
 3       ``nbv32-40g``: NBV32 with SerDes 1 protocol 20 (2x 40GE)
-4..F    unassigned, treated like 0
+4..E    unassigned, treated like 0
+F       none: bring-up RCW, see below
 ======= ==================================================
+
+The bring-up RCW (CARRIER F) leaves every SerDes without IO, so there is
+no data path for the MC to manage and starting it hangs the boot.
+U-Boot clears ``mcinitcmd`` for that boot, whatever ``${carrier}`` is,
+and does not save it.
 
 Boot flow
 ---------

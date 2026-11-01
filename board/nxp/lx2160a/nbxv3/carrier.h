@@ -11,6 +11,7 @@
  * It is idempotent, and it never overrides a value already present
  * in the uboot's environment.
  * It shall run after initr_env and before ${mcinitcmd} is evaluated.
+ * On the bring-up RCW it also clears ${mcinitcmd}, without saving it.
  */
 void nbxv3_carrier_env_init(void);
 

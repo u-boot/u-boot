@@ -57,12 +57,14 @@
  *   1     NBV30 / NBV31
  *   2     NBV32
  *   3     NBV32 with SerDes 1 at protocol 20 (2x 40GE) in the RCW
- *   4..F  unassigned, treated like 0
+ *   4..E  unassigned, treated like 0
+ *   F     bring-up RCW: no SerDes IO, it names no carrier either
  */
 #define NBXV3_STAMP_SCRATCHRW		12	/* SCRATCHRW13 */
 #define NBXV3_STAMP_CARRIER		GENMASK(31, 28)
 #define NBXV3_STAMP_TAG			GENMASK(27, 24)
 #define NBXV3_STAMP_TAG_NBXV3		0xb
+#define NBXV3_CARRIER_BRINGUP		0xf
 
 /* CARRIER digit of the RCW build stamp, -ENOENT without a stamp */
 static int nbxv3_stamp_carrier(void)
@@ -91,25 +93,50 @@ static const char *nbxv3_carrier_detect(int digit)
 	}
 }
 
+/*
+ * The RCW of bringup powers down every SerDes PLL: there is no WRIOP for
+ * the MC to manage, so do not start the MC.
+ */
+static void nbxv3_carrier_disable_mc(void)
+{
+	if (!env_get("mcinitcmd"))
+		return;
+
+	if (env_set("mcinitcmd", NULL)) {
+		printf("Carrier:       WARNING: cannot clear ${mcinitcmd}, the MC start is expected to hang\n");
+		return;
+	}
+
+	printf("Carrier:       bring-up RCW (no SerDes IO), MC not started\n");
+}
+
 void nbxv3_carrier_env_init(void)
 {
 	const char *carrier = env_get("carrier");
 	const char *origin;
 	int digit;
 
+	/* Whatever ${carrier} says, the SerDes have no IO */
+	digit = nbxv3_stamp_carrier();
+	if (digit == NBXV3_CARRIER_BRINGUP)
+		nbxv3_carrier_disable_mc();
+
 	if (carrier && *carrier) {
 		printf("Carrier:       %s (from env)\n", carrier);
 		return;
 	}
 
-	digit = nbxv3_stamp_carrier();
 	carrier = nbxv3_carrier_detect(digit);
 	if (carrier) {
 		origin = "RCW build stamp";
 	} else {
 		carrier = NBXV3_CARRIER_DEFAULT;
-		origin = digit < 0 ? "default, no RCW build stamp" :
-				     "default, the RCW names no carrier";
+		if (digit < 0)
+			origin = "default, no RCW build stamp";
+		else if (digit == NBXV3_CARRIER_BRINGUP)
+			origin = "default, the bring-up RCW names no carrier";
+		else
+			origin = "default, the RCW names no carrier";
 	}
 
 	if (env_set("carrier", carrier)) {
