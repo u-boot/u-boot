@@ -7,7 +7,7 @@ derivatives.
 
 LS1088A SoC Overview
 --------------------------------------
-Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc
+Please refer doc/board/nxp/layerscape.rst
 
 RDB Default Switch Settings (1: ON; 0: OFF)
 -------------------------------------------

@@ -20,7 +20,7 @@ bools under ``if TARGET_NBXV3`` in ``board/nxp/lx2160a/Kconfig``.
 LX2160A SoC overview
 --------------------
 
-Please refer to arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for the
+Please refer to doc/board/nxp/layerscape.rst for the
 LX2160A SoC overview.
 
 CPU Module overview

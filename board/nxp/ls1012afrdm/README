@@ -7,7 +7,7 @@ high-bandwidth DDR3L memory and a full complement of high-speed SerDes ports.
 
 LS1012A SoC Overview
 --------------------
-Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS2080A
+Please refer doc/board/nxp/layerscape.rst for LS2080A
 SoC overview.
 
  LS1012AFRDM board Overview
