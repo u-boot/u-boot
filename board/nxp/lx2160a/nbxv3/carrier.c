@@ -18,10 +18,12 @@
  * ${carrier} comes, first match wins, from:
  *   1. the environment, e.g. a saved one:
  *        setenv carrier nbv32 && saveenv && reset
- *   2. the RCW build stamp in DCFG SCRATCHRW13, see below
- *   3. NBXV3_CARRIER_DEFAULT
+ *   2. the NOR overlay, imported by ${cfg_import}
+ *   3. the RCW build stamp in DCFG SCRATCHRW13, see below
+ *   4. NBXV3_CARRIER_DEFAULT
  */
 
+#include <command.h>
 #include <env.h>
 #include <hwconfig.h>
 #include <malloc.h>
@@ -114,6 +116,15 @@ static void nbxv3_carrier_disable_mc(void)
 	printf("Carrier:       bring-up RCW (no SerDes IO), MC not started\n");
 }
 
+static void nbxv3_carrier_import_overlay(void)
+{
+	if (!env_get("cfg_import"))
+		return;
+
+	if (run_command("run cfg_import", 0))
+		debug("Carrier:       no usable overlay at ${cfg_nor_offset}\n");
+}
+
 void nbxv3_carrier_env_init(void)
 {
 	const char *carrier = env_get("carrier");
@@ -127,6 +138,15 @@ void nbxv3_carrier_env_init(void)
 
 	if (carrier && *carrier) {
 		printf("Carrier:       %s (from env)\n", carrier);
+		return;
+	}
+
+	nbxv3_carrier_import_overlay();
+
+	carrier = env_get("carrier");
+	if (carrier && *carrier) {
+		printf("Carrier:       %s (from the NOR overlay at %s)\n",
+		       carrier, env_get("cfg_nor_offset"));
 		return;
 	}
 

@@ -86,9 +86,33 @@ FIT image at NOR offset 0x1000000::
 
      => setenv carrier nbv32 && saveenv && reset
 
-2. the RCW build stamp, see below,
+2. the NOR overlay, imported by ``${cfg_import}`` when the environment
+   defines it, for boards without GPIO or EEPROM identification,
 
-3. ``nbv30``, the built-in default.
+3. the RCW build stamp, see below,
+
+4. ``nbv30``, the built-in default.
+
+NOR overlay
+^^^^^^^^^^^
+
+The NOR overlay is an environment image of ``${cfg_nor_size}`` bytes
+with ``carrier=<name>``.
+It is outside the environment slot, so wiping the
+saved environment keeps the board identity.
+
+``${cfg_import}``, ``${cfg_nor_offset}`` and ``${cfg_nor_size}`` are
+defined by the board's default environment
+(CONFIG_ENV_USE_DEFAULT_ENV_TEXT_FILE + CONFIG_ENV_DEFAULT_ENV_TEXT_FILE),
+or by a saved one.
+
+::
+
+  cfg_nor_offset=0x520000
+  cfg_nor_size=0x1000
+  cfg_import=sf probe 3:0 && \
+    sf read ${loadaddr} ${cfg_nor_offset} ${cfg_nor_size} && \
+    env import -c ${loadaddr} ${cfg_nor_size}
 
 RCW build stamp
 ^^^^^^^^^^^^^^^
