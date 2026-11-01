@@ -335,7 +335,7 @@ SerDes 1 lane grouping
   SRDS_PRTCL_S1 is latched at reset. U-Boot can still configure SD1 before
   the MC starts:
   1x100GE + 4x25G, 2x40GE, 1x40GE + 4x10G or 1x100GE + 4x10G.
-  See 'serdes1' in doc/README.fsl-hwconfig, and the 'lx2160_serdes status'
+  See 'serdes1' in doc/board/nxp/hwconfig.rst, and the 'lx2160_serdes status'
   command.
 
 

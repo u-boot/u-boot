@@ -6,6 +6,7 @@ NXP Semiconductors
 .. toctree::
    :maxdepth: 2
 
+   hwconfig
    imx8mm_evk
    imx8mn_evk
    imx8mp_evk

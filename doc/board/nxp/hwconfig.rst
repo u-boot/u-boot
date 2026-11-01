@@ -1,0 +1,133 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+Freescale-specific 'hwconfig' options.
+======================================
+
+This file documents Freescale-specific key:value pairs for the 'hwconfig'
+option.  See README.hwconfig for general information about 'hwconfig'.
+
+audclk
+------
+
+Specific to the P1022DS reference board.
+
+This option specifies which of the two oscillator frequencies should be
+routed to the Wolfson WM8776 codec.  The ngPIXIS can be programmed to
+route either a 11.2896MHz or a 12.288MHz clock.  The default is
+12.288MHz.  This option has two effects.  First, the MUX on the board
+will be programmed accordingly.  Second, the clock-frequency property
+in the codec node in the device tree will be updated to the correct
+value.
+
+'audclk:11'
+    Select the 11.2896MHz clock
+
+'audclk:12'
+    Select the 12.288MHz clock
+
+usb
+---
+
+Specific to boards have USB controller
+
+This option specifies the following for a USB controller:
+
+- which controller mode to use
+- which USB PHY to use
+
+This is used by generic USB device-tree fixup function to update
+modified values of phy type and controller mode.
+
+Also used for configuring multiple USB controllers such that
+'usbN' (where N is 1, 2, etc. refers to controller no.)
+
+'phy_type'
+    Select USB phy type: 'utmi' OR 'ulpi'
+
+'dr_mode'
+    Select USB controller mode: 'host', 'peripheral' OR 'otg'
+
+Examples::
+
+    usb1:dr_mode=host;usb2:dr_mode=peripheral'
+
+    usb1:dr_mode=host,phy_type=utmi;usb2:dr_mode=host'
+
+serdes1
+-------
+
+Specific to the LX2160A boards whose reset_phy() calls
+lx2160a_serdes_apply_hwconfig() before mc_env_boot().
+
+SRDS_PRTCL_S1 is latched at reset, but the eight SD1 (SerDes) lanes
+can still be configured before the DPAA2 management complex (MC) starts.
+This option alters the Ethernet MAC-to-lane grouping after the fact
+(RCWSR29 keeps reporting the initial protocol).
+
+'serdes1:2x100g'
+    2x 100GE (CAUI-4), what protocol 13 builds: nothing to do
+
+'serdes1:100g4x25g'
+    1x 100GE + 4x 25G
+
+'serdes1:2x40g'
+    2x 40GE (XLAUI-4), what protocol 20 builds
+
+'serdes1:40g4x10g'
+    1x 40GE + 4x 10G (XFI)
+
+'serdes1:100g4x10g'
+    1x 100GE + 4x 10G (XFI)
+
+Each mode starts from the one in the 'from' column, which is
+entered first when SD1 is not in it yet, and so on down to what
+SRDS_PRTCL_S1 built:
+
+=========  ======  =============  =============
+mode       from    SRDS_PRTCL_S1  lanes run on
+=========  ======  =============  =============
+2x100g     \-      13             PLLF
+100g4x25g  2x100g  13             PLLF
+2x40g      2x100g  13 or 20       PLLS
+40g4x10g   2x40g   13 or 20       PLLS
+100g4x10g  2x100g  13             PLLF and PLLS
+=========  ======  =============  =============
+
+Active DPMACs for each mode:
+
+=========  =======  =======  ===================
+mode       dpmac.1  dpmac.2  dpmac.3 ... dpmac.6
+=========  =======  =======  ===================
+2x100g     100GE    100GE    \-
+100g4x25g  \-       100GE    4x 25G
+2x40g      40GE     40GE     \-
+40g4x10g   \-       40GE     4x XFI
+100g4x10g  \-       100GE    4x XFI
+=========  =======  =======  ===================
+
+A mode name lists its ports from lane A to lane H: in 100g4x25g,
+dpmac.2 is 100GE on lanes A-D, and dpmac.3 to dpmac.6 are 25G on
+lanes E-H. The SRDS_PRTCL_S1 table of the reference manual lists
+the lanes from H to A, so its rows read right to left against the
+mode names.
+
+Initial conditions:
+
+- PLLS needs a 161.1328125 MHz reference clock, for which 2x40g,
+  40g4x10g and 100g4x10g program it. It can come from the SD1
+  PLLS reference clock input, or from the PLLF one with
+  SRDS_INTRA_REF_CLK_S1=1. A 156.25 MHz PLLS reference clock is
+  not supported. With protocol 13 PLLS is not in use, so nothing
+  checks that clock before these modes start it.
+- The MC DPC must set follow_hw_pssr in board_info/serdes, for the
+  MC to read the lanes rather than look at protocol, and the DPL
+  must use the dpmacs of the new grouping.
+
+'lx2160_serdes status 1' shows the resulting lane grouping and
+protocol converters.
+
+Example::
+
+    setenv hwconfig serdes1:100g4x25g
+    saveenv
+    reset
