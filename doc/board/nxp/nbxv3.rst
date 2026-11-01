@@ -121,6 +121,28 @@ no data path for the MC to manage and starting it hangs the boot.
 U-Boot clears ``mcinitcmd`` for that boot, whatever ``${carrier}`` is,
 and does not save it.
 
+SerDes 1 per carrier
+^^^^^^^^^^^^^^^^^^^^
+
+Before the MC starts, U-Boot should set the serdes 1 lane grouping
+that the MC's DPC and the DPL of ``${carrier}`` expect, using
+the ``serdes1`` hwconfig option. It can be used to
+override the RCW's protocol grouping for SerDes 1.
+
+==================== ================= ==============================
+``${carrier}``       serdes1 mode      SerDes 1
+==================== ================= ==============================
+nbv30                (none)            as built by the RCW
+nbv32                100g4x25g         1x 100GE + 4x 25G
+nbv32-40g            2x40g             2x 40GE
+nbv32-40g-4x10g      40g4x10g          1x 40GE + 4x 10G
+nbv32-100g-4x10g     100g4x10g         1x 100GE + 4x 10G
+==================== ================= ==============================
+
+Example to switch an NBV32 to 1x40GE + 4x10G::
+
+  => setenv carrier nbv32-40g-4x10g && saveenv && reset
+
 Boot flow
 ---------
 

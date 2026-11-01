@@ -15,7 +15,6 @@
 #include <fsl-mc/fsl_mc.h>
 
 #include "carrier.h"
-#include "../serdes_split.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -35,7 +34,8 @@ void reset_phy(void)
 	 */
 	nbxv3_carrier_env_init();
 
-	lx2160a_serdes_apply_hwconfig();
+	/* Then SerDes 1, from ${hwconfig} or else from ${carrier} */
+	nbxv3_serdes1_apply();
 
 	if (IS_ENABLED(CONFIG_FSL_MC_ENET))
 		mc_env_boot();

@@ -15,4 +15,10 @@
  */
 void nbxv3_carrier_env_init(void);
 
+/*
+ * Apply the serdes 1 lane of ${carrier}, unless ${hwconfig}
+ * names a serdes1:<mode>
+ */
+void nbxv3_serdes1_apply(void);
+
 #endif /* __NBXV3_CARRIER_H */
