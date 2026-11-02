@@ -284,6 +284,11 @@ M:	Icenowy Zheng <icenowy@aosc.xyz>
 S:	Maintained
 F:	configs/LicheePi_Zero_defconfig
 
+LICHEEPI-ZERO DOCK BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/LicheePi_Zero_Dock_defconfig
+
 LICHEEPI NANO BOARD
 M:	Icenowy Zheng <icenowy@aosc.xyz>
 S:	Maintained

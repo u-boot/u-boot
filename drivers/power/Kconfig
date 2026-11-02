@@ -187,10 +187,11 @@ config AXP_DCDC2_VOLT
 	int "axp pmic dcdc2 voltage"
 	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP313_POWER || AXP717_POWER || AXP803_POWER
 	default 900 if AXP818_POWER
-	default 1400 if AXP152_POWER || AXP209_POWER
+	default 1400 if AXP152_POWER || (AXP209_POWER && !MACH_SUN8I_V3S)
 	default 1000 if AXP313_POWER
 	default 1000 if AXP717_POWER
 	default 1000 if AXP803_POWER
+	default 1250 if MACH_SUN8I_V3S
 	default 1200 if MACH_SUN6I
 	default 1100 if MACH_SUN8I
 	default 0 if MACH_SUN9I
@@ -203,6 +204,7 @@ config AXP_DCDC2_VOLT
 	  On A80 boards dcdc2 powers the GPU and can be left off.
 	  On A83T boards dcdc2 is used for VDD-CPUA(cluster 0) and should be 0.9V.
 	  On R40 boards dcdc2 is VDD-CPU and should be 1.1V
+	  On V3s/V3/S3 boards dcdc2 is VDD-CPU/VDD-SYS and should be 1.25V.
 	  On boards using the AXP313 or AXP717 it's often VDD-CPU.
 
 config AXP_DCDC3_VOLT
@@ -210,9 +212,10 @@ config AXP_DCDC3_VOLT
 	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP313_POWER || AXP717_POWER
 	default 900 if AXP809_POWER || AXP818_POWER
 	default 1500 if AXP152_POWER
-	default 1250 if AXP209_POWER
+	default 1250 if (AXP209_POWER && !MACH_SUN8I_V3S)
 	default 1100 if AXP313_POWER
 	default 1100 if MACH_SUN8I_R40
+	default 3300 if MACH_SUN8I_V3S
 	default 1200 if MACH_SUN6I || MACH_SUN8I
 	help
 	  Set the voltage (mV) to program the axp pmic dcdc3 at, set to 0 to
@@ -224,6 +227,7 @@ config AXP_DCDC3_VOLT
 	  On A80 boards dcdc3 is used for VDD-CPUA(cluster 0) and should be 0.9V.
 	  On A83T boards dcdc3 is used for VDD-CPUB(cluster 1) and should be 0.9V.
 	  On R40 boards dcdc3 is VDD-SYS and VDD-GPU and should be 1.1V.
+	  On V3s/V3/S3 boards dcdc3 is VCC-IO and should be 3.3V.
 	  On boards using the AXP313 or AXP717 it's often VDD-DRAM and should
 	  be 1.1V for LPDDR4.
 
