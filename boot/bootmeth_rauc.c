@@ -527,6 +527,7 @@ static const struct distro_rauc_slot *find_active_slot(struct distro_rauc_priv *
 
 static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 {
+	const struct distro_rauc_plat *rplat = dev_get_plat(dev);
 	struct blk_desc *desc;
 	struct distro_rauc_priv *priv;
 	const struct distro_rauc_slot *slot;
@@ -575,10 +576,12 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	if (ret)
 		return log_msg_ret("env", ret);
 
-	/* Load distro boot script */
-	ret = distro_rauc_load_boot_script(bflow, slot);
-	if (ret)
-		return log_msg_ret("load", ret);
+	/* Load distro boot script, unless a built-in command boots the slot */
+	if (!*rplat->bootcmd) {
+		ret = distro_rauc_load_boot_script(bflow, slot);
+		if (ret)
+			return log_msg_ret("load", ret);
+	}
 
 	log_info("INFO: Booting slot %s, %lu of %d tries left\n",
 		 slot->name, active_slot_tries, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES);
@@ -599,9 +602,14 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	}
 	str_free_list(boot_order_list);
 
-	/* Run distro boot script */
-	addr = map_to_sysmem(bflow->buf);
-	ret = cmd_source_script(addr, NULL, NULL);
+	if (*rplat->bootcmd) {
+		/* Run built-in boot command */
+		ret = run_command(rplat->bootcmd, 0);
+	} else {
+		/* Run distro boot script */
+		addr = map_to_sysmem(bflow->buf);
+		ret = cmd_source_script(addr, NULL, NULL);
+	}
 	if (ret)
 		return log_msg_ret("boot", ret);
 
@@ -619,6 +627,7 @@ static int distro_rauc_bootmeth_bind(struct udevice *dev)
 	plat->desc = "RAUC distro boot from MMC";
 	plat->flags = BOOTMETHF_ANY_PART;
 	rplat->partitions = CONFIG_BOOTMETH_RAUC_PARTITIONS;
+	rplat->bootcmd = CONFIG_BOOTMETH_RAUC_BOOTCMD;
 
 	return 0;
 }

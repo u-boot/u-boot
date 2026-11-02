@@ -14,9 +14,12 @@
  *
  * @partitions: Boot and root partitions of each slot, given by number or
  *	by name, see CONFIG_BOOTMETH_RAUC_PARTITIONS
+ * @bootcmd: Command to boot the selected slot, see
+ *	CONFIG_BOOTMETH_RAUC_BOOTCMD. Empty to run the boot script instead
  */
 struct distro_rauc_plat {
 	const char *partitions;
+	const char *bootcmd;
 };
 
 #endif

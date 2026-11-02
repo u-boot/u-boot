@@ -976,6 +976,22 @@ config BOOTMETH_RAUC_PARTITIONS
 	  partition names, this also rejects MBR devices. A value consisting
 	  only of digits is always taken as an index.
 
+config BOOTMETH_RAUC_BOOTCMD
+	string "RAUC built-in boot command"
+	default ""
+	help
+	  Sets a command to boot the selected slot, for example
+	  "run distro_boot_rauc". It is run instead of loading a boot script
+	  from the slot's boot partition, and can use the same environment
+	  variables as the boot script, such as distro_bootpart and raucargs.
+
+	  As the command is built into U-Boot, the boot partition does not
+	  need to contain anything U-Boot executes, which helps with verified
+	  boot. If the command runs an environment variable, that variable must
+	  not be writable at runtime then, see ENV_WRITEABLE_LIST.
+
+	  Leave this empty to load the boot script.
+
 config BOOTMETH_RAUC_DEFAULT_TRIES
 	int "RAUC slot default tries"
 	default 3
