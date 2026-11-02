@@ -958,6 +958,7 @@ config BOOTMETH_RAUC_BOOT_ORDER
 	  Sets the default boot order. This must be list of space-separated
 	  strings naming the individual boot slots. Each entry in this string
 	  should correspond to an existing slot on the target's flash device.
+	  Slot names can be at most 32 characters long.
 
 config BOOTMETH_RAUC_PARTITIONS
 	string "RAUC boot and root partitions indexes"

@@ -23,8 +23,8 @@
 #include <linux/stringify.h>
 #include <asm/cache.h>
 
-/* Length of env var "BOOT_*_LEFT" */
-#define BOOT_LEFT_LEN	(5 + 32 + 5)
+/* Length of env var "BOOT_*_LEFT", including the terminating NUL */
+#define BOOT_LEFT_LEN	(5 + 32 + 5 + 1)
 
 static const char * const script_names[] = { "boot.scr", "boot.scr.uimg", NULL };
 
@@ -65,6 +65,15 @@ static void distro_rauc_priv_free(struct distro_rauc_priv *priv)
 	}
 	free(priv->slots);
 	free(priv);
+}
+
+static int boot_left_name(char *buf, const char *slot_name)
+{
+	if (snprintf(buf, BOOT_LEFT_LEN, "BOOT_%s_LEFT", slot_name) >=
+	    BOOT_LEFT_LEN)
+		return log_msg_ret("name", -E2BIG);
+
+	return 0;
 }
 
 static struct distro_rauc_slot *get_slot(struct distro_rauc_priv *priv,
@@ -168,7 +177,13 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 	default_boot_order = CONFIG_BOOTMETH_RAUC_BOOT_ORDER;
 	default_boot_order_list = str_to_list(default_boot_order);
 	for (i = 0; default_boot_order_list[i]; i++) {
-		sprintf(boot_left, "BOOT_%s_LEFT", default_boot_order_list[i]);
+		ret = boot_left_name(boot_left, default_boot_order_list[i]);
+		if (ret) {
+			log_err("ERROR: Slot name %s is too long\n",
+				default_boot_order_list[i]);
+			str_free_list(default_boot_order_list);
+			return ret;
+		}
 		if (!env_get(boot_left)) {
 			log_debug("%s did not exist yet, setting default value\n",
 				  boot_left);
@@ -335,7 +350,11 @@ static const struct distro_rauc_slot *find_active_slot(struct distro_rauc_priv *
 		return ERR_PTR(log_msg_ret("env", -ENOENT));
 	boot_order_list = str_to_list(boot_order);
 	for (i = 0; boot_order_list[i] && !slot; i++) {
-		sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
+		ret = boot_left_name(boot_left, boot_order_list[i]);
+		if (ret) {
+			str_free_list(boot_order_list);
+			return ERR_PTR(ret);
+		}
 		tries = env_get_ulong(boot_left, 10, ULONG_MAX);
 		if (tries == ULONG_MAX) {
 			str_free_list(boot_order_list);
@@ -364,7 +383,11 @@ static const struct distro_rauc_slot *find_active_slot(struct distro_rauc_priv *
 			log_info("INFO: Resetting all slot tries to " __stringify(CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES) "\n");
 			boot_order_list = str_to_list(CONFIG_BOOTMETH_RAUC_BOOT_ORDER);
 			for (i = 0; boot_order_list[i]; i++) {
-				sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
+				ret = boot_left_name(boot_left, boot_order_list[i]);
+				if (ret) {
+					str_free_list(boot_order_list);
+					return ERR_PTR(ret);
+				}
 				ret = env_set_ulong(boot_left, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES);
 				if (ret) {
 					str_free_list(boot_order_list);
@@ -453,8 +476,8 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	log_debug("BOOT_ORDER: %s\n", boot_order);
 	boot_order_list = str_to_list(boot_order);
 	for (i = 0; boot_order_list[i]; i++) {
-		sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
-		log_debug("%s: %s\n", boot_left, env_get(boot_left));
+		if (!boot_left_name(boot_left, boot_order_list[i]))
+			log_debug("%s: %s\n", boot_left, env_get(boot_left));
 	}
 	str_free_list(boot_order_list);
 
