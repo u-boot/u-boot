@@ -590,8 +590,8 @@ def setup_rauc_image(ubman):
     boot = FsHelper(ubman.config, 'fat32', 8, 'rauc_boot')
     boot.setup()
 
-    # Generate boot script
-    script = '# dummy boot script'
+    # Generate boot script, which runs a command set by the test
+    script = 'run rauc_test_script'
     cmd_fname = os.path.join(boot.srcdir, 'boot.cmd')
     scr_fname = os.path.join(boot.srcdir, 'boot.scr')
     with open(cmd_fname, 'w', encoding='ascii') as outf:

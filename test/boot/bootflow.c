@@ -1734,6 +1734,90 @@ static int bootflow_rauc(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_rauc, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
+/**
+ * bootflow_rauc_run_env_fat() - Run RAUC checks with the environment on FAT
+ *
+ * Booting a RAUC bootflow saves the environment, so this selects the FAT
+ * environment, which is on the first partition of mmc10, while running @check
+ * on mmc10.
+ *
+ * @uts: Unit test state
+ * @check: Checks to run with the RAUC bootmeth
+ * Returns 0 on success, -EAGAIN if not supported, other -ve on failure
+ */
+static int bootflow_rauc_run_env_fat(struct unit_test_state *uts,
+				     int (*check)(struct unit_test_state *uts))
+{
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC) ||
+	    !IS_ENABLED(CONFIG_ENV_IS_IN_FAT) ||
+	    !IS_ENABLED(CONFIG_CMD_NVEDIT_SELECT))
+		return -EAGAIN;
+
+	ut_assertok(run_command("env select FAT", 0));
+	ut_assert_nextline("Select Environment on FAT: OK");
+
+	ret = bootflow_rauc_run(uts, "mmc10", check);
+	run_command("env select nowhere", 0);
+	if (ret)
+		return ret;
+	ut_assert_nextline("Select Environment on nowhere: OK");
+	ut_assert_console_end();
+
+	return 0;
+}
+
+/* Boot the selected RAUC bootflow, which saves the environment first */
+static int bootflow_rauc_boot(struct unit_test_state *uts)
+{
+	ut_asserteq(1, run_command("bootflow boot", 0));
+	ut_assert_nextline("** Booting bootflow 'mmc10.bootdev.whole' with rauc");
+	ut_assert_nextline("Saving Environment to FAT... OK");
+
+	return 0;
+}
+
+static int bootflow_rauc_boot_twice_check(struct unit_test_state *uts)
+{
+	/* Start with the default tries, also when running a second time */
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+
+	/* Let the boot script fail, so that the bootflow can be booted again */
+	ut_assertok(env_set("rauc_test_script", "false"));
+
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assertok(run_command("bootflow select 0", 0));
+	ut_assertok(bootflow_rauc_boot(uts));
+	ut_assert_skip_to_line("Boot failed (err=1)");
+	ut_assert_console_end();
+	ut_asserteq_str("2", env_get("BOOT_A_LEFT"));
+
+	/* The second attempt loads the boot script again, but only once */
+	ut_assertok(bootflow_rauc_boot(uts));
+	ut_assert_skip_to_line("Boot failed (err=1)");
+	ut_assert_console_end();
+	ut_asserteq_str("1", env_get("BOOT_A_LEFT"));
+
+	ut_assertok(run_command("bootstd images", 0));
+	ut_assert_skip_to_line("(1 image)");
+	ut_assert_console_end();
+
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+	ut_assertok(env_set("rauc_test_script", NULL));
+
+	return 0;
+}
+
+/* Test booting the same RAUC bootflow twice after a failed boot */
+static int bootflow_rauc_boot_twice(struct unit_test_state *uts)
+{
+	return bootflow_rauc_run_env_fat(uts, bootflow_rauc_boot_twice_check);
+}
+BOOTSTD_TEST(bootflow_rauc_boot_twice, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
 /*
  * Test the BLS bootmeth against entries that live below a '/boot/' prefix,
  * so that they are only found via the second bootstd prefix. The Fedora
