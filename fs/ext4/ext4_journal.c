@@ -126,15 +126,38 @@ void ext4fs_free_journal(void)
 	jrnl_blk_idx = 1;
 }
 
+/**
+ * ext4fs_journal_slots() - get the number of blocks one transaction can log
+ *
+ * update_descriptor_block() writes a tag for each logged block into a single
+ * descriptor block, so a transaction can log no more blocks than there are
+ * tags in a block, nor more than journal_ptr[] holds.
+ *
+ * Return:	the number of journal_ptr[] entries that may be used
+ */
+static int ext4fs_journal_slots(void)
+{
+	struct ext_filesystem *fs = get_fs();
+	int tags = (fs->blksz - sizeof(struct journal_header_t)) /
+		   sizeof(struct ext3_journal_block_tag);
+
+	return min(tags, MAX_JOURNAL_ENTRIES);
+}
+
 int ext4fs_log_gdt(char *gd_table)
 {
 	struct ext_filesystem *fs = get_fs();
-	short i;
+	u32 i;
 	long int var = fs->gdtable_blkno;
 
-	/* Make sure there is enough journal entries */
-	if (fs->no_blk_pergdt > MAX_JOURNAL_ENTRIES) {
-		log_err("*** Not enough journal entries allocated\n");
+	/*
+	 * Make sure there are enough journal entries left:
+	 * ext4fs_init_journal() has already taken the slots for the
+	 * superblock, so count from gindex rather than from the start of the
+	 * table.
+	 */
+	if (gindex + fs->no_blk_pergdt > ext4fs_journal_slots()) {
+		printf("*** Not enough journal entries allocated\n");
 		return -ENOMEM;
 	}
 
@@ -172,6 +195,11 @@ int ext4fs_log_journal(char *journal_buffer, uint32_t blknr)
 			return 0;
 	}
 
+	if (gindex >= ext4fs_journal_slots()) {
+		printf("*** Not enough journal entries allocated\n");
+		return -ENOMEM;
+	}
+
 	journal_ptr[gindex]->buf = zalloc(fs->blksz);
 	if (!journal_ptr[gindex]->buf)
 		return -ENOMEM;
@@ -193,6 +221,10 @@ int ext4fs_put_metadata(char *metadata_buffer, uint32_t blknr)
 	if (!metadata_buffer) {
 		printf("Invalid input arguments %s\n", __func__);
 		return -EINVAL;
+	}
+	if (gd_index >= MAX_JOURNAL_ENTRIES) {
+		printf("*** Not enough journal entries allocated\n");
+		return -ENOMEM;
 	}
 	if (dirty_block_ptr[gd_index]->buf)
 		assert(dirty_block_ptr[gd_index]->blknr == blknr);
