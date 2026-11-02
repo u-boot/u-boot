@@ -121,7 +121,10 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 	if (!priv || !priv->slots)
 		return log_msg_ret("priv", -EINVAL);
 
+	/* BOOT_ORDER is only set once a device has been found */
 	boot_order = env_get("BOOT_ORDER");
+	if (!boot_order)
+		boot_order = CONFIG_BOOTMETH_RAUC_BOOT_ORDER;
 	boot_order_list = str_to_list(boot_order);
 	for (i = 0; boot_order_list[i]; i++) {
 		const struct distro_rauc_slot *slot;
@@ -150,32 +153,27 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 	return -1;
 }
 
-static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+/**
+ * distro_rauc_set_defaults() - Set the RAUC variables that do not exist yet
+ *
+ * This sets BOOT_ORDER and the BOOT_x_LEFT variable of each slot to their
+ * default values, unless they exist already.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+static int distro_rauc_set_defaults(void)
 {
-	struct distro_rauc_priv *priv = NULL;
-	int ret = 0;
-	char *slot;
-	int i;
-	char *partitions = NULL;
-	char *partitions_cursor;
-	char *boot_order = NULL;
-	const char *default_boot_order;
 	const char **default_boot_order_list;
-	char *boot_order_copy;
-	char *boot_order_cursor;
 	char boot_left[BOOT_LEFT_LEN];
-	char *parts;
+	int ret;
+	int i;
 
-	/* Get RAUC variables or set their default values */
-	boot_order = env_get("BOOT_ORDER");
-	if (!boot_order) {
+	if (!env_get("BOOT_ORDER")) {
 		log_debug("BOOT_ORDER did not exist yet, setting default value\n");
 		if (env_set("BOOT_ORDER", CONFIG_BOOTMETH_RAUC_BOOT_ORDER))
 			return log_msg_ret("env", -EPERM);
-		boot_order = CONFIG_BOOTMETH_RAUC_BOOT_ORDER;
 	}
-	default_boot_order = CONFIG_BOOTMETH_RAUC_BOOT_ORDER;
-	default_boot_order_list = str_to_list(default_boot_order);
+	default_boot_order_list = str_to_list(CONFIG_BOOTMETH_RAUC_BOOT_ORDER);
 	for (i = 0; default_boot_order_list[i]; i++) {
 		ret = boot_left_name(boot_left, default_boot_order_list[i]);
 		if (ret) {
@@ -194,6 +192,24 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		}
 	}
 	str_free_list(default_boot_order_list);
+
+	return 0;
+}
+
+static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+{
+	struct distro_rauc_priv *priv = NULL;
+	int ret = 0;
+	char *slot;
+	int i;
+	char *partitions = NULL;
+	char *partitions_cursor;
+	const char *default_boot_order;
+	char *boot_order_copy;
+	char *boot_order_cursor;
+	char *parts;
+
+	default_boot_order = CONFIG_BOOTMETH_RAUC_BOOT_ORDER;
 
 	priv = calloc(1, sizeof(struct distro_rauc_priv));
 	if (!priv)
@@ -255,6 +271,11 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 
 	ret = distro_rauc_scan_parts(bflow);
 	if (ret < 0)
+		goto rauc_read_bootflow_err;
+
+	/* Only touch the environment for a device with a RAUC system */
+	ret = distro_rauc_set_defaults();
+	if (ret)
 		goto rauc_read_bootflow_err;
 
 	bflow->state = BOOTFLOWST_READY;
