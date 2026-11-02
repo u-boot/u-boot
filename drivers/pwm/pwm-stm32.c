@@ -13,6 +13,7 @@
 #include <asm/arch/timers.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
+#include <linux/math64.h>
 #include <linux/time.h>
 
 #define CCMR_CHANNEL_SHIFT	8
@@ -33,7 +34,7 @@ static int stm32_pwm_set_config(struct udevice *dev, uint channel,
 {
 	struct stm32_timers_plat *plat = dev_get_plat(dev_get_parent(dev));
 	struct stm32_timers_priv *priv = dev_get_priv(dev_get_parent(dev));
-	unsigned long long prd, div, dty;
+	unsigned long long prd, dty;
 	unsigned int prescaler = 0;
 	u32 ccmr, mask, shift;
 
@@ -60,12 +61,10 @@ static int stm32_pwm_set_config(struct udevice *dev, uint channel,
 	 *   (period_ns * clkrate) // (NSEC_PER_SEC * (max_arr + 1)) ≤ prescaler
 	 */
 
-	div = (unsigned long long)priv->rate * period_ns;
-	do_div(div, NSEC_PER_SEC);
-	prd = div;
+	prd = (unsigned long long)priv->rate * period_ns;
+	do_div(prd, NSEC_PER_SEC);
 
-	do_div(div, priv->max_arr + 1);
-	prescaler = div;
+	prescaler = div64_u64(prd, (u64)priv->max_arr + 1);
 	if (prescaler > MAX_TIM_PSC)
 		return -EINVAL;
 
