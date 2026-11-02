@@ -841,9 +841,22 @@ static int blk_post_probe(struct udevice *dev)
 	return 0;
 }
 
+static int blk_pre_remove(struct udevice *dev)
+{
+	if (!CONFIG_IS_ENABLED(PARTITIONS) || !blk_enabled())
+		return 0;
+
+	/*
+	 * The partition devices are bound in blk_post_probe(), so unbind them
+	 * here. Otherwise the next probe adds a second set of them.
+	 */
+	return device_chld_unbind(dev, DM_DRIVER_GET(blk_partition));
+}
+
 UCLASS_DRIVER(blk) = {
 	.id		= UCLASS_BLK,
 	.name		= "blk",
 	.post_probe	= blk_post_probe,
+	.pre_remove	= blk_pre_remove,
 	.per_device_plat_auto	= sizeof(struct blk_desc),
 };
