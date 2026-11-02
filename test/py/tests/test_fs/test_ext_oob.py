@@ -21,8 +21,8 @@ VICTIM = b'victim file\n'
 
 
 @contextmanager
-def ext4_image(ubman, prefix, opts=()):
-    """Make an 8 MiB ext4 image and remove it once the test is done
+def ext4_image(ubman, prefix, opts=(), size=8 << 20):
+    """Make an ext4 image and remove it once the test is done
 
     mk_fs() takes no mkfs.ext4 options, which some tests need. When the with
     block ends, whether or not the test passed, the image is removed and
@@ -32,13 +32,14 @@ def ext4_image(ubman, prefix, opts=()):
         ubman (ConsoleBase): U-Boot console
         prefix (str): prefix of the image file name
         opts (list of str): extra options for mkfs.ext4
+        size (int): size of the image in bytes
 
     Yields:
         str: path of the image
     """
     img = os.path.join(ubman.config.persistent_data_dir, f'{prefix}.ext4.img')
     with open(img, 'wb') as fil:
-        fil.truncate(8 << 20)
+        fil.truncate(size)
     try:
         # U-Boot does not write to a filesystem with metadata checksums
         run(['mkfs.ext4', '-q', '-F', '-O', '^metadata_csum', *opts, img],
@@ -308,3 +309,111 @@ def test_fs_ext_oob_last_inode(ubman):
         assert f'==> {zlib.crc32(b"A" * 0x1000):08x}' in out
         assert 'alive' in ubman.run_command('echo alive')
         run(['e2fsck', '-fn', img], capture_output=True, check=True)
+
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_ext4_write')
+@pytest.mark.requiredtool('debugfs')
+def test_fs_ext_oob_first_data_block(ubman):
+    """ext4fs_init(): a filesystem whose first data block is not the one the
+    bitmap code assumes must not be written to"""
+    # Two block groups of 32768 4 KiB blocks. With a first data block of 1,
+    # block 32768, the first block of group 1, lies in group 0.
+    with ext4_image(ubman, 'ext_oob_fdb', ['-b', '4096'], 136 << 20) as img:
+        # s_blocks_count and s_blocks_per_group are at offsets 4 and 32 of
+        # the superblock
+        assert struct.unpack('<I', read_at(img, 1024 + 4, 4))[0] > 32768
+        assert struct.unpack('<I', read_at(img, 1024 + 32, 4))[0] == 32768
+        add_file(img, 'victim', {0: VICTIM})
+        # Make /victim a block-mapped file whose only block is 32768
+        cmds = ['sif victim flags 0', 'sif victim size 4096']
+        cmds += [f'sif victim block[{i}] 0' for i in range(1, 12)]
+        cmds += ['sif victim block[0] 32768']
+        debugfs(img, cmds)
+        assert victim_has(img, '(0):32768')
+
+        # s_first_data_block is at offset 20 of the superblock. The read
+        # path looks for the group descriptors in the block after it, so
+        # copy them from block 1 to block 2, a reserved GDT block.
+        write_at(img, 1024 + 20, struct.pack('<I', 1))
+        write_at(img, 2 * 4096, read_at(img, 4096, 4096))
+
+        ubman.run_command(f'host bind 0 {img}')
+        ubman.run_command(f'mw.b {ADDR:x} 41 1000')
+        out = ubman.run_command(f'ext4write host 0:0 {ADDR:x} /victim 0x1000')
+        assert 'Unsupported block group layout' in out
+        assert 'written' not in out
+        assert 'alive' in ubman.run_command('echo alive')
+
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_ext4_write')
+@pytest.mark.requiredtool('debugfs')
+def test_fs_ext_oob_parent_dentry(ubman):
+    """ext4fs_update_parent_dentry(): a directory block whose last entry
+    claims a length past the end of the block must be rejected rather than
+    walked past"""
+    with ext4_image(ubman, 'ext_oob_den') as img:
+        blksz = block_size(img)
+        blk = file_block(img, '/', 0)
+
+        # Rewrite the root directory block: '.' and '..', then entries with
+        # no free space after their names, then a last entry that ends 4
+        # bytes past the block with too little free space for the new name
+        data = bytearray(blksz)
+        off = 0
+        entries = [(2, 12, b'.'), (2, 12, b'..')]
+        entries += [(0, 12, b'fill')] * ((blksz - 16 - 24) // 12)
+        for inode, rec_len, name in entries:
+            struct.pack_into('<IHBB', data, off, inode, rec_len, len(name), 2)
+            data[off + 8:off + 8 + len(name)] = name
+            off += rec_len
+        rec_len = blksz - off + 4
+        name = b'l' * (rec_len - 12)
+        struct.pack_into('<IHBB', data, off, 0, rec_len, len(name), 2)
+        data[off + 8:blksz] = name[:blksz - off - 8]
+        write_at(img, blk * blksz, data)
+
+        ubman.run_command(f'host bind 0 {img}')
+        ubman.run_command(f'mw.b {ADDR:x} 41 1000')
+        out = ubman.run_command(
+            f'ext4write host 0:0 {ADDR:x} /newfile 0x1000')
+        assert 'Corrupt directory block, not writing' in out
+        assert 'written' not in out
+        assert 'alive' in ubman.run_command('echo alive')
+
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_ext4_write')
+@pytest.mark.requiredtool('debugfs')
+def test_fs_ext_oob_journal_block_type(ubman):
+    """ext4fs_check_journal_state(): a journal block of an unknown type must
+    end the journal scan rather than stall it"""
+    with ext4_image(ubman, 'ext_oob_jnl') as img:
+        blksz = block_size(img)
+
+        # The journal superblock holds (big endian) magic, type, sequence,
+        # block size, maxlen, first, sequence and start
+        jsb = file_block(img, '<8>', 0) * blksz
+        magic, _, _, _, _, first, seq = struct.unpack('>7I',
+                                                      read_at(img, jsb, 28))
+        assert magic == 0xc03b3998
+
+        # Mark the journal as needing recovery from its first log block,
+        # which holds a block of an unknown type with the current sequence
+        write_at(img, jsb + 28, struct.pack('>I', first))
+        write_at(img, file_block(img, '<8>', first) * blksz,
+                 struct.pack('>3I', magic, 7, seq))
+        # s_feature_incompat is at offset 0x60 of the superblock; 4 is
+        # EXT3_FEATURE_INCOMPAT_RECOVER
+        incompat = struct.unpack('<I', read_at(img, 1024 + 0x60, 4))[0]
+        write_at(img, 1024 + 0x60, struct.pack('<I', incompat | 4))
+
+        ubman.run_command(f'host bind 0 {img}')
+        ubman.run_command(f'mw.b {ADDR:x} 41 1000')
+        with ubman.temporary_timeout(10000):
+            out = ubman.run_command(
+                f'ext4write host 0:0 {ADDR:x} /newfile 0x1000')
+        assert 'Journal Recovery Completed' in out
+        assert 'written' in out
+        assert 'alive' in ubman.run_command('echo alive')
