@@ -309,6 +309,14 @@ static int distro_rauc_load_boot_script(struct bootflow *bflow,
 	if (!bflow->part)
 		return log_msg_ret("part", -ENOENT);
 
+	/* Drop the boot script of a previous, failed boot attempt */
+	free(bflow->buf);
+	bflow->buf = NULL;
+	free(bflow->subdir);
+	bflow->subdir = NULL;
+	bootflow_free_images(bflow);
+	bflow->state = BOOTFLOWST_READY;
+
 	ret = bootmeth_setup_fs(bflow, desc);
 	if (ret)
 		return log_msg_ret("set", ret);
@@ -320,6 +328,8 @@ static int distro_rauc_load_boot_script(struct bootflow *bflow,
 					  prefixes[i], script_names[j],
 					  bflow->dev->name, bflow->part);
 				bflow->subdir = strdup(prefixes[i]);
+				if (!bflow->subdir)
+					return log_msg_ret("buf", -ENOMEM);
 			}
 		}
 	}
