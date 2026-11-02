@@ -1619,22 +1619,30 @@ static int bootflow_efi(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_efi, UTF_CONSOLE);
 
-/* Test RAUC bootmeth */
-static int bootflow_rauc(struct unit_test_state *uts)
+/**
+ * bootflow_rauc_run() - Run RAUC bootmeth checks on an mmc bootdev
+ *
+ * This binds @mmc_dev and the RAUC bootmeth and makes them the only bootdev
+ * and bootmeth used, then runs @check. The bootdev order is restored even if
+ * @check fails, since bootstd frees it when it is removed.
+ *
+ * @uts: Unit test state
+ * @mmc_dev: MMC device to use, e.g. "mmc10"
+ * @check: Checks to run with the RAUC bootmeth
+ * Returns 0 on success, -ve on failure
+ */
+static int bootflow_rauc_run(struct unit_test_state *uts, const char *mmc_dev,
+			     int (*check)(struct unit_test_state *uts))
 {
-	const char *mmc_dev = "mmc10";
+	static const char *order[] = {NULL, NULL};
 	struct bootstd_priv *std;
 	struct udevice *bootstd;
-	static const char *order[] = {NULL, NULL};
 	const char **old_order;
-	ulong mem_start;
 	ofnode root;
 	ofnode node;
+	int ret;
 
 	order[0] = mmc_dev;
-
-	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
-		return -EAGAIN;
 
 	/* Enable the requested mmc node since we need a different bootflow */
 	root = oftree_root(oftree_default());
@@ -1646,13 +1654,21 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_rauc),
 				"rauc", 0, ofnode_null(), NULL));
+	ut_assertok(bootmeth_set_order("rauc"));
 
-	/* Change the device and bootmeth order */
+	/* Change the device order, and restore it also if a check fails */
 	std = dev_get_priv(bootstd);
 	old_order = std->bootdev_order;
 	std->bootdev_order = order;
+	ret = check(uts);
+	std->bootdev_order = old_order;
 
-	ut_assertok(bootmeth_set_order("rauc"));
+	return ret;
+}
+
+static int bootflow_rauc_check(struct unit_test_state *uts)
+{
+	ulong mem_start;
 
 	/* Run scan and list */
 	ut_assertok(run_command("bootflow scan", 0));
@@ -1705,10 +1721,16 @@ static int bootflow_rauc(struct unit_test_state *uts)
 
 	ut_assertok(env_set("BOOT_ORDER", "A B"));
 
-	/* Restore the order used by the device tree */
-	std->bootdev_order = old_order;
-
 	return 0;
+}
+
+/* Test RAUC bootmeth */
+static int bootflow_rauc(struct unit_test_state *uts)
+{
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
+		return -EAGAIN;
+
+	return bootflow_rauc_run(uts, "mmc10", bootflow_rauc_check);
 }
 BOOTSTD_TEST(bootflow_rauc, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
