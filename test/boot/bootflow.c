@@ -1664,6 +1664,7 @@ static int bootflow_rauc_run(struct unit_test_state *uts, const char *mmc_dev,
 	ut_assertok(bootmeth_set_order("rauc"));
 	rplat = dev_get_plat(dev);
 	rplat->partitions = "1,2 3,4";
+	rplat->bootcmd = "";
 
 	/* Change the device order, and restore it also if a check fails */
 	std = dev_get_priv(bootstd);
@@ -1923,6 +1924,66 @@ static int bootflow_rauc_part_names_mbr(struct unit_test_state *uts)
 				 bootflow_rauc_part_names_mbr_check);
 }
 BOOTSTD_TEST(bootflow_rauc_part_names_mbr, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+/* Scan and boot the RAUC bootflow, as a successful boot command frees it */
+static int bootflow_rauc_scan_boot(struct unit_test_state *uts)
+{
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assertok(run_command("bootflow select 0", 0));
+
+	return bootflow_rauc_boot(uts);
+}
+
+static int bootflow_rauc_bootcmd_check(struct unit_test_state *uts,
+				       struct distro_rauc_plat *rplat)
+{
+	/* Start with the default tries, also when running a second time */
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+	ut_assertok(env_set("rauc_test_boot",
+			    "echo rauc boot: ${raucargs} ${distro_bootpart} ${distro_rootpart}"));
+	rplat->bootcmd = "run rauc_test_boot";
+
+	/* The command returns instead of booting, so the boot fails */
+	ut_assertok(bootflow_rauc_scan_boot(uts));
+	ut_assert_skip_to_line("rauc boot: rauc.slot=A 1 2");
+	ut_assert_nextline("Boot failed (err=-14)");
+	ut_assert_console_end();
+	ut_asserteq_str("2", env_get("BOOT_A_LEFT"));
+
+	/* The boot script is not loaded */
+	ut_assertok(run_command("bootstd images", 0));
+	ut_assert_skip_to_line("(0 images)");
+	ut_assert_console_end();
+
+	/* Slot B is booted once slot A has no tries left */
+	ut_assertok(env_set("BOOT_A_LEFT", "0"));
+	ut_assertok(bootflow_rauc_scan_boot(uts));
+	ut_assert_skip_to_line("rauc boot: rauc.slot=B 3 4");
+	ut_assert_nextline("Boot failed (err=-14)");
+	ut_assert_console_end();
+	ut_asserteq_str("2", env_get("BOOT_B_LEFT"));
+
+	/* A failing command uses up a try as well */
+	ut_assertok(env_set("rauc_test_boot", "false"));
+	ut_assertok(bootflow_rauc_scan_boot(uts));
+	ut_assert_skip_to_line("Boot failed (err=1)");
+	ut_assert_console_end();
+	ut_asserteq_str("1", env_get("BOOT_B_LEFT"));
+
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+	ut_assertok(env_set("rauc_test_boot", NULL));
+
+	return 0;
+}
+
+/* Test booting a slot with the built-in boot command of the RAUC bootmeth */
+static int bootflow_rauc_bootcmd(struct unit_test_state *uts)
+{
+	return bootflow_rauc_run_env_fat(uts, bootflow_rauc_bootcmd_check);
+}
+BOOTSTD_TEST(bootflow_rauc_bootcmd, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
 /*
  * Test the BLS bootmeth against entries that live below a '/boot/' prefix,
