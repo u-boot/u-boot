@@ -15,6 +15,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define SCU0_CLK_STOP_CLR	0x244
+#define SCU1_CLK_STOP_CLR	0x244
+#define SCU1_CLK_STOP2_CLR	0x264
+
 /**
  * RGMII clock source tree
  * HPLL -->|\
@@ -38,6 +42,52 @@ struct ast2700_clk_priv {
 	void __iomem *reg;
 	ast2700_clk_init_fn init;
 };
+
+/**
+ * enum ast2700_clk_type - type of a clock in the clock info tables
+ * @AST2700_CLK_GATE: gate, enabled by writing 1 to its bit in a clock stop
+ *		      clear register
+ */
+enum ast2700_clk_type {
+	AST2700_CLK_GATE,
+};
+
+/**
+ * struct ast2700_clk_gate_data - gate of a clock
+ * @reg: offset of the clock stop clear register in the SCU
+ * @bit: bit of the gate in @reg
+ */
+struct ast2700_clk_gate_data {
+	u32 reg;
+	u8 bit;
+};
+
+/**
+ * struct ast2700_clk_info - description of a clock
+ * @id: clock ID from dt-bindings/clock/aspeed,ast2700-scu.h
+ * @type: type of the clock, one of &enum ast2700_clk_type
+ * @data: type specific data
+ * @data.gate: gate data, for %AST2700_CLK_GATE
+ */
+struct ast2700_clk_info {
+	u32 id;
+	u32 type;
+	union {
+		struct ast2700_clk_gate_data gate;
+	} data;
+};
+
+#define GATE_CLK(_id, _reg, _bit)		\
+	{					\
+		.id = _id,			\
+		.type = AST2700_CLK_GATE,	\
+		.data = {			\
+			.gate = {		\
+				.reg = _reg,	\
+				.bit = _bit,	\
+			},			\
+		},				\
+	}
 
 static u32 ast2700_soc1_get_pll_rate(struct ast2700_scu1 *scu, int pll_idx)
 {
@@ -291,18 +341,83 @@ static ulong ast2700_soc1_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
+static const struct ast2700_clk_info ast2700_soc1_clk_info[] = {
+	GATE_CLK(SCU1_CLK_GATE_LCLK0, SCU1_CLK_STOP_CLR, 0),
+	GATE_CLK(SCU1_CLK_GATE_LCLK1, SCU1_CLK_STOP_CLR, 1),
+	GATE_CLK(SCU1_CLK_GATE_ESPI0CLK, SCU1_CLK_STOP_CLR, 2),
+	GATE_CLK(SCU1_CLK_GATE_ESPI1CLK, SCU1_CLK_STOP_CLR, 3),
+	GATE_CLK(SCU1_CLK_GATE_SDCLK, SCU1_CLK_STOP_CLR, 4),
+	GATE_CLK(SCU1_CLK_GATE_IPEREFCLK, SCU1_CLK_STOP_CLR, 5),
+	GATE_CLK(SCU1_CLK_GATE_REFCLK, SCU1_CLK_STOP_CLR, 6),
+	GATE_CLK(SCU1_CLK_GATE_LPCHCLK, SCU1_CLK_STOP_CLR, 7),
+	GATE_CLK(SCU1_CLK_GATE_MAC0CLK, SCU1_CLK_STOP_CLR, 8),
+	GATE_CLK(SCU1_CLK_GATE_MAC1CLK, SCU1_CLK_STOP_CLR, 9),
+	GATE_CLK(SCU1_CLK_GATE_MAC2CLK, SCU1_CLK_STOP_CLR, 10),
+	GATE_CLK(SCU1_CLK_GATE_UART0CLK, SCU1_CLK_STOP_CLR, 11),
+	GATE_CLK(SCU1_CLK_GATE_UART1CLK, SCU1_CLK_STOP_CLR, 12),
+	GATE_CLK(SCU1_CLK_GATE_UART2CLK, SCU1_CLK_STOP_CLR, 13),
+	GATE_CLK(SCU1_CLK_GATE_UART3CLK, SCU1_CLK_STOP_CLR, 14),
+	GATE_CLK(SCU1_CLK_GATE_I2CCLK, SCU1_CLK_STOP_CLR, 15),
+	GATE_CLK(SCU1_CLK_GATE_I3C0CLK, SCU1_CLK_STOP_CLR, 16),
+	GATE_CLK(SCU1_CLK_GATE_I3C1CLK, SCU1_CLK_STOP_CLR, 17),
+	GATE_CLK(SCU1_CLK_GATE_I3C2CLK, SCU1_CLK_STOP_CLR, 18),
+	GATE_CLK(SCU1_CLK_GATE_I3C3CLK, SCU1_CLK_STOP_CLR, 19),
+	GATE_CLK(SCU1_CLK_GATE_I3C4CLK, SCU1_CLK_STOP_CLR, 20),
+	GATE_CLK(SCU1_CLK_GATE_I3C5CLK, SCU1_CLK_STOP_CLR, 21),
+	GATE_CLK(SCU1_CLK_GATE_I3C6CLK, SCU1_CLK_STOP_CLR, 22),
+	GATE_CLK(SCU1_CLK_GATE_I3C7CLK, SCU1_CLK_STOP_CLR, 23),
+	GATE_CLK(SCU1_CLK_GATE_I3C8CLK, SCU1_CLK_STOP_CLR, 24),
+	GATE_CLK(SCU1_CLK_GATE_I3C9CLK, SCU1_CLK_STOP_CLR, 25),
+	GATE_CLK(SCU1_CLK_GATE_I3C10CLK, SCU1_CLK_STOP_CLR, 26),
+	GATE_CLK(SCU1_CLK_GATE_I3C11CLK, SCU1_CLK_STOP_CLR, 27),
+	GATE_CLK(SCU1_CLK_GATE_I3C12CLK, SCU1_CLK_STOP_CLR, 28),
+	GATE_CLK(SCU1_CLK_GATE_I3C13CLK, SCU1_CLK_STOP_CLR, 29),
+	GATE_CLK(SCU1_CLK_GATE_I3C14CLK, SCU1_CLK_STOP_CLR, 30),
+	GATE_CLK(SCU1_CLK_GATE_I3C15CLK, SCU1_CLK_STOP_CLR, 31),
+	GATE_CLK(SCU1_CLK_GATE_UART5CLK, SCU1_CLK_STOP2_CLR, 0),
+	GATE_CLK(SCU1_CLK_GATE_UART6CLK, SCU1_CLK_STOP2_CLR, 1),
+	GATE_CLK(SCU1_CLK_GATE_UART7CLK, SCU1_CLK_STOP2_CLR, 2),
+	GATE_CLK(SCU1_CLK_GATE_UART8CLK, SCU1_CLK_STOP2_CLR, 3),
+	GATE_CLK(SCU1_CLK_GATE_UART9CLK, SCU1_CLK_STOP2_CLR, 4),
+	GATE_CLK(SCU1_CLK_GATE_UART10CLK, SCU1_CLK_STOP2_CLR, 5),
+	GATE_CLK(SCU1_CLK_GATE_UART11CLK, SCU1_CLK_STOP2_CLR, 6),
+	GATE_CLK(SCU1_CLK_GATE_UART12CLK, SCU1_CLK_STOP2_CLR, 7),
+	GATE_CLK(SCU1_CLK_GATE_FSICLK, SCU1_CLK_STOP2_CLR, 8),
+	GATE_CLK(SCU1_CLK_GATE_LTPIPHYCLK, SCU1_CLK_STOP2_CLR, 9),
+	GATE_CLK(SCU1_CLK_GATE_LTPICLK, SCU1_CLK_STOP2_CLR, 10),
+	GATE_CLK(SCU1_CLK_GATE_VGALCLK, SCU1_CLK_STOP2_CLR, 11),
+	GATE_CLK(SCU1_CLK_GATE_UHCICLK, SCU1_CLK_STOP2_CLR, 12),
+	GATE_CLK(SCU1_CLK_GATE_CANCLK, SCU1_CLK_STOP2_CLR, 13),
+	GATE_CLK(SCU1_CLK_GATE_PCICLK, SCU1_CLK_STOP2_CLR, 14),
+	GATE_CLK(SCU1_CLK_GATE_SLICLK, SCU1_CLK_STOP2_CLR, 15),
+	GATE_CLK(SCU1_CLK_GATE_E2MCLK, SCU1_CLK_STOP2_CLR, 16),
+	GATE_CLK(SCU1_CLK_GATE_PORTCUSB2CLK, SCU1_CLK_STOP2_CLR, 17),
+	GATE_CLK(SCU1_CLK_GATE_PORTDUSB2CLK, SCU1_CLK_STOP2_CLR, 18),
+	GATE_CLK(SCU1_CLK_GATE_LTPI1TXCLK, SCU1_CLK_STOP2_CLR, 19),
+};
+
 static int ast2700_soc1_clk_enable(struct clk *clk)
 {
 	struct ast2700_clk_priv *priv = dev_get_priv(clk->dev);
-	struct ast2700_scu1 *scu = (struct ast2700_scu1 *)priv->reg;
-	u32 clkgate_bit;
+	const struct ast2700_clk_info *info = NULL;
+	int i;
 
-	if (clk->id >= 32)
-		clkgate_bit = BIT(clk->id - 32);
-	else
-		clkgate_bit = BIT(clk->id);
+	for (i = 0; i < ARRAY_SIZE(ast2700_soc1_clk_info); i++) {
+		if (ast2700_soc1_clk_info[i].id == clk->id) {
+			info = &ast2700_soc1_clk_info[i];
+			break;
+		}
+	}
 
-	writel(clkgate_bit, &scu->clkgate_clr1);
+	if (!info) {
+		pr_err("scu1: unknown clock ID %lu\n", clk->id);
+		return -ENOENT;
+	}
+
+	if (info->type != AST2700_CLK_GATE)
+		return -EINVAL;
+
+	writel(BIT(info->data.gate.bit), priv->reg + info->data.gate.reg);
 
 	return 0;
 }
@@ -711,13 +826,58 @@ static ulong ast2700_soc0_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
+static const struct ast2700_clk_info ast2700_soc0_clk_info[] = {
+	GATE_CLK(SCU0_CLK_GATE_MCLK, SCU0_CLK_STOP_CLR, 0),
+	GATE_CLK(SCU0_CLK_GATE_ECLK, SCU0_CLK_STOP_CLR, 1),
+	GATE_CLK(SCU0_CLK_GATE_2DCLK, SCU0_CLK_STOP_CLR, 2),
+	GATE_CLK(SCU0_CLK_GATE_VCLK, SCU0_CLK_STOP_CLR, 3),
+	GATE_CLK(SCU0_CLK_GATE_BCLK, SCU0_CLK_STOP_CLR, 4),
+	GATE_CLK(SCU0_CLK_GATE_VGA0CLK, SCU0_CLK_STOP_CLR, 5),
+	GATE_CLK(SCU0_CLK_GATE_REFCLK, SCU0_CLK_STOP_CLR, 6),
+	GATE_CLK(SCU0_CLK_GATE_PORTBUSB2CLK, SCU0_CLK_STOP_CLR, 7),
+	GATE_CLK(SCU0_CLK_GATE_UHCICLK, SCU0_CLK_STOP_CLR, 9),
+	GATE_CLK(SCU0_CLK_GATE_VGA1CLK, SCU0_CLK_STOP_CLR, 10),
+	GATE_CLK(SCU0_CLK_GATE_DDRPHYCLK, SCU0_CLK_STOP_CLR, 11),
+	GATE_CLK(SCU0_CLK_GATE_E2M0CLK, SCU0_CLK_STOP_CLR, 12),
+	GATE_CLK(SCU0_CLK_GATE_HACCLK, SCU0_CLK_STOP_CLR, 13),
+	GATE_CLK(SCU0_CLK_GATE_PORTAUSB2CLK, SCU0_CLK_STOP_CLR, 14),
+	GATE_CLK(SCU0_CLK_GATE_UART4CLK, SCU0_CLK_STOP_CLR, 15),
+	GATE_CLK(SCU0_CLK_GATE_SLICLK, SCU0_CLK_STOP_CLR, 16),
+	GATE_CLK(SCU0_CLK_GATE_DACCLK, SCU0_CLK_STOP_CLR, 17),
+	GATE_CLK(SCU0_CLK_GATE_DP, SCU0_CLK_STOP_CLR, 18),
+	GATE_CLK(SCU0_CLK_GATE_E2M1CLK, SCU0_CLK_STOP_CLR, 19),
+	GATE_CLK(SCU0_CLK_GATE_CRT0CLK, SCU0_CLK_STOP_CLR, 20),
+	GATE_CLK(SCU0_CLK_GATE_CRT1CLK, SCU0_CLK_STOP_CLR, 21),
+	GATE_CLK(SCU0_CLK_GATE_ECDSACLK, SCU0_CLK_STOP_CLR, 23),
+	GATE_CLK(SCU0_CLK_GATE_RSACLK, SCU0_CLK_STOP_CLR, 24),
+	GATE_CLK(SCU0_CLK_GATE_RVAS0CLK, SCU0_CLK_STOP_CLR, 25),
+	GATE_CLK(SCU0_CLK_GATE_UFSCLK, SCU0_CLK_STOP_CLR, 26),
+	GATE_CLK(SCU0_CLK_GATE_EMMCCLK, SCU0_CLK_STOP_CLR, 27),
+	GATE_CLK(SCU0_CLK_GATE_RVAS1CLK, SCU0_CLK_STOP_CLR, 28),
+};
+
 static int ast2700_soc0_clk_enable(struct clk *clk)
 {
 	struct ast2700_clk_priv *priv = dev_get_priv(clk->dev);
-	struct ast2700_scu0 *scu = (struct ast2700_scu0 *)priv->reg;
-	u32 clkgate_bit = BIT(clk->id);
+	const struct ast2700_clk_info *info = NULL;
+	int i;
 
-	writel(clkgate_bit, &scu->clkgate_clr);
+	for (i = 0; i < ARRAY_SIZE(ast2700_soc0_clk_info); i++) {
+		if (ast2700_soc0_clk_info[i].id == clk->id) {
+			info = &ast2700_soc0_clk_info[i];
+			break;
+		}
+	}
+
+	if (!info) {
+		pr_err("scu0: unknown clock ID %lu\n", clk->id);
+		return -ENOENT;
+	}
+
+	if (info->type != AST2700_CLK_GATE)
+		return -EINVAL;
+
+	writel(BIT(info->data.gate.bit), priv->reg + info->data.gate.reg);
 
 	return 0;
 }
