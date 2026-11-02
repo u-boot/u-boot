@@ -95,7 +95,7 @@ static int distro_rauc_check(struct udevice *dev, struct bootflow_iter *iter)
 
 static int distro_rauc_scan_parts(struct bootflow *bflow)
 {
-	struct blk_desc *desc;
+	struct blk_desc *desc = NULL;
 	struct distro_rauc_priv *priv;
 	struct disk_partition fs_info;
 	char *boot_order;
