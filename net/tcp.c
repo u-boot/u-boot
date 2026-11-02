@@ -940,6 +940,10 @@ static int tcp_rx_user_data(struct tcp_stream *tcp, u32 tcp_seq_num,
 		return TCP_PACKET_DROP;
 	}
 
+	/* A byte before the initial data sequence cannot have a valid offset. */
+	if (tcp_seq_cmp(tcp_seq_num, tcp->irs + 1) < 0)
+		return TCP_PACKET_DROP;
+
 	tmp_len = len;
 	old_offs = tcp_stream_rx_offs(tcp);
 	buf_offs = tcp_seq_num - tcp->irs - 1;
@@ -977,6 +981,8 @@ void tcp_rx_state_machine(struct tcp_stream *tcp,
 	u8  tcp_flags, action;
 
 	tcp_hdr_len = GET_TCP_HDR_LEN_IN_BYTES(b->ip.hdr.tcp_hlen);
+	if (tcp_hdr_len < TCP_HDR_SIZE || tcp_hdr_len > tcp_len)
+		return;
 	payload_len = tcp_len - tcp_hdr_len;
 
 	if (tcp_hdr_len > TCP_HDR_SIZE)
@@ -1062,7 +1068,8 @@ void tcp_rx_state_machine(struct tcp_stream *tcp,
 
 		action = tcp_stream_fin_needed(tcp, tcp->snd_una) | TCP_ACK;
 		tcp_send_packet(tcp, action, tcp->snd_una, tcp->rcv_nxt, 0);
-		tcp_rx_user_data(tcp, tcp_seq_num,
+		/* SYN consumes one sequence number before its payload. */
+		tcp_rx_user_data(tcp, tcp_seq_num + 1,
 				 ((char *)b) + pkt_len - payload_len,
 				 payload_len);
 		return;
