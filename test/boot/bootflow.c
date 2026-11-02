@@ -9,6 +9,7 @@
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
+#include <bootmeth_rauc.h>
 #include <bootstd.h>
 #include <cli.h>
 #include <dm.h>
@@ -1626,17 +1627,23 @@ BOOTSTD_TEST(bootflow_efi, UTF_CONSOLE);
  * and bootmeth used, then runs @check. The bootdev order is restored even if
  * @check fails, since bootstd frees it when it is removed.
  *
+ * The options of the bootmeth are reset to their defaults, so that the tests
+ * do not depend on the Kconfig values. @check can change them.
+ *
  * @uts: Unit test state
  * @mmc_dev: MMC device to use, e.g. "mmc10"
  * @check: Checks to run with the RAUC bootmeth
  * Returns 0 on success, -ve on failure
  */
 static int bootflow_rauc_run(struct unit_test_state *uts, const char *mmc_dev,
-			     int (*check)(struct unit_test_state *uts))
+			     int (*check)(struct unit_test_state *uts,
+					  struct distro_rauc_plat *rplat))
 {
 	static const char *order[] = {NULL, NULL};
+	struct distro_rauc_plat *rplat;
 	struct bootstd_priv *std;
 	struct udevice *bootstd;
+	struct udevice *dev;
 	const char **old_order;
 	ofnode root;
 	ofnode node;
@@ -1653,20 +1660,23 @@ static int bootflow_rauc_run(struct unit_test_state *uts, const char *mmc_dev,
 	/* Enable the rauc bootmeth */
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_rauc),
-				"rauc", 0, ofnode_null(), NULL));
+				"rauc", 0, ofnode_null(), &dev));
 	ut_assertok(bootmeth_set_order("rauc"));
+	rplat = dev_get_plat(dev);
+	rplat->partitions = "1,2 3,4";
 
 	/* Change the device order, and restore it also if a check fails */
 	std = dev_get_priv(bootstd);
 	old_order = std->bootdev_order;
 	std->bootdev_order = order;
-	ret = check(uts);
+	ret = check(uts, rplat);
 	std->bootdev_order = old_order;
 
 	return ret;
 }
 
-static int bootflow_rauc_check(struct unit_test_state *uts)
+static int bootflow_rauc_check(struct unit_test_state *uts,
+			       struct distro_rauc_plat *rplat)
 {
 	ulong mem_start;
 
@@ -1746,7 +1756,8 @@ BOOTSTD_TEST(bootflow_rauc, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
  * Returns 0 on success, -EAGAIN if not supported, other -ve on failure
  */
 static int bootflow_rauc_run_env_fat(struct unit_test_state *uts,
-				     int (*check)(struct unit_test_state *uts))
+				     int (*check)(struct unit_test_state *uts,
+						  struct distro_rauc_plat *rplat))
 {
 	int ret;
 
@@ -1778,7 +1789,8 @@ static int bootflow_rauc_boot(struct unit_test_state *uts)
 	return 0;
 }
 
-static int bootflow_rauc_boot_twice_check(struct unit_test_state *uts)
+static int bootflow_rauc_boot_twice_check(struct unit_test_state *uts,
+					  struct distro_rauc_plat *rplat)
 {
 	/* Start with the default tries, also when running a second time */
 	ut_assertok(env_set("BOOT_A_LEFT", NULL));
@@ -1817,6 +1829,100 @@ static int bootflow_rauc_boot_twice(struct unit_test_state *uts)
 	return bootflow_rauc_run_env_fat(uts, bootflow_rauc_boot_twice_check);
 }
 BOOTSTD_TEST(bootflow_rauc_boot_twice, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+/* Remove the RAUC variables, which are set when a device is found */
+static int bootflow_rauc_clear_env(struct unit_test_state *uts)
+{
+	ut_assertok(env_set("BOOT_ORDER", NULL));
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+
+	return 0;
+}
+
+/* Check that scanning finds no bootflow and leaves the environment alone */
+static int bootflow_rauc_scan_none(struct unit_test_state *uts)
+{
+	ut_assertok(bootflow_rauc_clear_env(uts));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+	ut_assertnull(env_get("BOOT_ORDER"));
+	ut_assertnull(env_get("BOOT_A_LEFT"));
+	ut_assertnull(env_get("BOOT_B_LEFT"));
+
+	return 0;
+}
+
+static int bootflow_rauc_part_names_check(struct unit_test_state *uts,
+					  struct distro_rauc_plat *rplat)
+{
+	/* The partitions of all slots are found by their names */
+	rplat->partitions = "boot_a,root_a boot_b,root_b";
+	ut_assertok(bootflow_rauc_clear_env(uts));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+	ut_asserteq_str("A B", env_get("BOOT_ORDER"));
+
+	ut_assertok(run_command("bootflow list", 0));
+	ut_assert_nextlinen("Showing all");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("  0  rauc         ready   mmc          0  mmc13.bootdev.whole      ");
+	ut_assert_nextlinen("---");
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	/* The partitions of slot B are missing */
+	rplat->partitions = "boot_a,root_a boot_c,root_c";
+	ut_assertok(bootflow_rauc_scan_none(uts));
+
+	/* The partitions of no slot are found */
+	rplat->partitions = "boot,rootfs boot2,rootfs2";
+	ut_assertok(bootflow_rauc_scan_none(uts));
+
+	return 0;
+}
+
+/* Test finding the RAUC partitions by their names */
+static int bootflow_rauc_part_names(struct unit_test_state *uts)
+{
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
+		return -EAGAIN;
+
+	return bootflow_rauc_run(uts, "mmc13", bootflow_rauc_part_names_check);
+}
+BOOTSTD_TEST(bootflow_rauc_part_names, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+static int bootflow_rauc_part_names_mbr_check(struct unit_test_state *uts,
+					      struct distro_rauc_plat *rplat)
+{
+	/* The partitions are found by their numbers */
+	ut_assertok(bootflow_rauc_clear_env(uts));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow list", 0));
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	/* MBR has no partition names */
+	rplat->partitions = "boot_a,root_a boot_b,root_b";
+	ut_assertok(bootflow_rauc_scan_none(uts));
+
+	return 0;
+}
+
+/* Test that the RAUC bootmeth rejects MBR devices if names are given */
+static int bootflow_rauc_part_names_mbr(struct unit_test_state *uts)
+{
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
+		return -EAGAIN;
+
+	return bootflow_rauc_run(uts, "mmc10",
+				 bootflow_rauc_part_names_mbr_check);
+}
+BOOTSTD_TEST(bootflow_rauc_part_names_mbr, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
 /*
  * Test the BLS bootmeth against entries that live below a '/boot/' prefix,

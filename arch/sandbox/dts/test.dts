@@ -51,6 +51,7 @@
 		mmc10 = "/mmc10";
 		mmc11 = "/mmc11";
 		mmc12 = "/mmc12";
+		mmc13 = "/mmc13";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -1404,6 +1405,13 @@
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc12.img";
+	};
+
+	/* This is used for RAUC boot tests with GPT partition names */
+	mmc13 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc13.img";
 	};
 
 	pch {
