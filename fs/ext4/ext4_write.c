@@ -617,6 +617,7 @@ int ext4fs_init(void)
 	struct ext2_sblock *sblock = &ext4fs_root->sblock;
 	uint32_t blk_per_grp = le32_to_cpu(sblock->blocks_per_group);
 	uint32_t inode_per_grp = le32_to_cpu(sblock->inodes_per_group);
+	uint32_t first_data_block = le32_to_cpu(sblock->first_data_block);
 
 	/* populate fs */
 	fs->blksz = EXT2_BLOCK_SIZE(ext4fs_root);
@@ -625,14 +626,20 @@ int ext4fs_init(void)
 	/*
 	 * The bitmap code finds the bitmap bits of group n at n * blocksize
 	 * bytes, so every group must hold one bitmap block's worth of
-	 * blocks, unless there is only one group. Check this before the
+	 * blocks, unless there is only one group. It also takes the first
+	 * data block, which holds the superblock, to be block 1 with 1 KiB
+	 * blocks and block 0 otherwise, as mke2fs makes it, and so does the
+	 * write path when it finds the group descriptor table; with any
+	 * other first data block, ext4fs_blk_to_group() puts a block in
+	 * another group than the bitmap code does. Check this before the
 	 * journal is replayed, so that nothing is written to a filesystem
 	 * that is refused.
 	 */
 	if (!blk_per_grp || blk_per_grp > fs->blksz * 8 ||
 	    (blk_per_grp != fs->blksz * 8 &&
-	     le32_to_cpu(sblock->total_blocks) -
-	     le32_to_cpu(sblock->first_data_block) > blk_per_grp) ||
+	     le32_to_cpu(sblock->total_blocks) - first_data_block >
+	     blk_per_grp) ||
+	    first_data_block != (fs->blksz == EXT2_MIN_BLOCK_SIZE) ||
 	    !inode_per_grp || inode_per_grp > fs->blksz * 8) {
 		printf("Unsupported block group layout, not writing\n");
 		return -EINVAL;
