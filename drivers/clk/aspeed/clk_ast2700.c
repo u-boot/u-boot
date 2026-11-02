@@ -1078,6 +1078,18 @@ static int ast2700_clk_bind(struct udevice *dev)
 			debug("Warning: failed to bind reset controller: ret = %d\n", ret);
 	}
 
+	/* Bind the generic syscon driver to the same ofnode so that the
+	 * SCU child nodes, such as the pinctrl and its pin configuration
+	 * states, are bound before any consumer device probes and selects
+	 * its default pinctrl state.
+	 */
+	if (CONFIG_IS_ENABLED(SYSCON)) {
+		ret = device_bind_driver_to_node(dev, "syscon", "syscon",
+						 dev_ofnode(dev), NULL);
+		if (ret)
+			debug("Warning: failed to bind syscon: ret = %d\n", ret);
+	}
+
 	return 0;
 }
 
