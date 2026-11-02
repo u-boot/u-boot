@@ -19,6 +19,7 @@
 #include <mapmem.h>
 #include <part.h>
 #include <string.h>
+#include <linux/err.h>
 #include <linux/stringify.h>
 #include <asm/cache.h>
 
@@ -318,42 +319,46 @@ static int distro_rauc_load_boot_script(struct bootflow *bflow,
 	return 0;
 }
 
-static int find_active_slot(char **slot_name, ulong *slot_tries)
+static const struct distro_rauc_slot *find_active_slot(struct distro_rauc_priv *priv,
+						       ulong *slot_tries)
 {
 	ulong tries;
 	char boot_left[BOOT_LEFT_LEN];
 	char *boot_order;
+	const struct distro_rauc_slot *slot = NULL;
 	const char **boot_order_list;
-	bool slot_found = false;
 	int ret;
 	int i;
 
 	boot_order = env_get("BOOT_ORDER");
 	if (!boot_order)
-		return log_msg_ret("env", -ENOENT);
+		return ERR_PTR(log_msg_ret("env", -ENOENT));
 	boot_order_list = str_to_list(boot_order);
-	for (i = 0; boot_order_list[i] && !slot_found; i++) {
+	for (i = 0; boot_order_list[i] && !slot; i++) {
 		sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
 		tries = env_get_ulong(boot_left, 10, ULONG_MAX);
 		if (tries == ULONG_MAX) {
 			str_free_list(boot_order_list);
-			return log_msg_ret("env", -ENOENT);
+			return ERR_PTR(log_msg_ret("env", -ENOENT));
 		}
 
 		if (tries) {
+			slot = get_slot(priv, boot_order_list[i]);
+			if (!slot) {
+				str_free_list(boot_order_list);
+				return ERR_PTR(log_msg_ret("slot", -ENOENT));
+			}
 			ret = env_set_ulong(boot_left, tries - 1);
 			if (ret) {
 				str_free_list(boot_order_list);
-				return log_msg_ret("env", ret);
+				return ERR_PTR(log_msg_ret("env", ret));
 			}
-			*slot_name = strdup(boot_order_list[i]);
 			*slot_tries = tries;
-			slot_found = true;
 		}
 	}
 	str_free_list(boot_order_list);
 
-	if (!slot_found) {
+	if (!slot) {
 		if (IS_ENABLED(CONFIG_BOOTMETH_RAUC_RESET_ALL_ZERO_TRIES)) {
 			log_warning("WARNING: No valid slot found\n");
 			log_info("INFO: Resetting all slot tries to " __stringify(CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES) "\n");
@@ -363,20 +368,20 @@ static int find_active_slot(char **slot_name, ulong *slot_tries)
 				ret = env_set_ulong(boot_left, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES);
 				if (ret) {
 					str_free_list(boot_order_list);
-					return log_msg_ret("env", ret);
+					return ERR_PTR(log_msg_ret("env", ret));
 				}
 			}
 			str_free_list(boot_order_list);
 			ret = env_save();
 			if (ret)
-				return log_msg_ret("env", ret);
+				return ERR_PTR(log_msg_ret("env", ret));
 			do_reset(NULL, 0, 0, NULL);
 		}
 		log_err("ERROR: No valid slot found\n");
-		return -EINVAL;
+		return ERR_PTR(-EINVAL);
 	}
 
-	return 0;
+	return slot;
 }
 
 static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
@@ -386,7 +391,6 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	const struct distro_rauc_slot *slot;
 	char *boot_order;
 	const char **boot_order_list;
-	char *active_slot;
 	ulong active_slot_tries;
 	char raucargs[64];
 	char boot_left[BOOT_LEFT_LEN];
@@ -411,20 +415,15 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("env", ret);
 
 	/* Find active, valid slot */
-	ret = find_active_slot(&active_slot, &active_slot_tries);
-	if (ret)
-		return log_msg_ret("env", ret);
+	slot = find_active_slot(priv, &active_slot_tries);
+	if (IS_ERR(slot))
+		return log_msg_ret("env", PTR_ERR(slot));
 
 	/* Kernel command line arguments */
-	sprintf(raucargs, "rauc.slot=%s", active_slot);
+	sprintf(raucargs, "rauc.slot=%s", slot->name);
 	ret = env_set("raucargs", raucargs);
 	if (ret)
 		return log_msg_ret("env", ret);
-
-	/* Active slot info */
-	slot = get_slot(priv, active_slot);
-	if (!slot)
-		return log_msg_ret("env", -ENOENT);
 	ret = env_set_hex("distro_bootpart", slot->boot_part);
 	if (ret)
 		return log_msg_ret("env", ret);
@@ -441,7 +440,7 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("load", ret);
 
 	log_info("INFO: Booting slot %s, %lu of %d tries left\n",
-		 active_slot, active_slot_tries, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES);
+		 slot->name, active_slot_tries, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES);
 
 	log_debug("devtype: %s\n", env_get("devtype"));
 	log_debug("devnum: %s\n", env_get("devnum"));
