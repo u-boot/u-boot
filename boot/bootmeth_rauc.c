@@ -11,6 +11,7 @@
 #include <blk.h>
 #include <bootflow.h>
 #include <bootmeth.h>
+#include <bootmeth_rauc.h>
 #include <bootstd.h>
 #include <dm.h>
 #include <env.h>
@@ -38,11 +39,17 @@ static const char * const script_names[] = { "boot.scr", "boot.scr.uimg", NULL }
  * @name	The slot name
  * @boot_part	The boot partition number on disk
  * @root_part	The root partition number on disk
+ * @boot_part_name	The name of the boot partition, or NULL if it is given by
+ *			its number
+ * @root_part_name	The name of the root partition, or NULL if it is given by
+ *			its number
  */
 struct distro_rauc_slot {
 	char *name;
 	int boot_part;
 	int root_part;
+	char *boot_part_name;
+	char *root_part_name;
 };
 
 /**
@@ -55,14 +62,20 @@ struct distro_rauc_priv {
 	struct distro_rauc_slot **slots;
 };
 
+static void distro_rauc_slot_free(struct distro_rauc_slot *slot)
+{
+	free(slot->name);
+	free(slot->boot_part_name);
+	free(slot->root_part_name);
+	free(slot);
+}
+
 static void distro_rauc_priv_free(struct distro_rauc_priv *priv)
 {
 	int i;
 
-	for (i = 0; priv->slots[i]; i++) {
-		free(priv->slots[i]->name);
-		free(priv->slots[i]);
-	}
+	for (i = 0; priv->slots[i]; i++)
+		distro_rauc_slot_free(priv->slots[i]);
 	free(priv->slots);
 	free(priv);
 }
@@ -87,6 +100,60 @@ static struct distro_rauc_slot *get_slot(struct distro_rauc_priv *priv,
 	}
 
 	return NULL;
+}
+
+/**
+ * distro_rauc_parse_part() - Parse a partition of a slot
+ *
+ * @str: Partition number, or name of a GPT partition
+ * @part: Returns the partition number, if @str is a number
+ * @name: Returns a copy of @str, if it is not a number
+ * Return: 0 if OK, -EINVAL if @str is empty, -ENOMEM if out of memory
+ */
+static int distro_rauc_parse_part(const char *str, int *part, char **name)
+{
+	if (!str || !*str)
+		return log_msg_ret("part", -EINVAL);
+
+	if (strspn(str, "0123456789") == strlen(str)) {
+		*part = simple_strtoul(str, NULL, 10);
+		return 0;
+	}
+
+	*name = strdup(str);
+	if (!*name)
+		return log_msg_ret("buf", -ENOMEM);
+
+	return 0;
+}
+
+/**
+ * distro_rauc_find_parts() - Find the partitions of a slot by their names
+ *
+ * @desc: Block device to search
+ * @slot: Slot to update, if its partitions are given by name
+ * Return: 0 if OK, -ENOENT if a partition was not found
+ */
+static int distro_rauc_find_parts(struct blk_desc *desc,
+				  struct distro_rauc_slot *slot)
+{
+	struct disk_partition info;
+	int part;
+
+	if (slot->boot_part_name) {
+		part = part_get_info_by_name(desc, slot->boot_part_name, &info);
+		if (part < 0)
+			return log_msg_ret("boot", -ENOENT);
+		slot->boot_part = part;
+	}
+	if (slot->root_part_name) {
+		part = part_get_info_by_name(desc, slot->root_part_name, &info);
+		if (part < 0)
+			return log_msg_ret("root", -ENOENT);
+		slot->root_part = part;
+	}
+
+	return 0;
 }
 
 static int distro_rauc_check(struct udevice *dev, struct bootflow_iter *iter)
@@ -120,6 +187,15 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 	priv = bflow->bootmeth_priv;
 	if (!priv || !priv->slots)
 		return log_msg_ret("priv", -EINVAL);
+
+	/* With partition names, the partitions of all slots must exist */
+	if (desc) {
+		for (i = 0; priv->slots[i]; i++) {
+			ret = distro_rauc_find_parts(desc, priv->slots[i]);
+			if (ret)
+				return ret;
+		}
+	}
 
 	/* BOOT_ORDER is only set once a device has been found */
 	boot_order = env_get("BOOT_ORDER");
@@ -198,6 +274,7 @@ static int distro_rauc_set_defaults(void)
 
 static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
+	const struct distro_rauc_plat *rplat = dev_get_plat(dev);
 	struct distro_rauc_priv *priv = NULL;
 	int ret = 0;
 	char *slot;
@@ -226,7 +303,7 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		ret = log_msg_ret("buf", -ENOMEM);
 		goto rauc_read_bootflow_err;
 	}
-	partitions = strdup(CONFIG_BOOTMETH_RAUC_PARTITIONS);
+	partitions = strdup(rplat->partitions);
 	if (!partitions) {
 		ret = log_msg_ret("buf", -ENOMEM);
 		goto rauc_read_bootflow_err;
@@ -252,13 +329,23 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 			ret = log_msg_ret("buf", -ENOMEM);
 			goto rauc_read_bootflow_err;
 		}
-		s->boot_part = simple_strtoul(strsep(&parts, ","), NULL, 10);
-		s->root_part = simple_strtoul(strsep(&parts, ","), NULL, 10);
+		ret = distro_rauc_parse_part(strsep(&parts, ","), &s->boot_part,
+					     &s->boot_part_name);
+		if (!ret)
+			ret = distro_rauc_parse_part(strsep(&parts, ","),
+						     &s->root_part,
+						     &s->root_part_name);
+		if (ret) {
+			if (ret == -EINVAL)
+				log_err("ERROR: Invalid partitions for slot %s\n",
+					slot);
+			distro_rauc_slot_free(s);
+			goto rauc_read_bootflow_err;
+		}
 		new_slots = realloc(priv->slots, (i + 1) *
 				    sizeof(struct distro_rauc_slot));
 		if (!new_slots) {
-			free(s->name);
-			free(s);
+			distro_rauc_slot_free(s);
 			ret = log_msg_ret("buf", -ENOMEM);
 			goto rauc_read_bootflow_err;
 		}
@@ -527,9 +614,11 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 static int distro_rauc_bootmeth_bind(struct udevice *dev)
 {
 	struct bootmeth_uc_plat *plat = dev_get_uclass_plat(dev);
+	struct distro_rauc_plat *rplat = dev_get_plat(dev);
 
 	plat->desc = "RAUC distro boot from MMC";
 	plat->flags = BOOTMETHF_ANY_PART;
+	rplat->partitions = CONFIG_BOOTMETH_RAUC_PARTITIONS;
 
 	return 0;
 }
@@ -552,4 +641,5 @@ U_BOOT_DRIVER(bootmeth_rauc) = {
 	.of_match	= distro_rauc_bootmeth_ids,
 	.ops		= &distro_rauc_bootmeth_ops,
 	.bind		= distro_rauc_bootmeth_bind,
+	.plat_auto	= sizeof(struct distro_rauc_plat),
 };

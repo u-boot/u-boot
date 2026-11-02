@@ -969,6 +969,13 @@ config BOOTMETH_RAUC_PARTITIONS
 	  The first value in pair is for the boot partition and second for the
 	  root partition.
 
+	  Instead of an index, a value can also be the name of a GPT partition,
+	  for example "boot_a,root_a boot_b,root_b". A device is then only used
+	  if it has partitions with these names for all slots, so the bootmeth
+	  does not claim devices with a different layout. As only GPT has
+	  partition names, this also rejects MBR devices. A value consisting
+	  only of digits is always taken as an index.
+
 config BOOTMETH_RAUC_DEFAULT_TRIES
 	int "RAUC slot default tries"
 	default 3

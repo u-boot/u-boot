@@ -14,6 +14,13 @@ filesystem each. The partition numbers must be specified with
 the following syntax: ``1,2 3,4``, where 1 and 3 are the slots' boot partition
 and 2 and 4 the slots' root partition.
 
+Instead of their numbers, the partitions can also be given by their GPT
+partition names, for example ``boot_a,root_a boot_b,root_b``. The bootmeth then
+only uses a device if it has partitions with these names for all slots. This
+prevents it from claiming devices with a different layout which happen to have
+a filesystem in the first partition. A value consisting only of digits is
+always taken as a partition number.
+
 Each pair of boot and rootfs partition form a "slot". The default order in which
 available slots are tried is set through ``CONFIG_BOOTMETH_RAUC_BOOT_ORDER``,
 with the left one tried first.
