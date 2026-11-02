@@ -7,6 +7,7 @@
  * Rob Herring <robh@kernel.org>
  */
 #include <command.h>
+#include <env.h>
 #include <fastboot.h>
 #include <net.h>
 #include <vsprintf.h>
@@ -88,7 +89,8 @@ static int do_fastboot_usb(int argc, char *const argv[],
 static int do_fastboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
-	uintptr_t buf_addr = (uintptr_t)NULL;
+	/* Boards which place the buffer at run time put it in fastboot_addr_r */
+	uintptr_t buf_addr = env_get_hex("fastboot_addr_r", 0);
 	size_t buf_size = 0;
 
 	if (argc < 2)
