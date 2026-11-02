@@ -1037,10 +1037,11 @@ uint32_t ext4fs_get_new_blk_no(void)
 {
 	short i;
 	short status;
-	int remainder;
-	unsigned int bg_idx;
+	int bg_idx;
 	static int prev_bg_bitmap_index = -1;
 	unsigned int blk_per_grp = le32_to_cpu(ext4fs_root->sblock.blocks_per_group);
+	uint32_t first_data_block =
+		le32_to_cpu(ext4fs_root->sblock.first_data_block);
 	struct ext_filesystem *fs = get_fs();
 	char *journal_buffer = zalloc(fs->blksz);
 	char *zero_buffer = zalloc(fs->blksz);
@@ -1092,28 +1093,27 @@ uint32_t ext4fs_get_new_blk_no(void)
 	} else {
 		fs->curr_blkno++;
 restart:
+		/* no free block left after the last one allocated */
+		if (fs->curr_blkno >=
+		    le32_to_cpu(ext4fs_root->sblock.total_blocks))
+			goto fail;
 		/* get the blockbitmap index respective to blockno */
-		bg_idx = fs->curr_blkno / blk_per_grp;
-		if (fs->blksz == 1024) {
-			remainder = fs->curr_blkno % blk_per_grp;
-			if (!remainder)
-				bg_idx--;
-		}
+		bg_idx = ext4fs_blk_to_group(fs, fs->curr_blkno);
+		if (bg_idx < 0)
+			goto fail;
 
 		/*
 		 * To skip completely filled block group bitmaps
 		 * Optimize the block allocation
 		 */
-		if (bg_idx >= fs->no_blkgrp)
-			goto fail;
-
 		struct ext2_block_group *bgd = NULL;
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
 		if (ext4fs_bg_get_free_blocks(bgd, fs) == 0) {
-			debug("block group %u is full. Skipping\n", bg_idx);
-			fs->curr_blkno = (bg_idx + 1) * blk_per_grp;
-			if (fs->blksz == 1024)
-				fs->curr_blkno += 1;
+			debug("block group %d is full. Skipping\n", bg_idx);
+			if (bg_idx + 1 >= fs->no_blkgrp)
+				goto fail;
+			fs->curr_blkno = (bg_idx + 1) * blk_per_grp +
+					 first_data_block;
 			goto restart;
 		}
 
@@ -1129,7 +1129,7 @@ restart:
 
 		if (ext4fs_set_block_bmap(fs->curr_blkno, fs->blk_bmaps[bg_idx],
 				   bg_idx) != 0) {
-			debug("going for restart for the block no %ld %u\n",
+			debug("going for restart for the block no %ld %d\n",
 			      fs->curr_blkno, bg_idx);
 			fs->curr_blkno++;
 			goto restart;
