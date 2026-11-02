@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2026 Zhuxu Ran <zhuxu_ran@zohomail.com>
+ */
+
+/*
+ * The Ethernet signals are routed to the RJ45 connector on the optional
+ * IO Board. Keep Ethernet available in U-Boot when the IO Board is attached.
+ */
+&gmac0 {
+	status = "okay";
+};
+
+&mdio {
+	status = "okay";
+};

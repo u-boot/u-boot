@@ -639,7 +639,7 @@ int riscv_cpu_setup(void)
 	struct udevice *dev;
 
 	if (!CONFIG_IS_ENABLED(CPU))
-		return 0;
+		goto init_riscv_ipi;
 
 	uclass_find_first_device(UCLASS_CPU, &dev);
 	if (!dev) {
@@ -687,6 +687,7 @@ int riscv_cpu_setup(void)
 #endif
 	}
 
+init_riscv_ipi:
 #if CONFIG_IS_ENABLED(SMP)
 	ret = riscv_init_ipi();
 	if (ret)

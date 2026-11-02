@@ -138,6 +138,7 @@ static int cv1800b_sdhci_probe(struct udevice *dev)
 
 static const struct udevice_id cv1800b_sdhci_match[] = {
 	{ .compatible = "sophgo,cv1800b-dwcmshc" },
+	{ .compatible = "sophgo,sg2002-dwcmshc" },
 	{ }
 };
 

@@ -38,9 +38,5 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply MTD_SPI_NAND
 	imply CMD_MTD
 	imply CMD_MTDPARTS
-	imply DM_MAILBOX
-	imply MPFS_MBOX
-	imply MISC
-	imply MPFS_SYSCONTROLLER
 
 endif

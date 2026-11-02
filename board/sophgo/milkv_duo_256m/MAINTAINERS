@@ -1,5 +1,6 @@
 Milk-V Duo 256M
 M:	Hiago De Franco <hfranco@baylibre.com>
 S:	Maintained
+F:	arch/riscv/dts/sg2002-milkv-duo256m-u-boot.dtsi
 F:	board/sophgo/milkv_duo_256m/
 F:	configs/milkv_duo_256m_defconfig

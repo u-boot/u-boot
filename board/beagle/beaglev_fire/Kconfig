@@ -36,8 +36,4 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply ISO_PARTITION
 	imply PHY_LIB
 	imply PHY_VITESSE
-	imply DM_MAILBOX
-	imply MPFS_MBOX
-	imply MISC
-	imply MPFS_SYSCONTROLLER
 endif

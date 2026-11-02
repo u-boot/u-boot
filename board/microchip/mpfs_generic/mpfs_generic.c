@@ -114,7 +114,10 @@ int board_late_init(void)
 {
 	u32 ret;
 	int node;
+	int idx;
 	u8 device_serial_number[16] = {0};
+	char serialstring[33], designid[33];
+	u16 designver, designbacklevel;
 	void *blob = (void *)gd->fdt_blob;
 	struct udevice *dev;
 	struct mpfs_sys_serv *sys_serv_priv;
@@ -143,6 +146,29 @@ int board_late_init(void)
 		printf("Cannot read device serial number\n");
 		return -EINVAL;
 	}
+
+	/* Store design info and serial number in environment */
+	memset(designid, 0, sizeof(designid));
+	memset(serialstring, 0, sizeof(serialstring));
+
+	ret = mpfs_syscontroller_read_design_info(sys_serv_priv, designid,
+						  &designver, &designbacklevel);
+	if (ret) {
+		printf("Cannot read device design information\n");
+		return -EINVAL;
+	}
+
+	for (idx = 0; idx < 16; idx++)
+		sprintf(&serialstring[2*idx], "%02x", device_serial_number[idx]);
+
+	env_set("serial_number", serialstring);
+	env_set("design_id", designid);
+	env_set_ulong("design_ver", designver);
+	env_set_ulong("design_backlevel", designbacklevel);
+
+	printf("FPGA Design name: %s\n", designid);
+	printf("FPGA Serial: %s\n", serialstring);
+	printf("Design version number %d (backlevel %d)\n", designver, designbacklevel);
 
 	/* Update MAC address with device serial number */
 	mac_addr[0] = 0x00;
