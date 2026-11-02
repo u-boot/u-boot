@@ -443,6 +443,37 @@ uint16_t ext4fs_checksum_update(uint32_t i)
 	return crc;
 }
 
+/**
+ * ext4fs_get_dirent() - get a directory entry of a directory block
+ *
+ * Check that the entry at @offset lies inside the block and that its length
+ * covers its header and name, as Linux does in ext4_check_dir_entry(), so
+ * that the entry can be used and the next one found at @offset plus its
+ * length.
+ *
+ * @block:	directory block
+ * @offset:	offset of the entry in @block
+ * @blksz:	size of @block
+ * Return:	the entry, or NULL if it is not valid
+ */
+static struct ext2_dirent *ext4fs_get_dirent(char *block, unsigned int offset,
+					     unsigned int blksz)
+{
+	struct ext2_dirent *dir;
+	unsigned int direntlen;
+
+	if ((offset & 3) || offset > blksz - sizeof(*dir))
+		return NULL;
+
+	dir = (struct ext2_dirent *)(block + offset);
+	direntlen = le16_to_cpu(dir->direntlen);
+	if (direntlen < sizeof(*dir) + dir->namelen ||
+	    direntlen > blksz - offset)
+		return NULL;
+
+	return dir;
+}
+
 static int check_void_in_dentry(struct ext2_dirent *dir, char *filename)
 {
 	int dentry_length;
@@ -493,6 +524,7 @@ int ext4fs_update_parent_dentry(char *filename, int file_type)
 	uint32_t new_size;
 	uint32_t new_blockcnt;
 	uint32_t directory_blocks;
+	bool new_blk = false;
 
 	zero_buffer = zalloc(fs->blksz);
 	if (!zero_buffer) {
@@ -530,16 +562,25 @@ restart_read:
 	dir = (struct ext2_dirent *)root_first_block_buffer;
 	totalbytes = 0;
 
-	while (le16_to_cpu(dir->direntlen) > 0) {
-		unsigned short used_len = ROUND(dir->namelen +
-		    sizeof(struct ext2_dirent), 4);
+	/* a block just added to the directory has no entry yet */
+	while (!new_blk) {
+		unsigned short used_len;
+		int direntlen;
+
+		dir = ext4fs_get_dirent(root_first_block_buffer, totalbytes,
+					fs->blksz);
+		if (!dir) {
+			printf("Corrupt directory block, not writing\n");
+			goto fail;
+		}
+		direntlen = le16_to_cpu(dir->direntlen);
+		used_len = ROUND(dir->namelen + sizeof(struct ext2_dirent), 4);
 
 		/* last entry of block */
-		if (fs->blksz - totalbytes == le16_to_cpu(dir->direntlen)) {
+		if (fs->blksz - totalbytes == direntlen) {
 
 			/* check if new entry fits */
-			if ((used_len + new_entry_byte_reqd) <=
-			    le16_to_cpu(dir->direntlen)) {
+			if ((used_len + new_entry_byte_reqd) <= direntlen) {
 				dir->direntlen = cpu_to_le16(used_len);
 				break;
 			} else {
@@ -581,17 +622,15 @@ restart_read:
 				    (root_first_block_buffer,
 				     first_block_no_of_root))
 					goto fail;
+				new_blk = true;
 				goto restart;
 			}
 		}
 
-		templength = le16_to_cpu(dir->direntlen);
-		totalbytes = totalbytes + templength;
+		totalbytes = totalbytes + direntlen;
 		sizeof_void_space = check_void_in_dentry(dir, filename);
 		if (sizeof_void_space)
 			break;
-
-		dir = (struct ext2_dirent *)((char *)dir + templength);
 	}
 
 	/* make a pointer ready for creating next directory entry */
@@ -663,17 +702,13 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 
 		offset = 0;
 		do {
-			if (offset & 3) {
-				printf("Badly aligned ext2_dirent\n");
+			dir = ext4fs_get_dirent(block_buffer, offset,
+						fs->blksz);
+			if (!dir) {
+				printf("Corrupt directory block\n");
 				break;
 			}
-
-			dir = (struct ext2_dirent *)(block_buffer + offset);
-			direntname = (char*)(dir) + sizeof(struct ext2_dirent);
-
-			int direntlen = le16_to_cpu(dir->direntlen);
-			if (direntlen < sizeof(struct ext2_dirent))
-				break;
+			direntname = (char *)(dir) + sizeof(struct ext2_dirent);
 
 			if (dir->inode && (strlen(dirname) == dir->namelen) &&
 			    (strncmp(dirname, direntname, dir->namelen) == 0)) {
@@ -681,7 +716,7 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 				break;
 			}
 
-			offset += direntlen;
+			offset += le16_to_cpu(dir->direntlen);
 
 		} while (offset < fs->blksz);
 
@@ -892,18 +927,13 @@ static int unlink_filename(char *filename, unsigned int blknr)
 
 	offset = 0;
 	do {
-		if (offset & 3) {
-			printf("Badly aligned ext2_dirent\n");
+		previous_dir = dir;
+		dir = ext4fs_get_dirent(block_buffer, offset, fs->blksz);
+		if (!dir) {
+			printf("Corrupt directory block\n");
 			break;
 		}
-
-		previous_dir = dir;
-		dir = (struct ext2_dirent *)(block_buffer + offset);
 		direntname = (char *)(dir) + sizeof(struct ext2_dirent);
-
-		int direntlen = le16_to_cpu(dir->direntlen);
-		if (direntlen < sizeof(struct ext2_dirent))
-			break;
 
 		if (dir->inode && (strlen(filename) == dir->namelen) &&
 		    (strncmp(direntname, filename, dir->namelen) == 0)) {
@@ -911,7 +941,7 @@ static int unlink_filename(char *filename, unsigned int blknr)
 			break;
 		}
 
-		offset += direntlen;
+		offset += le16_to_cpu(dir->direntlen);
 
 	} while (offset < fs->blksz);
 
