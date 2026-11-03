@@ -937,7 +937,8 @@ int designware_eth_probe(struct udevice *dev)
 		ret = regulator_set_enable_if_allowed(phy_supply, true);
 		if (ret) {
 			puts("Error enabling phy supply\n");
-			return ret;
+			err = ret;
+			goto mdio_err;
 		}
 #if IS_ENABLED(CONFIG_ARCH_NPCM8XX)
 		int phy_uv;
@@ -947,7 +948,8 @@ int designware_eth_probe(struct udevice *dev)
 			ret = regulator_set_value(phy_supply, phy_uv);
 			if (ret) {
 				puts("Error setting phy voltage\n");
-				return ret;
+				err = ret;
+				goto mdio_err;
 			}
 		}
 #endif
