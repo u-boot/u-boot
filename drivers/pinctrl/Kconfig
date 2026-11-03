@@ -75,6 +75,13 @@ config PINCONF_RECURSIVE
 	  configuration; you can save memory footprint when this feature is
 	  no needed.
 
+config PINCTRL_NOMADIK
+	bool "Nomadik pin control driver"
+	depends on PINCTRL_FULL
+	help
+	  Enable pin multiplexing and configuration support for the Nomadik
+	  GPIO blocks in the ST-Ericsson DB8500.
+
 config SPL_PINCTRL
 	bool "Support pin controllers in SPL"
 	depends on SPL && SPL_DM

@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/ {
+	/* FIXME: Remove this when the U8500 clock driver is implemented */
+	sdmmcclk: sdmmcclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	soc {
+		mtu@a03c6000 {
+			clock-frequency = <133000000>;
+		};
+
+		mmc@80126000 {
+			clocks = <&sdmmcclk>;
+		};
+
+		mmc@80118000 {
+			/* Typically SDIO, unneeded in U-Boot */
+			status = "disabled";
+		};
+
+		mmc@80005000 {
+			clocks = <&sdmmcclk>;
+			/* U-Boot cannot handle switching the controller to DDR mode */
+			/delete-property/ mmc-ddr-1_8v;
+		};
+	};
+};
