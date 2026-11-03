@@ -156,6 +156,18 @@ config RESET_SOCFPGA
 	help
 	  Support for reset controller on SoCFPGA platform.
 
+config SOCFPGA_RESET_LEGACY_COMPAT
+	bool "SoCFPGA legacy peripheral reset compatibility"
+	depends on RESET_SOCFPGA
+	default y
+	help
+	  When enabled, all peripheral resets are deasserted before booting
+	  into the OS. This is required for systems running Linux kernels that
+	  lack proper peripheral reset driver support (typically gen5 and
+	  Arria10 platforms, Stratix10, Agilex, Agilex5, Agilex7m, N5X).
+	  Disable for future platforms whose kernels have full peripheral
+	  reset driver support.
+
 config RESET_MEDIATEK
 	bool "Reset controller driver for MediaTek SoCs"
 	depends on DM_RESET && ARCH_MEDIATEK && CLK
