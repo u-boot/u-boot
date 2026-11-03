@@ -135,3 +135,73 @@ static int dm_test_ubi_vid_hdr_data_size(struct unit_test_state *uts)
 	return ret;
 }
 DM_TEST(dm_test_ubi_vid_hdr_data_size, UTF_SCAN_FDT | UTF_LIVE_TREE);
+
+/*
+ * A static volume with data padding holds less than a LEB in each LEB, so the
+ * size of its last LEB is bounded by its usable LEB size, not the LEB size.
+ */
+static int ubi_test_static_last_leb_size(struct unit_test_state *uts)
+{
+	struct ubi_mkvol_req req;
+	struct ubi_device *ubi;
+	struct ubi_volume *vol;
+	struct mtd_info *mtd;
+	int usable;
+	u8 *buf;
+
+	ut_assertok(ubi_test_erase_mtd(uts, &mtd));
+
+	buf = malloc(mtd->erasesize);
+	ut_assertnonnull(buf);
+
+	/* One LEB, padded by one min. I/O unit, filled to its usable size */
+	ut_assertok(ubi_part(UBI_TEST_MTD, NULL));
+	ubi = ubi_devices[0];
+	memset(&req, 0, sizeof(req));
+	req.vol_id = 0;
+	req.vol_type = UBI_STATIC_VOLUME;
+	req.alignment = ubi->leb_size - ubi->min_io_size;
+	req.bytes = ubi->leb_size - ubi->min_io_size;
+	strcpy(req.name, "vol0");
+	req.name_len = strlen(req.name);
+	ut_assertok(ubi_create_volume(ubi, &req));
+	vol = ubi_find_volume("vol0");
+	ut_assertnonnull(vol);
+	ut_asserteq(ubi->min_io_size, vol->data_pad);
+	usable = vol->usable_leb_size;
+	ut_asserteq(req.bytes, usable);
+	memset(buf, 0xa5, usable);
+	ut_assertok(ubi_volume_write("vol0", buf, 0, usable));
+	ubi_detach();
+
+	/* It attaches again and reads back */
+	ut_assertok(ubi_part(UBI_TEST_MTD, NULL));
+	memset(buf, 0, usable);
+	ut_assertok(ubi_volume_read("vol0", buf, 0, usable));
+	ut_assertnull(memchr_inv(buf, 0xa5, usable));
+	ubi_detach();
+
+	/*
+	 * One byte more than the usable LEB size still fits in the LEB, so
+	 * the VID header is valid, but the volume is not.
+	 */
+	ut_assertok(ubi_test_set_data_size(uts, mtd, buf, usable + 1));
+	ut_asserteq(-EINVAL, ubi_part(UBI_TEST_MTD, NULL));
+
+	free(buf);
+
+	return 0;
+}
+
+static int dm_test_ubi_static_last_leb_size(struct unit_test_state *uts)
+{
+	int ret;
+
+	/* UBI holds the MTD device: release it before and after the test */
+	ubi_detach();
+	ret = ubi_test_static_last_leb_size(uts);
+	ubi_detach();
+
+	return ret;
+}
+DM_TEST(dm_test_ubi_static_last_leb_size, UTF_SCAN_FDT | UTF_LIVE_TREE);
