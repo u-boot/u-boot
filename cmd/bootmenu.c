@@ -304,10 +304,6 @@ static int prepare_uefi_bootorder_entry(struct bootmenu_data *menu,
 
 	num = size / sizeof(u16);
 	for (j = 0; j < num; j++) {
-		entry = malloc(sizeof(struct bootmenu_entry));
-		if (!entry)
-			return -ENOMEM;
-
 		efi_create_indexed_name(varname, sizeof(varname),
 					"Boot", bootorder[j]);
 		load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
@@ -318,13 +314,18 @@ static int prepare_uefi_bootorder_entry(struct bootmenu_data *menu,
 		if (ret != EFI_SUCCESS) {
 			log_warning("Invalid load option for %ls\n", varname);
 			free(load_option);
-			free(entry);
 			continue;
 		}
 
 		if (lo.attributes & LOAD_OPTION_ACTIVE) {
 			char *buf;
 
+			entry = malloc(sizeof(struct bootmenu_entry));
+			if (!entry) {
+				free(load_option);
+				free(bootorder);
+				return -ENOMEM;
+			}
 			buf = calloc(1, utf16_utf8_strlen(lo.label) + 1);
 			if (!buf) {
 				free(load_option);
