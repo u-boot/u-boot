@@ -612,7 +612,21 @@ static int ubi_attach_fastmap(struct ubi_scan_info *ubi,
 
 		fm_eba = (struct ubi_fm_eba *)(fm_raw + fm_pos);
 		fm_pos += sizeof(*fm_eba);
-		fm_pos += (sizeof(__be32) * be32_to_cpu(fm_eba->reserved_pebs));
+		if (fm_pos >= fm_size)
+			goto fail_bad;
+
+		/*
+		 * A volume cannot reserve more PEBs than the device has, and
+		 * bounding the count first keeps the multiplication below
+		 * from wrapping around on 32-bit builds.
+		 */
+		reserved = be32_to_cpu(fm_eba->reserved_pebs);
+		if (reserved > ubi->peb_count) {
+			ubi_err("bad fastmap EBA reserved PEBs: %u", reserved);
+			goto fail_bad;
+		}
+
+		fm_pos += sizeof(__be32) * reserved;
 		if (fm_pos >= fm_size)
 			goto fail_bad;
 
@@ -623,7 +637,6 @@ static int ubi_attach_fastmap(struct ubi_scan_info *ubi,
 			goto fail_bad;
 		}
 
-		reserved = be32_to_cpu(fm_eba->reserved_pebs);
 		ubi_dbg("FA: vol %u used %u res: %u", vol_id, used, reserved);
 		for (j = 0; j < reserved; j++) {
 			int pnum = be32_to_cpu(fm_eba->pnum[j]);
