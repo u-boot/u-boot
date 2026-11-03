@@ -1,0 +1,14 @@
+if TARGET_NANOPI_RK3528
+
+config SYS_BOARD
+	default "nanopi-rk3528"
+
+config SYS_VENDOR
+	default "friendlyelec"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select ADC
+	select SPL_ADC
+
+endif
