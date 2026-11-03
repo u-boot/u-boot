@@ -120,7 +120,7 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 	return 0;
 
 err:
-	puts("ROMAPI: Failure query boot infor pagesize/offset\n");
+	puts("ROMAPI: Failure query boot info pagesize/offset\n");
 	return -1;
 }
 
