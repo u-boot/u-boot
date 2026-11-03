@@ -1,7 +1,9 @@
 NANOPI-RK3528
 M:	Jonas Karlman <jonas@kwiboo.se>
+M:	安容 <HystericalDragons@proton.me>
 S:	Maintained
 F:	board/friendlyelec/nanopi-rk3528
 F:	arch/arm/dts/rk3528-nanopi-u-boot.dtsi
+F:	arch/arm/dts/rk3528-nanopi-r28s*
 F:	arch/arm/dts/rk3528-nanopi-zero2*
 F:	configs/nanopi-zero2-rk3528_defconfig

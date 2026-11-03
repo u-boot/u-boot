@@ -16,6 +16,7 @@ struct board_model {
 /* HW_ID buckets from the FriendlyElec vendor U-Boot hwrev.c */
 static const struct board_model board_models[] = {
 	{  82, 150, "rockchip/rk3528-nanopi-zero2.dtb" },
+	{ 212, 274, "rockchip/rk3528-nanopi-r28s.dtb" },
 };
 
 static const struct board_model *get_board_model(void)

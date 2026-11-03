@@ -1,9 +1,10 @@
 if ROCKCHIP_RK3528
 
 config TARGET_NANOPI_RK3528
-	bool "FriendlyElec NanoPi Zero2"
+	bool "FriendlyElec NanoPi R28S/Zero2"
 	help
-	  FriendlyElec NanoPi Zero2 single board computer with a RK3528A SoC.
+	  FriendlyElec NanoPi R28S/Zero2 single board computers with a RK3528A
+	  SoC.
 
 config TARGET_RADXA_ROCK_2_RK3528
 	bool "Radxa ROCK 2A/2F"
