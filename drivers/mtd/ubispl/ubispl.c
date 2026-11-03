@@ -558,12 +558,20 @@ static int ubi_attach_fastmap(struct ubi_scan_info *ubi,
 
 	/* read EC values from used list */
 	for (i = 0; i < be32_to_cpu(fmhdr->used_peb_count); i++) {
+		int pnum;
+
 		fmec = (struct ubi_fm_ec *)(fm_raw + fm_pos);
 		fm_pos += sizeof(*fmec);
 		if (fm_pos >= fm_size)
 			goto fail_bad;
 
-		generic_set_bit(be32_to_cpu(fmec->pnum), ubi->fm_used);
+		pnum = be32_to_cpu(fmec->pnum);
+		if (ubi_io_is_bad(ubi, pnum)) {
+			ubi_err("FM: Bad PEB in fastmap used list! %d", pnum);
+			goto fail_bad;
+		}
+
+		generic_set_bit(pnum, ubi->fm_used);
 	}
 
 	/* read EC values from scrub list */
@@ -622,6 +630,11 @@ static int ubi_attach_fastmap(struct ubi_scan_info *ubi,
 
 			if ((int)be32_to_cpu(fm_eba->pnum[j]) < 0)
 				continue;
+
+			if (ubi_io_is_bad(ubi, pnum)) {
+				ubi_err("FM: Bad PEB in fastmap EBA! %d", pnum);
+				goto fail_bad;
+			}
 
 			if (!__test_and_clear_bit(pnum, ubi->fm_used))
 				continue;
