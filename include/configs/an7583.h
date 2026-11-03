@@ -15,5 +15,6 @@
 
 /* DRAM */
 #define CFG_SYS_SDRAM_BASE		0x80000000
+#define CFG_MAX_MEM_MAPPED		SZ_2G
 
 #endif
