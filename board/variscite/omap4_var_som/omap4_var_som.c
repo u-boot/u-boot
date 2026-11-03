@@ -7,10 +7,14 @@
 #include <asm/global_data.h>
 #include <asm/mach-types.h>
 #include <asm-generic/gpio.h>
+#include <dm/uclass.h>
 #include <env.h>
+#include <fdt_support.h>
+#include <i2c_eeprom.h>
 #include <init.h>
 #include <linux/delay.h>
 #include <log.h>
+#include <net.h>
 #include <serial.h>
 
 #include "omap4_var_som_mux.h"
@@ -113,6 +117,37 @@ void emif_get_device_timings(u32 emif_nr,
 	*cs1_device_timings = NULL;
 }
 
+#define VARISCRITE_BLOB_OFFSET	0x600
+#define VARISCITE_BLOB_MAGIC	0x43535256 /* VRSC */
+struct variscite_eeprom_blob {
+	u32 magic;
+	u32 rev;
+	u8 eth_mac[ETH_ALEN];
+};
+
+static int extract_mac_from_eeprom(void)
+{
+	struct variscite_eeprom_blob blob;
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_first_device_err(UCLASS_I2C_EEPROM, &dev);
+	if (ret)
+		return ret;
+
+	ret = i2c_eeprom_read(dev, VARISCRITE_BLOB_OFFSET, (u8 *)&blob, sizeof(blob));
+	if (ret)
+		return ret;
+
+	if (blob.magic != VARISCITE_BLOB_MAGIC)
+		return -EINVAL;
+
+	if (is_valid_ethaddr(blob.eth_mac))
+		eth_env_set_enetaddr("ethaddr", blob.eth_mac);
+
+	return 0;
+}
+
 /**
  * @brief misc_init_r() - VAR-SOM configuration
  *
@@ -147,6 +182,9 @@ int misc_init_r(void)
 
 	writel(altclksrc, &scrm->altclksrc);
 
+	/* A failure in the MAC extraction must not prevent from booting */
+	(void)extract_mac_from_eeprom();
+
 	return 0;
 }
 
@@ -169,4 +207,10 @@ int board_mmc_init(struct bd_info *bis)
 {
 	if (IS_ENABLED(CONFIG_MMC))
 		return omap_mmc_init(0, 0, 0, -1, -1);
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	fdt_fixup_ethernet(blob);
+	return 0;
 }
