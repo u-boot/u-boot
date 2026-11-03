@@ -965,6 +965,18 @@ retry:
 	dlen = be32_to_cpu(vh->data_size);
 
 	/*
+	 * A data_size beyond the LEB is never valid: reading it would run
+	 * past the PEB and past this LEB's part of the load buffer. Treat
+	 * the block as corrupt and look for another copy.
+	 */
+	if (dlen > ubi->leb_size) {
+		ubi_warn("Vol: %u LEB %u PEB %u bad data_size %u", vol_id,
+			 lnum, pnum, dlen);
+		generic_set_bit(pnum, ubi->corrupt);
+		goto find_other;
+	}
+
+	/*
 	 * Read the data into RAM. We ignore the return value
 	 * here as the only thing which might go wrong are
 	 * bitflips. Try nevertheless.
