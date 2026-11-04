@@ -12,6 +12,7 @@
 #include <pci.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/bitfield.h>
 #include <linux/delay.h>
 #include "designware_i2c.h"
 #include <dm/device_compat.h>
@@ -467,8 +468,14 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 			 int alen, u8 *buffer, int len)
 {
 	unsigned long start_time_rx;
-	unsigned int active = 0;
+	int read_cmds = len;
+	int rx_outstanding = 0;
+	int rx_fifo_depth;
 	int ret;
+
+	/* The RX buffer depth field encodes the FIFO depth minus one. */
+	rx_fifo_depth = FIELD_GET(DW_IC_COMP_PARAM_1_RX_BUF_DEPTH_MASK,
+				  readl(&i2c_base->comp_param1)) + 1;
 
 #ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
@@ -495,26 +502,26 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 
 	start_time_rx = get_timer(0);
 	while (len) {
-		if (!active) {
-			/*
-			 * Avoid writing to ic_cmd_data multiple times
-			 * in case this loop spins too quickly and the
-			 * ic_status RFNE bit isn't set after the first
-			 * write. Subsequent writes to ic_cmd_data can
-			 * trigger spurious i2c transfer.
-			 */
-			if (len == 1)
+		/*
+		 * Queue reads without waiting for each response. Reserve an RX
+		 * FIFO slot for every outstanding command, including those whose
+		 * data has not arrived yet.
+		 */
+		if (read_cmds && rx_outstanding < rx_fifo_depth &&
+		    (readl(&i2c_base->ic_status) & IC_STATUS_TFNF)) {
+			if (read_cmds == 1)
 				writel(IC_CMD | IC_STOP, &i2c_base->ic_cmd_data);
 			else
 				writel(IC_CMD, &i2c_base->ic_cmd_data);
-			active = 1;
+			read_cmds--;
+			rx_outstanding++;
 		}
 
 		if (readl(&i2c_base->ic_status) & IC_STATUS_RFNE) {
 			*buffer++ = (uchar)readl(&i2c_base->ic_cmd_data);
 			len--;
+			rx_outstanding--;
 			start_time_rx = get_timer(0);
-			active = 0;
 		} else if (get_timer(start_time_rx) > I2C_BYTE_TO) {
 			return -ETIMEDOUT;
 		}

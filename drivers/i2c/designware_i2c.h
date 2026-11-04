@@ -139,6 +139,7 @@ struct i2c_regs {
 #define IC_STATUS_TFNF		0x0002
 #define IC_STATUS_ACT		0x0001
 
+#define DW_IC_COMP_PARAM_1_RX_BUF_DEPTH_MASK    GENMASK(15, 8)
 #define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH      (BIT(2) | BIT(3))
 #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK      (BIT(2) | BIT(3))
 
