@@ -38,6 +38,16 @@ int cache_disable(struct udevice *dev)
 	return ops->disable(dev);
 }
 
+int cache_flush_all(struct udevice *dev)
+{
+	struct cache_ops *ops = cache_get_ops(dev);
+
+	if (!ops->flush_all)
+		return -ENOSYS;
+
+	return ops->flush_all(dev);
+}
+
 UCLASS_DRIVER(cache) = {
 	.id		= UCLASS_CACHE,
 	.name		= "cache",

@@ -884,15 +884,15 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTI) && images->os.arch == IH_ARCH_ARM64 &&
-	    images->os.os == IH_OS_LINUX) {
+	if (IS_ENABLED(CONFIG_CMD_BOOTI) && images->os.os == IH_OS_LINUX &&
+	    (images->os.arch == IH_ARCH_ARM64 || images->os.arch == IH_ARCH_RISCV)) {
 		ulong relocated_addr;
 		ulong image_size;
 		int ret;
 
 		ret = booti_setup(load, &relocated_addr, &image_size, false);
 		if (ret) {
-			printf("Failed to prep arm64 kernel (err=%d)\n", ret);
+			printf("Failed to prep kernel image (err=%d)\n", ret);
 			return BOOTM_ERR_RESET;
 		}
 
