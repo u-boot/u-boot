@@ -117,6 +117,16 @@ config DM_EVENT
 	  register a 'spy' function that is called when the event occurs. Such
 	  subsystems must select this option.
 
+config SPL_DM_EVENT
+	bool
+	depends on SPL_DM
+	select SPL_EVENT
+	help
+	  This enables support for generating events related to driver model
+	  operations in SPL, such as probing or removing a device. Subsystems
+	  can register a 'spy' function that is called when the event occurs.
+	  Such subsystems must select this option.
+
 config SPL_DM_DEVICE_REMOVE
 	bool "Support device removal in SPL"
 	depends on SPL_DM
