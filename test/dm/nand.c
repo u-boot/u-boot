@@ -3,6 +3,7 @@
  * Copyright (C) 2023 Sean Anderson <seanga2@gmail.com>
  */
 
+#include <dm.h>
 #include <nand.h>
 #include <part.h>
 #include <rand.h>
@@ -15,6 +16,7 @@
 static int run_test_nand(struct unit_test_state *uts, int dev, bool end)
 {
 	nand_erase_options_t opts = { };
+	struct udevice *ctrl;
 	struct mtd_info *mtd;
 	size_t length;
 	loff_t size;
@@ -28,6 +30,14 @@ static int run_test_nand(struct unit_test_state *uts, int dev, bool end)
 	/* Seed RNG for bit errors */
 	srand((off >> 32) ^ off ^ ~dev);
 
+	/*
+	 * Probe the controller, which registers the NAND devices. Another test
+	 * may have probed it before, in a driver model which is now gone, in
+	 * which case its devices are no longer registered.
+	 */
+	ut_assertok(uclass_get_device_by_driver(UCLASS_MTD,
+						DM_DRIVER_GET(sand_nand),
+						&ctrl));
 	mtd = get_nand_dev_by_index(dev);
 	ut_assertnonnull(mtd);
 	size = mtd->erasesize * 4;
