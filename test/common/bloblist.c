@@ -360,6 +360,31 @@ static int bloblist_test_align(struct unit_test_state *uts)
 }
 BLOBLIST_TEST(bloblist_test_align, UFT_BLOBLIST);
 
+/* Test adding a record after one whose data does not end aligned */
+static int bloblist_test_align_used_size(struct unit_test_state *uts)
+{
+	struct bloblist_hdr *hdr;
+	char *data;
+
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0, 0));
+	data = bloblist_add(TEST_TAG, TEST_SIZE, 0);
+	ut_assertnonnull(data);
+
+	/* Another boot phase may end the used size with the data */
+	hdr->used_size = map_to_sysmem(data) + TEST_SIZE - TEST_ADDR;
+	ut_assert(hdr->used_size & (BLOBLIST_BLOB_ALIGN - 1));
+
+	data = bloblist_add(TEST_TAG2, TEST_SIZE2, 0);
+	ut_assertnonnull(data);
+	ut_asserteq(0, map_to_sysmem(data) & (BLOBLIST_BLOB_ALIGN - 1));
+	ut_asserteq_ptr(data, bloblist_find(TEST_TAG2, TEST_SIZE2));
+	ut_assertnonnull(bloblist_find(TEST_TAG, TEST_SIZE));
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_align_used_size, UFT_BLOBLIST);
+
 /* Test relocation of a bloblist */
 static int bloblist_test_reloc(struct unit_test_state *uts)
 {
