@@ -40,6 +40,7 @@ struct spacemit_gpio_data {
 
 struct spacemit_gpio_priv {
 	void __iomem *regs;
+	struct udevice *pinctrl;
 	const struct spacemit_gpio_data *data;
 };
 
@@ -152,13 +153,9 @@ static int spacemit_gpio_set_flags(struct udevice *dev, unsigned int offset,
 static int spacemit_gpio_request(struct udevice *dev, unsigned int offset,
 				 const char *label)
 {
+	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
+	struct udevice *pctldev = priv->pinctrl;
 	const struct pinctrl_ops *ops;
-	struct udevice *pctldev;
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_PINCTRL, &pctldev);
-	if (ret)
-		return ret;
 
 	ops = pinctrl_get_ops(pctldev);
 	if (!ops->gpio_request_enable)
@@ -169,13 +166,9 @@ static int spacemit_gpio_request(struct udevice *dev, unsigned int offset,
 
 static int spacemit_gpio_rfree(struct udevice *dev, unsigned int offset)
 {
+	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
+	struct udevice *pctldev = priv->pinctrl;
 	const struct pinctrl_ops *ops;
-	struct udevice *pctldev;
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_PINCTRL, &pctldev);
-	if (ret)
-		return ret;
 
 	ops = pinctrl_get_ops(pctldev);
 	if (!ops->gpio_disable_free)
@@ -224,6 +217,10 @@ static int spacemit_gpio_probe(struct udevice *dev)
 		dev_err(dev, "Fail to enable bulk clks\n");
 		goto out;
 	}
+	ret = uclass_first_device_err(UCLASS_PINCTRL, &priv->pinctrl);
+	if (ret)
+		return ret;
+
 	return 0;
 out:
 	clk_release_bulk(&clks);
