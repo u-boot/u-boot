@@ -674,6 +674,8 @@ config EVENT_DEBUG
 	  events, such as event-type names. This adds to the code size of
 	  U-Boot so can be turned off for production builds.
 
+endif # EVENT
+
 config SPL_EVENT
 	bool  # General-purpose event-handling mechanism in SPL
 	depends on SPL
@@ -686,15 +688,17 @@ config SPL_EVENT
 
 	  See doc/develop/event.rst for more information.
 
+if SPL_EVENT
+
 config SPL_EVENT_DYNAMIC
 	bool
-	depends on SPL_EVENT && EVENT_DYNAMIC
+	depends on EVENT_DYNAMIC
 	help
 	  Enable this to support adding an event spy at runtime, without adding
 	  it to the EVENT_SPY*() linker list. This increases code size slightly
 	  but provides more flexibility for boards and subsystems that need it.
 
-endif # EVENT
+endif # SPL_EVENT
 
 config ARCH_EARLY_INIT_R
 	bool
