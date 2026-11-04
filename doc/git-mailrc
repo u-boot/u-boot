@@ -20,6 +20,7 @@ alias alisonwang     Alison Wang <alison.wang@nxp.com>
 alias angelo_ts      Angelo Dureghello <angelo@kernel-space.org>
 alias apritzel       Andre Przywara <andre.przywara@arm.com>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
+alias chleroy        Christophe Leroy (CS GROUP) <chleroy@kernel.org>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 alias dinh           Dinh Nguyen <dinguyen@kernel.org>
 alias ehristev       Eugen Hristev <eugen.hristev@linaro.org>
@@ -97,7 +98,7 @@ alias nios2          nios
 
 alias powerpc        uboot, afleming, stroese, wd, priyankajain, mariosix
 alias ppc            powerpc
-alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@csgroup.eu>
+alias mpc8xx         uboot, wd, chleroy
 alias mpc83xx        uboot, mariosix
 alias mpc85xx        uboot, afleming, priyankajain
 

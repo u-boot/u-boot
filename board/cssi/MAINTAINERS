@@ -1,5 +1,5 @@
 BOARDS from CS GROUP France
-M:	Christophe Leroy <christophe.leroy@csgroup.eu>
+M:	Christophe Leroy (CS GROUP) <chleroy@kernel.org>
 S:	Maintained
 F:	board/cssi/
 F:	include/configs/mcr3000.h
