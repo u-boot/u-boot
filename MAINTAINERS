@@ -1329,6 +1329,7 @@ M:	Amit Kumar Mahapatra <amit.kumar-mahapatra@amd.com>
 S:	Maintained
 F:	drivers/mtd/mtd_virt_concat.c
 F:	include/linux/mtd/concat.h
+F:	test/dm/mtd_concat.c
 
 NETWORK
 M:	Jerome Forissier <jerome.forissier@arm.com>
