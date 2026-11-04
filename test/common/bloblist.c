@@ -69,7 +69,10 @@ static int bloblist_test_init(struct unit_test_state *uts)
 	ut_asserteq_ptr(NULL, bloblist_check_magic(TEST_ADDR));
 	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0, 0));
 	ut_asserteq_ptr(hdr, bloblist_check_magic(TEST_ADDR));
-	hdr->version++;
+	hdr->version = BLOBLIST_VERSION + 1;
+	ut_asserteq(-EPROTONOSUPPORT, bloblist_check(TEST_ADDR,
+						     TEST_BLOBLIST_SIZE));
+	hdr->version = 0;
 	ut_asserteq(-EPROTONOSUPPORT, bloblist_check(TEST_ADDR,
 						     TEST_BLOBLIST_SIZE));
 
@@ -91,6 +94,22 @@ static int bloblist_test_init(struct unit_test_state *uts)
 	return 1;
 }
 BLOBLIST_TEST(bloblist_test_init, UFT_BLOBLIST);
+
+/* Test that a list of the withdrawn version is still accepted */
+static int bloblist_test_version(struct unit_test_state *uts)
+{
+	struct bloblist_hdr *hdr;
+
+	hdr = clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0, 0));
+	hdr->version = BLOBLIST_VERSION_WITHDRAWN;
+	ut_assertok(bloblist_finish());
+	ut_assertok(bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+	ut_assertnonnull(bloblist_add(TEST_TAG, TEST_SIZE, 0));
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_version, UFT_BLOBLIST);
 
 static int bloblist_test_blob(struct unit_test_state *uts)
 {
