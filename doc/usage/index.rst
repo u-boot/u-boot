@@ -10,6 +10,7 @@ Use U-Boot
    environment
    fdt_overlays
    fit/index
+   mtd_concat
    netconsole
    partitions
    pxe
