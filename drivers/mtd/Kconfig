@@ -32,6 +32,23 @@ config MTD_CONCAT
 	  into a single logical device. The larger logical device can then
 	  be partitioned.
 
+config MTD_VIRT_CONCAT
+	bool "Virtual MTD concatenation via Device Tree"
+	depends on MTD_PARTITIONS && DM && OF_CONTROL
+	help
+	  Enable virtual concatenation of MTD partitions based on the
+	  "part-concat-next" device tree property.
+
+	  Partitions declared in the device tree are transparently joined
+	  into a single logical MTD device. This is useful when a
+	  filesystem spans partitions on separate flash devices, such as
+	  QSPI/OSPI flashes on different chip selects.
+
+	  This includes the concatenation support it needs, so it does not
+	  need MTD_CONCAT, which also joins NAND and CFI flash chips.
+
+	  If unsure, say N.
+
 config MTD_BLOCK
 	bool "Enable block device access to MTD devices"
 	select BLK

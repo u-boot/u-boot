@@ -33,6 +33,7 @@
 #endif
 
 #include <linux/log2.h>
+#include <linux/mtd/concat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 
@@ -565,6 +566,17 @@ int del_mtd_device(struct mtd_info *mtd)
 #ifndef __UBOOT__
 	struct mtd_notifier *not;
 #endif
+
+	/*
+	 * Concatenated devices made of partitions of this device must go
+	 * first. If one is still in use, so is this device
+	 */
+	ret = mtd_virt_concat_destroy(mtd);
+	if (ret) {
+		debug("Failed to destroy concat MTD devices using %s (err %d)\n",
+		      mtd->name, ret);
+		return ret;
+	}
 
 	ret = del_mtd_partitions(mtd);
 	if (ret) {

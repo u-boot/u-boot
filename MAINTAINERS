@@ -1323,6 +1323,13 @@ T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
 N:	mmc
 
+MTD VIRTUAL CONCAT
+M:	Padmarao Begari <padmarao.begari@amd.com>
+M:	Amit Kumar Mahapatra <amit.kumar-mahapatra@amd.com>
+S:	Maintained
+F:	drivers/mtd/mtd_virt_concat.c
+F:	include/linux/mtd/concat.h
+
 NETWORK
 M:	Jerome Forissier <jerome.forissier@arm.com>
 S:	Maintained
