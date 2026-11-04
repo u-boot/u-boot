@@ -1489,6 +1489,29 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 			    const void *propval, int proplen);
 
 /**
+ * ofnode_dfs_next() - Get the next node in depth-first order
+ *
+ * Return the first subnode of @node if it has one, otherwise its next sibling,
+ * otherwise the next sibling of the nearest parent that has one.
+ *
+ * @node: valid node to start from
+ * Return: next node, or ofnode_null() at the end of the tree
+ */
+ofnode ofnode_dfs_next(ofnode node);
+
+/**
+ * ofnode_find_node_with_property() - Find the next node with a property
+ *
+ * Walk the tree in depth-first order, starting after @from, and return the
+ * first node that has a property called @propname, whatever its value.
+ *
+ * @from: ofnode to start after (use ofnode_null() to start at the root)
+ * @propname: name of the property to look for
+ * Return: ofnode found, or ofnode_null() if none
+ */
+ofnode ofnode_find_node_with_property(ofnode from, const char *propname);
+
+/**
  * ofnode_for_each_subnode() - iterate over all subnodes of a parent
  *
  * @node:       child node (ofnode, lvalue)
