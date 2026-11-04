@@ -33,6 +33,7 @@ config SOC_K3_J721S2
 
 config SOC_K3_J722S
 	bool "TI's K3 based J722S SoC Family Support"
+	select SPL_DM_EVENT if SPL
 
 config SOC_K3_J784S4
 	bool "TI's K3 based J784S4 SoC Family Support"
