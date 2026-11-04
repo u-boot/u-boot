@@ -1430,6 +1430,9 @@ static int fecmxc_probe(struct udevice *dev)
 	if (ret)
 		goto err_phy;
 
+	/* only the instance which allocated a shared bus may free it */
+	priv->bus_owner = !dm_mii_bus;
+
 	return 0;
 
 err_phy:
@@ -1455,8 +1458,10 @@ static int fecmxc_remove(struct udevice *dev)
 		device_unbind(priv->mdio_bus);
 	}
 #else
-	mdio_unregister(priv->bus);
-	mdio_free(priv->bus);
+	if (priv->bus_owner) {
+		mdio_unregister(priv->bus);
+		mdio_free(priv->bus);
+	}
 #endif
 
 #ifdef CONFIG_DM_REGULATOR

@@ -248,6 +248,7 @@ struct fec_priv {
 	uint8_t *tdb_ptr;
 	int dev_id;
 	struct mii_dev *bus;
+	bool bus_owner;
 #ifdef CONFIG_PHYLIB
 	struct phy_device *phydev;
 	ofnode phy_of_node;
