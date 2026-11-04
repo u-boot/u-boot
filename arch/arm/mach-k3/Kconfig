@@ -14,6 +14,7 @@ config SOC_K3_AM62A7
 
 config SOC_K3_AM62P5
 	bool "TI's K3 based AM62P5 SoC Family Support"
+	select SPL_DM_EVENT if SPL
 
 config SOC_K3_AM642
 	bool "TI's K3 based AM642 SoC Family Support"
