@@ -126,6 +126,7 @@ static int spacemit_gpio_set_flags(struct udevice *dev, unsigned int offset,
 				   ulong flags)
 {
 	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
+	const struct pinctrl_ops *ops;
 	void __iomem *base, *addr;
 	int value;
 
@@ -146,6 +147,20 @@ static int spacemit_gpio_set_flags(struct udevice *dev, unsigned int offset,
 		}
 		addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GSDR);
 		writel(1 << GPIO_TO_BIT(offset), addr);
+	}
+	if (flags & GPIOD_MASK_PULL) {
+		unsigned int param;
+		int ret;
+
+		ops = pinctrl_get_ops(priv->pinctrl);
+		if (!ops->pinconf_set)
+			return -ENOSYS;
+
+		param = flags & GPIOD_PULL_UP ? PIN_CONFIG_BIAS_PULL_UP :
+			PIN_CONFIG_BIAS_PULL_DOWN;
+		ret = ops->pinconf_set(priv->pinctrl, offset, param, 1);
+		if (ret)
+			return ret;
 	}
 	return 0;
 }
