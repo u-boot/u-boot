@@ -4,6 +4,7 @@
  * Author: Chris-QJ Chen <chris-qj.chen@mediatek.com>
  */
 
+#include <cpu_func.h>
 #include <fdtdec.h>
 #include <stdio.h>
 #include <asm/global_data.h>
@@ -29,7 +30,7 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	return min(gd->ram_top, SZ_4G);
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	if (!CONFIG_IS_ENABLED(SYSRESET))
 		psci_system_reset();
