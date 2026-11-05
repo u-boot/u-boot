@@ -93,7 +93,7 @@ run_test "dtoc" ./tools/dtoc/dtoc -t
 # Code-coverage tests cannot run in parallel, so skip them in that case
 if [ -z "${para}" ]; then
 	export PATH=$PATH:${TOOLS_DIR}
-	run_test "binman code coverage" ./tools/binman/binman test -T
+	run_test "binman code coverage" ./tools/binman/binman --toolpath ${TOOLS_DIR} test -T
 	run_test "dtoc code coverage" ./tools/dtoc/dtoc -T
 	run_test "fdt code coverage" ./tools/dtoc/test_fdt -T
 fi
