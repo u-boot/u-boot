@@ -7,8 +7,10 @@
 #include <cpu_func.h>
 #include <fdtdec.h>
 #include <stdio.h>
+#include <wdt.h>
 #include <asm/global_data.h>
 #include <asm/system.h>
+#include <dm/uclass.h>
 #include <linux/kernel.h>
 #include <linux/sizes.h>
 
@@ -32,8 +34,15 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 void reset_cpu(void)
 {
-	if (!CONFIG_IS_ENABLED(SYSRESET))
+	struct udevice *wdt;
+
+	if (CONFIG_IS_ENABLED(PSCI_RESET)) {
 		psci_system_reset();
+	} else {
+		uclass_first_device(UCLASS_WDT, &wdt);
+		if (wdt)
+			wdt_expire_now(wdt, 0);
+	}
 }
 
 static const char *mediatek_get_segment_name_string(void)
