@@ -9,6 +9,7 @@ F:	arch/arm/dts/mtk-genio-binman-u-boot.dtsi
 F:	configs/mt8189.config
 F:	configs/mt8371_genio_*
 F:	configs/mt8391_genio_*
+F:	doc/board/mediatek/mt8189-genio-evk.rst
 
 MT8365 EVK
 M:	Julien Masson <jmasson@baylibre.com>
