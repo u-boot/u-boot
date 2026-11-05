@@ -219,7 +219,7 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
  */
 static int flush_dirty_fat_buffer(fsdata *mydata)
 {
-	int getsize = FATBUFBLOCKS;
+	__u32 getsize = FATBUFBLOCKS;
 	__u32 fatlength = mydata->fatlength;
 	__u8 *bufptr = mydata->fatbuf;
 	__u32 startblock = mydata->fatbufnum * FATBUFBLOCKS;
@@ -235,6 +235,11 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
 		getsize = fatlength - startblock;
 
 	startblock += mydata->fat_sect;
+
+	if (getsize > FATBUFBLOCKS) {
+		debug("getsize is too large for bufptr\n");
+		getsize = FATBUFBLOCKS;
+	}
 
 	/* Write FAT buf */
 	if (disk_write(startblock, getsize, bufptr) < 0) {
@@ -465,7 +470,7 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 
 	/* Read a new block of FAT entries into the cache. */
 	if (bufnum != mydata->fatbufnum) {
-		int getsize = FATBUFBLOCKS;
+		__u32 getsize = FATBUFBLOCKS;
 		__u8 *bufptr = mydata->fatbuf;
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
@@ -478,6 +483,11 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
 			return -1;
 
 		startblock += mydata->fat_sect;
+
+		if (getsize > FATBUFBLOCKS) {
+			debug("getsize is too large for bufptr\n");
+			getsize = FATBUFBLOCKS;
+		}
 
 		if (disk_read(startblock, getsize, bufptr) < 0) {
 			debug("Error reading FAT blocks\n");
