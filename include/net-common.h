@@ -214,7 +214,7 @@ int eth_env_get_enetaddr_by_index(const char *base_name, int index,
  * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				  uchar *enetaddr);
+				  const uchar *enetaddr);
 
 /*
  * Initialize USB ethernet device with CONFIG_DM_ETH

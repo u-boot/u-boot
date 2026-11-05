@@ -21,7 +21,7 @@ int eth_env_get_enetaddr_by_index(const char *base_name, int index,
 }
 
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr)
+				  const uchar *enetaddr)
 {
 	char enetvar[32];
 	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);

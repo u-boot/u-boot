@@ -87,7 +87,7 @@ void eth_halt_state_only(void); /* Set passive state */
  * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				  uchar *enetaddr);
+				  const uchar *enetaddr);
 
 /*
  * Get the hardware address for an ethernet interface .
