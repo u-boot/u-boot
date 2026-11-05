@@ -179,8 +179,8 @@ Setting up
    .. code-block:: bash
 
       cd /path/to/u-boot
-      git clone git://git.denx.de/u-boot.git .
-      git checkout -b my-branch origin/master
+      git clone https://git.u-boot-project.org/u-boot/u-boot.git .
+      git checkout -b my-branch origin/main
       # Add some commits to the branch, reading for testing
 
 #. Create ~/.buildman to tell Buildman where to find tool chains (see
@@ -505,7 +505,7 @@ branch with a valid upstream):
    ./tools/buildman/buildman -b <branch> -n
 
 If it can't detect the upstream branch, try checking out the branch, and
-doing something like ``git branch --set-upstream-to upstream/master``
+doing something like ``git branch --set-upstream-to upstream/main``
 or something similar. Buildman will try to guess a suitable upstream branch
 if it can't find one (you will see a message like "Guessing upstream as ...").
 You can also use the -c option to manually specify the number of commits to
@@ -1008,9 +1008,9 @@ Building Ranges
 You can build a range of commits by specifying a range instead of a branch
 when using the -b flag. For example::
 
-    buildman -b upstream/master..us-buildman
+    buildman -b upstream/main..us-buildman
 
-will build commits in us-buildman that are not in upstream/master.
+will build commits in us-buildman that are not in upstream/main.
 
 
 Building Faster

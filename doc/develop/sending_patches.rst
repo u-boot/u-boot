@@ -36,7 +36,7 @@ configuration file and ``scripts/get_maintainer.pl``.
 .. code-block:: bash
 
    b4 prep -n mmc-fixes
-   git rebase -i origin/master
+   git rebase -i origin/main
    b4 prep --edit-cover
    b4 prep --auto-to-cc
 
@@ -65,7 +65,7 @@ fold them into your commits before resending the updated series.
 .. code-block:: bash
 
    b4 trailers -u
-   git rebase -i origin/master
+   git rebase -i origin/main
    b4 send
 
 Using patman
@@ -132,11 +132,11 @@ General Patch Submission Rules
 * Send your patches as plain text messages: no HTML, no MIME, no links, no
   compression, no attachments. Just plain text. The best way to generate
   patches is by using the ``git format-patch`` command. For a patch that is
-  fixing a bug or regression of some sort, please use the ``master`` branch of
+  fixing a bug or regression of some sort, please use the ``main`` branch of
   the mainline U-Boot git repository located at
   https://git.u-boot-project.org/u-boot/u-boot.git as reference. For new features, if
   the ``next`` branch has been opened (which happens with the release of
-  ``-rc2``) that branch should be used, otherwise ``master`` is acceptable.
+  ``-rc2``) that branch should be used, otherwise ``main`` is acceptable.
 
 * Make sure that your mailer does not mangle the patch by automatic changes
   like wrapping of longer lines etc.
@@ -452,7 +452,7 @@ today. Not all states are used by all custodians.
   it will be accepted for mainline.
 
 * Awaiting Upstream: A custodian may have applied this to the ``next`` branch
-  and has not merged yet to master, or has queued the patch up to be submitted
+  and has not merged yet to ``main``, or has queued the patch up to be submitted
   to be merged, but has not yet.
 
 * Superseded: Patches are marked as 'superseded' when the poster submits a

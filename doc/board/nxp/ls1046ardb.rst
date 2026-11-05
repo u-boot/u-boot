@@ -11,7 +11,7 @@ debugging environment. The LS1046A RDB is lead-free and RoHS-compliant.
 
 LS1046A SoC Overview
 --------------------
-Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS1046A
+Please refer doc/board/nxp/layerscape.rst for LS1046A
 SoC overview.
 
 LS1046ARDB board Overview

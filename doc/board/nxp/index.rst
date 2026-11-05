@@ -6,6 +6,7 @@ NXP Semiconductors
 .. toctree::
    :maxdepth: 2
 
+   hwconfig
    imx8mm_evk
    imx8mn_evk
    imx8mp_evk
@@ -26,6 +27,7 @@ NXP Semiconductors
    imxrt1020-evk
    imxrt1050-evk
    imxrt1170-evk
+   layerscape
    ls1046ardb
    mx6sabreauto
    mx6sabresd

@@ -742,7 +742,7 @@ static int efi_boot_add_uri(int argc, char *const argv[], u16 *var_name16,
 	efi_uintn_t uridp_len;
 	struct efi_device_path_uri *uridp;
 
-	if (argc < 3 || lo->label)
+	if (argc < 4 || lo->label)
 		return CMD_RET_USAGE;
 
 	id = (int)hextoul(argv[1], &endp);

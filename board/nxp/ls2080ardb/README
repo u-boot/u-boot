@@ -10,7 +10,7 @@ Layerscape Architecture processor.More details in below sections
 
 LS2080A, LS2088A, LS2081A SoC Overview
 --------------------------------------
-Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS2080A,
+Please refer doc/board/nxp/layerscape.rst for LS2080A,
 LS2081A, LS2088A SoC overview.
 
  LS2080ARDB board Overview

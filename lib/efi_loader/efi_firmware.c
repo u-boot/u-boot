@@ -766,23 +766,9 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 		return EFI_EXIT(status);
 
 	/*
-	 * dfu_alt_num is assigned from 0 while image_index starts from 1.
-	 * dfu_alt_num is calculated by (image_index - 1) when multi bank update
-	 * is not used.
+	 * "dfu_alt_info" must be set before fwu_get_dfu_alt_num(), which
+	 * parses it through dfu_init_env_entities() to locate the image.
 	 */
-	dfu_alt_num = image_index - 1;
-	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
-		/*
-		 * Based on the value of update bank, derive the
-		 * image index value.
-		 */
-		ret = fwu_get_dfu_alt_num(image_index, &dfu_alt_num);
-		if (ret) {
-			log_debug("Unable to get FWU image_index\n");
-			return EFI_EXIT(EFI_DEVICE_ERROR);
-		}
-	}
-
 	orig_dfu_env = env_get("dfu_alt_info");
 	if (orig_dfu_env) {
 		orig_dfu_env = strdup(orig_dfu_env);
@@ -797,9 +783,28 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 	}
 
+	/*
+	 * dfu_alt_num is assigned from 0 while image_index starts from 1.
+	 * dfu_alt_num is calculated by (image_index - 1) when multi bank update
+	 * is not used.
+	 */
+	dfu_alt_num = image_index - 1;
+	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
+		/*
+		 * Based on the value of update bank, derive the
+		 * image index value.
+		 */
+		ret = fwu_get_dfu_alt_num(image_index, &dfu_alt_num);
+		if (ret) {
+			log_debug("Unable to get FWU image_index\n");
+			goto restore_dfu;
+		}
+	}
+
 	ret = dfu_write_by_alt(dfu_alt_num, (void *)image, image_size,
 			       NULL, NULL);
 
+restore_dfu:
 	if (env_set("dfu_alt_info", orig_dfu_env))
 		log_warning("Unable to restore env variable \"dfu_alt_info\".  Further DFU operations may fail!\n");
 

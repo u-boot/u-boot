@@ -2,6 +2,7 @@
 
 #include <command.h>
 #include <env.h>
+#include <errno.h>
 #include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -14,13 +15,15 @@ enum {
 	OP_ID_OR,
 };
 
-void write_to_env_var(char *varname, u8 *result, ulong len)
+static int write_to_env_var(char *varname, u8 *result, ulong len)
 {
 	char *str_output;
 	char *str_ptr;
-	int i;
+	int i, ret;
 
 	str_output = malloc(len * 2 + 1);
+	if (!str_output)
+		return -ENOMEM;
 	str_ptr = str_output;
 
 	for (i = 0; i < len; i++) {
@@ -28,40 +31,76 @@ void write_to_env_var(char *varname, u8 *result, ulong len)
 		str_ptr += 2;
 	}
 	*str_ptr = '\0';
-	env_set(varname, str_output);
-
+	ret = env_set(varname, str_output);
 	free(str_output);
+
+	return ret;
 }
 
-void read_from_env_var(char *varname, u8 *result)
+static int read_from_env_var(char *varname, u8 *result, ulong len)
 {
 	char *str_value;
+	size_t slen;
+	bool is_env;
 
 	str_value = env_get(varname);
-	if (str_value)
-		hex2bin(result, str_value, strlen(str_value) / 2);
-	else
-		hex2bin(result, varname, strlen(varname) / 2);
+	is_env = !!str_value;
+	if (!is_env)
+		str_value = varname;
+
+	/* Shorter hex strings leave the (zeroed) tail of result untouched */
+	slen = strlen(str_value);
+	if ((slen & 1) || slen / 2 > len || hex2bin(result, str_value, slen / 2)) {
+		if (is_env)
+			printf("Error: env var '%s' value '%s' is not a hex string of up to %lu bytes\n",
+			       varname, str_value, len);
+		else
+			printf("Error: '%s' is not an env var or hex string of up to %lu bytes\n",
+			       varname, len);
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
-void read_from_mem(ulong addr, u8 *result, ulong len)
+static int read_from_mem(char *varname, u8 *result, ulong len)
 {
+	ulong addr;
 	u8 *src;
 
+	if (strict_strtoul(varname, 16, &addr)) {
+		printf("Error: invalid address '%s'\n", varname);
+		return -EINVAL;
+	}
 	src = map_sysmem(addr, len);
 	memcpy(result, src, len);
 	unmap_sysmem(src);
+
+	return 0;
 }
 
-void write_to_mem(char *varname, u8 *result, ulong len)
+static int write_to_mem(char *varname, u8 *result, ulong len)
 {
 	ulong addr;
 	u8 *buf;
 
-	addr = hextoul(varname, NULL);
+	if (strict_strtoul(varname, 16, &addr)) {
+		printf("Error: invalid address '%s'\n", varname);
+		return -EINVAL;
+	}
 	buf = map_sysmem(addr, len);
 	memcpy(buf, result, len);
 	unmap_sysmem(buf);
+
+	return 0;
+}
+
+static int read_src(char *arg, u8 *result, ulong len)
+{
+	if (*arg == '*')
+		return read_from_mem(arg + 1, result, len); /* Skip asterisk */
+
+	return read_from_env_var(arg, result, len);
 }
 
 static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -70,7 +109,7 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong len;
 	u8 *result, *src1, *src2;
 	char *oparg, *lenarg, *src1arg, *src2arg, *destarg;
-	int i, op;
+	int i, op, ret = CMD_RET_FAILURE;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
@@ -89,22 +128,15 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 	else
 		return CMD_RET_USAGE;
 
-	len = dectoul(lenarg, NULL);
+	if (strict_strtoul(lenarg, 10, &len) || !len)
+		return CMD_RET_USAGE;
 
-	src1 = malloc(len);
-	src2 = malloc(len);
-
-	if (*src1arg == '*')
-		read_from_mem(hextoul(src1arg + 1, NULL), src1, len);
-	else
-		read_from_env_var(src1arg, src1);
-
-	if (*src2arg == '*')
-		read_from_mem(hextoul(src2arg + 1, NULL), src2, len);
-	else
-		read_from_env_var(src2arg, src2);
-
+	src1 = calloc(1, len);
+	src2 = calloc(1, len);
 	result = malloc(len);
+	if (!src1 || !src2 || !result ||
+	    read_src(src1arg, src1, len) || read_src(src2arg, src2, len))
+		goto exit;
 
 	switch (op) {
 	case OP_ID_XOR:
@@ -124,26 +156,26 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc == 5) {
 		for (i = 0; i < len; i++) {
 			printf("%02x ", result[i]);
-			if (i % 16 == 15)
+			if (i % 16 == 15 || i == len - 1)
 				puts("\n");
 		}
-		puts("\n");
 
+		ret = CMD_RET_SUCCESS;
 		goto exit;
 	}
 
 	destarg = argv[5];
 
 	if (*destarg == '*')
-		write_to_mem(destarg + 1, result, len); /* Skip asterisk */
+		ret = write_to_mem(destarg + 1, result, len); /* Skip asterisk */
 	else
-		write_to_env_var(destarg, result, len);
+		ret = write_to_env_var(destarg, result, len);
 exit:
 	free(result);
 	free(src2);
 	free(src1);
 
-	return 0;
+	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(

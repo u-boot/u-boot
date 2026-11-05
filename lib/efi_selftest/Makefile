@@ -69,7 +69,8 @@ obj-$(CONFIG_EFI_GET_TIME) += efi_selftest_rtc.o
 obj-$(CONFIG_EFI_TCG2_PROTOCOL) += efi_selftest_tcg2.o
 
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
-obj-y += efi_selftest_fdt.o
+obj-y += efi_selftest_fdt.o efi_selftest_fdtlib.o
+obj-$(CONFIG_EFI_DT_FIXUP) += efi_selftest_dt_fixup.o
 endif
 
 ifeq ($(CONFIG_BLK)$(CONFIG_DOS_PARTITION),yy)

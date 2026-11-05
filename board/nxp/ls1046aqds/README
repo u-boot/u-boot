@@ -8,7 +8,7 @@ debugging environment.
 
 LS1046A SoC Overview
 --------------------
-Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS1046A
+Please refer doc/board/nxp/layerscape.rst for LS1046A
 SoC overview.
 
  LS1046AQDS board Overview

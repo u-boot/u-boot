@@ -73,11 +73,11 @@ considered as reasonable amount of time.
 Development Branches
 --------------------
 
-The U-Boot developers use two main branches for developing the code. The master
-branch is used for the current development cycle, while there is also a next
-branch intended to land changes for the next release early to enable wider
-testing of larger code changes. The next branch is merged to master shortly
-after the tagging of a new major release.
+The U-Boot developers use two primary branches for developing the code. The
+``main`` branch is used for the current development cycle, while there is also a
+``next`` branch intended to land changes for the next release early to enable
+wider testing of larger code changes. The ``next`` branch is merged to ``main``
+shortly after the tagging of a new major release.
 
 Similar to Linux there is a three week merge window post release after which a
 release candidate is tagged. There's typically a new release candidate every

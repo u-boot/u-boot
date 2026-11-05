@@ -6,7 +6,7 @@ Layerscape Architecture processor and its personalities.
 
 LX2160A SoC Overview
 --------------------------------------
-For details, please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc
+For details, please refer doc/board/nxp/layerscape.rst
 
 LX2160ARDB board Overview
 ----------------------
@@ -197,7 +197,7 @@ SERDES3	|CARDS
 
 LX2162A SoC Overview
 --------------------------------------
-For details, please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc
+For details, please refer doc/board/nxp/layerscape.rst
 
 LX2162AQDS board Overview
 ----------------------
