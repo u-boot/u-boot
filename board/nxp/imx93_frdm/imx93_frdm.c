@@ -106,8 +106,11 @@ int board_late_init(void)
 	}
 
 	if (get_boot_device() == USB_BOOT) {
-		printf("USB boot detected. Will enter fasboot mode\n");
-		env_set_ulong("dofastboot", 1);
+		const char *bootcmd = env_get("bootcmd");
+
+		printf("USB boot detected. Will enter fastboot mode\n");
+		if (bootcmd && !strcmp(bootcmd, CONFIG_BOOTCOMMAND))
+			env_set("bootcmd", "fastboot 0; " CONFIG_BOOTCOMMAND);
 	}
 
 	clear_pd_alert();
