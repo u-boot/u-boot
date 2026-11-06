@@ -201,6 +201,19 @@ u32 tpm2_startup(struct udevice *dev, bool bon, enum tpm2_startup_types mode)
 	if ((ret && ret != TPM2_RC_INITIALIZE) || !bon)
 		return ret;
 
+	/*
+	 * Only the boot stage which actually starts the TPM deactivates active
+	 * banks with unsupported algorithms. On success, this resets the board.
+	 */
+	if (IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE) && !ret &&
+	    mode == TPM2_SU_CLEAR) {
+		ret = tpm2_activate_banks(dev, 0);
+		if (ret) {
+			log_err("TPM: failed to deactivate unsupported banks\n");
+			return ret;
+		}
+	}
+
 	return tpm2_update_active_banks(dev);
 }
 
