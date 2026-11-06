@@ -178,6 +178,11 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 		printf("WDT:   Started %s with%s servicing %s (%ds timeout%s)\n",
 		       dev->name, IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
 		       svc_str, tout_s, req_str);
+
+		/* Warn if timeout is not longer than servicing interval */
+		if (IS_ENABLED(CONFIG_WATCHDOG) && timeout_ms <= priv->reset_period)
+			printf("WDT:   Warning: timeout %llums is not longer than servicing interval %lums\n",
+			       timeout_ms, priv->reset_period);
 	}
 
 	return ret;
