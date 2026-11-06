@@ -66,6 +66,7 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 	struct tpml_pcr_selection pcrs;
 	u32 active = 0;
 	u32 supported = 0;
+	bool unsupported_active = false;
 	int rc, i;
 
 	*mask = 0;
@@ -87,8 +88,19 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 		if (tpm2_algorithm_supported(sel->hash))
 			supported |= hash_mask;
 
-		if (tpm2_is_active_bank(sel))
+		if (tpm2_is_active_bank(sel)) {
 			active |= hash_mask;
+			/*
+			 * Algorithms unknown to U-Boot have no hash_mask, so
+			 * track unsupported active banks separately
+			 */
+			if (!tpm2_algorithm_supported(sel->hash)) {
+				unsupported_active = true;
+				if (!hash_mask)
+					log_warning("TPM active algorithm 0x%x unknown to U-Boot\n",
+						    sel->hash);
+			}
+		}
 	}
 
 	/* All eventlog algorithm(s) must be supported */
@@ -104,13 +116,18 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 	}
 
 	/* Any active algorithm(s) which are not supported must be removed */
-	if (active & ~supported) {
+	if (unsupported_active) {
 		log_warning("TPM active algorithm(s) unsupported by u-boot\n");
 		tpm2_print_selected_algorithm_name(active & ~supported);
 		if (*mask)
 			*mask = active & supported & *mask;
 		else
 			*mask = active & supported;
+
+		if (!*mask) {
+			log_err("No supported TPM algorithm would remain active\n");
+			rc = -EOPNOTSUPP;
+		}
 	}
 
 	return rc;
