@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2019 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  */
 
 #include <cpu_func.h>
@@ -166,45 +166,71 @@ int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
 	return 0;
 }
 
-static int fru_parse_board(unsigned long addr)
+static int fru_parse_board(unsigned long addr, u32 size)
 {
+	u8 *data, *term, *limit, *next_addr, *eof, *end;
+	u32 area_len;
 	u8 i, type;
 	int len;
-	u8 *data, *term, *limit, *next_addr, *eof;
 
-	memcpy(&fru_data.brd.ver, (void *)addr, 6);
+	if (size < sizeof(struct fru_board_info_header)) {
+		printf("%s Board area header out of range\n", __func__);
+		return -EINVAL;
+	}
+
+	memcpy(&fru_data.brd.ver, (void *)addr,
+	       sizeof(struct fru_board_info_header));
+
+	area_len = fru_data.brd.len * FRU_COMMON_HDR_LEN_MULTIPLIER;
+	if (area_len > size) {
+		printf("%s Board area length out of range\n", __func__);
+		return -EINVAL;
+	}
+
+	if (area_len < FRU_BOARD_AREA_MIN_LEN) {
+		printf("%s Board area too small\n", __func__);
+		return -EINVAL;
+	}
 
 	/*
 	 * eof marks the last data byte (without checksum). That's why checksum
 	 * is address length - 1 and last data byte is length - 2.
 	 */
-	eof = (u8 *)(fru_data.brd.len * 8 + addr - 2);
+	eof = (u8 *)(area_len + addr - 2);
+	end = (u8 *)addr + size;
 
-	addr += 6;
+	addr += sizeof(struct fru_board_info_header);
 	data = (u8 *)&fru_data.brd.manufacturer_type_len;
 
 	/* Record max structure limit not to write data over allocated space */
 	limit = (u8 *)&fru_data.brd + sizeof(struct fru_board_data);
 
 	for (i = 0; ; i++, data += FRU_BOARD_MAX_LEN) {
-		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,
-					 &type);
-		next_addr = (u8 *)addr + 1;
-
-		if ((u8 *)addr >= eof) {
+		if ((u8 *)addr >= eof || (u8 *)addr >= end) {
 			debug("Reach EOF record: addr %lx, eof %lx\n", addr,
 			      (unsigned long)eof);
 			break;
 		}
 
+		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,
+					 &type);
+		next_addr = (u8 *)addr + 1;
+
 		/*
 		 * Stop capture if the type is ASCII and valid field length
 		 * is 1 (0xc1) and next FRU data is less than 0x20 (space " ")
-		 * or it is 0x7f (delete 'DEL').
+		 * or it is 0x7f (delete 'DEL'). Only dereference next_addr
+		 * if it is still within the buffer.
 		 */
-		if (type == FRU_TYPELEN_TYPE_ASCII8 && len == 1	&&
+		if (type == FRU_TYPELEN_TYPE_ASCII8 && len == 1 &&
+		    next_addr < end &&
 		    (*next_addr < 0x20 || *next_addr == 0x7F))
 			break;
+
+		if (next_addr + len > end) {
+			debug("%s Board area field out of range\n", __func__);
+			break;
+		}
 
 		/* Stop when amount of chars is more then fields to record */
 		if (data + len > limit)
@@ -235,7 +261,7 @@ static int fru_parse_board(unsigned long addr)
 	return 0;
 }
 
-static int fru_parse_multirec(unsigned long addr)
+static int fru_parse_multirec(unsigned long addr, u32 size)
 {
 	struct fru_multirec_hdr mrc;
 	u8 checksum = 0;
@@ -245,11 +271,22 @@ static int fru_parse_multirec(unsigned long addr)
 	debug("%s: multirec addr %lx\n", __func__, addr);
 
 	do {
+		if (size < hdr_len) {
+			printf("%s MultiRecord area out of range\n", __func__);
+			return -EINVAL;
+		}
+
 		memcpy(&mrc.rec_type, (void *)addr, hdr_len);
 
 		checksum = fru_checksum((u8 *)addr, hdr_len);
 		if (checksum) {
 			debug("%s header CRC error\n", __func__);
+			return -EINVAL;
+		}
+
+		if (mrc.len > size - hdr_len) {
+			printf("%s MultiRecord length out of range\n",
+			       __func__);
 			return -EINVAL;
 		}
 
@@ -271,16 +308,24 @@ static int fru_parse_multirec(unsigned long addr)
 			}
 		}
 		addr += mrc.len + hdr_len;
+		size -= mrc.len + hdr_len;
 	} while (!(mrc.type & FRU_LAST_REC));
 
 	return 0;
 }
 
-int fru_capture(unsigned long addr)
+int fru_capture(unsigned long addr, u32 size)
 {
 	struct fru_common_hdr *hdr;
 	u8 checksum = 0;
 	unsigned long multirec_addr = addr;
+	u16 offset;
+	int ret;
+
+	if (size < sizeof(struct fru_common_hdr)) {
+		printf("%s Common header out of range\n", __func__);
+		return -EINVAL;
+	}
 
 	checksum = fru_checksum((u8 *)addr, sizeof(struct fru_common_hdr));
 	if (checksum) {
@@ -293,18 +338,34 @@ int fru_capture(unsigned long addr)
 	memcpy((void *)&fru_data, (void *)hdr,
 	       sizeof(struct fru_common_hdr));
 
-	fru_data.captured = true;
-
 	if (hdr->off_board) {
-		addr += fru_cal_area_len(hdr->off_board);
-		fru_parse_board(addr);
+		offset = fru_cal_area_len(hdr->off_board);
+		if (offset >= size) {
+			printf("%s Board area offset out of range\n", __func__);
+			return -EINVAL;
+		}
+
+		addr += offset;
+		ret = fru_parse_board(addr, size - offset);
+		if (ret)
+			return ret;
 	}
 
+	fru_data.captured = true;
 	env_set_hex("fru_addr", addr);
 
 	if (hdr->off_multirec) {
-		multirec_addr += fru_cal_area_len(hdr->off_multirec);
-		fru_parse_multirec(multirec_addr);
+		offset = fru_cal_area_len(hdr->off_multirec);
+		if (offset >= size) {
+			debug("%s MultiRecord area offset out of range\n",
+			      __func__);
+			return 0;
+		}
+
+		multirec_addr += offset;
+		ret = fru_parse_multirec(multirec_addr, size - offset);
+		if (ret)
+			debug("%s MultiRecord parse failed\n", __func__);
 	}
 
 	return 0;

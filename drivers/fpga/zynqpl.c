@@ -135,7 +135,7 @@ static void *check_data(u8 *buf, size_t bsize, u32 *swap)
 	u32 word, p = 0; /* possition */
 
 	/* Because buf doesn't need to be aligned let's read it by chars */
-	for (p = 0; p < bsize; p++) {
+	for (p = 0; p + sizeof(bin_format) <= bsize; p++) {
 		word = load_word(&buf[p], SWAP_NO);
 		debug("%s: word %x %x/%x\n", __func__, word, p, (u32)&buf[p]);
 
@@ -445,7 +445,7 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 	if (fs_read(filename, (u32) buf, pos, blocksize, &actread) < 0)
 		return FPGA_FAIL;
 
-	if (zynq_validate_bitstream(desc, buf, bsize, blocksize, &swap,
+	if (zynq_validate_bitstream(desc, buf, bsize, actread, &swap,
 				    &partialbit))
 		return FPGA_FAIL;
 

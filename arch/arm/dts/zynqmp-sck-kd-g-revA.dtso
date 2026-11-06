@@ -152,6 +152,7 @@
 		peer-hub = <&hub_2_0>;
 		i2c-bus = <&hub>;
 		reset-gpios = <&slg_delay 0 10000 10000>;
+		post-init-providers = <&slg_delay>;
 	};
 };
 

@@ -14,15 +14,20 @@ static int do_fru_capture(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	unsigned long addr;
 	char *endp;
+	u32 size;
 
 	if (argc < cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
 	addr = hextoul(argv[2], &endp);
-	if (*argv[1] == 0 || *endp != 0)
+	if (*argv[2] == 0 || *endp != 0)
 		return -1;
 
-	return fru_capture(addr);
+	size = hextoul(argv[3], &endp);
+	if (*argv[3] == 0 || *endp != 0)
+		return -1;
+
+	return fru_capture(addr, size);
 }
 
 static int do_fru_display(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -46,7 +51,7 @@ static int do_fru_generate(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static struct cmd_tbl cmd_fru_sub[] = {
-	U_BOOT_CMD_MKENT(capture, 3, 0, do_fru_capture, "", ""),
+	U_BOOT_CMD_MKENT(capture, 4, 0, do_fru_capture, "", ""),
 	U_BOOT_CMD_MKENT(display, 2, 0, do_fru_display, "", ""),
 	U_BOOT_CMD_MKENT(board_gen, 8, 0, do_fru_generate, "", ""),
 };
@@ -72,7 +77,8 @@ static int do_fru(struct cmd_tbl *cmdtp, int flag, int argc,
 
 /***************************************************/
 U_BOOT_LONGHELP(fru,
-	"capture <addr> - Parse and capture FRU table present at address.\n"
+	"capture <addr> <size> - Parse and capture FRU table present at\n"
+	"              <addr>. <size> is the buffer length in bytes.\n"
 	"fru display - Displays content of FRU table that was captured using\n"
 	"              fru capture command\n"
 	"fru board_gen <addr> <manufacturer> <board name> <serial number>\n"

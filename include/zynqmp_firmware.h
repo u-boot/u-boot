@@ -540,7 +540,7 @@ extern smc_call_handler_t __data smc_call_handler;
 
 #define PM_REGNODE_PMC_IOU_SLCR		0x30000002
 #define PM_REGNODE_EFUSE_CACHE		0x30000003
-#define PM_REGNODE_PMC_TAP		0x30000005
+#define PM_REGNODE_PMC_TAP		0x3000000C
 #define PM_REG_PGGS3			0x30004003
 
 #define SRAM_CSR_OFFSET			0x104C

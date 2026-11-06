@@ -260,13 +260,11 @@ static int cadence_spi_probe(struct udevice *bus)
 		}
 	}
 
-	priv->resets = devm_reset_bulk_get_optional(bus);
-	if (priv->resets) {
-		ret = reset_reset_bulk(priv->resets, CQSPI_RESET_DELAY_US);
-		if (ret) {
-			dev_err(bus, "Failed to reset OSPI: %d\n", ret);
+	if (!reset_get_bulk(bus, &priv->resets_bulk)) {
+		priv->resets = &priv->resets_bulk;
+		ret = reset_reset_bulk(priv->resets, 0);
+		if (ret)
 			return ret;
-		}
 	}
 
 	if (!priv->qspi_is_init) {

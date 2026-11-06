@@ -2,7 +2,7 @@
 /*
  * dts file for AMD MicroBlaze V
  *
- * (C) Copyright 2023 - 2025, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -19,6 +19,8 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		timebase-frequency = <100000000>;
+		bootph-all;
+
 		cpu_0: cpu@0 {
 			compatible = "amd,mbv64", "riscv";
 			device_type = "cpu";
@@ -47,10 +49,11 @@
 
 	memory@80000000 {
 		device_type = "memory";
-		reg = <0 0x80000000 0 0x40000000>;
+		reg = <0 0x80000000 0 0x80000000>;
 	};
 
 	clk100: clock {
+		bootph-all;
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <100000000>;
@@ -78,7 +81,6 @@
 			reg = <0 0x41c00000 0 0x1000>;
 			interrupt-parent = <&axi_intc>;
 			interrupts = <0 2>;
-			bootph-all;
 			xlnx,one-timer-only = <0>;
 			clock-names = "s_axi_aclk";
 			clocks = <&clk100>;

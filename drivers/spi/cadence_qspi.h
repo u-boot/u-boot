@@ -246,6 +246,7 @@ struct cadence_spi_priv {
 	int		read_delay;
 
 	struct reset_ctl_bulk *resets;
+	struct reset_ctl_bulk resets_bulk;
 	u32		page_size;
 	u32		block_size;
 	u32		tshsl_ns;

@@ -81,9 +81,6 @@ int __maybe_unused psu_uboot_init(void)
 	writel(ZYNQMP_CCI_REG_CCI_MISC_CTRL_NIDEN,
 	       ZYNQMP_CCI_REG_CCI_MISC_CTRL);
 
-	/* Delay is required for clocks to be propagated */
-	udelay(1000000);
-	
 	return 0;
 }
 
