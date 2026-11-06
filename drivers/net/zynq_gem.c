@@ -258,6 +258,7 @@ struct zynq_gem_priv {
 	ofnode phy_of_node;
 	struct mii_dev *bus;
 	bool own_bus;
+	struct phy serdes;
 	struct clk rx_clk;
 	struct clk tx_clk;
 	struct clk pclk;
@@ -930,12 +931,11 @@ static int zynq_gem_probe(struct udevice *dev)
 	void *bd_space;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	int ret;
-	struct phy phy;
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
-		ret = generic_phy_get_by_index(dev, 0, &phy);
+		ret = generic_phy_get_by_index(dev, 0, &priv->serdes);
 		if (!ret) {
-			ret = generic_phy_init(&phy);
+			ret = generic_phy_init(&priv->serdes);
 			if (ret)
 				return ret;
 		} else if (ret != -ENOENT) {
@@ -946,12 +946,14 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	ret = zynq_gem_reset_init(dev);
 	if (ret)
-		return ret;
+		goto err_phy_exit;
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
-	if (!priv->rxbuffers)
-		return -ENOMEM;
+	if (!priv->rxbuffers) {
+		ret = -ENOMEM;
+		goto err_phy_exit;
+	}
 
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 	ulong addr = (ulong)priv->rxbuffers;
@@ -963,7 +965,7 @@ static int zynq_gem_probe(struct udevice *dev)
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
 	if (!bd_space) {
 		ret = -ENOMEM;
-		goto err1;
+		goto err_free_rx;
 	}
 
 	if (priv->cache_on)
@@ -977,21 +979,21 @@ static int zynq_gem_probe(struct udevice *dev)
 	ret = clk_get_by_name(dev, "tx_clk", &priv->tx_clk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get tx_clock\n");
-		goto err2;
+		goto err_free_bd;
 	}
 
 	if (priv->clk_en_info & RXCLK_EN) {
 		ret = clk_get_by_name(dev, "rx_clk", &priv->rx_clk);
 		if (ret < 0) {
 			dev_err(dev, "failed to get rx_clock\n");
-			goto err2;
+			goto err_free_bd;
 		}
 	}
 
 	ret = clk_get_by_name(dev, "pclk", &priv->pclk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get pclk clock\n");
-		goto err2;
+		goto err_free_bd;
 	}
 
 	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
@@ -999,6 +1001,10 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	if (!priv->bus) {
 		priv->bus = mdio_alloc();
+		if (!priv->bus) {
+			ret = -ENOMEM;
+			goto err_free_bd;
+		}
 		priv->own_bus = true;
 		priv->bus->read = zynq_gem_miiphy_read;
 		priv->bus->write = zynq_gem_miiphy_write;
@@ -1006,7 +1012,7 @@ static int zynq_gem_probe(struct udevice *dev)
 
 		ret = mdio_register_seq(priv->bus, dev_seq(dev));
 		if (ret)
-			goto err2;
+			goto err_free_bus;
 	}
 
 	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
@@ -1014,10 +1020,10 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	ret = zynq_phy_init(dev);
 	if (ret)
-		goto err3;
+		goto err_free_phydev;
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII &&
-	    generic_phy_valid(&phy)) {
+	    generic_phy_valid(&priv->serdes)) {
 		if (IS_ENABLED(CONFIG_DM_ETH_PHY)) {
 			if (device_is_compatible(dev, "cdns,zynqmp-gem") ||
 			    device_is_compatible(dev, "xlnx,zynqmp-gem")) {
@@ -1026,13 +1032,13 @@ static int zynq_gem_probe(struct udevice *dev)
 					dev_err
 					(dev,
 					 "Failed to set gem dynamic config\n");
-					return ret;
+					goto err_free_phydev;
 				}
 			}
 		}
-		ret = generic_phy_power_on(&phy);
+		ret = generic_phy_power_on(&priv->serdes);
 		if (ret)
-			return ret;
+			goto err_free_phydev;
 	}
 
 	printf("\nZYNQ GEM: %lx, mdio bus %lx, phyaddr %d, interface %s\n",
@@ -1041,13 +1047,21 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	return ret;
 
-err3:
-	if (priv->own_bus)
+err_free_phydev:
+	if (priv->own_bus) {
+		if (!IS_ERR_OR_NULL(priv->phydev))
+			free(priv->phydev);
 		mdio_unregister(priv->bus);
-err2:
+	}
+err_free_bus:
+	if (priv->own_bus)
+		mdio_free(priv->bus);
+err_free_bd:
 	free(priv->tx_bd);
-err1:
+err_free_rx:
 	free(priv->rxbuffers);
+err_phy_exit:
+	generic_phy_exit(&priv->serdes);
 	return ret;
 }
 
