@@ -107,7 +107,7 @@ config TOOLS_SHA512
 	  Enable SHA512 support in the tools builds
 
 config TOOLS_MKEFICAPSULE
-	bool "Build efimkcapsule command"
+	bool "Build mkeficapsule command"
 	default y if EFI_HAVE_CAPSULE_SUPPORT
 	help
 	  This command allows users to create a UEFI capsule file and,
