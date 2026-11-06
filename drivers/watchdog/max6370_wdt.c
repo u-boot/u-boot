@@ -72,6 +72,19 @@ static int max6370_wdt_stop(struct udevice *dev)
 	return 0;
 }
 
+static int max6370_wdt_get_timeout(struct udevice *dev, u64 *timeout_msp)
+{
+	struct max6370_wdt *wdt = dev_get_priv(dev);
+	u8 val = readb(wdt->reg) & MAX6370_SET_MASK;
+
+	if (val == MAX6370_SET_DISABLE)
+		return -ENODATA;
+
+	*timeout_msp = max6370_timeouts_ms[val];
+
+	return 0;
+}
+
 static int max6370_wdt_reset(struct udevice *dev)
 {
 	struct max6370_wdt *wdt = dev_get_priv(dev);
@@ -108,6 +121,7 @@ static const struct wdt_ops max6370_wdt_ops = {
 	.start = max6370_wdt_start,
 	.stop = max6370_wdt_stop,
 	.reset = max6370_wdt_reset,
+	.get_timeout = max6370_wdt_get_timeout,
 };
 
 static const struct udevice_id max6370_wdt_ids[] = {
