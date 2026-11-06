@@ -362,9 +362,15 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	if (!tpm2_check_active_banks(dev)) {
 		log_err("Cannot extend PCRs if all the TPM enabled algorithms are not supported\n");
 
-		ret = tpm2_pcr_allocate(dev, 0);
-		if (ret)
-			return -EINVAL;
+		/*
+		 * Deactivate the unsupported banks. On success this resets
+		 * the board, since the new allocation only takes effect after
+		 * the next TPM2_Startup.
+		 */
+		if (IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
+			tpm2_activate_banks(dev, 0);
+
+		return -EINVAL;
 	}
 	/*
 	 * Fill the command structure starting from the first buffer:
