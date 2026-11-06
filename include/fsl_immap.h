@@ -136,6 +136,10 @@ struct ccsr_ddr {
 	u32     debug[64];		/* debug_1 to debug_64 */
 };
 
+/* DDR_EOR register */
+#define DDR_EOR_RD_REOD_DIS	0x07000000
+#define DDR_EOR_WD_REOD_DIS	0x00100000
+
 #ifdef CONFIG_SYS_FSL_HAS_CCI400
 #define CCI400_CTRLORD_TERM_BARRIER	0x00000008
 #define CCI400_CTRLORD_EN_BARRIER	0
