@@ -596,6 +596,7 @@ u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
 	};
 	u8 response[COMMAND_BUFFER_SIZE];
 	size_t response_len = COMMAND_BUFFER_SIZE;
+	u8 success;
 	u32 i;
 	int ret;
 
@@ -642,10 +643,25 @@ u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
 	}
 
 	ret = tpm_sendrecv_command(dev, command_v2, response, &response_len);
-	if (!ret)
-		tpm_init(dev);
+	if (ret)
+		return ret;
 
-	return ret;
+	/*
+	 * The TPM may refuse the new allocation without returning an error
+	 * code, e.g. if it lacks the memory for it. Check allocationSuccess,
+	 * located after the response header and the parameterSize field.
+	 */
+	if (unpack_byte_string(response, response_len, "b",
+			       TPM2_HDR_LEN + sizeof(u32), &success))
+		return TPM_LIB_ERROR;
+	if (success != TPMI_YES) {
+		log_err("TPM refused the PCR allocation\n");
+		return TPM_LIB_ERROR;
+	}
+
+	tpm_init(dev);
+
+	return 0;
 }
 
 static int tpm2_get_num_pcr(struct udevice *dev, u32 *num_pcr)
