@@ -4,6 +4,7 @@
  */
 
 #include <clk.h>
+#include <div64.h>
 #include <dm.h>
 #include <reset.h>
 #include <wdt.h>
@@ -17,6 +18,9 @@
 #define DW_WDT_CR_EN_OFFSET	0x00
 #define DW_WDT_CR_RMOD_OFFSET	0x01
 #define DW_WDT_CRR_RESTART_VAL	0x76
+
+#define DW_WDT_TIMEOUT_SHIFT	16
+#define DW_WDT_TORR_TOP_MASK	GENMASK(3, 0)
 
 struct designware_wdt_priv {
 	void __iomem	*base;
@@ -34,8 +38,8 @@ static int designware_wdt_settimeout(void __iomem *base, unsigned int clk_khz,
 	signed int i;
 
 	/* calculate the timeout range value */
-	i = fls(timeout * clk_khz - 1) - 16;
-	i = clamp(i, 0, 15);
+	i = fls(timeout * clk_khz - 1) - DW_WDT_TIMEOUT_SHIFT;
+	i = clamp_t(int, i, 0, DW_WDT_TORR_TOP_MASK);
 
 	writel(i | (i << 4), base + DW_WDT_TORR);
 
@@ -86,6 +90,20 @@ static int designware_wdt_stop(struct udevice *dev)
 		if (ret)
 			return ret;
 	}
+
+	return 0;
+}
+
+static int designware_wdt_get_timeout(struct udevice *dev, u64 *timeout_msp)
+{
+	struct designware_wdt_priv *priv = dev_get_priv(dev);
+	u32 top;
+
+	if (!designware_wdt_is_enabled(priv->base))
+		return -ENODATA;
+
+	top = readl(priv->base + DW_WDT_TORR) & DW_WDT_TORR_TOP_MASK;
+	*timeout_msp = lldiv(1ULL << (DW_WDT_TIMEOUT_SHIFT + top), priv->clk_khz);
 
 	return 0;
 }
@@ -151,6 +169,7 @@ static const struct wdt_ops designware_wdt_ops = {
 	.start = designware_wdt_start,
 	.reset = designware_wdt_reset,
 	.stop = designware_wdt_stop,
+	.get_timeout = designware_wdt_get_timeout,
 };
 
 static const struct udevice_id designware_wdt_ids[] = {
