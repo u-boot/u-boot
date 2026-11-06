@@ -6,6 +6,7 @@
 #define	TWI_CR_MSEN		BIT(2)	/* Master Transfer Enable */
 #define	TWI_CR_STOP		BIT(1)	/* Send a Stop Condition */
 #define	TWI_CR_SVDIS		BIT(5)	/* Slave Transfer Disable */
+#define	TWI_CR_QUICK		BIT(6)	/* SMBus quick command */
 #define	TWI_CR_SWRST		BIT(7)	/* Software Reset */
 #define	TWI_CR_ACMEN		BIT(16) /* Alternative Command Mode Enable */
 #define	TWI_CR_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
