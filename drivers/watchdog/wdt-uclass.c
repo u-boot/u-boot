@@ -116,6 +116,16 @@ int initr_watchdog(void)
 	return 0;
 }
 
+int wdt_get_timeout(struct udevice *dev, u64 *timeout_msp)
+{
+	const struct wdt_ops *ops = device_get_ops(dev);
+
+	if (!ops->get_timeout)
+		return -ENOSYS;
+
+	return ops->get_timeout(dev, timeout_msp);
+}
+
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
@@ -153,10 +163,13 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 
 		priv->running = true;
 
+		/* Check programmed timeout from driver if op supported */
+		if (wdt_get_timeout(dev, &timeout_ms) == 0)
+			tout_s = lldiv(timeout_ms, 1000);
 		/*
-		 * If the requested timeout was clamped, note the value
-		 * when it differs at whole-second resolution. Sub-second
-		 * rounding is ignored to avoid noise.
+		 * If the requested timeout was clamped or rounded, note
+		 * the value when it differs at whole-second resolution.
+		 * Sub-second rounding is ignored to avoid noise.
 		 */
 		req_str[0] = '\0';
 		if (req_s != tout_s)
