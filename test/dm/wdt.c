@@ -18,7 +18,7 @@
 #include <u-boot/schedule.h>
 #include <watchdog.h>
 
-/* Test that watchdog driver functions are called */
+/* Test that watchdog driver start, reset and stop functions are called */
 static int dm_test_wdt_base(struct unit_test_state *uts)
 {
 	struct sandbox_state *state = state_get_current();
@@ -75,6 +75,72 @@ static int dm_test_wdt_base(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_wdt_base, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
+/* Test the watchdog driver get_timeout operation */
+static int dm_test_wdt_get_timeout(struct unit_test_state *uts)
+{
+	struct sandbox_state *state = state_get_current();
+	struct udevice *dev;
+	u64 get_timeout_val;
+
+	ut_assertok(uclass_get_device_by_driver(UCLASS_WDT,
+						DM_DRIVER_GET(wdt_sandbox), &dev));
+	ut_assertnonnull(dev);
+
+	ut_asserteq(false, state->wdt.running);
+	/* wdt_get_timeout() returns -ENODATA when watchdog is not running */
+	ut_asserteq(-ENODATA, wdt_get_timeout(dev, &get_timeout_val));
+
+	/* sandbox_wdt_start() rounds up to a whole second */
+	console_record_reset();
+	ut_assertok(wdt_start(dev, 4500, 0));
+	ut_asserteq(true, state->wdt.running);
+	ut_assert_nextline("WDT:   Started %s with servicing every 50ms (5s timeout, requested 4s)",
+			   dev->name);
+	ut_assert_console_end();
+	ut_assertok(wdt_get_timeout(dev, &get_timeout_val));
+	ut_asserteq_64(5000, get_timeout_val);
+
+	ut_assertok(wdt_stop(dev));
+	ut_asserteq(false, state->wdt.running);
+
+	return 0;
+}
+DM_TEST(dm_test_wdt_get_timeout, UTF_SCAN_FDT | UTF_CONSOLE);
+
+/* Test wdt_start() warning prints when timeout not longer than servicing interval */
+static int dm_test_wdt_warning(struct unit_test_state *uts)
+{
+	struct udevice *wdt;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_WDT,
+					      "wdt-gpio-toggle", &wdt));
+	ut_assertnonnull(wdt);
+
+	console_record_reset();
+	/* Warning, timeout shorter than servicing interval */
+	ut_assertok(wdt_start(wdt, 24, 0));
+	ut_assert_nextline("WDT:   Started %s with servicing every 25ms (0s timeout)",
+			   wdt->name);
+	ut_assert_nextline(
+		"WDT:   Warning: timeout 24ms is not longer than servicing interval 25ms");
+
+	/* Warning, timeout equal to servicing interval */
+	ut_assertok(wdt_start(wdt, 25, 0));
+	ut_assert_nextline("WDT:   Started %s with servicing every 25ms (0s timeout)",
+			   wdt->name);
+	ut_assert_nextline(
+		"WDT:   Warning: timeout 25ms is not longer than servicing interval 25ms");
+
+	/* No warning, timeout longer than servicing interval */
+	ut_assertok(wdt_start(wdt, 26, 0));
+	ut_assert_nextline("WDT:   Started %s with servicing every 25ms (0s timeout)",
+			   wdt->name);
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_wdt_warning, UTF_SCAN_FDT | UTF_CONSOLE);
+
 static int dm_test_wdt_gpio_toggle(struct unit_test_state *uts)
 {
 	/*
@@ -87,6 +153,7 @@ static int dm_test_wdt_gpio_toggle(struct unit_test_state *uts)
 	const u64 timeout = 4000;
 	const int offset = 8;
 	int val;
+	u64 get_timeout_val;
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_WDT,
 					      "wdt-gpio-toggle", &wdt));
@@ -103,6 +170,9 @@ static int dm_test_wdt_gpio_toggle(struct unit_test_state *uts)
 	ut_assert_nextline("WDT:   Started %s with servicing every 25ms (%ds timeout)",
 			   wdt->name, (u32)lldiv(timeout, 1000));
 	ut_assert_console_end();
+
+	/* GPIO driver does not implement get_timeout op */
+	ut_asserteq(-ENOSYS, wdt_get_timeout(wdt, &get_timeout_val));
 
 	val = sandbox_gpio_get_value(gpio, offset);
 	ut_assertok(wdt_reset(wdt));

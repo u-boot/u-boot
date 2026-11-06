@@ -43,6 +43,9 @@ obj-$(CONFIG_CMD_PWM) += pwm.o
 obj-$(CONFIG_CMD_READ) += rw.o
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
 obj-$(CONFIG_CMD_TEMPERATURE) += temperature.o
+ifeq ($(CONFIG_CMD_WDT)$(CONFIG_WDT_GPIO)$(CONFIG_WDT_SANDBOX),yyy)
+obj-y += wdt.o
+endif
 ifdef CONFIG_NET_LEGACY
 obj-$(CONFIG_CMD_WGET) += wget.o
 endif
