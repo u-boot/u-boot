@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <wdt.h>
 
-static struct udevice *currdev;
+static int currdev_seq = -1;
 
 static int do_wdt_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
@@ -31,16 +31,18 @@ static int do_wdt_list(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_wdt_dev(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	int ret;
+	struct udevice *currdev;
 
 	if (argc > 1) {
-		ret = uclass_get_device_by_name(UCLASS_WDT, argv[1], &currdev);
-		if (ret) {
+		if (uclass_get_device_by_name(UCLASS_WDT, argv[1], &currdev)) {
+			currdev_seq = -1;
 			printf("Can't get the watchdog timer: %s\n", argv[1]);
 			return CMD_RET_FAILURE;
 		}
+		currdev_seq = dev_seq(currdev);
 	} else {
-		if (!currdev) {
+		if (uclass_get_device_by_seq(UCLASS_WDT, currdev_seq, &currdev)) {
+			currdev_seq = -1;
 			printf("No watchdog timer device set!\n");
 			return CMD_RET_FAILURE;
 		}
@@ -50,9 +52,10 @@ static int do_wdt_dev(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int check_currdev(void)
+static int check_currdev(struct udevice **devp)
 {
-	if (!currdev) {
+	if (uclass_get_device_by_seq(UCLASS_WDT, currdev_seq, devp)) {
+		currdev_seq = -1;
 		printf("No device set, use 'wdt dev' first\n");
 		return CMD_RET_FAILURE;
 	}
@@ -65,13 +68,13 @@ static int do_wdt_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 	u64 timeout;
 	ulong flags = 0;
+	struct udevice *currdev;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	ret = check_currdev();
-	if (ret)
-		return ret;
+	if (check_currdev(&currdev))
+		return CMD_RET_FAILURE;
 
 	timeout = simple_strtoull(argv[1], NULL, 0);
 	if (argc > 2)
@@ -93,10 +96,10 @@ static int do_wdt_stop(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	int ret;
+	struct udevice *currdev;
 
-	ret = check_currdev();
-	if (ret)
-		return ret;
+	if (check_currdev(&currdev))
+		return CMD_RET_FAILURE;
 
 	ret = wdt_stop(currdev);
 	if (ret == -ENOSYS) {
@@ -114,10 +117,10 @@ static int do_wdt_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	int ret;
+	struct udevice *currdev;
 
-	ret = check_currdev();
-	if (ret)
-		return ret;
+	if (check_currdev(&currdev))
+		return CMD_RET_FAILURE;
 
 	ret = wdt_reset(currdev);
 	if (ret == -ENOSYS) {
@@ -136,10 +139,10 @@ static int do_wdt_expire(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int ret;
 	ulong flags = 0;
+	struct udevice *currdev;
 
-	ret = check_currdev();
-	if (ret)
-		return ret;
+	if (check_currdev(&currdev))
+		return CMD_RET_FAILURE;
 
 	if (argc > 1)
 		flags = simple_strtoul(argv[1], NULL, 0);
