@@ -403,6 +403,7 @@ static const struct udevice_id ls_pcie_ids[] = {
 	{ .compatible = "fsl,ls-pcie" },
 	{ .compatible = "fsl,ls1028a-pcie", .data = (ulong)&ls1028a_drvdata },
 	{ .compatible = "fsl,ls1088a-pcie", .data = (ulong)&ls1028a_drvdata },
+	{ .compatible = "fsl,lx2160ar2-pcie", .data = (ulong)&ls1028a_drvdata },
 	{ }
 };
 

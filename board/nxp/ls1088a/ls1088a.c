@@ -986,6 +986,9 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, total_memory_banks);
 
+	free(base);
+	free(size);
+
 	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 
 	fsl_fdt_fixup_flash(blob);

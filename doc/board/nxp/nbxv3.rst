@@ -80,9 +80,92 @@ FIT image at NOR offset 0x1000000::
   /configurations/conf-<carrier>
 
 ``${carrier}`` selects the carrier set (``conf-<carrier>``, ``dpc-``,
-``dpl-``). It is set on every boot. For debug, to enforce another carrier::
+``dpl-``). It is set on every boot, from the first of:
 
-  => setenv carrier nbv32 && saveenv && reset
+1. the environment. For debug, to enforce another carrier::
+
+     => setenv carrier nbv32 && saveenv && reset
+
+2. the NOR overlay, imported by ``${cfg_import}`` when the environment
+   defines it, for boards without GPIO or EEPROM identification,
+
+3. the RCW build stamp, see below,
+
+4. ``nbv30``, the built-in default.
+
+NOR overlay
+^^^^^^^^^^^
+
+The NOR overlay is an environment image of ``${cfg_nor_size}`` bytes
+with ``carrier=<name>``.
+It is outside the environment slot, so wiping the
+saved environment keeps the board identity.
+
+``${cfg_import}``, ``${cfg_nor_offset}`` and ``${cfg_nor_size}`` are
+defined by the board's default environment
+(CONFIG_ENV_USE_DEFAULT_ENV_TEXT_FILE + CONFIG_ENV_DEFAULT_ENV_TEXT_FILE),
+or by a saved one.
+
+::
+
+  cfg_nor_offset=0x520000
+  cfg_nor_size=0x1000
+  cfg_import=sf probe 3:0 && \
+    sf read ${loadaddr} ${cfg_nor_offset} ${cfg_nor_size} && \
+    env import -c ${loadaddr} ${cfg_nor_size}
+
+RCW build stamp
+^^^^^^^^^^^^^^^
+
+The RCW sets the SerDes protocols and the pinmux.
+Its PBI writes the carrier it was built for into
+DCFG SCRATCHRW13 (0x01e00230)::
+
+   31   28 27   24 23   16 15    8 7     0
+  +-------+-------+-------+-------+-------+
+  |CARRIER|  TAG  |  YY   |  MM   |  DD   |
+  +-------+-------+-------+-------+-------+
+
+``TAG`` is 0xB; any other value, such as the reset value 0, means no
+stamp. ``YY MM DD`` is the RCW build date in BCD, for the operator only.
+
+======= ==================================================
+CARRIER ``${carrier}``
+======= ==================================================
+0       none: one RCW for every carrier, it names none
+1       ``nbv30`` (NBV30, NBV31)
+2       ``nbv32``
+3       ``nbv32-40g``: NBV32 with SerDes 1 protocol 20 (2x 40GE)
+4..E    unassigned, treated like 0
+F       none: bring-up RCW, see below
+======= ==================================================
+
+The bring-up RCW (CARRIER F) leaves every SerDes without IO, so there is
+no data path for the MC to manage and starting it hangs the boot.
+U-Boot clears ``mcinitcmd`` for that boot, whatever ``${carrier}`` is,
+and does not save it.
+
+SerDes 1 per carrier
+^^^^^^^^^^^^^^^^^^^^
+
+Before the MC starts, U-Boot should set the serdes 1 lane grouping
+that the MC's DPC and the DPL of ``${carrier}`` expect, using
+the ``serdes1`` hwconfig option. It can be used to
+override the RCW's protocol grouping for SerDes 1.
+
+==================== ================= ==============================
+``${carrier}``       serdes1 mode      SerDes 1
+==================== ================= ==============================
+nbv30                (none)            as built by the RCW
+nbv32                100g4x25g         1x 100GE + 4x 25G
+nbv32-40g            2x40g             2x 40GE
+nbv32-40g-4x10g      40g4x10g          1x 40GE + 4x 10G
+nbv32-100g-4x10g     100g4x10g         1x 100GE + 4x 10G
+==================== ================= ==============================
+
+Example to switch an NBV32 to 1x40GE + 4x10G::
+
+  => setenv carrier nbv32-40g-4x10g && saveenv && reset
 
 Boot flow
 ---------
