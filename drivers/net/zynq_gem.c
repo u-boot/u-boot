@@ -1077,6 +1077,9 @@ static int zynq_gem_remove(struct udevice *dev)
 	free(priv->tx_bd);
 	free(priv->rxbuffers);
 
+	generic_phy_power_off(&priv->serdes);
+	generic_phy_exit(&priv->serdes);
+
 	return 0;
 }
 
