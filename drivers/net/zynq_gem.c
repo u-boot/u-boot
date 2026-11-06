@@ -1074,6 +1074,8 @@ static int zynq_gem_remove(struct udevice *dev)
 		mdio_unregister(priv->bus);
 		mdio_free(priv->bus);
 	}
+	free(priv->tx_bd);
+	free(priv->rxbuffers);
 
 	return 0;
 }
