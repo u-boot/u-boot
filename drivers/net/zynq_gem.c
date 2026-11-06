@@ -257,6 +257,7 @@ struct zynq_gem_priv {
 	struct phy_device *phydev;
 	ofnode phy_of_node;
 	struct mii_dev *bus;
+	bool own_bus;
 	struct clk rx_clk;
 	struct clk tx_clk;
 	struct clk pclk;
@@ -998,6 +999,7 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	if (!priv->bus) {
 		priv->bus = mdio_alloc();
+		priv->own_bus = true;
 		priv->bus->read = zynq_gem_miiphy_read;
 		priv->bus->write = zynq_gem_miiphy_write;
 		priv->bus->priv = priv;
@@ -1040,7 +1042,8 @@ static int zynq_gem_probe(struct udevice *dev)
 	return ret;
 
 err3:
-	mdio_unregister(priv->bus);
+	if (priv->own_bus)
+		mdio_unregister(priv->bus);
 err2:
 	free(priv->tx_bd);
 err1:
@@ -1052,9 +1055,11 @@ static int zynq_gem_remove(struct udevice *dev)
 {
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 
-	free(priv->phydev);
-	mdio_unregister(priv->bus);
-	mdio_free(priv->bus);
+	if (priv->own_bus) {
+		free(priv->phydev);
+		mdio_unregister(priv->bus);
+		mdio_free(priv->bus);
+	}
 
 	return 0;
 }
