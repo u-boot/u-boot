@@ -443,6 +443,37 @@ uint16_t ext4fs_checksum_update(uint32_t i)
 	return crc;
 }
 
+/**
+ * ext4fs_get_dirent() - get a directory entry of a directory block
+ *
+ * Check that the entry at @offset lies inside the block and that its length
+ * covers its header and name, as Linux does in ext4_check_dir_entry(), so
+ * that the entry can be used and the next one found at @offset plus its
+ * length.
+ *
+ * @block:	directory block
+ * @offset:	offset of the entry in @block
+ * @blksz:	size of @block
+ * Return:	the entry, or NULL if it is not valid
+ */
+static struct ext2_dirent *ext4fs_get_dirent(char *block, unsigned int offset,
+					     unsigned int blksz)
+{
+	struct ext2_dirent *dir;
+	unsigned int direntlen;
+
+	if ((offset & 3) || offset > blksz - sizeof(*dir))
+		return NULL;
+
+	dir = (struct ext2_dirent *)(block + offset);
+	direntlen = le16_to_cpu(dir->direntlen);
+	if (direntlen < sizeof(*dir) + dir->namelen ||
+	    direntlen > blksz - offset)
+		return NULL;
+
+	return dir;
+}
+
 static int check_void_in_dentry(struct ext2_dirent *dir, char *filename)
 {
 	int dentry_length;
@@ -493,6 +524,7 @@ int ext4fs_update_parent_dentry(char *filename, int file_type)
 	uint32_t new_size;
 	uint32_t new_blockcnt;
 	uint32_t directory_blocks;
+	bool new_blk = false;
 
 	zero_buffer = zalloc(fs->blksz);
 	if (!zero_buffer) {
@@ -530,16 +562,25 @@ restart_read:
 	dir = (struct ext2_dirent *)root_first_block_buffer;
 	totalbytes = 0;
 
-	while (le16_to_cpu(dir->direntlen) > 0) {
-		unsigned short used_len = ROUND(dir->namelen +
-		    sizeof(struct ext2_dirent), 4);
+	/* a block just added to the directory has no entry yet */
+	while (!new_blk) {
+		unsigned short used_len;
+		int direntlen;
+
+		dir = ext4fs_get_dirent(root_first_block_buffer, totalbytes,
+					fs->blksz);
+		if (!dir) {
+			printf("Corrupt directory block, not writing\n");
+			goto fail;
+		}
+		direntlen = le16_to_cpu(dir->direntlen);
+		used_len = ROUND(dir->namelen + sizeof(struct ext2_dirent), 4);
 
 		/* last entry of block */
-		if (fs->blksz - totalbytes == le16_to_cpu(dir->direntlen)) {
+		if (fs->blksz - totalbytes == direntlen) {
 
 			/* check if new entry fits */
-			if ((used_len + new_entry_byte_reqd) <=
-			    le16_to_cpu(dir->direntlen)) {
+			if ((used_len + new_entry_byte_reqd) <= direntlen) {
 				dir->direntlen = cpu_to_le16(used_len);
 				break;
 			} else {
@@ -581,17 +622,15 @@ restart_read:
 				    (root_first_block_buffer,
 				     first_block_no_of_root))
 					goto fail;
+				new_blk = true;
 				goto restart;
 			}
 		}
 
-		templength = le16_to_cpu(dir->direntlen);
-		totalbytes = totalbytes + templength;
+		totalbytes = totalbytes + direntlen;
 		sizeof_void_space = check_void_in_dentry(dir, filename);
 		if (sizeof_void_space)
 			break;
-
-		dir = (struct ext2_dirent *)((char *)dir + templength);
 	}
 
 	/* make a pointer ready for creating next directory entry */
@@ -663,17 +702,13 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 
 		offset = 0;
 		do {
-			if (offset & 3) {
-				printf("Badly aligned ext2_dirent\n");
+			dir = ext4fs_get_dirent(block_buffer, offset,
+						fs->blksz);
+			if (!dir) {
+				printf("Corrupt directory block\n");
 				break;
 			}
-
-			dir = (struct ext2_dirent *)(block_buffer + offset);
-			direntname = (char*)(dir) + sizeof(struct ext2_dirent);
-
-			int direntlen = le16_to_cpu(dir->direntlen);
-			if (direntlen < sizeof(struct ext2_dirent))
-				break;
+			direntname = (char *)(dir) + sizeof(struct ext2_dirent);
 
 			if (dir->inode && (strlen(dirname) == dir->namelen) &&
 			    (strncmp(dirname, direntname, dir->namelen) == 0)) {
@@ -681,7 +716,7 @@ static int search_dir(struct ext2_inode *parent_inode, char *dirname)
 				break;
 			}
 
-			offset += direntlen;
+			offset += le16_to_cpu(dir->direntlen);
 
 		} while (offset < fs->blksz);
 
@@ -892,18 +927,13 @@ static int unlink_filename(char *filename, unsigned int blknr)
 
 	offset = 0;
 	do {
-		if (offset & 3) {
-			printf("Badly aligned ext2_dirent\n");
+		previous_dir = dir;
+		dir = ext4fs_get_dirent(block_buffer, offset, fs->blksz);
+		if (!dir) {
+			printf("Corrupt directory block\n");
 			break;
 		}
-
-		previous_dir = dir;
-		dir = (struct ext2_dirent *)(block_buffer + offset);
 		direntname = (char *)(dir) + sizeof(struct ext2_dirent);
-
-		int direntlen = le16_to_cpu(dir->direntlen);
-		if (direntlen < sizeof(struct ext2_dirent))
-			break;
 
 		if (dir->inode && (strlen(filename) == dir->namelen) &&
 		    (strncmp(direntname, filename, dir->namelen) == 0)) {
@@ -911,7 +941,7 @@ static int unlink_filename(char *filename, unsigned int blknr)
 			break;
 		}
 
-		offset += direntlen;
+		offset += le16_to_cpu(dir->direntlen);
 
 	} while (offset < fs->blksz);
 
@@ -963,14 +993,85 @@ int ext4fs_filename_unlink(char *filename)
 	return -1;
 }
 
+/**
+ * ext4fs_blk_to_group() - get the block group of a block
+ *
+ * The block number may come from disk, so check that it lies after the
+ * first data block, which holds the superblock, and before the end of the
+ * filesystem, as Linux does, before it is used to index the block bitmaps
+ * and group descriptors. The group is computed as Linux
+ * ext4_get_group_no_and_offset() does.
+ *
+ * @fs:		filesystem
+ * @blknr:	block number
+ * Return:	block group of @blknr, or -EINVAL if it is not a valid block
+ */
+int ext4fs_blk_to_group(struct ext_filesystem *fs, uint64_t blknr)
+{
+	struct ext2_sblock *sblock = &ext4fs_root->sblock;
+	uint32_t first_data_block = le32_to_cpu(sblock->first_data_block);
+	uint32_t bg_idx;
+
+	if (blknr <= first_data_block ||
+	    blknr >= le32_to_cpu(sblock->total_blocks))
+		goto err;
+
+	/* blknr is below total_blocks, so it fits in 32 bits */
+	bg_idx = ((uint32_t)blknr - first_data_block) /
+		 le32_to_cpu(sblock->blocks_per_group);
+	if (bg_idx >= fs->no_blkgrp)
+		goto err;
+
+	return bg_idx;
+err:
+	printf("Invalid block number %llu\n", (unsigned long long)blknr);
+	return -EINVAL;
+}
+
+/**
+ * ext4fs_inode_to_group() - get the block group of an inode
+ *
+ * The inode number may come from disk, so check it before it is used to
+ * index the inode bitmaps and group descriptors: as Linux ext4_valid_inum()
+ * does, it must be the root or a non-reserved inode within the inode count,
+ * and its block group must be inside the filesystem.
+ *
+ * @fs:		filesystem
+ * @inodeno:	inode number
+ * Return:	block group of @inodeno, or -EINVAL if it is not a valid inode
+ */
+int ext4fs_inode_to_group(struct ext_filesystem *fs, int inodeno)
+{
+	struct ext2_sblock *sblock = &ext4fs_root->sblock;
+	uint32_t first_ino = EXT2_GOOD_OLD_FIRST_INO;
+	uint32_t group;
+
+	if (le32_to_cpu(sblock->revision_level) != EXT2_GOOD_OLD_REV)
+		first_ino = le32_to_cpu(sblock->first_inode);
+	if (inodeno != EXT2_ROOT_INO &&
+	    (inodeno < 1 || (uint32_t)inodeno < first_ino ||
+	     (uint32_t)inodeno > le32_to_cpu(sblock->total_inodes)))
+		goto err;
+
+	group = (inodeno - 1) / le32_to_cpu(sblock->inodes_per_group);
+	if (group >= fs->no_blkgrp)
+		goto err;
+
+	return group;
+err:
+	printf("Invalid inode number %d\n", inodeno);
+	return -EINVAL;
+}
+
 uint32_t ext4fs_get_new_blk_no(void)
 {
 	short i;
 	short status;
-	int remainder;
-	unsigned int bg_idx;
+	int bg_idx;
 	static int prev_bg_bitmap_index = -1;
 	unsigned int blk_per_grp = le32_to_cpu(ext4fs_root->sblock.blocks_per_group);
+	uint32_t first_data_block =
+		le32_to_cpu(ext4fs_root->sblock.first_data_block);
 	struct ext_filesystem *fs = get_fs();
 	char *journal_buffer = zalloc(fs->blksz);
 	char *zero_buffer = zalloc(fs->blksz);
@@ -1022,28 +1123,27 @@ uint32_t ext4fs_get_new_blk_no(void)
 	} else {
 		fs->curr_blkno++;
 restart:
+		/* no free block left after the last one allocated */
+		if (fs->curr_blkno >=
+		    le32_to_cpu(ext4fs_root->sblock.total_blocks))
+			goto fail;
 		/* get the blockbitmap index respective to blockno */
-		bg_idx = fs->curr_blkno / blk_per_grp;
-		if (fs->blksz == 1024) {
-			remainder = fs->curr_blkno % blk_per_grp;
-			if (!remainder)
-				bg_idx--;
-		}
+		bg_idx = ext4fs_blk_to_group(fs, fs->curr_blkno);
+		if (bg_idx < 0)
+			goto fail;
 
 		/*
 		 * To skip completely filled block group bitmaps
 		 * Optimize the block allocation
 		 */
-		if (bg_idx >= fs->no_blkgrp)
-			goto fail;
-
 		struct ext2_block_group *bgd = NULL;
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
 		if (ext4fs_bg_get_free_blocks(bgd, fs) == 0) {
-			debug("block group %u is full. Skipping\n", bg_idx);
-			fs->curr_blkno = (bg_idx + 1) * blk_per_grp;
-			if (fs->blksz == 1024)
-				fs->curr_blkno += 1;
+			debug("block group %d is full. Skipping\n", bg_idx);
+			if (bg_idx + 1 >= fs->no_blkgrp)
+				goto fail;
+			fs->curr_blkno = (bg_idx + 1) * blk_per_grp +
+					 first_data_block;
 			goto restart;
 		}
 
@@ -1059,7 +1159,7 @@ restart:
 
 		if (ext4fs_set_block_bmap(fs->curr_blkno, fs->blk_bmaps[bg_idx],
 				   bg_idx) != 0) {
-			debug("going for restart for the block no %ld %u\n",
+			debug("going for restart for the block no %ld %d\n",
 			      fs->curr_blkno, bg_idx);
 			fs->curr_blkno++;
 			goto restart;
@@ -1096,7 +1196,7 @@ int ext4fs_get_new_inode_no(void)
 {
 	short i;
 	short status;
-	unsigned int ibmap_idx;
+	int ibmap_idx;
 	static int prev_inode_bitmap_index = -1;
 	unsigned int inodes_per_grp = le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
 	struct ext_filesystem *fs = get_fs();
@@ -1156,8 +1256,14 @@ int ext4fs_get_new_inode_no(void)
 	} else {
 restart:
 		fs->curr_inode_no++;
-		/* get the blockbitmap index respective to blockno */
-		ibmap_idx = fs->curr_inode_no / inodes_per_grp;
+		/* no free inode left after the last one allocated */
+		if (fs->curr_inode_no >
+		    le32_to_cpu(ext4fs_root->sblock.total_inodes))
+			goto fail;
+		/* get the inode bitmap index respective to inode no */
+		ibmap_idx = ext4fs_inode_to_group(fs, fs->curr_inode_no);
+		if (ibmap_idx < 0)
+			goto fail;
 		struct ext2_block_group *bgd =
 			ext4fs_get_group_descriptor(fs, ibmap_idx);
 		uint16_t bg_flags = ext4fs_bg_get_flags(bgd);
@@ -1175,7 +1281,7 @@ restart:
 		if (ext4fs_set_inode_bmap(fs->curr_inode_no,
 					  fs->inode_bmaps[ibmap_idx],
 					  ibmap_idx) != 0) {
-			debug("going for restart for the block no %d %u\n",
+			debug("going for restart for the block no %d %d\n",
 			      fs->curr_inode_no, ibmap_idx);
 			goto restart;
 		}
@@ -1529,6 +1635,38 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 
 #endif
 
+/**
+ * ext4fs_check_extent_header() - check an extent tree node before using it
+ *
+ * Some of the checks of Linux __ext4_ext_check() and ext4_find_extent(): the
+ * node must not claim more entries than fit in it, and the depth must be at
+ * most 5 and drop by one at each level, so that a corrupt node can neither be
+ * walked past its end nor make the tree loop.
+ *
+ * @eh:		extent header of the node
+ * @max:	number of entries that fit in the node
+ * @depth:	depth this node must have, or -1 for the root in the inode
+ * Return:	0 if the node is valid, -EINVAL otherwise
+ */
+static int ext4fs_check_extent_header(struct ext4_extent_header *eh, int max,
+				      int depth)
+{
+	if (le16_to_cpu(eh->eh_magic) != EXT4_EXT_MAGIC)
+		return -EINVAL;
+	if (!eh->eh_max || le16_to_cpu(eh->eh_max) > max)
+		return -EINVAL;
+	if (le16_to_cpu(eh->eh_entries) > le16_to_cpu(eh->eh_max))
+		return -EINVAL;
+	if (le16_to_cpu(eh->eh_depth) > EXT4_MAX_EXTENT_DEPTH)
+		return -EINVAL;
+	if (depth >= 0 && le16_to_cpu(eh->eh_depth) != depth)
+		return -EINVAL;
+	if (eh->eh_depth && !eh->eh_entries)
+		return -EINVAL;
+
+	return 0;
+}
+
 static struct ext4_extent_header *ext4fs_get_extent_block
 	(struct ext2_data *data, struct ext_block_cache *cache,
 		struct ext4_extent_header *ext_block,
@@ -1537,16 +1675,24 @@ static struct ext4_extent_header *ext4fs_get_extent_block
 	struct ext4_extent_idx *index;
 	unsigned long long block;
 	int blksz = EXT2_BLOCK_SIZE(data);
+	/* The root node is held in the inode's 60-byte i_block area */
+	int max = (sizeof(((struct ext2_inode *)0)->b) -
+		   sizeof(struct ext4_extent_header)) /
+		  sizeof(struct ext4_extent);
+	int depth = -1;
 	int i;
 
 	while (1) {
 		index = (struct ext4_extent_idx *)(ext_block + 1);
 
-		if (le16_to_cpu(ext_block->eh_magic) != EXT4_EXT_MAGIC)
+		if (ext4fs_check_extent_header(ext_block, max, depth))
 			return NULL;
 
 		if (ext_block->eh_depth == 0)
 			return ext_block;
+		depth = le16_to_cpu(ext_block->eh_depth) - 1;
+		max = (blksz - sizeof(struct ext4_extent_header)) /
+		      sizeof(struct ext4_extent);
 		i = -1;
 		do {
 			i++;
@@ -1968,9 +2114,9 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock,
 			}
 			ext4fs_indir3_size = blksz;
 		}
-		if ((le32_to_cpu(ext4fs_indir2_block[rblock
-						       /
-						       perblock_child]) <<
+		if ((le32_to_cpu(ext4fs_indir2_block[(rblock /
+						      perblock_child) %
+						     (blksz / 4)]) <<
 		     log2_blksz) != ext4fs_indir3_blkno) {
 			status =
 			    ext4fs_devread((lbaint_t)le32_to_cpu

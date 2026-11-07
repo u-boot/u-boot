@@ -140,31 +140,29 @@ fail:
 	return -1;
 }
 
-static void delete_single_indirect_block(struct ext2_inode *inode)
+static int delete_single_indirect_block(struct ext2_inode *inode)
 {
 	struct ext2_block_group *bgd = NULL;
 	static int prev_bg_bmap_idx = -1;
 	uint32_t blknr;
-	int remainder;
 	int bg_idx;
 	int status;
-	uint32_t blk_per_grp = le32_to_cpu(ext4fs_root->sblock.blocks_per_group);
+	int ret = -EIO;
 	struct ext_filesystem *fs = get_fs();
 	char *journal_buffer = zalloc(fs->blksz);
 	if (!journal_buffer) {
 		printf("No memory\n");
-		return;
+		return -ENOMEM;
 	}
 
 	/* deleting the single indirect block associated with inode */
 	if (inode->b.blocks.indir_block != 0) {
 		blknr = le32_to_cpu(inode->b.blocks.indir_block);
 		debug("SIPB releasing %u\n", blknr);
-		bg_idx = blknr / blk_per_grp;
-		if (fs->blksz == 1024) {
-			remainder = blknr % blk_per_grp;
-			if (!remainder)
-				bg_idx--;
+		bg_idx = ext4fs_blk_to_group(fs, blknr);
+		if (bg_idx < 0) {
+			ret = bg_idx;
+			goto fail;
 		}
 		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx], bg_idx);
 		/* get  block group descriptor table */
@@ -184,19 +182,21 @@ static void delete_single_indirect_block(struct ext2_inode *inode)
 			prev_bg_bmap_idx = bg_idx;
 		}
 	}
+	ret = 0;
 fail:
 	free(journal_buffer);
+
+	return ret;
 }
 
-static void delete_double_indirect_block(struct ext2_inode *inode)
+static int delete_double_indirect_block(struct ext2_inode *inode)
 {
 	int i;
 	short status;
 	static int prev_bg_bmap_idx = -1;
 	uint32_t blknr;
-	int remainder;
 	int bg_idx;
-	uint32_t blk_per_grp = le32_to_cpu(ext4fs_root->sblock.blocks_per_group);
+	int ret = -EIO;
 	__le32 *di_buffer = NULL;
 	void *dib_start_addr = NULL;
 	struct ext2_block_group *bgd = NULL;
@@ -204,29 +204,31 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 	char *journal_buffer = zalloc(fs->blksz);
 	if (!journal_buffer) {
 		printf("No memory\n");
-		return;
+		return -ENOMEM;
 	}
 
 	if (inode->b.blocks.double_indir_block != 0) {
 		di_buffer = zalloc(fs->blksz);
 		if (!di_buffer) {
 			printf("No memory\n");
+			ret = -ENOMEM;
 			goto fail;
 		}
 		dib_start_addr = di_buffer;
 		blknr = le32_to_cpu(inode->b.blocks.double_indir_block);
 		status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
 					fs->blksz, (char *)di_buffer);
+		if (status == 0)
+			goto fail;
 		for (i = 0; i < fs->blksz / sizeof(int); i++) {
 			if (*di_buffer == 0)
 				break;
 
 			debug("DICB releasing %u\n", *di_buffer);
-			bg_idx = le32_to_cpu(*di_buffer) / blk_per_grp;
-			if (fs->blksz == 1024) {
-				remainder = le32_to_cpu(*di_buffer) % blk_per_grp;
-				if (!remainder)
-					bg_idx--;
+			bg_idx = ext4fs_blk_to_group(fs, le32_to_cpu(*di_buffer));
+			if (bg_idx < 0) {
+				ret = bg_idx;
+				goto fail;
 			}
 			/* get  block group descriptor table */
 			bgd = ext4fs_get_group_descriptor(fs, bg_idx);
@@ -255,11 +257,10 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 
 		/* removing the parent double indirect block */
 		blknr = le32_to_cpu(inode->b.blocks.double_indir_block);
-		bg_idx = blknr / blk_per_grp;
-		if (fs->blksz == 1024) {
-			remainder = blknr % blk_per_grp;
-			if (!remainder)
-				bg_idx--;
+		bg_idx = ext4fs_blk_to_group(fs, blknr);
+		if (bg_idx < 0) {
+			ret = bg_idx;
+			goto fail;
 		}
 		/* get  block group descriptor table */
 		bgd = ext4fs_get_group_descriptor(fs, bg_idx);
@@ -280,20 +281,22 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 		}
 		debug("DIPB releasing %d\n", blknr);
 	}
+	ret = 0;
 fail:
 	free(dib_start_addr);
 	free(journal_buffer);
+
+	return ret;
 }
 
-static void delete_triple_indirect_block(struct ext2_inode *inode)
+static int delete_triple_indirect_block(struct ext2_inode *inode)
 {
 	int i, j;
 	short status;
 	static int prev_bg_bmap_idx = -1;
 	uint32_t blknr;
-	int remainder;
 	int bg_idx;
-	uint32_t blk_per_grp = le32_to_cpu(ext4fs_root->sblock.blocks_per_group);
+	int ret = -EIO;
 	__le32 *tigp_buffer = NULL;
 	void *tib_start_addr = NULL;
 	__le32 *tip_buffer = NULL;
@@ -303,39 +306,46 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 	char *journal_buffer = zalloc(fs->blksz);
 	if (!journal_buffer) {
 		printf("No memory\n");
-		return;
+		return -ENOMEM;
 	}
 
 	if (inode->b.blocks.triple_indir_block != 0) {
 		tigp_buffer = zalloc(fs->blksz);
 		if (!tigp_buffer) {
 			printf("No memory\n");
+			ret = -ENOMEM;
 			goto fail;
 		}
 		tib_start_addr = tigp_buffer;
 		blknr = le32_to_cpu(inode->b.blocks.triple_indir_block);
 		status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
 					fs->blksz, (char *)tigp_buffer);
+		if (status == 0)
+			goto fail;
 		for (i = 0; i < fs->blksz / sizeof(int); i++) {
 			if (*tigp_buffer == 0)
 				break;
 			debug("tigp buffer releasing %u\n", *tigp_buffer);
 
 			tip_buffer = zalloc(fs->blksz);
-			if (!tip_buffer)
+			if (!tip_buffer) {
+				ret = -ENOMEM;
 				goto fail;
+			}
 			tipb_start_addr = tip_buffer;
 			status = ext4fs_devread((lbaint_t)le32_to_cpu(*tigp_buffer) *
 						fs->sect_perblk, 0, fs->blksz,
 						(char *)tip_buffer);
+			if (status == 0)
+				goto fail;
 			for (j = 0; j < fs->blksz / sizeof(int); j++) {
 				if (le32_to_cpu(*tip_buffer) == 0)
 					break;
-				bg_idx = le32_to_cpu(*tip_buffer) / blk_per_grp;
-				if (fs->blksz == 1024) {
-					remainder = le32_to_cpu(*tip_buffer) % blk_per_grp;
-					if (!remainder)
-						bg_idx--;
+				bg_idx = ext4fs_blk_to_group(fs,
+							     le32_to_cpu(*tip_buffer));
+				if (bg_idx < 0) {
+					ret = bg_idx;
+					goto fail;
 				}
 
 				ext4fs_reset_block_bmap(le32_to_cpu(*tip_buffer),
@@ -373,11 +383,10 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 			 * removing the grand parent blocks
 			 * which is connected to inode
 			 */
-			bg_idx = le32_to_cpu(*tigp_buffer) / blk_per_grp;
-			if (fs->blksz == 1024) {
-				remainder = le32_to_cpu(*tigp_buffer) % blk_per_grp;
-				if (!remainder)
-					bg_idx--;
+			bg_idx = ext4fs_blk_to_group(fs, le32_to_cpu(*tigp_buffer));
+			if (bg_idx < 0) {
+				ret = bg_idx;
+				goto fail;
 			}
 			ext4fs_reset_block_bmap(le32_to_cpu(*tigp_buffer),
 						fs->blk_bmaps[bg_idx], bg_idx);
@@ -408,11 +417,10 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 
 		/* removing the grand parent triple indirect block */
 		blknr = le32_to_cpu(inode->b.blocks.triple_indir_block);
-		bg_idx = blknr / blk_per_grp;
-		if (fs->blksz == 1024) {
-			remainder = blknr % blk_per_grp;
-			if (!remainder)
-				bg_idx--;
+		bg_idx = ext4fs_blk_to_group(fs, blknr);
+		if (bg_idx < 0) {
+			ret = bg_idx;
+			goto fail;
 		}
 		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx], bg_idx);
 		/* get  block group descriptor table */
@@ -433,10 +441,13 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 		}
 		debug("tigp buffer itself releasing %d\n", blknr);
 	}
+	ret = 0;
 fail:
 	free(tib_start_addr);
 	free(tipb_start_addr);
 	free(journal_buffer);
+
+	return ret;
 }
 
 static int ext4fs_delete_file(int inodeno)
@@ -444,7 +455,6 @@ static int ext4fs_delete_file(int inodeno)
 	struct ext2_inode inode;
 	short status;
 	int i;
-	int remainder;
 	long int blknr;
 	int bg_idx;
 	int ibmap_idx;
@@ -456,7 +466,6 @@ static int ext4fs_delete_file(int inodeno)
 	unsigned int inodes_per_block;
 	uint32_t blkno;
 	unsigned int blkoff;
-	uint32_t blk_per_grp = le32_to_cpu(ext4fs_root->sblock.blocks_per_group);
 	uint32_t inode_per_grp = le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
 	struct ext2_inode *inode_buffer = NULL;
 	struct ext2_block_group *bgd = NULL;
@@ -464,6 +473,9 @@ static int ext4fs_delete_file(int inodeno)
 	char *journal_buffer = zalloc(fs->blksz);
 	if (!journal_buffer)
 		return -ENOMEM;
+	ibmap_idx = ext4fs_inode_to_group(fs, inodeno);
+	if (ibmap_idx < 0)
+		goto fail;
 	status = ext4fs_read_inode(ext4fs_root, inodeno, &inode);
 	if (status == 0)
 		goto fail;
@@ -489,9 +501,10 @@ static int ext4fs_delete_file(int inodeno)
 				inode.b.blocks.dir_blocks;
 		debug("del: dep=%d entries=%d\n", eh->eh_depth, eh->eh_entries);
 	} else {
-		delete_single_indirect_block(&inode);
-		delete_double_indirect_block(&inode);
-		delete_triple_indirect_block(&inode);
+		if (delete_single_indirect_block(&inode) ||
+		    delete_double_indirect_block(&inode) ||
+		    delete_triple_indirect_block(&inode))
+			goto fail;
 	}
 
 	/* release data blocks */
@@ -501,12 +514,9 @@ static int ext4fs_delete_file(int inodeno)
 			continue;
 		if (blknr < 0)
 			goto fail;
-		bg_idx = blknr / blk_per_grp;
-		if (fs->blksz == 1024) {
-			remainder = blknr % blk_per_grp;
-			if (!remainder)
-				bg_idx--;
-		}
+		bg_idx = ext4fs_blk_to_group(fs, blknr);
+		if (bg_idx < 0)
+			goto fail;
 		ext4fs_reset_block_bmap(blknr, fs->blk_bmaps[bg_idx],
 					bg_idx);
 		debug("EXT4 Block releasing %ld: %d\n", blknr, bg_idx);
@@ -532,7 +542,6 @@ static int ext4fs_delete_file(int inodeno)
 	/* release inode */
 	/* from the inode no to blockno */
 	inodes_per_block = fs->blksz / fs->inodesz;
-	ibmap_idx = inodeno / inode_per_grp;
 
 	/* get the block no */
 	inodeno--;
@@ -605,10 +614,36 @@ int ext4fs_init(void)
 	int i;
 	uint32_t real_free_blocks = 0;
 	struct ext_filesystem *fs = get_fs();
+	struct ext2_sblock *sblock = &ext4fs_root->sblock;
+	uint32_t blk_per_grp = le32_to_cpu(sblock->blocks_per_group);
+	uint32_t inode_per_grp = le32_to_cpu(sblock->inodes_per_group);
+	uint32_t first_data_block = le32_to_cpu(sblock->first_data_block);
 
 	/* populate fs */
 	fs->blksz = EXT2_BLOCK_SIZE(ext4fs_root);
 	fs->sect_perblk = fs->blksz >> fs->dev_desc->log2blksz;
+
+	/*
+	 * The bitmap code finds the bitmap bits of group n at n * blocksize
+	 * bytes, so every group must hold one bitmap block's worth of
+	 * blocks, unless there is only one group. It also takes the first
+	 * data block, which holds the superblock, to be block 1 with 1 KiB
+	 * blocks and block 0 otherwise, as mke2fs makes it, and so does the
+	 * write path when it finds the group descriptor table; with any
+	 * other first data block, ext4fs_blk_to_group() puts a block in
+	 * another group than the bitmap code does. Check this before the
+	 * journal is replayed, so that nothing is written to a filesystem
+	 * that is refused.
+	 */
+	if (!blk_per_grp || blk_per_grp > fs->blksz * 8 ||
+	    (blk_per_grp != fs->blksz * 8 &&
+	     le32_to_cpu(sblock->total_blocks) - first_data_block >
+	     blk_per_grp) ||
+	    first_data_block != (fs->blksz == EXT2_MIN_BLOCK_SIZE) ||
+	    !inode_per_grp || inode_per_grp > fs->blksz * 8) {
+		printf("Unsupported block group layout, not writing\n");
+		return -EINVAL;
+	}
 
 	/* get the superblock */
 	fs->sb = zalloc(SUPERBLOCK_SIZE);
@@ -866,7 +901,8 @@ int ext4fs_write(const char *fname, const char *buffer,
 	long int blkoff;
 	struct ext2_sblock *sblock = &(ext4fs_root->sblock);
 	unsigned int inodes_per_block;
-	unsigned int ibmap_idx;
+	int ibmap_idx;
+	int parent_ibmap_idx;
 	struct ext2_block_group *bgd = NULL;
 	struct ext_filesystem *fs = get_fs();
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
@@ -902,6 +938,9 @@ int ext4fs_write(const char *fname, const char *buffer,
 	inodes_per_block = fs->blksz / fs->inodesz;
 	parent_inodeno = ext4fs_get_parent_inode_num(fname, filename, F_FILE);
 	if (parent_inodeno == -1)
+		goto fail;
+	parent_ibmap_idx = ext4fs_inode_to_group(fs, parent_inodeno);
+	if (parent_ibmap_idx < 0)
 		goto fail;
 	if (ext4fs_iget(parent_inodeno, g_parent_inode))
 		goto fail;
@@ -994,7 +1033,9 @@ int ext4fs_write(const char *fname, const char *buffer,
 	temp_ptr = zalloc(fs->blksz);
 	if (!temp_ptr)
 		goto fail;
-	ibmap_idx = inodeno / le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
+	ibmap_idx = ext4fs_inode_to_group(fs, inodeno);
+	if (ibmap_idx < 0)
+		goto fail;
 	inodeno--;
 	bgd = ext4fs_get_group_descriptor(fs, ibmap_idx);
 	itable_blkno = ext4fs_bg_get_inode_table_id(bgd, fs) +
@@ -1015,9 +1056,8 @@ int ext4fs_write(const char *fname, const char *buffer,
 		/* FIXME: Deallocate data blocks */
 		goto fail;
 	}
-	ibmap_idx = parent_inodeno / le32_to_cpu(ext4fs_root->sblock.inodes_per_group);
 	parent_inodeno--;
-	bgd = ext4fs_get_group_descriptor(fs, ibmap_idx);
+	bgd = ext4fs_get_group_descriptor(fs, parent_ibmap_idx);
 	parent_itable_blkno = ext4fs_bg_get_inode_table_id(bgd, fs) +
 	    (parent_inodeno %
 	     le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;

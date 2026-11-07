@@ -35,6 +35,7 @@ struct disk_partition;
 #define EXT4_TOPDIR_FL		0x00020000 /* Top of directory hierarchies*/
 #define EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
 #define EXT4_EXT_MAGIC			0xf30a
+#define EXT4_MAX_EXTENT_DEPTH		5
 
 #define EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER  0x0001
 #define EXT4_FEATURE_RO_COMPAT_LARGE_FILE    0x0002
