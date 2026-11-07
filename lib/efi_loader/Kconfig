@@ -336,6 +336,7 @@ config EFI_CAPSULE_NAMESPACE_GUID
 
 config EFI_CAPSULE_FIRMWARE
 	bool
+	select SHA1
 
 config EFI_CAPSULE_FIRMWARE_MANAGEMENT
 	bool "Capsule: Firmware Management Protocol"

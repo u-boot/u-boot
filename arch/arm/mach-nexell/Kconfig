@@ -27,6 +27,7 @@ choice
 config TARGET_NANOPI2
 	bool "FriendlyARM NanoPi2 / NanoPC-T2 Board"
 	select ARCH_S5P4418
+	select MD5
 	help
 	  Enable support for FriendlyARM NanoPi2 and NanoPC-T2 Boards.
 

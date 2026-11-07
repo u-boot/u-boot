@@ -69,8 +69,8 @@ config BUTTON_CMD
 menuconfig FIT
 	bool "Flattened Image Tree (FIT)"
 	select HASH
-	select MD5
-	select SHA1
+	imply MD5
+	imply SHA1
 	imply SHA256
 	help
 	  This option allows you to boot the new uImage structure,

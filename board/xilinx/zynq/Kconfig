@@ -23,6 +23,7 @@ config CMD_ZYNQ_RSA
 	default y
 	depends on CMD_ZYNQ
 	depends on CMD_ZYNQ_AES
+	select MD5
 	help
 	  Enabling this will support zynq secure image verification.
 	  The secure image is a xilinx specific BOOT.BIN with
