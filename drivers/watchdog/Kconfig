@@ -494,4 +494,13 @@ config WDT_FTWDT010
 	help
 	  Faraday Technology ftwdt010 watchdog is an architecture independent
 	  watchdog. It is usually used in SoC chip design.
+
+config WDT_I6300ESB
+	bool "Intel 6300ESB Watchdog"
+	depends on WDT && PCI
+	help
+	  Hardware driver for the watchdog timer built into the Intel
+	  6300ESB controller hub. Also emulated by QEMU, thus useful for
+	  testing watchdog functionality in virtual systems.
+
 endmenu

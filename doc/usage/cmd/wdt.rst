@@ -16,6 +16,7 @@ Synopsis
     wdt start <timeout_ms> [flags]
     wdt stop
     wdt reset
+    wdt gettimeout
     wdt expire [flags]
 
 Description
@@ -33,6 +34,11 @@ The 'wdt start' command starts the current watchdog timer.
 The 'wdt stop' command stops the current watchdog timer.
 
 The 'wdt reset' command resets the current watchdog timer without stopping it.
+
+The 'wdt gettimeout' command reports current watchdog device's programmed
+timeout value in milliseconds when supported by the driver. The command returns
+`CMD_RET_FAILURE` if the watchdog is not running or the driver does not
+support it.
 
 The 'wdt expire' command let's the current watchdog timer expire immediately.
 This will lead to a reset.
@@ -60,14 +66,18 @@ Example
     => wdt dev
     dev: watchdog@1c20ca0
     => wdt start 3000
+    => wdt gettimeout
+    Timeout: 3000ms
     => wdt reset
     => wdt stop
+    => wdt gettimeout
+    Watchdog not running.
     => wdt expire
 
     U-Boot SPL 2022.04-rc3 (Mar 25 2022 - 13:48:33 +0000)
 
  In the example above '(sunxi_wdt)' refers to the driver for the watchdog
- device.
+ device. The gettimeout example assumes the driver supports the operation.
 
 Configuration
 -------------

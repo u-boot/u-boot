@@ -105,6 +105,13 @@ int initr_watchdog(void)
 	}
 
 	uclass_foreach_dev(dev, uc) {
+		/*
+		 * initr_watchdog might be called multiple times to resolve
+		 * for probe ordering issues. Skip already activated devices.
+		 */
+		if (device_active(dev))
+			continue;
+
 		ret = device_probe(dev);
 		if (ret) {
 			log_debug("Error probing %s: %d\n", dev->name, ret);
@@ -114,6 +121,16 @@ int initr_watchdog(void)
 	}
 
 	return 0;
+}
+
+int wdt_get_timeout(struct udevice *dev, u64 *timeout_msp)
+{
+	const struct wdt_ops *ops = device_get_ops(dev);
+
+	if (!ops->get_timeout)
+		return -ENOSYS;
+
+	return ops->get_timeout(dev, timeout_msp);
 }
 
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
@@ -153,10 +170,13 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 
 		priv->running = true;
 
+		/* Check programmed timeout from driver if op supported */
+		if (wdt_get_timeout(dev, &timeout_ms) == 0)
+			tout_s = lldiv(timeout_ms, 1000);
 		/*
-		 * If the requested timeout was clamped, note the value
-		 * when it differs at whole-second resolution. Sub-second
-		 * rounding is ignored to avoid noise.
+		 * If the requested timeout was clamped or rounded, note
+		 * the value when it differs at whole-second resolution.
+		 * Sub-second rounding is ignored to avoid noise.
 		 */
 		req_str[0] = '\0';
 		if (req_s != tout_s)
@@ -165,6 +185,11 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 		printf("WDT:   Started %s with%s servicing %s (%ds timeout%s)\n",
 		       dev->name, IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
 		       svc_str, tout_s, req_str);
+
+		/* Warn if timeout is not longer than servicing interval */
+		if (IS_ENABLED(CONFIG_WATCHDOG) && timeout_ms <= priv->reset_period)
+			printf("WDT:   Warning: timeout %llums is not longer than servicing interval %lums\n",
+			       timeout_ms, priv->reset_period);
 	}
 
 	return ret;

@@ -74,6 +74,19 @@ int wdt_reset(struct udevice *dev);
  */
 int wdt_expire_now(struct udevice *dev, ulong flags);
 
+/*
+ * Get the effective timeout in milliseconds.
+ *
+ * The effective value may differ from the value wdt_start() passed to
+ * the driver, for example if it has been rounded and/or clamped.
+ *
+ * @dev: WDT device
+ * @timeout_msp: Returns the effective timeout in ms; unchanged on error
+ * @return: 0 if OK, -ENOSYS if the driver does not support this,
+ * -ENODATA if the watchdog is not running, other -ve on error
+ */
+int wdt_get_timeout(struct udevice *dev, u64 *timeout_msp);
+
 /**
  * struct wdt_uc_plat - uclass platform data for a watchdog device
  *
@@ -131,6 +144,15 @@ struct wdt_ops {
 	 * @return 0 if OK -ve on error. May not return.
 	 */
 	int (*expire_now)(struct udevice *dev, ulong flags);
+	/*
+	 * Get the effective timeout in milliseconds (optional)
+	 *
+	 * @dev: WDT device
+	 * @timeout_msp: Timeout in milliseconds, written only on success
+	 * @return: 0 if OK, -ENODATA if the watchdog is not running,
+	 * other -ve on error
+	 */
+	int (*get_timeout)(struct udevice *dev, u64 *timeout_msp);
 };
 
 int initr_watchdog(void);

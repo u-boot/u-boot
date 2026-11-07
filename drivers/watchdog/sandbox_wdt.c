@@ -3,6 +3,7 @@
  * Copyright 2017 Google, Inc
  */
 
+#include <div64.h>
 #include <dm.h>
 #include <wdt.h>
 #include <asm/state.h>
@@ -11,7 +12,8 @@ static int sandbox_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
 	struct sandbox_state *state = state_get_current();
 
-	state->wdt.counter = timeout;
+	/* Emulate hardware with 1s granularity, round up to a whole second */
+	state->wdt.counter = DIV_ROUND_UP_ULL(timeout, 1000) * 1000;
 	state->wdt.running = true;
 
 	return 0;
@@ -43,6 +45,18 @@ static int sandbox_wdt_expire_now(struct udevice *dev, ulong flags)
 	return 0;
 }
 
+static int sandbox_wdt_get_timeout(struct udevice *dev, u64 *timeout_msp)
+{
+	struct sandbox_state *state = state_get_current();
+
+	if (!state->wdt.running)
+		return -ENODATA;
+
+	*timeout_msp = state->wdt.counter;
+
+	return 0;
+}
+
 static int sandbox_wdt_probe(struct udevice *dev)
 {
 	struct wdt_uc_plat *plat = dev_get_uclass_plat(dev);
@@ -58,6 +72,7 @@ static const struct wdt_ops sandbox_wdt_ops = {
 	.reset = sandbox_wdt_reset,
 	.stop = sandbox_wdt_stop,
 	.expire_now = sandbox_wdt_expire_now,
+	.get_timeout = sandbox_wdt_get_timeout,
 };
 
 static const struct udevice_id sandbox_wdt_ids[] = {

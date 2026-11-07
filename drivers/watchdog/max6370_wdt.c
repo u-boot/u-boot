@@ -19,6 +19,16 @@
 
 #define MAX6370_WDI		0x8
 
+static const u16 max6370_timeouts_ms[] = {
+	[MAX6370_SET_1MS]	= 1,
+	[MAX6370_SET_10MS]	= 10,
+	[MAX6370_SET_30MS]	= 30,
+	[MAX6370_SET_100MS]	= 100,
+	[MAX6370_SET_1S]	= 1000,
+	[MAX6370_SET_10S]	= 10000,
+	[MAX6370_SET_60S]	= 60000,
+};
+
 struct max6370_wdt {
 	void __iomem *reg;
 	struct gpio_desc gpio_wdi;
@@ -28,24 +38,21 @@ static int max6370_wdt_start(struct udevice *dev, u64 ms, ulong flags)
 {
 	struct max6370_wdt *wdt = dev_get_priv(dev);
 	u8 val;
+	int sel = MAX6370_SET_60S;
 
 	val = readb(wdt->reg);
 	val &= ~MAX6370_SET_MASK;
 
-	if (ms <= 1)
-		val |= MAX6370_SET_1MS;
-	else if (ms <= 10)
-		val |= MAX6370_SET_10MS;
-	else if (ms <= 30)
-		val |= MAX6370_SET_30MS;
-	else if (ms <= 100)
-		val |= MAX6370_SET_100MS;
-	else if (ms <= 1000)
-		val |= MAX6370_SET_1S;
-	else if (ms <= 10000)
-		val |= MAX6370_SET_10S;
-	else
-		val |= MAX6370_SET_60S;
+	for (size_t i = 0; i < ARRAY_SIZE(max6370_timeouts_ms); i++) {
+		if (i == MAX6370_SET_DISABLE)
+			continue;
+		if (ms <= max6370_timeouts_ms[i]) {
+			sel = i;
+			break;
+		}
+	}
+
+	val |= sel;
 
 	writeb(val, wdt->reg);
 
@@ -61,6 +68,19 @@ static int max6370_wdt_stop(struct udevice *dev)
 	val &= ~MAX6370_SET_MASK;
 	val |= MAX6370_SET_DISABLE;
 	writeb(val, wdt->reg);
+
+	return 0;
+}
+
+static int max6370_wdt_get_timeout(struct udevice *dev, u64 *timeout_msp)
+{
+	struct max6370_wdt *wdt = dev_get_priv(dev);
+	u8 val = readb(wdt->reg) & MAX6370_SET_MASK;
+
+	if (val == MAX6370_SET_DISABLE)
+		return -ENODATA;
+
+	*timeout_msp = max6370_timeouts_ms[val];
 
 	return 0;
 }
@@ -101,6 +121,7 @@ static const struct wdt_ops max6370_wdt_ops = {
 	.start = max6370_wdt_start,
 	.stop = max6370_wdt_stop,
 	.reset = max6370_wdt_reset,
+	.get_timeout = max6370_wdt_get_timeout,
 };
 
 static const struct udevice_id max6370_wdt_ids[] = {
