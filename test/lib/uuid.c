@@ -65,6 +65,10 @@ static int lib_test_uuid_bits(struct unit_test_state *uts)
 		/* variant 1 */
 		ut_assert((uuid[8] & UUID_VARIANT_MASK) == (UUID_VARIANT << UUID_VARIANT_SHIFT));
 
+		/* v5 UUIDs are based on SHA1 */
+		if (!CONFIG_IS_ENABLED(SHA1))
+			continue;
+
 		/* Test v5, use the v4 UUID as the namespace */
 		gen_v5_guid((struct uuid *)uuid,
 			    &guid, "test", 4, NULL);
@@ -169,6 +173,10 @@ static int lib_test_dynamic_uuid(struct unit_test_state *uts)
 			}
 		},
 	};
+
+	/* dynamic UUIDs are v5 UUIDs based on SHA1 */
+	if (!CONFIG_IS_ENABLED(SHA1))
+		return -EAGAIN;
 
 	for (i = 0; i < ARRAY_SIZE(test_data); i++) {
 		ret = lib_test_dynamic_uuid_case(uts, &test_data[i]);
