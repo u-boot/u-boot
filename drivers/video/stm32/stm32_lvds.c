@@ -614,9 +614,7 @@ static int stm32_lvds_of_to_plat(struct udevice *dev)
 	}
 
 	data_mapping = ofnode_read_string(dev_ofnode(plat->panel), "data-mapping");
-	if (!strcmp(data_mapping, "vesa-24"))
-		priv->bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG;
-	else if (!strcmp(data_mapping, "jeida-24"))
+	if (data_mapping && !strcmp(data_mapping, "jeida-24"))
 		priv->bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_JEIDA;
 	else
 		priv->bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG;
