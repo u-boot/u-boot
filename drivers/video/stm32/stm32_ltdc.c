@@ -593,16 +593,21 @@ static int stm32_ltdc_display_init(struct udevice *dev, ofnode *ep_node,
 
 	if (IS_ENABLED(CONFIG_VIDEO_BRIDGE)) {
 		ret = stm32_ltdc_get_remote_device(dev, *ep_node, UCLASS_VIDEO_BRIDGE, bridge);
-		if (ret)
-			return ret;
+		if (!ret) {
+			ret = stm32_ltdc_get_panel(*bridge, panel);
+			if (ret) {
+				*bridge = NULL;
+				*panel = NULL;
+			}
 
-		ret = stm32_ltdc_get_panel(*bridge, panel);
-	} else {
-		/* no bridge, search a panel from display controller node */
-		ret = stm32_ltdc_get_remote_device(dev, *ep_node, UCLASS_PANEL, panel);
+			return ret;
+		}
+
+		*bridge = NULL;
 	}
 
-	return ret;
+	/* no bridge, search a panel from display controller node */
+	return stm32_ltdc_get_remote_device(dev, *ep_node, UCLASS_PANEL, panel);
 }
 
 #if IS_ENABLED(CONFIG_TARGET_STM32F469_DISCOVERY)
