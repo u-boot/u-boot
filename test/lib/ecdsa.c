@@ -379,8 +379,8 @@ static int ecdsa_test(struct unit_test_state *uts,
 			     hash, SHA1_DEF_CHUNK_SZ);
 #else
 		/* sha1 is not supported so we skip this test */
-		ut_reportf("Test %s skipped (sha1 not supported)",
-			   tv->test_name);
+		printf("Test %s skipped (sha1 not supported)\n",
+		       tv->test_name);
 		goto out;
 #endif
 	} else if (!strcmp(tv->hash_type, "sha-256")) {
@@ -390,8 +390,8 @@ static int ecdsa_test(struct unit_test_state *uts,
 			       hash, CHUNKSZ_SHA256);
 #else
 		/* sha256 is not supported so we skip this test */
-		ut_reportf("Test %s skipped (sha256 not supported)",
-			   tv->test_name);
+		printf("Test %s skipped (sha256 not supported)\n",
+		       tv->test_name);
 		goto out;
 #endif
 	} else if (!strcmp(tv->hash_type, "sha-384")) {
@@ -401,8 +401,8 @@ static int ecdsa_test(struct unit_test_state *uts,
 			       hash, CHUNKSZ_SHA384);
 #else
 		/* sha384 is not supported so we skip this test */
-		ut_reportf("Test %s skipped (sha384 not supported)",
-			   tv->test_name);
+		printf("Test %s skipped (sha384 not supported)\n",
+		       tv->test_name);
 		goto out;
 #endif
 	} else if (!strcmp(tv->hash_type, "sha-512")) {
@@ -412,8 +412,8 @@ static int ecdsa_test(struct unit_test_state *uts,
 			       hash, CHUNKSZ_SHA512);
 #else
 		/* sha512 is not supported so we skip this test */
-		ut_reportf("Test %s skipped (sha512 not supported)",
-			   tv->test_name);
+		printf("Test %s skipped (sha512 not supported)\n",
+		       tv->test_name);
 		goto out;
 #endif
 	} else {
