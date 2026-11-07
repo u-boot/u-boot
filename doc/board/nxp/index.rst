@@ -34,6 +34,7 @@ NXP Semiconductors
    mx6ul_14x14_evk
    mx6ullevk
    nbxv3
+   i.MX AHAB secure boot <../../imx/index>
    rproc
    psb
    quickboot

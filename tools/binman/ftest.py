@@ -35,6 +35,7 @@ from dtoc import fdt
 from dtoc import fdt_util
 from binman.etype import fdtmap
 from binman.etype import image_header
+from binman.etype import nxp_imx93cst
 from binman.image import Image
 from u_boot_pylib import command
 from u_boot_pylib import terminal
@@ -8200,16 +8201,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoTestFile('vendor/nxp_imx8_imagename.dts',
                              force_missing_bintools='mkimage')
 
-    def testNxpImx8mCSTSigned(self):
-        """Test CST-signing-success path with mocked cst invocation"""
-        ivt_data = struct.pack('<I', 0x412000d1)
-        ivt_data += b'\x00' * 20
-        ivt_data += struct.pack('<I', 0)
-        ivt_data += b'\x00' * 36
-        self._MakeInputFile('imx8m-ivt.bin', ivt_data)
+    def _MockCstRunCmd(self):
+        """Mock Bintool.run_cmd() so that cst writes a fake output blob
 
-        # Mock run_cmd() so that when cst is invoked, it creates a fake output
-        # blob and returns success, thus covering the signing path
+        Returns:
+            unittest.mock.patch: Patcher for Bintool.run_cmd
+        """
         original = bintool.Bintool.run_cmd
 
         def fake_cst_run_cmd(self_tool, *args, binary=False):
@@ -8221,8 +8218,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                 return 'fake cst output'
             return original(self_tool, *args, binary=binary)
 
-        with unittest.mock.patch.object(bintool.Bintool, 'run_cmd',
-                                        new=fake_cst_run_cmd):
+        return unittest.mock.patch.object(bintool.Bintool, 'run_cmd',
+                                          new=fake_cst_run_cmd)
+
+    def testNxpImx8mCSTSigned(self):
+        """Test CST-signing-success path with mocked cst invocation"""
+        ivt_data = struct.pack('<I', 0x412000d1)
+        ivt_data += b'\x00' * 20
+        ivt_data += struct.pack('<I', 0)
+        ivt_data += b'\x00' * 36
+        self._MakeInputFile('imx8m-ivt.bin', ivt_data)
+
+        with self._MockCstRunCmd():
             self._DoTestFile('vendor/nxp_imx8_csf.dts')
 
     def testNxpImx8mCSTSrkIndex(self):
@@ -8266,6 +8273,102 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                 bintool.Bintool, 'build_from_git', return_value=('cst', None)):
             result = cst.fetch(bintool.FETCH_BUILD)
             self.assertEqual(('cst', None), result)
+
+    def _MakeImx93SplContainer(self, offset=0):
+        """Create a fake AHAB image containing an SPL container
+
+        The SPL container header tag is placed at the given offset, and the
+        returned buffer is large enough to also cover the signature block
+        referenced by that header. The image-entry flags hold the A55
+        core/type (0x23) as their low byte.
+
+        Args:
+            offset: Offset of the SPL container header. Use
+                nxp_imx93cst.SPL_CONTAINER_OFFSET to build an image which
+                starts with the ELE FW instead.
+
+        Returns:
+            bytes: Fake AHAB image data
+        """
+        data = bytearray(offset + 0x100)
+        data[offset + 3] = nxp_imx93cst.CONTAINER_HDR_TAG
+        data[offset + 12:offset + 14] = struct.pack('<H', 0x90)
+        data[offset + 40:offset + 44] = struct.pack('<I', 0x123)
+        return bytes(data)
+
+    def testNxpImx93cstNormal(self):
+        """Test CST signing with an i.MX93 SPL container (no ELE FW)"""
+        self._MakeInputFile('imx93-container.bin',
+                            self._MakeImx93SplContainer())
+
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx93_csf.dts',
+                             force_missing_bintools='cst')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
+
+        cfg = tools.read_file(tools.get_output_filename(
+            'nxp.csf-config-txt.nxp-imx93cst'), binary=False)
+        self.assertIn('Offsets = 0x0 0x90', cfg)
+
+    def testNxpImx93cstELE(self):
+        """Test CST signing where the SPL container starts with the ELE FW"""
+        # Create a fake AHAB image starting with the NXP-signed ELE
+        # container. The low byte of the first image entry flags (0x66) is
+        # the ELE core/type, so the SPL container header starts at
+        # SPL_CONTAINER_OFFSET and the signature block is covered too.
+        ele_data = bytearray(self._MakeImx93SplContainer(
+            nxp_imx93cst.SPL_CONTAINER_OFFSET))
+        ele_data[3] = nxp_imx93cst.CONTAINER_HDR_TAG
+        ele_data[40:44] = struct.pack('<I', 0x866)
+        self._MakeInputFile('imx93-container.bin', bytes(ele_data))
+
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx93_csf.dts',
+                             force_missing_bintools='cst')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
+
+        cfg = tools.read_file(tools.get_output_filename(
+            'nxp.csf-config-txt.nxp-imx93cst'), binary=False)
+        self.assertIn('Offsets = 0x400 0x490', cfg)
+
+    def testNxpImx93cstUnknownTag(self):
+        """Test CST with unknown input tag passes data through"""
+        # Trigger the pass-through path using an input without the AHAB
+        # container tag
+        data = b'\x00' * 64
+        self._MakeInputFile('imx93-container.bin', data)
+        self._DoTestFile('vendor/nxp_imx93_csf.dts',
+                         force_missing_bintools='cst')
+
+        # The pass-through branch returns the input data unchanged, so the
+        # produced image must be exactly the 64 zero bytes
+        out = tools.read_file(tools.get_output_filename('image.bin'))
+        self.assertEqual(out, b'\x00' * 64)
+
+    def testNxpImx93cstSigned(self):
+        """Test CST-signing-success path with mocked cst invocation"""
+        self._MakeInputFile('imx93-container.bin',
+                            self._MakeImx93SplContainer())
+
+        with self._MockCstRunCmd():
+            data = self._DoReadFile('vendor/nxp_imx93_csf.dts')
+
+        # The output must be the fake 32-byte CST blob produced by cst
+        self.assertEqual(data, b'\x00' * 32)
+
+    def testNxpImx93cstShortInput(self):
+        """Test BuildSectionData() passes a too-short input through"""
+        # The input is too short to hold the container header fields read by
+        # BuildSectionData(), so it must be passed through unchanged
+        data = b'\x00' * 32
+        self._MakeInputFile('imx93-container.bin', data)
+        self._DoTestFile('vendor/nxp_imx93_csf.dts',
+                         force_missing_bintools='cst')
+
+        out = tools.read_file(tools.get_output_filename('image.bin'))
+        self.assertEqual(out, data)
 
     def testNxpImx8MFSPI(self):
         """Test that binman can produce an iMX8m FSPI image"""

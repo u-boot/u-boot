@@ -48,10 +48,6 @@ NOTE: The "elftosb" tool distributed by Freescale Semiconductor is no
       otherwise continue to section 2). The installation procedure of
       the "elftosb" is outlined below:
 
-Firstly, obtain the elftosb archive from the following location:
-
-	ftp://ftp.denx.de/pub/tools/elftosb-10.12.01.tar.gz
-
 We use a $VER variable here to denote the current version. At the time of
 writing of this document, that is "10.12.01". To obtain the file from command
 line, use:

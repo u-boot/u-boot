@@ -17,6 +17,7 @@
 #include <command.h>
 #include <env.h>
 #include <errno.h>
+#include <fdt_support.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
@@ -43,6 +44,14 @@
 				 (SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT) | \
 				 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT))
 
+#define WIFI_DETECT_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+				 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+				 (SC_PAD_28FDSOI_PS_NONE << PADRING_PULL_SHIFT) | \
+				 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT))
+
+#define PCIEB_PERST_GPIO	"GPIO5_0"
+#define PCIEB_BASE_ADDR		0x5f010000
+
 #define TDX_USER_FUSE_BLOCK1_A	276
 #define TDX_USER_FUSE_BLOCK1_B	277
 #define TDX_USER_FUSE_BLOCK2_A	278
@@ -61,6 +70,10 @@ static iomux_cfg_t pcb_vers_detect[] = {
 static iomux_cfg_t pcb_vers_default[] = {
 	SC_P_MIPI_DSI0_GPIO0_00 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(PCB_VERS_DEFAULT),
 	SC_P_MIPI_DSI0_GPIO0_01 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(PCB_VERS_DEFAULT),
+};
+
+static iomux_cfg_t wifi_detect_pads[] = {
+	SC_P_PCIE_CTRL1_PERST_B | MUX_MODE_ALT(3) | MUX_PAD_CTRL(WIFI_DETECT_PAD_CTRL),
 };
 
 static iomux_cfg_t uart1_pads[] = {
@@ -290,9 +303,51 @@ void reset_cpu(void)
 	} while (1);
 }
 
+/*
+ * The on-module Wi-Fi is assembled only on the WB variants, together with
+ * the 10k pull-down on PCIE_CTRL1_PERST_B, a module input the module never
+ * drives. On the other variants the pad is unconnected. The pad is driven
+ * high, released and read right away: an unconnected pad keeps its charge
+ * (leakage is below 1 uA), with the pull-down it is low within
+ * nanoseconds.
+ */
+static bool apalis_imx8_has_wifi(void)
+{
+	struct gpio_desc perst;
+	int val;
+
+	if (dm_gpio_lookup_name(PCIEB_PERST_GPIO, &perst))
+		return true;
+
+	if (dm_gpio_request(&perst, "Wi-Fi detection on PCIE_CTRL1_PERST_B"))
+		return true;
+
+	imx8_iomux_setup_multiple_pads(wifi_detect_pads,
+				       ARRAY_SIZE(wifi_detect_pads));
+
+	dm_gpio_set_dir_flags(&perst, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	udelay(10);
+	dm_gpio_set_dir_flags(&perst, GPIOD_IS_IN);
+	udelay(2);
+	val = dm_gpio_get_value(&perst);
+
+	dm_gpio_free(perst.dev, &perst);
+
+	return val != 1;
+}
+
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	int off;
+
+	if (!apalis_imx8_has_wifi()) {
+		off = fdt_node_offset_by_compat_reg(blob, "fsl,imx8q-pcie",
+						    PCIEB_BASE_ADDR);
+		if (off >= 0)
+			fdt_status_disabled(blob, off);
+	}
+
 	return ft_common_board_setup(blob, bd);
 }
 #endif

@@ -10,6 +10,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <div64.h>
+#include <dm/read.h>
 #include <errno.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -852,9 +853,11 @@ static int imx8mp_eqos_interface_init(struct udevice *dev,
 		break;
 	case PHY_INTERFACE_MODE_RMII:
 		setbits_le32(&gpr->gpr[1],
-			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_TX_CLK_SEL |
 			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_GEN_EN |
 			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_RMII);
+		if (!dev_read_bool(dev, "snps,rmii_refclk_ext"))
+			setbits_le32(&gpr->gpr[1],
+				     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_TX_CLK_SEL);
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
