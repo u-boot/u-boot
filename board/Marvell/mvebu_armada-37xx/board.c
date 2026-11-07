@@ -4,6 +4,7 @@
  */
 
 #include <config.h>
+#include <ahci.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <env.h>
@@ -190,7 +191,7 @@ int board_late_init(void)
 #endif
 
 /* Board specific AHCI / SATA enable code */
-int board_ahci_enable(void)
+int board_ahci_enable(struct udevice *ahci_dev)
 {
 	struct udevice *dev;
 	int ret;

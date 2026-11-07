@@ -3,6 +3,7 @@
  * Copyright (C) 2020-2022 Marvell International Ltd.
  */
 
+#include <ahci.h>
 #include <dm.h>
 #include <dm/uclass.h>
 #include <env.h>
@@ -457,7 +458,7 @@ int arch_misc_init(void)
 	return 0;
 }
 
-int board_ahci_enable(void)
+int board_ahci_enable(struct udevice *dev)
 {
 	cvmx_sata_uctl_shim_cfg_t shim_cfg;
 

@@ -278,4 +278,14 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base);
  */
 int ahci_probe_scsi_pci(struct udevice *ahci_dev);
 
+/**
+ * board_ahci_enable() - board specific setup of an AHCI controller
+ *
+ * Called by the generic AHCI driver before it probes each controller.
+ *
+ * @ahci_dev: AHCI controller being probed
+ * Return: 0 if OK, -ve on error
+ */
+int board_ahci_enable(struct udevice *ahci_dev);
+
 #endif
