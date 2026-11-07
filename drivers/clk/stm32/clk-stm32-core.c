@@ -168,17 +168,16 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 
 static ulong stm32_clk_set_rate(struct clk *clk, unsigned long clk_rate)
 {
-	const struct clk_ops *ops;
 	struct clk *c = NULL;
 
 	if (!clk->id || clk_get_by_id(clk->id, &c))
 		return -ENOENT;
 
-	ops = clk_dev_ops(c->dev);
-	if (!ops->set_rate)
-		return -ENOSYS;
-
-	return ops->set_rate(c, clk_rate);
+	/*
+	 * Let the clk framework handle CLK_SET_RATE_PARENT propagation for
+	 * gate clocks that do not implement set_rate directly.
+	 */
+	return clk_set_rate(c, clk_rate);
 }
 
 const struct clk_ops stm32_clk_ops = {
