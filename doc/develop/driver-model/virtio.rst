@@ -78,8 +78,18 @@ Requirements
 ------------
 It is required that QEMU v2.5.0+ should be used to test U-Boot VirtIO support
 on QEMU ARM and x86, and v2.12.0+ on QEMU RISC-V.
+
+VirtIO RTC
+----------
 The VirtIO RTC device (``-device virtio-rtc-pci`` or
 ``-device virtio-rtc-device``) requires QEMU v11.1.0+.
+
+The ``date`` command only uses RTC sequence 0. The QEMU ARM, RISC-V and x86
+machines also have a PL031, Goldfish or MC146818 RTC, which gets sequence 0,
+so ``date`` reads the VirtIO RTC only if ``CONFIG_RTC_PL031``,
+``CONFIG_RTC_GOLDFISH`` or ``CONFIG_RTC_MC146818`` is disabled.
+``dm uclass rtc`` shows the sequence numbers. ``rtc dev`` does not help, as
+``rtc read`` reads raw registers, which the VirtIO RTC does not have.
 
 Testing
 -------
