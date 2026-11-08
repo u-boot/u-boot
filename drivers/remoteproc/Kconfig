@@ -9,14 +9,15 @@ menu "Remote Processor drivers"
 # REMOTEPROC gets selected by drivers as needed
 # All users should depend on DM
 config REMOTEPROC
-	bool
+	bool "Support for Remote Processor subsystem"
 	depends on DM
 
 # Please keep the configuration alphabetically sorted.
 
+if REMOTEPROC
+
 config K3_SYSTEM_CONTROLLER
 	bool "Support for TI' K3 System Controller"
-	select REMOTEPROC
 	depends on DM
 	depends on ARCH_K3
 	depends on OF_CONTROL
@@ -25,7 +26,6 @@ config K3_SYSTEM_CONTROLLER
 
 config REMOTEPROC_ADI_SC5XX
 	bool "Support for ADI SC5xx SHARC cores"
-	select REMOTEPROC
 	depends on DM
 	depends on ARCH_SC5XX
 	depends on SYSCON
@@ -35,14 +35,12 @@ config REMOTEPROC_ADI_SC5XX
 
 config REMOTEPROC_IMX
 	bool "Support for NXP i.MX remoteproc"
-	select REMOTEPROC
 	depends on DM && MACH_IMX && OF_CONTROL
 	help
 	  Say 'y' here to add support for i.MX remoteproc.
 
 config REMOTEPROC_RENESAS_APMU
 	bool "Support for Renesas R-Car Gen4 APMU start of CR52 processor"
-	select REMOTEPROC
 	depends on ARCH_RENESAS && RCAR_GEN4 && DM && OF_CONTROL
 	help
 	  Say 'y' here to add support for Renesas R-Car Gen4 Cortex-R52
@@ -50,7 +48,6 @@ config REMOTEPROC_RENESAS_APMU
 
 config REMOTEPROC_RENESAS_RSIP
 	bool "Support for Renesas R-Car Gen5 RSIP start of SCP/CR52/CA720 processors"
-	select REMOTEPROC
 	depends on ARCH_RENESAS && RCAR_GEN5 && DM && OF_CONTROL
 	help
 	  Say 'y' here to add support for Renesas R-Car Gen5 RSIP
@@ -59,7 +56,6 @@ config REMOTEPROC_RENESAS_RSIP
 
 config REMOTEPROC_SANDBOX
 	bool "Support for Test processor for Sandbox"
-	select REMOTEPROC
 	depends on DM
 	depends on SANDBOX
 	help
@@ -68,7 +64,6 @@ config REMOTEPROC_SANDBOX
 
 config REMOTEPROC_STM32_COPRO
 	bool "Support for STM32 coprocessor"
-	select REMOTEPROC
 	depends on DM
 	depends on ARCH_STM32MP
 	depends on OF_CONTROL
@@ -78,7 +73,6 @@ config REMOTEPROC_STM32_COPRO
 
 config REMOTEPROC_TI_K3_ARM64
 	bool "Support for TI's K3 based ARM64 remoteproc driver"
-	select REMOTEPROC
 	depends on DM
 	depends on ARCH_K3
 	depends on OF_CONTROL
@@ -90,7 +84,6 @@ config REMOTEPROC_TI_K3_ARM64
 
 config REMOTEPROC_TI_K3_DSP
 	bool "TI K3 C66 and C71 remoteproc support"
-	select REMOTEPROC
 	depends on ARCH_K3
 	depends on TI_SCI_PROTOCOL
 	help
@@ -100,7 +93,6 @@ config REMOTEPROC_TI_K3_DSP
 
 config REMOTEPROC_TI_K3_M4F
 	bool "TI K3 M4F remoteproc support"
-	select REMOTEPROC
 	depends on ARCH_K3
 	depends on TI_SCI_PROTOCOL
 	help
@@ -110,7 +102,6 @@ config REMOTEPROC_TI_K3_M4F
 
 config REMOTEPROC_TI_K3_HSM_M4F
 	bool "TI K3 HSM M4F remoteproc support"
-	select REMOTEPROC
 	depends on ARCH_K3
 	depends on TI_SCI_PROTOCOL
 	help
@@ -120,7 +111,6 @@ config REMOTEPROC_TI_K3_HSM_M4F
 
 config REMOTEPROC_TI_K3_R5F
 	bool "TI K3 R5F remoteproc support"
-	select REMOTEPROC
 	depends on ARCH_K3
 	depends on TI_SCI_PROTOCOL
 	help
@@ -130,7 +120,6 @@ config REMOTEPROC_TI_K3_R5F
 
 config REMOTEPROC_TI_POWER
 	bool "Support for TI Power processor"
-	select REMOTEPROC
 	depends on DM
 	depends on ARCH_KEYSTONE
 	depends on OF_CONTROL
@@ -140,7 +129,6 @@ config REMOTEPROC_TI_POWER
 
 config REMOTEPROC_TI_PRU
 	bool "Support for TI's K3 based PRU remoteproc driver"
-	select REMOTEPROC
 	depends on DM
 	depends on TI_PRUSS
 	depends on ARCH_K3
@@ -150,7 +138,6 @@ config REMOTEPROC_TI_PRU
 
 config REMOTEPROC_TI_IPU
 	bool "Support for TI's K3 based IPU remoteproc driver"
-	select REMOTEPROC
 	depends on ARCH_K3
 	depends on DM
 	depends on SPL_DRIVERS_MISC
@@ -161,10 +148,11 @@ config REMOTEPROC_TI_IPU
 
 config REMOTEPROC_MAX_FW_SIZE
 	hex "Maximum size of firmware file that needs to be loaded to the remote processor"
-	depends on REMOTEPROC
 	default 0x10000
 	help
 	  Maximum size of the firmware file (elf, binary) that needs to be
 	  loaded to the remote processor.
+
+endif
 
 endmenu
