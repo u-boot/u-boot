@@ -233,22 +233,10 @@ static int _lpuart_serial_init(struct udevice *dev)
 	return 0;
 }
 
-static void _lpuart32_serial_setbrg_7ulp(struct udevice *dev,
-					 int baudrate)
+static void lpuart32_set_baud_7ulp(struct lpuart_fsl_reg32 *base, u32 clk,
+				   int baudrate)
 {
-	struct lpuart_serial_plat *plat = dev_get_plat(dev);
-	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 sbr, osr, baud_diff, tmp_osr, tmp_sbr, tmp_diff, tmp;
-	u32 clk;
-	int ret;
-
-	if (CONFIG_IS_ENABLED(CLK)) {
-		ret = get_lpuart_clk_rate(dev, &clk);
-		if (ret)
-			return;
-	} else {
-		clk = get_lpuart_clk();
-	}
 
 	baud_diff = baudrate;
 	osr = 0;
@@ -300,6 +288,25 @@ static void _lpuart32_serial_setbrg_7ulp(struct udevice *dev,
 	tmp &= ~(LPUART_BAUD_M10_MASK | LPUART_BAUD_SBNS_MASK);
 
 	out_le32(&base->baud, tmp);
+}
+
+static void _lpuart32_serial_setbrg_7ulp(struct udevice *dev,
+					 int baudrate)
+{
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
+	struct lpuart_fsl_reg32 *base = plat->reg;
+	u32 clk;
+	int ret;
+
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = get_lpuart_clk_rate(dev, &clk);
+		if (ret)
+			return;
+	} else {
+		clk = get_lpuart_clk();
+	}
+
+	lpuart32_set_baud_7ulp(base, clk, baudrate);
 }
 
 static void _lpuart32_serial_setbrg(struct udevice *dev,
@@ -582,3 +589,38 @@ U_BOOT_DRIVER(serial_lpuart) = {
 	.probe = lpuart_serial_probe,
 	.ops	= &lpuart_serial_ops,
 };
+
+#ifdef CONFIG_DEBUG_UART_LPUART
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+	struct lpuart_fsl_reg32 *base =
+		(struct lpuart_fsl_reg32 *)CONFIG_VAL(DEBUG_UART_BASE);
+
+	if (IS_ENABLED(CONFIG_DEBUG_UART_SKIP_INIT))
+		return;
+
+	out_le32(&base->ctrl, 0);
+	lpuart32_set_baud_7ulp(base, CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
+	out_le32(&base->ctrl, CTRL_RE | CTRL_TE);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct lpuart_fsl_reg32 *base =
+		(struct lpuart_fsl_reg32 *)CONFIG_VAL(DEBUG_UART_BASE);
+
+	if (!(in_le32(&base->ctrl) & CTRL_TE))
+		return;
+
+	while (!(in_le32(&base->stat) & STAT_TDRE))
+		schedule();
+
+	out_le32(&base->data, ch);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
