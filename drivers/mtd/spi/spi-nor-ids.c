@@ -731,3 +731,25 @@ const struct flash_info spi_nor_ids[] = {
 #endif
 	{ },
 };
+
+const struct spi_nor_manufacturer *manufacturers[] = {
+	NULL /* sentinel */
+};
+
+const struct flash_info *spi_nor_match_id(struct spi_nor *nor, const u8 *id)
+{
+	const struct flash_info *part;
+	unsigned int i, j;
+
+	for (i = 0; manufacturers[i]; i++) {
+		for (j = 0; j < manufacturers[i]->nparts; j++) {
+			part = &manufacturers[i]->parts[j];
+			if (!memcmp(part->id, id, part->id_len)) {
+				nor->manufacturer = manufacturers[i];
+				return part;
+			}
+		}
+	}
+
+	return NULL;
+}
