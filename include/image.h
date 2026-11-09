@@ -722,12 +722,18 @@ int boot_get_setup_fit(struct bootm_headers *images, uint8_t arch,
  * @param arch		Expected architecture (IH_ARCH_...)
  * @param datap		Returns address of loaded image
  * @param lenp		Returns length of loaded image
+ * @param caller_must_free_datap
+ *			Returns true if the caller owns the allocated result;
+ *			false on error. When true, the caller must release it with
+ *			free(map_sysmem(*datap, *lenp)) after use. May be NULL if
+ *			ownership information is not needed.
  *
  * Return: node offset of base image, or -ve error code on error
  */
 int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 		     const char **fit_unamep, const char **fit_uname_configp,
-		     int arch, ulong *datap, ulong *lenp);
+		     int arch, ulong *datap, ulong *lenp,
+		     bool *caller_must_free_datap);
 
 /**
  * fit_image_load() - load an image from a FIT
