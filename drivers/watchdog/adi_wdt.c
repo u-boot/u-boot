@@ -14,6 +14,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <wdt.h>
+#include <dm/device_compat.h>
 #include <linux/delay.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
@@ -36,6 +37,7 @@ struct adi_wdt_priv {
 	void __iomem *rcu_base;
 	void __iomem *sec_base;
 	void __iomem *wdt_base;
+	u32 secid;
 	struct clk clock;
 };
 
@@ -72,7 +74,7 @@ static int adi_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	iowrite32(0xc1, priv->sec_base + SEC_FCTL);
 
 	/* enable SEC fault source for watchdog0 */
-	setbits_32(priv->sec_base + SEC_SCTL0 + (3*8), 0x6);
+	setbits_32(priv->sec_base + SEC_SCTL0 + (priv->secid * 8), 0x6);
 
 	/* Enable SYSCD_RESETb input */
 	iowrite32(0x100, priv->rcu_base + RCU_CTL);
@@ -110,6 +112,12 @@ static int adi_wdt_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 	priv->wdt_base = devm_ioremap(dev, res.start, resource_size(&res));
+
+	ret = dev_read_u32(dev, "adi,secid", &priv->secid);
+	if (ret) {
+		dev_err(dev, "Missing property 'adi,secid'\n");
+		return ret;
+	}
 
 	ret = clk_get_by_name(dev, "sclk0", &priv->clock);
 	if (ret < 0) {

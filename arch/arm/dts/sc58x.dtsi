@@ -158,6 +158,7 @@
 
 &wdog {
 	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+	adi,secid = <3>;
 };
 
 &eth0 {
