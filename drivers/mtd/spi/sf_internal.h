@@ -203,6 +203,12 @@ static inline int spi_nor_parse_sfdp(struct spi_nor *nor,
 #endif
 
 #if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+int write_enable(struct spi_nor *nor);
+int set_4byte(struct spi_nor *nor, const struct flash_info *info, int enable);
+int spi_nor_sr_ready(struct spi_nor *nor);
+int spi_nor_wait_till_ready(struct spi_nor *nor);
+int spi_nor_read_write_reg(struct spi_nor *nor, struct spi_mem_op *op,
+			   void *buf);
 void spi_nor_set_read_settings(struct spi_nor_read_command *read,
 			       u8 num_mode_clocks,
 			       u8 num_wait_states,
@@ -212,6 +218,10 @@ int spansion_read_cr_quad_enable(struct spi_nor *nor);
 int macronix_quad_enable(struct spi_nor *nor);
 #endif
 
+void spi_nor_set_pp_settings(struct spi_nor_pp_command *pp, u8 opcode,
+			     enum spi_nor_protocol proto);
+int spi_nor_default_setup(struct spi_nor *nor, const struct flash_info *info,
+			  const struct spi_nor_flash_parameter *params);
 int spi_nor_hwcaps_read2cmd(u32 hwcaps);
 int spansion_no_read_cr_quad_enable(struct spi_nor *nor);
 
