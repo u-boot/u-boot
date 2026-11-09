@@ -14,6 +14,7 @@ ifeq ($(CONFIG_$(PHASE_)SPI_FLASH_TINY),y)
 spi-nor-y += spi-nor-tiny.o
 else
 spi-nor-y += spi-nor-core.o
+spi-nor-$(CONFIG_SPI_FLASH_SFDP_SUPPORT) += sfdp.o
 endif
 
 obj-$(CONFIG_SPI_FLASH) += spi-nor.o

@@ -13,8 +13,34 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+#include "sfdp.h"
+
 #define SPI_NOR_MAX_ID_LEN	6
 #define SPI_NOR_MAX_ADDR_WIDTH	4
+
+/**
+ * struct spi_nor_fixups - SPI NOR fixup hooks
+ * @post_bfpt: called after the BFPT table has been parsed
+ * @post_sfdp: called after SFDP has been parsed. Typically used to tweak
+ *             various parameters that could not be extracted by other means
+ *             (i.e. when information provided by the SFDP tables are incomplete
+ *             or wrong).
+ * @late_init: used to initialize flash parameters that are not declared in the
+ *             JESD216 SFDP standard, or where SFDP tables not defined at all.
+ *
+ * Those hooks can be used to tweak the SPI NOR configuration when the SFDP
+ * table is broken or not available.
+ */
+struct spi_nor_fixups {
+	int (*post_bfpt)(struct spi_nor *nor,
+			 const struct sfdp_parameter_header *bfpt_header,
+			 const struct sfdp_bfpt *bfpt,
+			 struct spi_nor_flash_parameter *params);
+	void (*post_sfdp)(struct spi_nor *nor,
+			  struct spi_nor_flash_parameter *params);
+	void (*late_init)(struct spi_nor *nor,
+			  struct spi_nor_flash_parameter *params);
+};
 
 struct flash_info {
 #if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
@@ -92,5 +118,29 @@ static inline void spi_flash_mtd_unregister(struct spi_flash *flash)
 {
 }
 #endif
+
+#if CONFIG_IS_ENABLED(SPI_FLASH_SFDP_SUPPORT)
+int spi_nor_parse_sfdp(struct spi_nor *nor,
+		       struct spi_nor_flash_parameter *params);
+#else
+static inline int spi_nor_parse_sfdp(struct spi_nor *nor,
+				     struct spi_nor_flash_parameter *params)
+{
+	return -EINVAL;
+}
+#endif
+
+#if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+void spi_nor_set_read_settings(struct spi_nor_read_command *read,
+			       u8 num_mode_clocks,
+			       u8 num_wait_states,
+			       u8 opcode,
+			       enum spi_nor_protocol proto);
+int spansion_read_cr_quad_enable(struct spi_nor *nor);
+int macronix_quad_enable(struct spi_nor *nor);
+#endif
+
+int spi_nor_hwcaps_read2cmd(u32 hwcaps);
+int spansion_no_read_cr_quad_enable(struct spi_nor *nor);
 
 #endif /* _SF_INTERNAL_H_ */
