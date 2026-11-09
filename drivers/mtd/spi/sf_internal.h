@@ -97,6 +97,45 @@ struct flash_info {
 #define SPI_NOR_OCTAL_DTR_READ	BIT(17)	/* Flash supports Octal DTR Read */
 };
 
+/* Exclude chip names for SPL to save space */
+#if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+#define INFO_NAME(_name) .name = _name,
+#else
+#define INFO_NAME(_name)
+#endif
+
+/* Used when the "_ext_id" is two bytes at most */
+#define INFO(_name, _jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
+		INFO_NAME(_name)					\
+		.id = {							\
+			((_jedec_id) >> 16) & 0xff,			\
+			((_jedec_id) >> 8) & 0xff,			\
+			(_jedec_id) & 0xff,				\
+			((_ext_id) >> 8) & 0xff,			\
+			(_ext_id) & 0xff,				\
+			},						\
+		.id_len = (!(_jedec_id) ? 0 : (3 + ((_ext_id) ? 2 : 0))),	\
+		.sector_size = (_sector_size),				\
+		.n_sectors = (_n_sectors),				\
+		.page_size = 256,					\
+		.flags = (_flags),
+
+#define INFO6(_name, _jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
+		INFO_NAME(_name)					\
+		.id = {							\
+			((_jedec_id) >> 16) & 0xff,			\
+			((_jedec_id) >> 8) & 0xff,			\
+			(_jedec_id) & 0xff,				\
+			((_ext_id) >> 16) & 0xff,			\
+			((_ext_id) >> 8) & 0xff,			\
+			(_ext_id) & 0xff,				\
+			},						\
+		.id_len = 6,						\
+		.sector_size = (_sector_size),				\
+		.n_sectors = (_n_sectors),				\
+		.page_size = 256,					\
+		.flags = (_flags),
+
 /**
  * struct spi_nor_manufacturer - SPI NOR manufacturer object
  * @parts: array of parts supported by this manufacturer
@@ -114,7 +153,23 @@ struct spi_nor_manufacturer {
 };
 
 extern const struct spi_nor_manufacturer *manufacturers[];
-extern const struct flash_info spi_nor_ids[];
+extern const struct spi_nor_manufacturer spi_nor_atmel;
+extern const struct spi_nor_manufacturer spi_nor_dosilicon;
+extern const struct spi_nor_manufacturer spi_nor_eon;
+extern const struct spi_nor_manufacturer spi_nor_fujitsu;
+extern const struct spi_nor_manufacturer spi_nor_gigadevice;
+extern const struct spi_nor_manufacturer spi_nor_issi;
+extern const struct spi_nor_manufacturer spi_nor_macronix;
+extern const struct spi_nor_manufacturer spi_nor_puya;
+extern const struct spi_nor_manufacturer spi_nor_siliconkaiser;
+extern const struct spi_nor_manufacturer spi_nor_micron;
+extern const struct spi_nor_manufacturer spi_nor_st;
+extern const struct spi_nor_manufacturer spi_nor_spansion;
+extern const struct spi_nor_manufacturer spi_nor_sst;
+extern const struct spi_nor_manufacturer spi_nor_winbond;
+extern const struct spi_nor_manufacturer spi_nor_xmc;
+extern const struct spi_nor_manufacturer spi_nor_xtx;
+extern const struct spi_nor_manufacturer spi_nor_zbit;
 
 #define JEDEC_MFR(info)	((info)->id[0])
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
