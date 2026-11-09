@@ -2695,7 +2695,7 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	void *ovcopy = NULL;
 	void *base_buf = NULL;
 	ulong base_buf_size = 0;
-	int i, err, noffset, ov_noffset;
+	int i, err, ov_noffset;
 #endif
 
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
@@ -2772,9 +2772,8 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	/* apply extra configs in FIT first, followed by args */
 	for (i = 1; ; i++) {
 		if (i < count) {
-			noffset = fit_conf_get_prop_node_index(fit, cfg_noffset,
-							       FIT_FDT_PROP, i);
-			uname = fit_get_name(fit, noffset, NULL);
+			uname = fdt_stringlist_get(fit, cfg_noffset,
+						   FIT_FDT_PROP, i, NULL);
 			uconfig = NULL;
 		} else {
 			if (!next_config)
@@ -2806,8 +2805,9 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 			BOOTSTAGE_ID_FIT_FDT_START,
 			FIT_LOAD_IGNORED, &ovload, &ovlen);
 		if (ov_noffset < 0) {
-			printf("load of %s failed\n", uname);
-			continue;
+			printf("load of %s failed\n", uname ? uname : uconfig);
+			fdt_noffset = ov_noffset;
+			goto out;
 		}
 		debug("%s loaded at 0x%08lx len=0x%08lx\n",
 				uname, ovload, ovlen);

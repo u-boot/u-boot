@@ -397,6 +397,66 @@ class TestFitImage:
         self.check_not_equal(params, 'ramdisk', 'ramdisk_out',
                              'Ramdisk loaded but should not be')
 
+    @pytest.mark.buildconfigspec('cmd_bootm')
+    @pytest.mark.buildconfigspec('cmd_fdt')
+    @pytest.mark.buildconfigspec('of_libfdt_overlay')
+    @pytest.mark.requiredtool('fdtput')
+    @pytest.mark.parametrize('overlay_state', ['valid', 'bad-hash', 'missing'])
+    def test_fit_overlay_load(self, ubman, fsetup, overlay_state):
+        """bootm must not skip a listed overlay that fails to load or verify"""
+        overlay_dts = '''
+/dts-v1/;
+/plugin/;
+
+&{/} {
+        test-overlay = "applied";
+};
+'''
+        overlay_image = '''
+                overlay-1 {
+                        data = /incbin/("%(overlay)s");
+                        type = "flat_dt";
+                        arch = "sandbox";
+                        compression = "none";
+                        hash-1 {
+                                algo = "sha256";
+                        };
+                };
+'''
+        params = dict(fsetup, overlay=fit_util.make_dtb(
+            ubman, overlay_dts, 'bootm-overlay'))
+        its = BASE_ITS.replace('        images {',
+                               '        images {' + overlay_image)
+        its = its.replace('fdt = "fdt-1";', 'fdt = "fdt-1", "overlay-1";')
+        fit = fit_util.make_fit(ubman, params['mkimage'], its, params,
+                                basename=f'bootm-overlay-{overlay_state}.fit')
+        if overlay_state == 'bad-hash':
+            utils.run_and_log(ubman, [
+                'fdtput', '-t', 'x', fit, '/images/overlay-1/hash-1',
+                'value', *(['0'] * 8)])
+        elif overlay_state == 'missing':
+            utils.run_and_log(ubman, ['fdtput', '-r', fit, '/images/overlay-1'])
+
+        try:
+            ubman.run_command('setenv verify yes')
+            output = ubman.run_command(
+                f'host load hostfs 0 {params["fit_addr"]:x} {fit}')
+            assert 'bytes read' in output
+            output = ubman.run_command(
+                f'bootm start {params["fit_addr"]:x}#conf-1; echo rc=$?')
+            if overlay_state == 'valid':
+                assert output.rstrip().endswith('rc=0'), output
+                assert 'test-overlay = "applied"' in ubman.run_command(
+                    'fdt print / test-overlay')
+            else:
+                assert output.rstrip().endswith('rc=1'), output
+                assert 'load of overlay-1 failed' in output
+                assert 'Booting using the fdt blob' not in output
+                if overlay_state == 'bad-hash':
+                    assert 'Bad hash value' in output
+        finally:
+            ubman.restart_uboot()
+
     def test_fit_kernel_fdt_ramdisk_load(self, ubman, fsetup):
         """Test loading a FIT image with kernel, FDT, and ramdisk"""
         cmds, params, _ = self.prepare(
