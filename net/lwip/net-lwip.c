@@ -22,6 +22,7 @@
 #include <lwip/timeouts.h>
 #include <net.h>
 #include <net/pcap.h>
+#include <net/wol.h>
 #include <timer.h>
 #include <time.h>
 #include <u-boot/schedule.h>
@@ -646,6 +647,9 @@ static int net_lwip_rx(struct udevice *udev, struct netif *netif)
 				print_hex_dump("net_lwip_rx: ", 0, 16, 1,
 					       packet, len, true);
 			}
+
+			if (IS_ENABLED(CONFIG_CMD_WOL))
+				net_lwip_wol_receive(netif, packet, len);
 
 			pbuf = alloc_pbuf_and_copy(packet, len);
 			if (pbuf)

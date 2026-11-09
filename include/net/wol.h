@@ -40,6 +40,11 @@ void wol_save_password(const void *packet, unsigned int len);
 /* Wait for a magic packet; a zero timeout waits until interrupted. */
 int wol_wait(ulong timeout);
 
+struct netif;
+
+/* Observe Ethernet input without taking ownership of the receive buffer. */
+void net_lwip_wol_receive(struct netif *netif, const u8 *packet, int len);
+
 /*
  * Initialize wol (beginning of netloop)
  */

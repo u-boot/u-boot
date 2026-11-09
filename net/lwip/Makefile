@@ -9,6 +9,7 @@ obj-$(CONFIG_PROT_ICMP_LWIP) += icmp_unreach.o
 obj-$(CONFIG_CMD_NFS) += nfs.o
 obj-$(CONFIG_CMD_TFTPBOOT) += tftp.o
 obj-$(CONFIG_WGET) += wget.o
+obj-$(CONFIG_CMD_WOL) += wol.o
 
 ifeq (y,$(CONFIG_WGET_BUILTIN_CACERT))
 $(obj)/builtin_cacert.c: $(CONFIG_WGET_BUILTIN_CACERT_PATH:"%"=%) FORCE

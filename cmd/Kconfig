@@ -2222,11 +2222,6 @@ config IPV6_ROUTER_DISCOVERY
 	  Will automatically perform router solicitation on first IPv6
 	  network operation
 
-config CMD_WOL
-	bool "wol"
-	help
-	  Wait for wake-on-lan Magic Packet
-
 endif  # if NET_LEGACY
 
 config CMD_TFTPPUT
@@ -2266,6 +2261,12 @@ config CMD_ETHSW
 	  by the vsc9953 Ethernet driver at present. Sub-commands allow
 	  operations such as enabling / disabling a port and
 	  viewing/maintaining the filtering database (FDB)
+
+config CMD_WOL
+	bool "wol"
+	help
+	  Wait for a Wake-on-LAN magic packet on the active Ethernet interface.
+	  Accept Ethernet packets and IPv4 UDP packets on ports 0, 7 and 9.
 
 config CMD_MII
 	bool "mii"
