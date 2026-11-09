@@ -2273,6 +2273,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	const void *fit;
 	void *buf;
 	void *loadbuf;
+	bool loadbuf_owned = false;
 	size_t size;
 	int type_ok, os_ok;
 	ulong load, load_end, data, len;
@@ -2508,6 +2509,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			loadbuf = aligned_alloc(8, max_decomp_len);
 			if (!loadbuf)
 				return -ENOMEM;
+			loadbuf_owned = true;
 			load = map_to_sysmem(loadbuf);
 		} else {
 			loadbuf = map_sysmem(load, max_decomp_len);
@@ -2515,7 +2517,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		if (image_decomp(comp, load, data, image_type,
 				loadbuf, buf, len, max_decomp_len, &load_end)) {
 			printf("Error decompressing %s\n", prop_name);
-
+			if (loadbuf_owned)
+				free(loadbuf);
 			return -ENOEXEC;
 		}
 		len = load_end - load;
@@ -2524,6 +2527,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		loadbuf = aligned_alloc(8, len);
 		if (!loadbuf)
 			return -ENOMEM;
+		loadbuf_owned = true;
 		load = map_to_sysmem(loadbuf);
 		memcpy(loadbuf, buf, len);
 	} else if (load != data) {
@@ -2540,6 +2544,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
 	    fdt_check_header(loadbuf)) {
 		puts("Subimage data is not a FDT\n");
+		if (loadbuf_owned)
+			free(loadbuf);
 		return -ENOEXEC;
 	}
 
