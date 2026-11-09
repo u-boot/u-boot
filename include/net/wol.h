@@ -9,8 +9,6 @@
  * Copyright 2018 Lothar Felten, lothar.felten@gmail.com
  */
 
-#if defined(CONFIG_CMD_WOL)
-
 #ifndef __WOL_H__
 #define __WOL_H__
 
@@ -21,7 +19,6 @@
 #define WOL_SYNC_BYTE			0xFF
 #define WOL_SYNC_COUNT			6
 #define WOL_MAC_REPETITIONS		16
-#define WOL_DEFAULT_TIMEOUT		5000
 #define WOL_PASSWORD_4B			4
 #define WOL_PASSWORD_6B			6
 
@@ -31,8 +28,17 @@
 struct wol_hdr {
 	u8	wol_sync[WOL_SYNC_COUNT];			/* sync bytes */
 	u8	wol_dest[WOL_MAC_REPETITIONS * ARP_HLEN];	/* 16x MAC */
-	u8	wol_passwd[0];					/* optional */
+	u8	wol_passwd[];					/* optional */
 };
+
+/* Validate a complete magic packet addressed to @mac. */
+bool wol_check_magic(const void *packet, unsigned int len, const u8 *mac);
+
+/* Save the optional password from an already validated Ethernet packet. */
+void wol_save_password(const void *packet, unsigned int len);
+
+/* Wait for a magic packet; a zero timeout waits until interrupted. */
+int wol_wait(ulong timeout);
 
 /*
  * Initialize wol (beginning of netloop)
@@ -52,14 +58,6 @@ void wol_start(void);
  */
 void wol_receive(struct ip_udp_hdr *ip, unsigned int len);
 
-/*
- * Set the timeout for the reception of a Wake-on-LAN packet
- *
- * @param timeout in milliseconds
- */
-void wol_set_timeout(ulong timeout);
-
 /**********************************************************************/
 
 #endif /* __WOL_H__ */
-#endif

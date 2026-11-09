@@ -117,7 +117,7 @@
 #include "ping.h"
 #include "rarp.h"
 #if defined(CONFIG_CMD_WOL)
-#include "wol.h"
+#include <net/wol.h>
 #endif
 
 /** BOOTP EXTENTIONS **/

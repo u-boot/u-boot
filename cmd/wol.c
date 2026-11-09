@@ -9,18 +9,23 @@
  */
 #include <command.h>
 #include <net.h>
-#include <vsprintf.h>
-
-#if defined(CONFIG_CMD_WOL)
-void wol_set_timeout(ulong);
+#include <net/wol.h>
+#include <linux/ctype.h>
 
 int do_wol(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	ulong timeout = 0;
+	const char *p;
+
 	/* Validate arguments */
-	if (argc < 2)
+	if (argc != 2 || !*argv[1])
 		return CMD_RET_USAGE;
-	wol_set_timeout(simple_strtol(argv[1], NULL, 10) * 1000);
-	if (net_loop(WOL) < 0)
+	for (p = argv[1]; *p; p++) {
+		if (!isdigit(*p) || timeout > (ULONG_MAX / 1000 - (*p - '0')) / 10)
+			return CMD_RET_USAGE;
+		timeout = timeout * 10 + (*p - '0');
+	}
+	if (wol_wait(timeout * 1000) < 0)
 		return CMD_RET_FAILURE;
 	return CMD_RET_SUCCESS;
 }
@@ -30,4 +35,3 @@ U_BOOT_CMD(
 	"wait for an incoming wake-on-lan packet",
 	"Timeout"
 );
-#endif
