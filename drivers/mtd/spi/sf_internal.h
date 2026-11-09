@@ -18,6 +18,8 @@
 #define SPI_NOR_MAX_ID_LEN	6
 #define SPI_NOR_MAX_ADDR_WIDTH	4
 
+#define SPI_NOR_DEFAULT_PAGE_SIZE 256
+
 /**
  * struct spi_nor_fixups - SPI NOR fixup hooks
  * @post_bfpt: called after the BFPT table has been parsed
@@ -61,7 +63,6 @@ struct flash_info {
 	unsigned int	sector_size;
 	u16		n_sectors;
 
-	u16		page_size;
 	u16		addr_width;
 
 	u32		flags;
@@ -117,7 +118,6 @@ struct flash_info {
 		.id_len = (!(_jedec_id) ? 0 : (3 + ((_ext_id) ? 2 : 0))),	\
 		.sector_size = (_sector_size),				\
 		.n_sectors = (_n_sectors),				\
-		.page_size = 256,					\
 		.flags = (_flags),
 
 #define INFO6(_name, _jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
@@ -133,7 +133,6 @@ struct flash_info {
 		.id_len = 6,						\
 		.sector_size = (_sector_size),				\
 		.n_sectors = (_n_sectors),				\
-		.page_size = 256,					\
 		.flags = (_flags),
 
 /**

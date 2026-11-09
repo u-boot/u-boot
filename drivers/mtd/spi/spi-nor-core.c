@@ -2018,7 +2018,7 @@ static int spi_nor_init_params(struct spi_nor *nor,
 	/* Set SPI NOR sizes. */
 	params->writesize = 1;
 	params->size = info->sector_size * info->n_sectors;
-	params->page_size = info->page_size;
+	params->page_size = SPI_NOR_DEFAULT_PAGE_SIZE;
 
 	if (!(info->flags & SPI_NOR_NO_FR)) {
 		/* Default to Fast Read for DT and non-DT platform devices. */
