@@ -157,6 +157,10 @@ obj-$(CONFIG_TEE) += tee.o
 obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_TPM_V2) += tpm.o
 obj-$(CONFIG_DM_USB) += usb.o
+obj-$(CONFIG_CMD_WOL) += wol.o
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_WOL),yy)
+obj-y += lwip_wol.o
+endif
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += video.o
 ifeq ($(CONFIG_VIRTIO_SANDBOX),y)
 obj-y += virtio.o
