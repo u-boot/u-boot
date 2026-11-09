@@ -2506,6 +2506,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		log_debug("decompressing image\n");
 		if (load == data) {
 			loadbuf = aligned_alloc(8, max_decomp_len);
+			if (!loadbuf)
+				return -ENOMEM;
 			load = map_to_sysmem(loadbuf);
 		} else {
 			loadbuf = map_sysmem(load, max_decomp_len);
@@ -2520,6 +2522,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	} else if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
 		   (load & 7)) {
 		loadbuf = aligned_alloc(8, len);
+		if (!loadbuf)
+			return -ENOMEM;
 		load = map_to_sysmem(loadbuf);
 		memcpy(loadbuf, buf, len);
 	} else if (load != data) {
