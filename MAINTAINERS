@@ -1456,7 +1456,7 @@ F:	drivers/power/
 F:	include/power/
 
 POWERPC
-M:	Bradley Morgan <brads@mainlining.org>
+M:	Bradley Morgan <bradley.morgan@linux.dev>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-ppc.git
 F:	arch/powerpc/
