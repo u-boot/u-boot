@@ -378,7 +378,12 @@ class TestFunctional(unittest.TestCase):
     def _HandleCommandCpp(self, args):
         # args ['-nostdinc', '-P', '-I', '/tmp/tmp7f17xk_o/src', '-undef',
         # '-x', 'assembler-with-cpp', fname]
-        fname = args[7]
+        # If 'gcc -E' is defined as the preprocessor then the args list will
+        # have an additional item, '-E', at the beginning which changes the
+        # number of items in the argument list. In order to guarantee picking
+        # up the filename use -1 as the position which will always be the last
+        # item
+        fname = args[-1]
         buf = io.StringIO()
         for line in tools.read_file(fname, False).splitlines():
             if line.startswith('#include'):
@@ -424,7 +429,9 @@ class TestFunctional(unittest.TestCase):
             return self._HandleCommandObjcopy(args)
         elif cmd.endswith( 'size'):
             return self._HandleCommandSize(args)
-        elif cmd.endswith( 'cpp'):
+        elif cmd.endswith('cpp') \
+                or ((cmd.endswith('gcc') or cmd.endswith('clang')) \
+                and ('-E' in pipe_list[0] or '--preprocess' in pipe_list[0])):
             return self._HandleCommandCpp(args)
 
         if not result:

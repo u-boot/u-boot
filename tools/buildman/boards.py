@@ -12,6 +12,7 @@ import glob
 import multiprocessing
 import os
 import re
+import shlex
 import sys
 import tempfile
 import time
@@ -244,8 +245,7 @@ class KconfigScanner:
 
         temp = None
         if b'#include' in tools.read_file(defconfig):
-            cmd = [
-                os.getenv('CPP', 'cpp'),
+            cmd = shlex.split(os.getenv('CPP', 'cpp')) + [
                 '-nostdinc', '-P',
                 '-I', self._srctree,
                 '-undef',
