@@ -588,6 +588,15 @@ config CMD_FDT
 	help
 	  Do FDT related setup before booting into the Operating System.
 
+config CMD_FDT_FIT
+	bool "fdt fit - load the devicetree of a FIT configuration"
+	depends on CMD_FDT && FIT
+	imply OF_LIBFDT_OVERLAY
+	help
+	  Add the 'fdt fit' subcommand, which loads the devicetree of a FIT
+	  configuration, applies the overlays the configuration lists and
+	  copies the result to a given address.
+
 config CMD_EXTENSION
 	bool "Extension board management command"
 	select CMD_FDT
