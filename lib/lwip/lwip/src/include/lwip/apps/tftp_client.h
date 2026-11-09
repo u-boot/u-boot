@@ -44,7 +44,11 @@ enum tftp_transfer_mode {
 };
 
 err_t tftp_init_client(const struct tftp_context* ctx);
+err_t tftp_client_bind(u16_t port);
+err_t tftp_client_set_request_timeout(u32_t timeout_msecs, u32_t max_retries);
 void tftp_client_set_blksize(u16_t blksize);
+void tftp_client_set_tsize(u32_t tsize);
+err_t tftp_client_set_windowsize(u16_t windowsize);
 u32_t tftp_client_get_tsize(void);
 err_t tftp_get(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enum tftp_transfer_mode mode);
 err_t tftp_put(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enum tftp_transfer_mode mode);

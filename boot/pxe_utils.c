@@ -9,6 +9,7 @@
 #include <bootflow.h>
 #include <command.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <extension_board.h>
 #include <image.h>
@@ -536,6 +537,7 @@ int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	int zboot_argc = 3;
 	int len = 0;
 	ulong kernel_addr_r;
+	ulong kernel_size = 0;
 	void *buf;
 
 	label_print(label);
@@ -555,7 +557,8 @@ int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	}
 
 	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",
-				(enum bootflow_img_t)IH_TYPE_KERNEL, NULL)
+				(enum bootflow_img_t)IH_TYPE_KERNEL,
+				&kernel_size)
 				< 0) {
 		printf("Skipping %s for failure retrieving kernel\n",
 		       label->name);
@@ -800,8 +803,21 @@ int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		bootm_argc = 4;
 	}
 
+	/* Run PE-COFF images as EFI applications */
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI) &&
+	    efi_check_pe(buf, kernel_size, NULL) == EFI_SUCCESS) {
+		void *fdt = EFI_FDT_USE_INTERNAL;
+		efi_status_t efi_ret;
+
+		log_debug("using bootefi\n");
+		if (bootm_argv[3])
+			fdt = map_sysmem(hextoul(bootm_argv[3], NULL), 0);
+
+		efi_ret = efi_binary_run(buf, kernel_size, fdt, NULL, 0);
+		if (efi_ret != EFI_SUCCESS)
+			log_err("efi_binary_run failed (ret=%lu)\n", efi_ret);
 	/* Try bootm for legacy and FIT format image */
-	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
+	} else if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
 	    IS_ENABLED(CONFIG_CMD_BOOTM)) {
 		log_debug("using bootm\n");
 		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);

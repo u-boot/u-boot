@@ -44,6 +44,7 @@ struct bootp_test {
 	unsigned int requests;
 	unsigned int bind_after;
 	unsigned int tftp;
+	unsigned int transfer_failures;
 	u32 tftp_server;
 	u32 xid;
 	u16 secs;
@@ -268,6 +269,11 @@ static int bootp_tx(struct udevice *dev, void *packet, unsigned int len)
 		data = (void *)(reply_ip + 1);
 		put_unaligned_be16(test->transfer_fail ? 5 : 3, data);
 		put_unaligned_be16(1, data + 2);
+		if (test->transfer_failures) {
+			put_unaligned_be16(5, data);
+			put_unaligned_be16(3, data + 2);
+			test->transfer_failures--;
+		}
 		data[4] = 'x';
 		data[5] = 0;
 		priv->recv_packet_length[priv->recv_packets++] =
@@ -471,6 +477,24 @@ static int bootp_check(struct unit_test_state *uts, struct bootp_test *test)
 	ut_asserteq(CMD_RET_FAILURE, do_bootp(NULL, 0, 3, argv));
 	ut_assert(!test->port_busy);
 	ut_assertnull(netif_default);
+	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT)) {
+		ut_assertok(env_set("netretry", "once"));
+		for (i = 0; i < 2; i++) {
+			*test = (struct bootp_test){ .transfer_failures = 1 };
+			ut_assertok(env_set("ethact", "eth@10002000"));
+			ut_assertok(env_set("ethrotate", i ? NULL : "no"));
+			ut_assertok(env_set("ipaddr5", NULL));
+			ut_assertok(do_bootp(NULL, 0, 3, argv));
+			ut_asserteq(2, test->requests);
+			ut_asserteq(2, test->tftp);
+			ut_asserteq_str("explicit.bin", test->filename);
+			ut_asserteq_str(i ? "eth@10003000" : "eth@10002000", env_get("ethact"));
+			ut_assert(!test->port_busy);
+			ut_assertnull(netif_default);
+		}
+		ut_assertok(env_set("ethact", "eth@10002000"));
+		ut_assertok(env_set("netretry", "no"));
+	}
 	/*
 	 * Plain and RFC 1048 replies without siaddr retain the configured server,
 	 * but must clear stale TFTP overrides before the download handoff.

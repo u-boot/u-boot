@@ -57,7 +57,7 @@ static inline const char *sntp_format_time(time_t t)
 
 #define sntp_format_time sntp_format_time
 
-#ifdef CONFIG_LWIP_ICMP_SHOW_UNREACH
+#ifdef CONFIG_PROT_ICMP_LWIP
 struct pbuf;
 void net_lwip_icmp_dest_unreach(int code, struct pbuf *p);
 

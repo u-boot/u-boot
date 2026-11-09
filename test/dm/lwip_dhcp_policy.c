@@ -104,6 +104,8 @@ static int dhcp_policy_check(struct unit_test_state *uts, struct dhcp_policy_tes
 	};
 	static const char * const invalid_interval[] = { "0", "32767501", "4294967796" };
 	struct net_lwip_ctx other = {};
+	struct eth_sandbox_priv *priv;
+	struct udevice *dev;
 	char * const argv[] = { "dhcp" };
 	char name[256];
 	char max_timeout[32];
@@ -195,6 +197,23 @@ static int dhcp_policy_check(struct unit_test_state *uts, struct dhcp_policy_tes
 		ut_asserteq_str("eth@10003000", env_get("ethact"));
 		ut_assertnull(netif_default);
 	}
+	/* Runtime restart must retain the wrap signal for BOOTP_MAY_FAIL. */
+	ut_assertok(uclass_get_device(UCLASS_ETH, 1, &dev));
+	priv = dev_get_priv(dev);
+	ut_assertok(env_set("ethact", "eth@10002000"));
+	*test = (struct dhcp_policy_test){
+		.fail_first = true, .bind_after = 1, .ticking = true,
+	};
+	priv->restart_wrap = true;
+	sys_timeout(1, dhcp_policy_tick, test);
+	ret = do_dhcp(NULL, 0, 1, argv);
+	sys_untimeout(dhcp_policy_tick, test);
+	priv->restart_wrap = false;
+	ut_asserteq(IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) ? CMD_RET_FAILURE : CMD_RET_SUCCESS,
+		    ret);
+	ut_asserteq(IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) ? 1 : 2, test->packets);
+	ut_asserteq(1, net_restart_wrap);
+	ut_assertnull(netif_default);
 	ut_assertok(env_set("ethact", "eth@10002000"));
 	ut_assertok(env_set("netretry", "2"));
 	ut_assertok(env_set("ethrotate", "no"));

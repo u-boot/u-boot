@@ -22,9 +22,6 @@ void tftp_start(enum proto_t protocol);	/* Begin TFTP get/put */
 void tftp_start_server(void);	/* Wait for incoming TFTP put */
 #endif
 
-extern ulong tftp_timeout_ms;
-extern int tftp_timeout_count_max;
-
 /**********************************************************************/
 
 #endif /* __TFTP_H__ */

@@ -508,6 +508,7 @@ config FTMAC100
 config FTGMAC100
 	bool "Ftgmac100 Ethernet Support"
 	select PHYLIB
+	select SYSCON
 	depends on NET_LEGACY
 	help
 	  This driver supports the Faraday's FTGMAC100 Gigabit SoC

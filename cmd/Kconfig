@@ -2160,23 +2160,6 @@ config BOOTP_RANDOM_XID
 	  Selecting this will allow for a random transaction ID to get
 	  selected for each BOOTP/DHCPv4 exchange.
 
-config CMD_TFTPPUT
-	bool "tftp put"
-	depends on CMD_TFTPBOOT
-	help
-	  TFTP put command, for uploading files to a server
-
-config NET_TFTP_VARS
-	bool "Control TFTP timeout and count through environment"
-	depends on CMD_TFTPBOOT
-	default y
-	help
-	  If set, allows controlling the TFTP timeout through the
-	  environment variable tftptimeout, and the TFTP maximum
-	  timeout count through the variable tftptimeoutcountmax.
-	  If unset, timeout and maximum are hard-defined as 1 second
-	  and 10 timouts per TFTP transfer.
-
 config CMD_RARP
 	bool "rarpboot"
 	help
@@ -2236,6 +2219,23 @@ config CMD_WOL
 	  Wait for wake-on-lan Magic Packet
 
 endif  # if NET_LEGACY
+
+config CMD_TFTPPUT
+	bool "tftp put"
+	depends on CMD_TFTPBOOT
+	help
+	  Enable the tftpput command for uploading a memory range to a TFTP
+	  server.
+
+config NET_TFTP_VARS
+	bool "Control TFTP transfer options through environment"
+	depends on CMD_TFTPBOOT
+	default y
+	help
+	  Allow tftpblocksize, tftpwindowsize, tftptimeout and
+	  tftptimeoutcountmax to override the TFTP client's compiled-in
+	  block size, receive window, timeout and retry-count defaults.
+	  The receive server uses its compiled-in timeout and retry count.
 
 config CMD_DHCP
 	bool "dhcp"
@@ -2312,6 +2312,7 @@ config CMD_SNTP
 config CMD_TFTPBOOT
 	bool "tftp"
 	select PROT_UDP_LWIP if NET_LWIP
+	select PROT_ICMP_LWIP if NET_LWIP
 	default y
 	help
 	  tftpboot - load file via network using TFTP protocol
@@ -2321,8 +2322,9 @@ config CMD_TFTPSRV
 	depends on CMD_TFTPBOOT
 	help
 	  Act as a TFTP server and receive the first incoming file into
-	  memory. The command returns successfully after the transfer so
-	  boot scripts can boot the received image from the load address.
+	  memory. If autostart is enabled, boot the received image after a
+	  successful nonempty transfer. Otherwise return to the caller so
+	  boot scripts can use the image at the load address.
 
 config CMD_WGET
 	bool "wget"

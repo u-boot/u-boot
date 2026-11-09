@@ -1047,8 +1047,10 @@ config UPDATE_COMMON
 
 config UPDATE_TFTP
 	bool "Auto-update using fitImage via TFTP"
-	depends on FIT && OF_LIBFDT && !MTD_NOR_FLASH
+	depends on FIT && OF_LIBFDT && !MTD_NOR_FLASH && NET
 	select UPDATE_COMMON
+	select CMD_NET
+	select CMD_TFTPBOOT
 	help
 	  This option allows performing update of NOR with data in fitImage
 	  sent via TFTP boot.
@@ -1056,11 +1058,13 @@ config UPDATE_TFTP
 config UPDATE_TFTP_CNT_MAX
 	int "The number of connection retries during auto-update"
 	default 0
+	range 0 2147483647
 	depends on UPDATE_TFTP || DFU_TFTP
 
 config UPDATE_TFTP_MSEC_MAX
 	int "Delay in mSec to wait for the TFTP server during auto-update"
 	default 100
+	range 1 1073741823
 	depends on UPDATE_TFTP || DFU_TFTP
 
 config UPDATE_LOAD_ADDR

@@ -214,7 +214,7 @@ int eth_env_get_enetaddr_by_index(const char *base_name, int index,
  * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				  uchar *enetaddr);
+				  const uchar *enetaddr);
 
 /*
  * Initialize USB ethernet device with CONFIG_DM_ETH
@@ -504,7 +504,8 @@ int net_loop(enum proto_t protocol);
  * dhcp_run() - Run DHCP on the current ethernet device
  *
  * This temporarily sets autoload and restores its exact original value,
- * including NFS and an unset variable.
+ * including NFS and an unset variable. Downloads never automatically boot;
+ * the caller owns the resulting image. The autostart variable is restored.
  *
  * @addr: Address to load the file into (0 if @autoload is false)
  * @fname: Filename of file to load (NULL if @autoload is false or to use the
@@ -527,13 +528,49 @@ int dhcp_run(ulong addr, const char *fname, bool autoload);
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
- * tftpb_run() - Run TFTP on the current ethernet device
+ * tftpb_run() - Download via TFTP without automatically booting the image
  *
  * @addr: Address to load the file into
  * @fname: Filename of file to load (NULL to use the default filename)
  * @return 0 if OK, -ENOENT if ant file was not found
  */
 int tftpb_run(ulong addr, const char *fname);
+
+/**
+ * tftpb_run_argv() - Run TFTP arguments without automatically booting
+ *
+ * Preserves the exact autostart value on success and failure. This form also
+ * supports the legacy command's optional IPv6 argument.
+ *
+ * @argc: Number of command arguments
+ * @argv: Command arguments, including the command name
+ * Return: command status (see enum command_ret_t)
+ */
+int tftpb_run_argv(int argc, char *const argv[]);
+
+/**
+ * tftpb_run_timeout() - Download via TFTP with an initial server-probe timeout
+ *
+ * Normal transfer timeouts apply after the server responds. Suppresses
+ * automatic boot and restores autostart on success and failure. Does not
+ * change the timeout environment variables or the RFC 2349 timeout option.
+ *
+ * @addr: Address to load the file into
+ * @fname: Filename of file to load
+ * @timeout_ms: Initial request timeout in milliseconds, 1..U32_MAX / 4
+ * @max_retries: Maximum number of initial request retransmissions
+ * Return: 0 if successful, otherwise a negative error code
+ */
+int tftpb_run_timeout(ulong addr, const char *fname, ulong timeout_ms,
+		      int max_retries);
+
+struct tftp_request_timeout {
+	ulong msecs;
+	int max_retries;
+};
+
+/* Initial request override for the current synchronous download, or NULL. */
+const struct tftp_request_timeout *tftp_get_request_timeout(void);
 
 /**
  * do_ping - Run the ping command

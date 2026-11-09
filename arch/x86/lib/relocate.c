@@ -52,7 +52,7 @@ int clear_bss(void)
 static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
 				  Elf64_Rela *re_src, Elf64_Rela *re_end)
 {
-	Elf64_Addr *offset_ptr_rom, *last_offset = NULL;
+	Elf64_Addr *offset_ptr_rom;
 	Elf64_Addr *offset_ptr_ram;
 
 	do {
@@ -70,7 +70,7 @@ static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
 
 		/* Check that the location of the relocation is in .text */
 		if (offset_ptr_rom >= (Elf64_Addr *)(uintptr_t)text_base &&
-		    offset_ptr_rom > last_offset) {
+		    offset_ptr_rom < (Elf64_Addr *)(text_base + size)) {
 			/* Switch to the in-RAM version */
 			offset_ptr_ram = (Elf64_Addr *)((ulong)offset_ptr_rom +
 							gd->reloc_off);
@@ -87,11 +87,9 @@ static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
 				      (ulong)*offset_ptr_ram, text_base + size);
 			}
 		} else {
-			debug("   %p: %lx: rom reloc %lx, last %p\n", re_src,
-			      (ulong)re_src->r_info, (ulong)re_src->r_offset,
-			      last_offset);
+			debug("   %p: %lx: rom reloc %lx outside image\n", re_src,
+			      (ulong)re_src->r_info, (ulong)re_src->r_offset);
 		}
-		last_offset = offset_ptr_rom;
 
 	} while (++re_src < re_end);
 }
@@ -99,7 +97,7 @@ static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
 static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 				  Elf32_Rel *re_src, Elf32_Rel *re_end)
 {
-	Elf32_Addr *offset_ptr_rom, *last_offset = NULL;
+	Elf32_Addr *offset_ptr_rom;
 	Elf32_Addr *offset_ptr_ram;
 
 	do {
@@ -117,7 +115,7 @@ static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 
 		/* Check that the location of the relocation is in .text */
 		if (offset_ptr_rom >= (Elf32_Addr *)(uintptr_t)text_base &&
-		    offset_ptr_rom > last_offset) {
+		    offset_ptr_rom < (Elf32_Addr *)(text_base + size)) {
 
 			/* Switch to the in-RAM version */
 			offset_ptr_ram = (Elf32_Addr *)((ulong)offset_ptr_rom +
@@ -133,18 +131,18 @@ static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 				      *offset_ptr_ram, text_base + size);
 			}
 		} else {
-			debug("   %p: rom reloc %x, last %p\n", re_src,
-			       re_src->r_offset, last_offset);
+			debug("   %p: rom reloc %x outside image\n", re_src,
+			      re_src->r_offset);
 		}
-		last_offset = offset_ptr_rom;
 
 	} while (++re_src < re_end);
 }
 #endif
 
 /*
- * This function has more error checking than you might expect. Please see
- * this commit message for more information:
+ * The relocation table can be corrupted by .bss writes before relocation.
+ * Validate types, locations and targets to reject most corrupted entries.
+ * Please see this commit message for more information:
  *    62f7970a x86: Add error checking to x86 relocation code
  */
 int do_elf_reloc_fixups(void)

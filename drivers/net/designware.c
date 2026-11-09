@@ -37,9 +37,8 @@
 #include <asm/arch/gmac.h>
 #endif
 
-static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
+static int __dw_mdio_read(struct dw_eth_dev *priv, int addr, int reg)
 {
-	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	ulong start;
 	u16 miiaddr;
@@ -60,10 +59,8 @@ static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 	return -ETIMEDOUT;
 }
 
-static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
-			u16 val)
+static int __dw_mdio_write(struct dw_eth_dev *priv, int addr, int reg, u16 val)
 {
-	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	ulong start;
 	u16 miiaddr;
@@ -85,6 +82,21 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	};
 
 	return ret;
+}
+
+static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
+
+	return __dw_mdio_read(priv, addr, reg);
+}
+
+static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
+			 u16 val)
+{
+	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
+
+	return __dw_mdio_write(priv, addr, reg, val);
 }
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -140,26 +152,33 @@ static int dw_bb_mdio_reset(struct mii_dev *bus)
 static int designware_eth_mdio_read(struct udevice *mdio_dev, int addr,
 				    int devad, int reg)
 {
-	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
+	/* The MAC has no priv if its probe failed */
+	struct dw_eth_dev *priv = dev_get_priv(mdio_dev->parent);
 
-	return dw_mdio_read(pdata->mii_bus, addr, devad, reg);
+	if (!priv)
+		return -ENODEV;
+
+	return __dw_mdio_read(priv, addr, reg);
 }
 
 static int designware_eth_mdio_write(struct udevice *mdio_dev, int addr,
 				     int devad, int reg, u16 val)
 {
-	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
+	struct dw_eth_dev *priv = dev_get_priv(mdio_dev->parent);
 
-	return dw_mdio_write(pdata->mii_bus, addr, devad, reg, val);
+	if (!priv)
+		return -ENODEV;
+
+	return __dw_mdio_write(priv, addr, reg, val);
 }
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 int designware_eth_mdio_reset(struct udevice *mdio_dev)
 {
-	struct mdio_perdev_priv *mdio_pdata = dev_get_uclass_priv(mdio_dev);
-	struct udevice *dev = mdio_pdata->mii_bus->priv;
+	if (!dev_get_priv(mdio_dev->parent))
+		return -ENODEV;
 
-	return __dw_mdio_reset(dev->parent);
+	return __dw_mdio_reset(mdio_dev->parent);
 }
 #endif
 
@@ -171,19 +190,10 @@ static __maybe_unused const struct mdio_ops designware_eth_mdio_ops = {
 #endif
 };
 
-static __maybe_unused int designware_eth_mdio_probe(struct udevice *dev)
-{
-	/* Use the priv data of parent */
-	dev_set_priv(dev, dev_get_priv(dev->parent));
-
-	return 0;
-}
-
 #if CONFIG_IS_ENABLED(DM_MDIO)
 U_BOOT_DRIVER(designware_eth_mdio) = {
 	.name = "eth_designware_mdio",
 	.id = UCLASS_MDIO,
-	.probe = designware_eth_mdio_probe,
 	.ops = &designware_eth_mdio_ops,
 	.plat_auto = sizeof(struct mdio_perdev_priv),
 };
@@ -927,7 +937,8 @@ int designware_eth_probe(struct udevice *dev)
 		ret = regulator_set_enable_if_allowed(phy_supply, true);
 		if (ret) {
 			puts("Error enabling phy supply\n");
-			return ret;
+			err = ret;
+			goto mdio_err;
 		}
 #if IS_ENABLED(CONFIG_ARCH_NPCM8XX)
 		int phy_uv;
@@ -937,7 +948,8 @@ int designware_eth_probe(struct udevice *dev)
 			ret = regulator_set_value(phy_supply, phy_uv);
 			if (ret) {
 				puts("Error setting phy voltage\n");
-				return ret;
+				err = ret;
+				goto mdio_err;
 			}
 		}
 #endif
@@ -972,6 +984,15 @@ int designware_eth_probe(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
 
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	ret = gpio_request_parsed(dev, &priv->reset_gpio_spec,
+				  &priv->reset_gpio);
+	if (ret && ret != -ENOENT) {
+		err = ret;
+		goto gpio_err;
+	}
+#endif
+
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
 	if (dev_read_bool(dev, "snps,bitbang-mii")) {
 		ret = dw_bb_mdio_init(dev->name, dev);
@@ -1003,6 +1024,11 @@ int designware_eth_probe(struct udevice *dev)
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
 mdio_err:
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	if (dm_gpio_is_valid(&priv->reset_gpio))
+		dm_gpio_free(dev, &priv->reset_gpio);
+gpio_err:
+#endif
 
 #ifdef CONFIG_CLK
 clk_err:
@@ -1021,6 +1047,10 @@ static int designware_eth_remove(struct udevice *dev)
 	free(priv->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	if (dm_gpio_is_valid(&priv->reset_gpio))
+		dm_gpio_free(dev, &priv->reset_gpio);
+#endif
 
 #ifdef CONFIG_CLK
 	return clk_release_all(priv->clocks, priv->clock_count);
@@ -1061,8 +1091,8 @@ int designware_eth_of_to_plat(struct udevice *dev)
 	if (dev_read_bool(dev, "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 
-	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
-		&priv->reset_gpio, reset_flags);
+	ret = gpio_parse_by_name(dev, "snps,reset-gpio", 0, reset_flags,
+				 &priv->reset_gpio_spec);
 	if (ret == 0) {
 		ret = dev_read_u32_array(dev, "snps,reset-delays-us",
 					 dw_pdata->reset_delays, 3);

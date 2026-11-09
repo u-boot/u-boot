@@ -4,6 +4,6 @@
 #include <command.h>
 #include <net.h>
 
-U_BOOT_CMD(tftpboot, 3, 0, do_tftpb,
+U_BOOT_CMD(tftpboot, 3, 1, do_tftpb,
 	   "boot image via network using TFTP protocol",
 	   "[loadAddress] [[hostIPaddr:]bootfilename]");

@@ -6,6 +6,7 @@
 #include <efi_loader.h>
 #include <env.h>
 #include <hexdump.h>
+#include <image.h>
 #include <log.h>
 #include <lwip-dhcp.h>
 #include <malloc.h>
@@ -958,6 +959,8 @@ static int bootp_run(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct dhcp_options *options;
 	const char *autoload;
 	const char *filename = NULL;
+	bool downloaded = false;
+	bool acquisition_timeout;
 	ulong addr;
 	char *end;
 	const char *hostname, *vendor;
@@ -1027,25 +1030,46 @@ static int bootp_run(struct cmd_tbl *cmdtp, int flag, int argc,
 			ret = bootp_loop(&net, !!filename, options);
 		if (IS_ENABLED(CONFIG_CMD_DHCP) && !bootp)
 			ret = dhcp_loop(&net, !!filename, options);
-		if (ret != -ETIMEDOUT)
-			break;
+		/* Retire the address protocol before handing its runtime to TFTP. */
 		if (IS_ENABLED(CONFIG_CMD_DHCP) && !bootp)
 			dhcp_retire(&net);
-		if (IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) &&
+		acquisition_timeout = ret == -ETIMEDOUT;
+		if (!ret) {
+			autoload = env_get("autoload");
+			if ((autoload && !strcmp(autoload, "NFS")) ||
+			    env_get_yesno("autoload") == 0)
+				break;
+			if (!IS_ENABLED(CONFIG_CMD_TFTPBOOT)) {
+				log_err("Cannot autoload with TFTP: command is disabled\n");
+				ret = CMD_RET_FAILURE;
+				break;
+			}
+			ret = net_lwip_refresh(&net);
+			if (ret)
+				break;
+			if (IS_ENABLED(CONFIG_CMD_TFTPBOOT))
+				ret = net_lwip_tftp_download(&net, argc, argv);
+			if (ret != -EAGAIN) {
+				downloaded = !ret;
+				break;
+			}
+			puts("Starting again\n\n");
+		} else if (!acquisition_timeout) {
+			break;
+		}
+		/* BOOTP_MAY_FAIL limits address acquisition, not TFTP recovery. */
+		if (acquisition_timeout && IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) &&
 		    (env_get_yesno("ethrotate") == 0 || net_restart_wrap))
 			break;
 		/* Other runtime clients must not lose their interface on retry. */
 		ret = net_lwip_restart(&net);
-		if (ret || (IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) && net_restart_wrap)) {
+		if (ret || (acquisition_timeout && IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) &&
+			    net_restart_wrap)) {
 			ret = CMD_RET_FAILURE;
 			break;
 		}
 	}
-	/*
-	 * A download needs strict addressing, incompatible with the
-	 * address-less runtime attachment. Retire DHCP before handing off;
-	 * the BOOTP loop has already removed its receive callback.
-	 */
+	/* No protocol callbacks may survive the shared runtime or option data. */
 	if (IS_ENABLED(CONFIG_CMD_DHCP) && !bootp)
 		dhcp_retire(&net);
 	active_options = NULL;
@@ -1054,6 +1078,8 @@ static int bootp_run(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (ret)
 		return CMD_RET_FAILURE;
+	if (downloaded)
+		return net_boot_file_size ? bootm_maybe_autostart(cmdtp, argv[0]) : 0;
 	autoload = env_get("autoload");
 	if (autoload && !strcmp(autoload, "NFS")) {
 		if (IS_ENABLED(CONFIG_CMD_NFS))
@@ -1061,13 +1087,7 @@ static int bootp_run(struct cmd_tbl *cmdtp, int flag, int argc,
 		log_err("Cannot autoload with NFS: command is disabled\n");
 		return CMD_RET_FAILURE;
 	}
-	if (env_get_yesno("autoload") == 0)
-		return CMD_RET_SUCCESS;
-	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT))
-		return do_tftpb(cmdtp, flag, argc, argv);
-	log_err("Cannot autoload with TFTP: command is disabled\n");
-
-	return CMD_RET_FAILURE;
+	return CMD_RET_SUCCESS;
 }
 
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

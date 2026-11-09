@@ -349,9 +349,7 @@ int eth_init(void)
 			debug("Trying %s\n", current->name);
 
 			ret = eth_start_udev(current);
-			if (ret < 0)
-				ret = eth_errno;
-			else
+			if (!ret)
 				break;
 
 			debug("FAIL\n");

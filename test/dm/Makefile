@@ -49,6 +49,9 @@ obj-$(CONFIG_ECDSA_VERIFY) += ecdsa.o
 obj-$(CONFIG_DM_HASH) += hash.o
 obj-$(CONFIG_EFI_MEDIA_SANDBOX) += efi_media.o
 obj-$(CONFIG_DM_ETH) += eth.o
+ifeq ($(CONFIG_DM_ETH)$(CONFIG_CMD_TFTPBOOT),yy)
+obj-y += tftp.o
+endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_PROT_UDP_LWIP),yy)
 obj-y += lwip.o
 endif
@@ -60,6 +63,10 @@ obj-y += lwip_dhcp_policy.o
 endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_BOOTP),yy)
 obj-y += lwip_bootp.o
+endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_TFTPBOOT),yy)
+obj-y += lwip_tftp.o
+obj-y += lwip_net_loop.o
 endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_NETCONSOLE),yy)
 obj-y += netconsole.o

@@ -22,12 +22,18 @@ struct dhcp_handoff_test {
 	bool timeout;
 	bool dhcp_alive;
 	bool rx_burst;
+	bool refresh_offer;
+	unsigned int discovers;
+	unsigned int drop_acquisitions;
+	unsigned int tftp_failures;
 	unsigned int rx_packets;
 	int rx_error;
 	unsigned int tftp;
 	unsigned int nfs;
 	u32 boot_server;
 	u32 nfs_server;
+	u32 tftp_server;
+	u32 tftp_local;
 	char filename[128];
 };
 
@@ -44,6 +50,12 @@ static int dhcp_handoff_reply(struct udevice *dev, struct dhcp_msg *request)
 
 	if (type != DHCP_DISCOVER && type != DHCP_REQUEST)
 		return 0;
+	if (type == DHCP_DISCOVER)
+		test->discovers++;
+	if (net_try_count <= test->drop_acquisitions) {
+		timer_test_add_offset(1000001);
+		return 0;
+	}
 	if (test->timeout) {
 		timer_test_add_offset(10001);
 		return 0;
@@ -67,6 +79,11 @@ static int dhcp_handoff_reply(struct udevice *dev, struct dhcp_msg *request)
 	put_unaligned_be32(test->boot_server, &reply->siaddr);
 	reply->cookie = htonl(DHCP_MAGIC_COOKIE);
 	strlcpy((char *)reply->file, test->offer, sizeof(reply->file));
+	if (test->refresh_offer && test->discovers > 1) {
+		put_unaligned_be32(0x01010205, &reply->yiaddr);
+		put_unaligned_be32(0x01010204, &reply->siaddr);
+		strcpy((char *)reply->file, "second.bin");
+	}
 	pos = reply->options;
 	*pos++ = DHCP_OPTION_MESSAGE_TYPE;
 	*pos++ = 1;
@@ -137,6 +154,8 @@ static int dhcp_handoff_tx(struct udevice *dev, void *packet, unsigned int len)
 	    get_unaligned_be16(ip + 1) != 1)
 		return 0;
 	test->tftp++;
+	test->tftp_server = ntohl(ip->ip_dst.s_addr);
+	test->tftp_local = ntohl(ip->ip_src.s_addr);
 	test->dhcp_alive |= !!netif_dhcp_data(netif_default);
 	strlcpy(test->filename, (char *)(ip + 1) + 2, sizeof(test->filename));
 	if (priv->recv_packets >= PKTBUFSRX)
@@ -160,6 +179,11 @@ static int dhcp_handoff_tx(struct udevice *dev, void *packet, unsigned int len)
 	data = (void *)(reply_ip + 1);
 	put_unaligned_be16(test->fail ? 5 : 3, data);
 	put_unaligned_be16(1, data + 2);
+	if (test->tftp_failures) {
+		put_unaligned_be16(5, data);
+		put_unaligned_be16(3, data + 2);
+		test->tftp_failures--;
+	}
 	data[4] = 'x';
 	data[5] = 0;
 	priv->recv_packet_length[priv->recv_packets++] =
@@ -193,6 +217,64 @@ static void dhcp_handoff_free_pkt(struct udevice *dev, int len)
 	       sizeof(arp->dipaddr));
 }
 
+static int dhcp_autoload_retries(struct unit_test_state *uts,
+				 struct dhcp_handoff_test *test)
+{
+	char * const argv[] = { "dhcp", "2000000", "explicit.bin" };
+	struct net_lwip_ctx other = {};
+	int i, ret;
+
+	if (!IS_ENABLED(CONFIG_CMD_TFTPBOOT))
+		return 0;
+	ut_assertok(env_set("autoload", "yes"));
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(env_set("netretry", "once"));
+	for (i = 0; i < 3; i++) {
+		*test = (struct dhcp_handoff_test){
+			.offer = "first.bin", .refresh_offer = true, .tftp_failures = 1,
+		};
+		ut_assertok(env_set("ethact", "eth@10002000"));
+		ut_assertok(env_set("ethrotate", i == 2 ? NULL : "no"));
+		ut_assertok(env_set("ipaddr5", NULL));
+		ut_assertok(env_set("serverip", "1.1.2.2"));
+		ut_assertok(do_dhcp(NULL, 0, i == 1 ? 3 : 1, argv));
+		ut_asserteq(2, test->discovers);
+		ut_asserteq(2, test->tftp);
+		ut_asserteq(0x01010205, test->tftp_local);
+		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_SERVERIP) ||
+			    IS_ENABLED(CONFIG_BOOTP_PREFER_SERVERIP) ?
+			    0x01010202 : 0x01010204, test->tftp_server);
+		ut_asserteq_str(i == 1 ? "explicit.bin" : "second.bin", test->filename);
+		ut_asserteq_str(i == 2 ? "eth@10003000" : "eth@10002000", env_get("ethact"));
+		ut_assert(!test->dhcp_alive);
+		ut_assertnull(netif_default);
+	}
+	/* An acquisition retry and a transfer retry share the same budget. */
+	*test = (struct dhcp_handoff_test){
+		.offer = "first.bin", .drop_acquisitions = 1, .tftp_failures = 1,
+	};
+	ut_assertok(env_set("ethact", "eth@10002000"));
+	ut_asserteq(CMD_RET_FAILURE, do_dhcp(NULL, 0, 1, argv));
+	ut_asserteq(1, test->tftp);
+	ut_asserteq(0, test->tftp_failures);
+	ut_assertnull(netif_default);
+
+	/* An autoload failure must not restart another client's runtime. */
+	*test = (struct dhcp_handoff_test){ .offer = "first.bin", .tftp_failures = 1 };
+	ut_assertok(env_set("ethact", "eth@10002000"));
+	ut_assertok(net_lwip_start(&other, NET_LWIP_ADDR_ENV_FLEXIBLE));
+	ret = do_dhcp(NULL, 0, 1, argv);
+	i = other.netif == netif_default && !netif_dhcp_data(other.netif);
+	net_lwip_stop(&other);
+	ut_asserteq(CMD_RET_FAILURE, ret);
+	ut_assert(i);
+	ut_asserteq(1, test->discovers);
+	ut_asserteq(1, test->tftp);
+	ut_assertnull(netif_default);
+	ut_assertok(env_set("netretry", "no"));
+	return 0;
+}
+
 static int dhcp_handoff_check(struct unit_test_state *uts,
 			      struct dhcp_handoff_test *test)
 {
@@ -207,6 +289,7 @@ static int dhcp_handoff_check(struct unit_test_state *uts,
 	ut_assertok(env_set("nfsserverip", NULL));
 	ut_assertok(env_set("tftpdstp", NULL));
 	ut_assertok(env_set("tftpsrcp", NULL));
+	ut_assertok(dhcp_autoload_retries(uts, test));
 	for (i = 0; i < 4; i++) {
 		*test = (struct dhcp_handoff_test){ .offer = "offered.bin" };
 		ut_assertok(env_set("autoload", i == 3 ? "no" : "yes"));
@@ -251,10 +334,18 @@ static int dhcp_handoff_check(struct unit_test_state *uts,
 	}
 	*test = (struct dhcp_handoff_test){ .offer = "offered.bin", .fail = true };
 	ut_assertok(env_set("autoload", "NFS"));
+	ut_assertok(env_set("autostart", "yes-please"));
 	ut_asserteq(-ENOENT, dhcp_run(0x2000000, "explicit.bin", true));
 	ut_asserteq_str("NFS", env_get("autoload"));
 	ut_assert(!test->dhcp_alive);
 	ut_assertnull(netif_default);
+	*test = (struct dhcp_handoff_test){ .offer = "offered.bin" };
+	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT)) {
+		ut_assertok(dhcp_run(0x2000000, "explicit.bin", true));
+		ut_asserteq_str("yes-please", env_get("autostart"));
+		ut_asserteq_str("NFS", env_get("autoload"));
+		ut_assertnull(netif_default);
+	}
 	*test = (struct dhcp_handoff_test){ .offer = "", .timeout = true };
 	ut_asserteq(-ENOENT, dhcp_run(0x2000000, NULL, true));
 	ut_asserteq(0, test->tftp);
@@ -312,7 +403,8 @@ static int dm_test_lwip_dhcp_handoff(struct unit_test_state *uts)
 		"ethact", "ipaddr", "netmask", "gatewayip", "serverip",
 		"tftpserverip", "nfsserverip", "autoload", "autostart", "bootfile",
 		"loadaddr", "dnsip", "dnsip2", "ntpserverip", "filesize", "fileaddr",
-		"tftpdstp", "tftpsrcp",
+		"tftpdstp", "tftpsrcp", "netretry", "ethrotate",
+		"ipaddr5", "netmask5", "gatewayip5",
 	};
 	struct dhcp_handoff_test test = {};
 	char bootfile[sizeof(net_boot_file_name)];
@@ -333,10 +425,14 @@ static int dm_test_lwip_dhcp_handoff(struct unit_test_state *uts)
 	sandbox_eth_set_tx_handler(0, dhcp_handoff_tx);
 	sandbox_eth_set_free_pkt_handler(0, dhcp_handoff_free_pkt);
 	sandbox_eth_set_priv(0, &test);
+	sandbox_eth_set_tx_handler(1, dhcp_handoff_tx);
+	sandbox_eth_set_priv(1, &test);
 	ret = dhcp_handoff_check(uts, &test);
 	sandbox_eth_set_tx_handler(0, NULL);
 	sandbox_eth_set_free_pkt_handler(0, NULL);
 	sandbox_eth_set_priv(0, NULL);
+	sandbox_eth_set_tx_handler(1, NULL);
+	sandbox_eth_set_priv(1, NULL);
 	memcpy(net_boot_file_name, bootfile, sizeof(bootfile));
 	image_load_addr = load_addr;
 	for (i = 0; i < ARRAY_SIZE(vars); i++)

@@ -415,6 +415,9 @@ static int sb_eth_start(struct udevice *dev)
 
 	debug("eth_sandbox: Start\n");
 
+	priv->start_count++;
+	if (priv->restart_wrap)
+		net_restart_wrap = 1;
 	priv->recv_packets = 0;
 	for (int i = 0; i < PKTBUFSRX; i++) {
 		priv->recv_packet_buffer[i] = net_rx_packets[i];
@@ -480,6 +483,9 @@ static int sb_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 static void sb_eth_stop(struct udevice *dev)
 {
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+
+	priv->stop_count++;
 	debug("eth_sandbox: Stop\n");
 }
 

@@ -57,7 +57,7 @@ static void tcp_stream_on_rcv_nxt_update(struct tcp_stream *tcp, u32 rx_bytes)
 	fastboot_command_id = fastboot_handle_command(rxbuf + sizeof(u64),
 						      txbuf + sizeof(u64));
 	fastboot_handle_boot(fastboot_command_id,
-			     strncmp("OKAY", txbuf + sizeof(u64), 4) != 0);
+			     strncmp("OKAY", txbuf + sizeof(u64), 4) == 0);
 	rxbuf[sizeof(u64) + cmd_size] = saved;
 
 	len = strlen(txbuf + sizeof(u64));

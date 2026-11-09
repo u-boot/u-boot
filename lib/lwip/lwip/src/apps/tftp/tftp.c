@@ -67,16 +67,6 @@
 #define TFTP_ERROR 5
 #define TFTP_OACK  6
 
-enum tftp_error {
-  TFTP_ERROR_FILE_NOT_FOUND    = 1,
-  TFTP_ERROR_ACCESS_VIOLATION  = 2,
-  TFTP_ERROR_DISK_FULL         = 3,
-  TFTP_ERROR_ILLEGAL_OPERATION = 4,
-  TFTP_ERROR_UNKNOWN_TRFR_ID   = 5,
-  TFTP_ERROR_FILE_EXISTS       = 6,
-  TFTP_ERROR_NO_SUCH_USER      = 7
-};
-
 #include <string.h>
 
 struct tftp_req {
@@ -94,15 +84,31 @@ struct tftp_state {
   struct udp_pcb *upcb;
   ip_addr_t addr;
   u16_t port;
-  int timer;
-  int last_pkt;
   u16_t blknum;
   u16_t blksize;
+  u16_t windowsize;
+  u16_t request_windowsize;
+  u16_t window_count;
   u32_t tsize;
-  u8_t retries;
+  u32_t put_tsize;
+  u32_t timeout_msecs;
+  u32_t max_retries;
+  u32_t request_timeout_msecs;
+  u32_t request_max_retries;
+  u32_t retries;
+  u8_t request_timeout;
+  u8_t negotiated_timeout;
   u8_t mode_write;
   u8_t tftp_mode;
   bool wait_oack;
+  /* An accepted OACK still needs confirmation by DATA 1 or ACK 1. */
+  bool oack_pending;
+  bool request_tsize;
+  bool put_tsize_set;
+  bool rx_error_acked;
+  bool wrq_pending;
+  char server_fname[TFTP_MAX_FILENAME_LEN + 1];
+  char server_mode[TFTP_MAX_MODE_LEN + 1];
 };
 
 static struct tftp_state tftp_state;
@@ -111,6 +117,9 @@ static struct tftp_req tftp_req;
 static void tftp_tmr(void *arg);
 static void tftp_req_tmr(void *arg);
 static const char *mode_to_string(enum tftp_transfer_mode mode);
+static u16_t payload_size(void);
+
+static const char tftp_timeout_msg[] = "Transfer timeout";
 
 static void
 clear_req(void)
@@ -133,6 +142,7 @@ close_handle(void)
   tftp_state.port = 0;
   ip_addr_set_any(0, &tftp_state.addr);
   tftp_state.retries = 0;
+  tftp_state.wrq_pending = false;
 
   if (tftp_state.last_data != NULL) {
     pbuf_free(tftp_state.last_data);
@@ -146,6 +156,50 @@ close_handle(void)
     tftp_state.handle = NULL;
     LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: closing\n"));
   }
+}
+
+static void
+transfer_activity(void)
+{
+  tftp_state.retries = 0;
+  sys_untimeout(tftp_tmr, NULL);
+  sys_timeout(tftp_state.timeout_msecs, tftp_tmr, NULL);
+}
+
+static void
+transfer_timed_out(void)
+{
+  LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: timeout\n"));
+  tftp_state.ctx->error(tftp_state.handle, TFTP_ERROR_TIMEOUT, tftp_timeout_msg,
+                        sizeof(tftp_timeout_msg) - 1);
+  close_handle();
+}
+
+/**
+ * Fail the active transfer on a matching ICMP port-unreachable error.
+ * The caller must validate the ICMP packet and the quoted local IP address.
+ *
+ * @param addr Quoted destination IP address
+ * @param local_port Quoted UDP source port, in host byte order
+ * @param remote_port Quoted UDP destination port, in host byte order
+ */
+void
+tftp_handle_port_unreachable(const ip_addr_t *addr, u16_t local_port,
+                             u16_t remote_port)
+{
+  static const char msg[] = "Port unreachable";
+  u16_t port = tftp_state.port ? tftp_state.port : tftp_req.port;
+
+  if ((tftp_state.handle == NULL) || (tftp_state.upcb == NULL) ||
+      !port || (remote_port != port) ||
+      (local_port != tftp_state.upcb->local_port) ||
+      !ip_addr_eq(addr, &tftp_state.addr)) {
+    return;
+  }
+
+  tftp_state.ctx->error(tftp_state.handle, TFTP_ERROR_PORT_UNREACHABLE,
+                        msg, sizeof(msg) - 1);
+  close_handle();
 }
 
 static struct pbuf*
@@ -168,12 +222,22 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
 {
   size_t fname_length = strlen(fname)+1;
   size_t mode_length = strlen(mode)+1;
-  size_t tsize_length = strlen("tsize")+3; /* "tsize\0\0\0" */
+  size_t tsize_length = 0;
   size_t blksize_length = 0;
+  size_t windowsize_length = 0;
+  size_t timeout_length = 0;
+  char tsize[11];
+  char windowsize[6];
+  char timeout[4];
   int blksize = tftp_state.blksize;
   struct pbuf* p;
   char* payload;
   err_t ret;
+
+  if (tftp_state.request_tsize) {
+    sprintf(tsize, "%u", tftp_state.tsize);
+    tsize_length = strlen("tsize") + 1 + strlen(tsize) + 1;
+  }
 
   if (blksize) {
     /* 'blksize\0'.\0" with . = 1 digit */
@@ -184,7 +248,18 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
     }
   }
 
-  p = init_packet(opcode, 0, fname_length + mode_length + blksize_length + tsize_length - 2);
+  if ((opcode == TFTP_RRQ) && (tftp_state.request_windowsize > 1)) {
+    sprintf(windowsize, "%u", tftp_state.request_windowsize);
+    windowsize_length = sizeof("windowsize") + strlen(windowsize) + 1;
+  }
+
+  if (tftp_state.request_timeout) {
+    sprintf(timeout, "%u", tftp_state.request_timeout);
+    timeout_length = sizeof("timeout") + strlen(timeout) + 1;
+  }
+
+  p = init_packet(opcode, 0, fname_length + mode_length + blksize_length +
+                  tsize_length + windowsize_length + timeout_length - 2);
   if (p == NULL) {
     return ERR_MEM;
   }
@@ -192,11 +267,18 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
   payload = (char*) p->payload;
   MEMCPY(payload+2,              fname, fname_length);
   MEMCPY(payload+2+fname_length, mode,  mode_length);
-  sprintf(payload+2+fname_length+mode_length, "tsize%c%u%c", 0, 0, 0);
+  if (tftp_state.request_tsize)
+    sprintf(payload+2+fname_length+mode_length, "tsize%c%s", 0, tsize);
   if (tftp_state.blksize)
     sprintf(payload+2+fname_length+mode_length+tsize_length, "blksize%c%d", 0, tftp_state.blksize);
+  if (windowsize_length)
+    sprintf(payload+2+fname_length+mode_length+tsize_length+blksize_length,
+            "windowsize%c%s", 0, windowsize);
+  if (timeout_length)
+    sprintf(payload+2+fname_length+mode_length+tsize_length+blksize_length+windowsize_length,
+            "timeout%c%s", 0, timeout);
 
-  tftp_state.wait_oack = true;
+  tftp_state.wait_oack = tsize_length || blksize_length || windowsize_length || timeout_length;
   ret = udp_sendto(tftp_state.upcb, p, addr, port);
   pbuf_free(p);
   return ret;
@@ -221,6 +303,16 @@ send_error(const ip_addr_t *addr, u16_t port, enum tftp_error code, const char *
   ret = udp_sendto(tftp_state.upcb, p, addr, port);
   pbuf_free(p);
   return ret;
+}
+
+static void
+send_error_and_close(const ip_addr_t *addr, u16_t port,
+                     enum tftp_error code, const char *str)
+{
+  send_error(addr, port, code, str);
+  if (tftp_state.handle != NULL)
+    tftp_state.ctx->error(tftp_state.handle, TFTP_ERROR_LOCAL, str, strlen(str));
+  close_handle();
 }
 
 static err_t
@@ -265,9 +357,10 @@ resend_data(const ip_addr_t *addr, u16_t port)
   return ret;
 }
 
-static void
+static err_t
 send_data(const ip_addr_t *addr, u16_t port)
 {
+  u16_t size = payload_size();
   u16_t *payload;
   int ret;
 
@@ -275,22 +368,22 @@ send_data(const ip_addr_t *addr, u16_t port)
     pbuf_free(tftp_state.last_data);
   }
 
-  tftp_state.last_data = init_packet(TFTP_DATA, tftp_state.blknum, TFTP_DEFAULT_BLOCK_SIZE);
+  tftp_state.last_data = init_packet(TFTP_DATA, tftp_state.blknum, size);
   if (tftp_state.last_data == NULL) {
-    return;
+    return ERR_MEM;
   }
 
   payload = (u16_t *) tftp_state.last_data->payload;
 
-  ret = tftp_state.ctx->read(tftp_state.handle, &payload[2], TFTP_DEFAULT_BLOCK_SIZE);
+  ret = tftp_state.ctx->read(tftp_state.handle, &payload[2], size);
   if (ret < 0) {
-    send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "Error occurred while reading the file.");
-    close_handle();
-    return;
+    send_error_and_close(addr, port, TFTP_ERROR_ACCESS_VIOLATION,
+                         "Error occurred while reading the file.");
+    return ERR_VAL;
   }
 
   pbuf_realloc(tftp_state.last_data, (u16_t)(TFTP_HEADER_LENGTH + ret));
-  resend_data(addr, port);
+  return resend_data(addr, port);
 }
 
 static u16_t payload_size(void)
@@ -300,55 +393,120 @@ static u16_t payload_size(void)
   return TFTP_DEFAULT_BLOCK_SIZE;
 }
 
-/**
- * find_option() - check if OACK message contains option
- *
- * @p:		message buffer
- * @option:	option key
- * Return:	option value
- */
-static const char *
-find_option(struct pbuf *p, const char *option)
+static int
+parse_u32_option(const char *str, u32_t *value)
 {
-	const char *pos = p->payload;
-	int rem = p->len;
+  u32_t result = 0;
 
-	/*
-	 * According to RFC 2347 the OACK packet has the following format:
-	 *
-	 * +-------+---~~---+---+---~~---+---+---~~---+---+---~~---+---+
-	 * |  opc  |  opt1  | 0 | value1 | 0 |  optN  | 0 | valueN | 0 |
-	 * +-------+---~~---+---+---~~---+---+---~~---+---+---~~---+---+
-	 */
+  if (*str == '\0')
+    return 0;
 
-	/* Skip opc */
-	pos += 2;
-	rem -= 2;
-	if (rem <= 0)
-		return NULL;
+  while (*str != '\0') {
+    u8_t digit;
 
-	for (;;) {
-		int len;
-		int diff;
+    if ((*str < '0') || (*str > '9'))
+      return 0;
+    digit = (u8_t)(*str - '0');
+    if (result > (LWIP_UINT32_MAX - digit) / 10)
+      return 0;
+    result = result * 10 + digit;
+    str++;
+  }
 
-		len = strnlen(pos, rem) + 1;
-		if (rem < len)
-			break;
-		diff = strcmp(pos, option);
-		/* Skip option */
-		pos += len;
-		rem -= len;
-		len = strnlen(pos, rem) + 1;
-		if (rem < len)
-			break;
-		if (!diff)
-			return pos;
-		/* Skip value */
-		pos += len;
-		rem -= len;
-	}
+  *value = result;
+  return 1;
+}
 
-	return NULL;
+/* Read a complete NUL-terminated field, including across chained pbufs. */
+static int
+read_option_field(struct pbuf *p, u16_t *offset, char *field, size_t size)
+{
+  const char nul = 0;
+  u16_t end = pbuf_memfind(p, &nul, 1, *offset);
+  u16_t len;
+
+  if ((end == 0xffff) || (end <= *offset))
+    return 0;
+  len = (u16_t)(end - *offset + 1);
+  if (len > size)
+    return 0;
+  pbuf_copy_partial(p, field, len, *offset);
+  *offset = (u16_t)(end + 1);
+  return 1;
+}
+
+static int
+parse_oack(struct pbuf *p, u32_t *blksize, u32_t *tsize, u32_t *windowsize,
+           u32_t *timeout)
+{
+  u16_t offset = 2;
+  unsigned int seen = 0;
+
+  *blksize = 0;
+  *tsize = 0;
+  *windowsize = 1;
+  *timeout = 0;
+  while (offset < p->tot_len) {
+    char option[16], value[11];
+    u32_t number;
+
+    if (!read_option_field(p, &offset, option, sizeof(option)) ||
+        !read_option_field(p, &offset, value, sizeof(value)) ||
+        !parse_u32_option(value, &number))
+      return 0;
+
+    if (!lwip_stricmp(option, "blksize")) {
+      if ((seen & 1) || !tftp_state.blksize || (number < 8) ||
+          (number > 65464) || (number > tftp_state.blksize))
+        return 0;
+      seen |= 1;
+      *blksize = number;
+    } else if (!lwip_stricmp(option, "tsize")) {
+      if ((seen & 2) || !tftp_state.request_tsize ||
+          ((tftp_state.mode_write == 0) && (number != tftp_state.tsize)))
+        return 0;
+      seen |= 2;
+      *tsize = number;
+    } else if (!lwip_stricmp(option, "windowsize")) {
+      if ((seen & 4) || !tftp_state.mode_write ||
+          (tftp_state.request_windowsize <= 1) || (number < 1) ||
+          (number > tftp_state.request_windowsize))
+        return 0;
+      seen |= 4;
+      *windowsize = number;
+    } else if (!lwip_stricmp(option, "timeout")) {
+      if ((seen & 8) || !tftp_state.request_timeout ||
+          (number != tftp_state.request_timeout))
+        return 0;
+      seen |= 8;
+      *timeout = number;
+    } else {
+      /* RFC 2347 forbids acknowledging an option we did not request. */
+      return 0;
+    }
+  }
+
+  return seen != 0;
+}
+
+static int
+is_expected_response(struct pbuf *p, u16_t opcode)
+{
+  u16_t *sbuf = (u16_t *) p->payload;
+
+  if (opcode == PP_HTONS(TFTP_ERROR))
+    return 1;
+  if (opcode == PP_HTONS(TFTP_OACK))
+    return tftp_state.wait_oack;
+  if (p->len < TFTP_HEADER_LENGTH)
+    return 0;
+
+  if (tftp_req.opcode == TFTP_RRQ)
+    return (opcode == PP_HTONS(TFTP_DATA)) &&
+      (lwip_ntohs(sbuf[1]) == tftp_state.blknum);
+
+  return (opcode == PP_HTONS(TFTP_ACK)) &&
+    (lwip_ntohs(sbuf[1]) == tftp_state.blknum);
 }
 
 static void
@@ -360,20 +518,40 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
   LWIP_UNUSED_ARG(arg);
   LWIP_UNUSED_ARG(upcb);
 
+  if (p->len < sizeof(*sbuf)) {
+    pbuf_free(p);
+    return;
+  }
+
   if (((tftp_state.port != 0) && (port != tftp_state.port)) ||
       (!ip_addr_isany_val(tftp_state.addr) && !ip_addr_eq(&tftp_state.addr, addr))) {
-    send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "Only one connection at a time is supported");
+    send_error(addr, port, TFTP_ERROR_UNKNOWN_TRFR_ID, "Unknown transfer ID");
     pbuf_free(p);
     return;
   }
 
   opcode = sbuf[0];
+  if (((opcode == PP_HTONS(TFTP_DATA)) ||
+       (opcode == PP_HTONS(TFTP_ACK)) ||
+       (opcode == PP_HTONS(TFTP_ERROR))) &&
+      (p->len < TFTP_HEADER_LENGTH)) {
+    send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION,
+               "Packet too short");
+    pbuf_free(p);
+    return;
+  }
 
-  tftp_state.last_pkt = tftp_state.timer;
-  tftp_state.retries = 0;
+  if (tftp_req.fname) {
+    if (!is_expected_response(p, (u16_t)opcode)) {
+      send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION,
+                 "Unexpected response");
+      pbuf_free(p);
+      return;
+    }
 
-  if (tftp_req.fname)
+    tftp_state.port = port;
     clear_req();
+  }
 
   switch (opcode) {
     case PP_HTONS(TFTP_RRQ): /* fall through */
@@ -384,17 +562,10 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
       u16_t filename_end_offset;
       u16_t mode_end_offset;
 
-      if (tftp_state.handle != NULL) {
-        send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "Only one connection at a time is supported");
-        break;
-      }
-
       if ((tftp_state.tftp_mode & LWIP_TFTP_MODE_SERVER) == 0) {
         send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "TFTP server not enabled");
         break;
       }
-
-      sys_timeout(TFTP_TIMER_MSECS, tftp_tmr, NULL);
 
       /* find \0 in pbuf -> end of filename string */
       filename_end_offset = pbuf_memfind(p, &tftp_null, sizeof(tftp_null), 2);
@@ -412,8 +583,26 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
       }
       pbuf_copy_partial(p, mode, mode_end_offset - filename_end_offset, filename_end_offset + 1);
 
+      if (tftp_state.handle != NULL) {
+        /* The initial ACK may have been lost. Only acknowledge the same
+         * write request, before any DATA has arrived, without reopening
+         * the file or extending the transfer's timeout/retry budget.
+         * The peer address and port were checked above.
+         */
+        if ((opcode == PP_HTONS(TFTP_WRQ)) && tftp_state.wrq_pending &&
+            !strcmp(filename, tftp_state.server_fname) &&
+            !lwip_stricmp(mode, tftp_state.server_mode)) {
+          send_ack(addr, port, 0);
+        } else {
+          send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "Only one connection at a time is supported");
+        }
+        break;
+      }
+
       tftp_state.handle = tftp_state.ctx->open(filename, mode, opcode == PP_HTONS(TFTP_WRQ));
       tftp_state.blknum = 1;
+      tftp_state.window_count = 0;
+      tftp_state.rx_error_acked = false;
 
       if (!tftp_state.handle) {
         send_error(addr, port, TFTP_ERROR_FILE_NOT_FOUND, "Unable to open requested file.");
@@ -426,9 +615,13 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
 
       ip_addr_copy(tftp_state.addr, *addr);
       tftp_state.port = port;
+      transfer_activity();
 
       if (opcode == PP_HTONS(TFTP_WRQ)) {
         tftp_state.mode_write = 1;
+        tftp_state.wrq_pending = true;
+        strcpy(tftp_state.server_fname, filename);
+        strcpy(tftp_state.server_mode, mode);
         send_ack(addr, port, 0);
       } else {
         tftp_state.mode_write = 0;
@@ -453,34 +646,39 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
       }
 
       blknum = lwip_ntohs(sbuf[1]);
-      if (tftp_state.wait_oack) {
-        /*
-         * Data received while we are expecting an OACK for our tsize option.
-         * This means the server doesn't support it, let's switch back to the
-         * default block size.
-         */
-        tftp_state.tsize = 0;
-        tftp_state.wait_oack = false;
-
-        if (tftp_state.blksize) {
+      if (blknum == tftp_state.blknum) {
+        tftp_state.wrq_pending = false;
+        tftp_state.oack_pending = false;
+        transfer_activity();
+        if (tftp_state.wait_oack) {
           /*
-           * Data received while we are expecting an OACK for our blksize option.
-           * This means the server doesn't support it, let's switch back to the
-           * default block size.
+           * Data received while we are expecting an OACK. This means the
+           * server doesn't support options, so use the default block size.
            */
+          tftp_state.tsize = 0;
           tftp_state.blksize = 0;
+          tftp_state.windowsize = 1;
           tftp_state.wait_oack = false;
         }
-      }
-      if (blknum == tftp_state.blknum) {
+        if (p->tot_len > payload_size() + TFTP_HEADER_LENGTH) {
+          send_error_and_close(addr, port, TFTP_ERROR_ILLEGAL_OPERATION,
+                               "DATA exceeds block size");
+          break;
+        }
         pbuf_remove_header(p, TFTP_HEADER_LENGTH);
 
         ret = tftp_state.ctx->write(tftp_state.handle, p);
         if (ret < 0) {
-          send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "error writing file");
-          close_handle();
-        } else {
+          send_error_and_close(addr, port, TFTP_ERROR_ACCESS_VIOLATION,
+                               "error writing file");
+          break;
+        }
+        tftp_state.window_count++;
+        tftp_state.rx_error_acked = false;
+        if ((tftp_state.window_count == tftp_state.windowsize) ||
+            (p->tot_len < payload_size())) {
           send_ack(addr, port, blknum);
+          tftp_state.window_count = 0;
         }
 
         if (p->tot_len < payload_size()) {
@@ -488,11 +686,16 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
         } else {
           tftp_state.blknum++;
         }
-      } else if ((u16_t)(blknum + 1) == tftp_state.blknum) {
-        /* retransmit of previous block, ack again (casting to u16_t to care for overflow) */
-        send_ack(addr, port, blknum);
       } else {
-        send_error(addr, port, TFTP_ERROR_UNKNOWN_TRFR_ID, "Wrong block number");
+        /* Retain only in-order data. A cumulative ACK starts a new window
+         * at the first missing block, including across block-number wrap.
+         * Do not emit an ACK for every remaining packet of a broken window.
+         */
+        if ((tftp_state.windowsize == 1) || !tftp_state.rx_error_acked) {
+          send_ack(addr, port, (u16_t)(tftp_state.blknum - 1));
+          tftp_state.window_count = 0;
+          tftp_state.rx_error_acked = true;
+        }
       }
       break;
     }
@@ -512,15 +715,27 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
       }
 
       blknum = lwip_ntohs(sbuf[1]);
-      if (blknum != tftp_state.blknum) {
-        send_error(addr, port, TFTP_ERROR_UNKNOWN_TRFR_ID, "Wrong block number");
+      if (blknum == tftp_state.blknum) {
+        tftp_state.oack_pending = false;
+        transfer_activity();
+        if ((blknum == 0) && tftp_state.wait_oack) {
+          /* The server ignored the options in our write request. */
+          tftp_state.blksize = 0;
+          tftp_state.wait_oack = false;
+        }
+      } else {
+        /* An ACK can be delayed by more than one block. Ignore all
+         * non-matching ACKs without errors or DATA retransmission
+         * (RFC 1123), even while DATA allocation is pending. Leave the
+         * timer and retry budget alone as well.
+         */
         break;
       }
 
       lastpkt = 0;
 
       if (tftp_state.last_data != NULL) {
-        lastpkt = tftp_state.last_data->tot_len != (TFTP_DEFAULT_BLOCK_SIZE + TFTP_HEADER_LENGTH);
+        lastpkt = tftp_state.last_data->tot_len != (payload_size() + TFTP_HEADER_LENGTH);
       }
 
       if (!lastpkt) {
@@ -535,37 +750,69 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
     case PP_HTONS(TFTP_ERROR):
       if (tftp_state.handle != NULL) {
         pbuf_remove_header(p, TFTP_HEADER_LENGTH);
-        tftp_state.ctx->error(tftp_state.handle, sbuf[1], (const char*)p->payload, p->len);
+        tftp_state.ctx->error(tftp_state.handle, lwip_ntohs(sbuf[1]),
+                              (const char*)p->payload, p->len);
         close_handle();
       }
       break;
     case PP_HTONS(TFTP_OACK): {
-      const char *blksizeoptval = find_option(p, "blksize");
-      const char *tsizeoptval = find_option(p, "tsize");
-      u16_t srv_blksize = 0;
+      u32_t srv_blksize = 0;
       u32_t srv_tsize = 0;
+      u32_t srv_windowsize = 1;
+      u32_t srv_timeout = 0;
+
+      if (tftp_state.handle == NULL) {
+        send_error(addr, port, TFTP_ERROR_ACCESS_VIOLATION, "No connection");
+        break;
+      }
+      if (!parse_oack(p, &srv_blksize, &srv_tsize, &srv_windowsize, &srv_timeout)) {
+        send_error_and_close(addr, port, TFTP_ERROR_OPTION_NEGOTIATION,
+                             "Invalid OACK");
+        break;
+      }
+      if (!tftp_state.wait_oack) {
+        if (((tftp_state.tftp_mode & LWIP_TFTP_MODE_CLIENT) != 0) &&
+            (srv_blksize == tftp_state.blksize) &&
+            (srv_tsize == tftp_state.tsize) &&
+            (srv_windowsize == tftp_state.windowsize) &&
+            (srv_timeout == tftp_state.negotiated_timeout)) {
+          /* Delayed OACKs cannot restart negotiation after DATA, even
+           * when the block number wraps back to one.
+           */
+          if (!tftp_state.oack_pending)
+            break;
+          if (tftp_state.mode_write == 0) {
+            if (tftp_state.last_data != NULL)
+              resend_data(addr, port);
+            else
+              send_data(addr, port);
+            break;
+          }
+          if ((tftp_state.mode_write != 0) &&
+              (tftp_state.last_data == NULL)) {
+            send_ack(addr, port, 0);
+            break;
+          }
+        }
+        send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION,
+                   "Unexpected OACK");
+        break;
+      }
+
+      transfer_activity();
       tftp_state.wait_oack = false;
-      if (blksizeoptval) {
-	if (!tftp_state.blksize) {
-	  /* We did not request this option */
-          send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION, "blksize unexpected");
-	}
-	srv_blksize = atoi(blksizeoptval);
-	if (srv_blksize <= 0 || srv_blksize > tftp_state.blksize) {
-	  send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION, "Invalid blksize");
-	}
-	LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: accepting blksize=%d\n", srv_blksize));
-	tftp_state.blksize = srv_blksize;
+      tftp_state.oack_pending = true;
+      /* Publish only after validating the entire option list. */
+      tftp_state.blksize = (u16_t)srv_blksize;
+      tftp_state.tsize = srv_tsize;
+      tftp_state.windowsize = (u16_t)srv_windowsize;
+      tftp_state.negotiated_timeout = (u8_t)srv_timeout;
+      if (tftp_state.mode_write == 0) {
+        tftp_state.blknum = 1;
+        send_data(addr, port);
+      } else {
+        send_ack(addr, port, 0);
       }
-      if (tsizeoptval) {
-	srv_tsize = atoi(tsizeoptval);
-	if (srv_tsize <= 0) {
-	  srv_tsize = 0; /* tsize is optional */
-	}
-	LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: accepting tsize=%d\n", srv_tsize));
-	tftp_state.tsize = srv_tsize;
-      }
-      send_ack(addr, port, 0);
       break;
     }
     default:
@@ -579,46 +826,63 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
 static void
 tftp_tmr(void *arg)
 {
-  LWIP_UNUSED_ARG(arg);
+  err_t ret;
 
-  tftp_state.timer++;
+  LWIP_UNUSED_ARG(arg);
 
   if (tftp_state.handle == NULL) {
     return;
   }
 
-  sys_timeout(TFTP_TIMER_MSECS, tftp_tmr, NULL);
-
-  if ((tftp_state.timer - tftp_state.last_pkt) > (TFTP_TIMEOUT_MSECS / TFTP_TIMER_MSECS)) {
-    if ((tftp_state.last_data != NULL) && (tftp_state.retries < TFTP_MAX_RETRIES)) {
-      LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: timeout, retrying\n"));
-      resend_data(&tftp_state.addr, tftp_state.port);
-      tftp_state.retries++;
-    } else {
-      LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: timeout\n"));
-      close_handle();
-    }
+  if (tftp_state.retries >= tftp_state.max_retries) {
+    transfer_timed_out();
+    return;
   }
+
+  LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: timeout, retrying\n"));
+  if (tftp_state.last_data != NULL)
+    ret = resend_data(&tftp_state.addr, tftp_state.port);
+  else if (tftp_state.mode_write != 0) {
+    ret = send_ack(&tftp_state.addr, tftp_state.port,
+                   (u16_t)(tftp_state.blknum - 1));
+    tftp_state.window_count = 0;
+    tftp_state.rx_error_acked = false;
+  } else {
+    /* Allocation failed before the read callback consumed this block. */
+    ret = send_data(&tftp_state.addr, tftp_state.port);
+  }
+  LWIP_UNUSED_ARG(ret);
+
+  /* A read error while constructing DATA may have closed the transfer. */
+  if (tftp_state.handle == NULL) {
+    return;
+  }
+
+  tftp_state.retries++;
+  sys_timeout(tftp_state.timeout_msecs, tftp_tmr, NULL);
 }
 
 static void
 tftp_req_tmr(void *arg)
 {
+  err_t ret;
+
+  LWIP_UNUSED_ARG(arg);
+
   if (tftp_state.handle == NULL) {
     return;
   }
 
-  sys_timeout(TFTP_TIMER_MSECS, tftp_req_tmr, NULL);
-
-  if (tftp_state.retries < TFTP_MAX_RETRIES) {
-    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: req timeout, retrying\n"));
-    resend_request();
-    tftp_state.retries++;
-  } else {
-    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: req timeout\n"));
-    tftp_state.ctx->error(tftp_state.handle, -1, "Request timeout", strlen("Request timeout"));
-    close_handle();
+  if (tftp_state.retries >= tftp_state.request_max_retries) {
+    transfer_timed_out();
+    return;
   }
+
+  LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: req timeout, retrying\n"));
+  ret = resend_request();
+  LWIP_UNUSED_ARG(ret);
+  tftp_state.retries++;
+  sys_timeout(tftp_state.request_timeout_msecs, tftp_req_tmr, NULL);
 }
 
 /**
@@ -648,10 +912,18 @@ tftp_init_common(u8_t mode, const struct tftp_context *ctx)
   tftp_state.handle    = NULL;
   tftp_state.port      = 0;
   tftp_state.ctx       = ctx;
-  tftp_state.timer     = 0;
   tftp_state.last_data = NULL;
   tftp_state.upcb      = pcb;
   tftp_state.tftp_mode = mode;
+  tftp_state.timeout_msecs = TFTP_TIMEOUT_MSECS;
+  tftp_state.max_retries = TFTP_MAX_RETRIES;
+  tftp_state.request_timeout_msecs = TFTP_TIMEOUT_MSECS;
+  tftp_state.request_max_retries = TFTP_MAX_RETRIES;
+  tftp_state.wrq_pending = false;
+  tftp_state.windowsize = 1;
+  tftp_state.request_windowsize = 1;
+  tftp_state.window_count = 0;
+  tftp_state.rx_error_acked = false;
 
   udp_recv(pcb, tftp_recv, NULL);
 
@@ -696,8 +968,89 @@ tftp_client_get_tsize(void)
 void
 tftp_client_set_blksize(u16_t blksize)
 {
-  if (blksize != TFTP_DEFAULT_BLOCK_SIZE)
-    tftp_state.blksize = blksize;
+  tftp_state.blksize = blksize == TFTP_DEFAULT_BLOCK_SIZE ? 0 : blksize;
+}
+
+/** @ingroup tftp
+ * Set the transfer size advertised by a TFTP write request.
+ * @param tsize Transfer size in bytes
+ */
+void
+tftp_client_set_tsize(u32_t tsize)
+{
+  tftp_state.put_tsize = tsize;
+  tftp_state.put_tsize_set = true;
+}
+
+/** @ingroup tftp
+ * Set the receive window requested by tftp_get() (RFC 7440).
+ * Data is delivered in order without allocating a window-sized buffer.
+ * @param windowsize Number of blocks, 1..65535; 1 disables negotiation
+ * @return ERR_ARG for zero, ERR_OK otherwise
+ */
+err_t
+tftp_client_set_windowsize(u16_t windowsize)
+{
+  if (!windowsize)
+    return ERR_ARG;
+  tftp_state.request_windowsize = windowsize;
+  return ERR_OK;
+}
+
+/** @ingroup tftp
+ * Set the TFTP client/server retransmission timeout and maximum retry count.
+ * Clients request RFC 2349 timeout negotiation using whole seconds, like U-Boot's
+ * legacy client, while retaining millisecond precision for the local timer.
+ * Omit the option if the seconds value is outside the RFC's 1..255 range.
+ * @param timeout_msecs Retransmission timeout in milliseconds
+ * @param max_retries Maximum number of retransmissions
+ * @return ERR_OK on success, ERR_ARG if timeout_msecs is zero or exceeds
+ *         the wrap-safe range supported by sys_timeout()
+ */
+err_t
+tftp_set_timeout(u32_t timeout_msecs, u32_t max_retries)
+{
+  if ((timeout_msecs == 0) || (timeout_msecs > LWIP_UINT32_MAX / 4))
+    return ERR_ARG;
+
+  tftp_state.timeout_msecs = timeout_msecs;
+  tftp_state.max_retries = max_retries;
+  tftp_state.request_timeout_msecs = timeout_msecs;
+  tftp_state.request_max_retries = max_retries;
+  return ERR_OK;
+}
+
+/** @ingroup tftp
+ * Override the initial request timeout after tftp_set_timeout().
+ * Transfer timeouts and the advertised RFC 2349 option remain unchanged.
+ * @param timeout_msecs Initial request timeout in milliseconds
+ * @param max_retries Maximum number of request retransmissions
+ * @return ERR_ARG if the timeout is zero or outside sys_timeout()'s range
+ */
+err_t
+tftp_client_set_request_timeout(u32_t timeout_msecs, u32_t max_retries)
+{
+  if ((timeout_msecs == 0) || (timeout_msecs > LWIP_UINT32_MAX / 4))
+    return ERR_ARG;
+
+  tftp_state.request_timeout_msecs = timeout_msecs;
+  tftp_state.request_max_retries = max_retries;
+  return ERR_OK;
+}
+
+/** @ingroup tftp
+ * Bind the TFTP client to a local UDP port.
+ * @param port Local UDP port
+ * @return lwIP error code returned by udp_bind()
+ */
+err_t
+tftp_client_bind(u16_t port)
+{
+  LWIP_ERROR("TFTP client is not enabled (tftp_init)",
+             (tftp_state.tftp_mode & LWIP_TFTP_MODE_CLIENT) != 0,
+             return ERR_VAL);
+
+  return udp_bind(tftp_state.upcb, IP_ANY_TYPE, port);
 }
 
 /** @ingroup tftp
@@ -726,18 +1079,43 @@ mode_to_string(enum tftp_transfer_mode mode)
   return NULL;
 }
 
-err_t
+static err_t
 start_send_requests(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname, enum tftp_transfer_mode mode)
 {
+  err_t ret;
+  u32_t seconds = tftp_state.timeout_msecs / 1000;
+
+  tftp_state.request_timeout = seconds <= 255 ? (u8_t)seconds : 0;
+  tftp_state.negotiated_timeout = 0;
+  tftp_state.oack_pending = false;
+
   tftp_req.addr = *addr;
   tftp_req.port = port;
   tftp_req.opcode = opcode;
   tftp_req.fname = strdup(fname);
   tftp_req.mode = mode;
-  if (!tftp_req.fname)
+  if (!tftp_req.fname) {
+    tftp_state.handle = NULL;
     return ERR_MEM;
-  sys_timeout(TFTP_TIMER_MSECS, tftp_req_tmr, NULL);
-  return resend_request();
+  }
+
+  ip_addr_copy(tftp_state.addr, *addr);
+  tftp_state.port = 0;
+  tftp_state.retries = 0;
+  ret = resend_request();
+  /* A route or device send failure must not bypass the request retry timer.
+   * Keep allocation and invalid-request errors terminal at setup time.
+   */
+  if ((ret != ERR_OK) && (ret != ERR_RTE) &&
+      (ret != ERR_IF) && (ret != ERR_ABRT)) {
+    clear_req();
+    ip_addr_set_any(0, &tftp_state.addr);
+    tftp_state.handle = NULL;
+    return ret;
+  }
+
+  sys_timeout(tftp_state.request_timeout_msecs, tftp_req_tmr, NULL);
+  return ERR_OK;
 }
 
 err_t
@@ -750,6 +1128,10 @@ tftp_get(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enu
   tftp_state.handle = handle;
   tftp_state.blknum = 1;
   tftp_state.mode_write = 1; /* We want to receive data */
+  tftp_state.tsize = 0;
+  tftp_state.request_tsize = true;
+  tftp_state.window_count = 0;
+  tftp_state.rx_error_acked = false;
   return start_send_requests(addr, port, TFTP_RRQ, fname, mode);
 }
 
@@ -761,8 +1143,12 @@ tftp_put(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enu
   LWIP_ERROR("tftp_put: invalid mode", mode <= TFTP_MODE_BINARY, return ERR_VAL);
 
   tftp_state.handle = handle;
-  tftp_state.blknum = 1;
+  tftp_state.blknum = 0;
   tftp_state.mode_write = 0; /* We want to send data */
+  tftp_state.tsize = tftp_state.put_tsize;
+  tftp_state.request_tsize = tftp_state.put_tsize_set;
+  /* Windowed sending is not implemented. Do not advertise it in a WRQ. */
+  tftp_state.windowsize = 1;
   return start_send_requests(addr, port, TFTP_WRQ, fname, mode);
 }
 

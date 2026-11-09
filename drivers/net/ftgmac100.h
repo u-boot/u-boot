@@ -13,6 +13,7 @@
 #define __FTGMAC100_H
 
 /* The registers offset table of ftgmac100 */
+#include <linux/bitfield.h>
 #include <linux/bitops.h>
 struct ftgmac100 {
 	unsigned int	isr;		/* 0x00 */
@@ -252,5 +253,37 @@ struct ftgmac100_rxdes {
 #define FTGMAC100_RXDES1_IP_CHKSUM_ERR	BIT(27)
 
 #define FTGMAC100_RXDES2_RXBUF_BADR_HI	GENMASK(18, 16)
+
+/* Aspeed SCU RGMII delay settings, AST2600 */
+#define AST2600_MAC01_CLK_DLY		0x340
+#define AST2600_MAC23_CLK_DLY		0x350
+#define AST2600_MAC01_CLK_DLY_UNIT	45	/* ps */
+#define AST2600_MAC23_CLK_DLY_UNIT	250	/* ps */
+#define AST2600_MAC23_RX_DLY_0_NS	0x1a
+#define AST2600_MAC_TX_RX_DLY_MASK	0x1f
+#define ASPEED_MAC0_2_TX_DLY		GENMASK(5, 0)
+#define ASPEED_MAC0_2_RX_DLY		GENMASK(17, 12)
+#define ASPEED_MAC1_3_TX_DLY		GENMASK(11, 6)
+#define ASPEED_MAC1_3_RX_DLY		GENMASK(23, 18)
+
+#define AST2600_MAC0_BASE_ADDR		0x1e660000
+#define AST2600_MAC1_BASE_ADDR		0x1e680000
+#define AST2600_MAC2_BASE_ADDR		0x1e670000
+#define AST2600_MAC3_BASE_ADDR		0x1e690000
+
+/* Aspeed SCU RGMII delay settings, AST2700 */
+#define AST2700_MAC0_DLY_UNIT		0x190
+#define AST2700_MAC0_DLY_VAL		0x194
+#define AST2700_MAC1_DLY_UNIT		0x198
+#define AST2700_MAC1_DLY_VAL		0x19c
+#define AST2700_MAC_TX_DLY_UNIT(x)	FIELD_GET(GENMASK(15, 0), (x))
+#define AST2700_MAC_RX_DLY_UNIT(x)	FIELD_GET(GENMASK(31, 16), (x))
+#define AST2700_MAC_TX_DLY_DIS(x)	FIELD_GET(GENMASK(7, 0), (x))
+#define AST2700_MAC_RX_DLY_DIS(x)	FIELD_GET(GENMASK(23, 16), (x))
+#define AST2700_MAC01_CLK_DLY		0x390
+
+#define AST2700_MAC0_BASE_ADDR		0x14050000
+#define AST2700_MAC1_BASE_ADDR		0x14060000
+#define AST2700_MAC2_BASE_ADDR		0x14070000
 
 #endif /* __FTGMAC100_H */

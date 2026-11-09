@@ -123,7 +123,8 @@ static void dsa_port_stop(struct udevice *pdev)
 		ops->port_disable(dev, priv->cpu_port, priv->cpu_port_fixed_phy);
 	}
 
-	eth_get_ops(master)->stop(master);
+	if (device_active(master))
+		eth_get_ops(master)->stop(master);
 }
 
 /*

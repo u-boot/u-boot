@@ -13,7 +13,6 @@
 #include <command.h>
 #include <env.h>
 #include <net.h>
-#include <net/tftp.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <dfu.h>
@@ -23,8 +22,6 @@
 /* env variable holding the location of the update file */
 #define UPDATE_FILE_ENV		"updatefile"
 
-extern ulong tftp_timeout_ms;
-extern int tftp_timeout_count_max;
 #ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
 #include <mtd/cfi_flash.h>
@@ -32,48 +29,38 @@ static uchar *saved_prot_info;
 #endif
 static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 {
-	int rv, ret;
-	ulong saved_timeout_msecs;
-	int saved_timeout_count;
+	const char *netretry;
 	char *saved_netretry, *saved_bootfile;
+	int rv = 1;
+	int ret;
 
-	rv = 0;
-	/* save used globals and env variable */
-	saved_timeout_msecs = tftp_timeout_ms;
-	saved_timeout_count = tftp_timeout_count_max;
-	saved_netretry = strdup(env_get("netretry"));
+	netretry = env_get("netretry");
+	saved_netretry = netretry ? strdup(netretry) : NULL;
+	if (netretry && !saved_netretry)
+		return 1;
 	saved_bootfile = strdup(net_boot_file_name);
-
-	/* set timeouts for auto-update */
-	tftp_timeout_ms = msec_max;
-	tftp_timeout_count_max = cnt_max;
+	if (!saved_bootfile)
+		goto out_free_netretry;
 
 	/* we don't want to retry the connection if errors occur */
-	env_set("netretry", "no");
+	if (env_set("netretry", "no"))
+		goto out_restore;
 
 	/* download the update file */
-	image_load_addr = addr;
-	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
-	ret = net_loop(TFTPGET);
+	ret = tftpb_run_timeout(addr, filename, msec_max, cnt_max);
 
-	if (ret < 0)
-		rv = 1;
-	else
+	if (!ret) {
 		flush_cache(addr, net_boot_file_size);
-
-	/* restore changed globals and env variable */
-	tftp_timeout_ms = saved_timeout_msecs;
-	tftp_timeout_count_max = saved_timeout_count;
-
-	env_set("netretry", saved_netretry);
-	if (saved_netretry != NULL)
-		free(saved_netretry);
-
-	if (saved_bootfile != NULL) {
-		copy_filename(net_boot_file_name, saved_bootfile,
-			      sizeof(net_boot_file_name));
-		free(saved_bootfile);
+		rv = 0;
 	}
+
+out_restore:
+	env_set("netretry", saved_netretry);
+	copy_filename(net_boot_file_name, saved_bootfile,
+		      sizeof(net_boot_file_name));
+	free(saved_bootfile);
+out_free_netretry:
+	free(saved_netretry);
 
 	return rv;
 }

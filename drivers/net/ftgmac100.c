@@ -19,12 +19,15 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <wait_bit.h>
 #include <asm/cache.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
+#include <linux/kernel.h>
 #include <linux/printk.h>
 #include <linux/bitfield.h>
 
@@ -58,6 +61,7 @@
 enum ftgmac100_model {
 	FTGMAC100_MODEL_FARADAY,
 	FTGMAC100_MODEL_ASPEED,
+	FTGMAC100_MODEL_ASPEED_AST2600,
 	FTGMAC100_MODEL_ASPEED_AST2700,
 };
 
@@ -107,7 +111,9 @@ struct ftgmac100_data {
 	u32 rxdes0_edorr_mask;
 	u32 txdes0_edotr_mask;
 
-	bool is_ast2700;
+	u32 rgmii_tx_delay;
+	u32 rgmii_rx_delay;
+	bool has_rgmii_delay;
 };
 
 /*
@@ -263,7 +269,6 @@ static void ftgmac100_reset(struct ftgmac100_data *priv)
 {
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 
-	debug("%s()\n", __func__);
 
 	setbits_le32(&ftgmac100->maccr, FTGMAC100_MACCR_SW_RST);
 
@@ -293,7 +298,7 @@ static int ftgmac100_set_mac(struct ftgmac100_data *priv,
  * Get MAC address
  */
 static int ftgmac100_get_mac(struct ftgmac100_data *priv,
-				unsigned char *mac)
+			     unsigned char *mac)
 {
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	unsigned int maddr = readl(&ftgmac100->mac_madr);
@@ -319,7 +324,6 @@ static void ftgmac100_stop(struct udevice *dev)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 
-	debug("%s()\n", __func__);
 
 	writel(0, &ftgmac100->maccr);
 
@@ -339,7 +343,6 @@ static int ftgmac100_start(struct udevice *dev)
 	int ret;
 	int i;
 
-	debug("%s()\n", __func__);
 
 	ftgmac100_reset(priv);
 
@@ -418,8 +421,9 @@ static int ftgmac100_start(struct udevice *dev)
 		FTGMAC100_MACCR_RX_RUNT |
 		FTGMAC100_MACCR_RX_BROADPKT;
 
-	if (priv->is_ast2700 && (priv->phydev->interface == PHY_INTERFACE_MODE_RMII ||
-				 priv->phydev->interface == PHY_INTERFACE_MODE_NCSI))
+	if (dev_get_driver_data(dev) == FTGMAC100_MODEL_ASPEED_AST2700 &&
+	    (priv->phydev->interface == PHY_INTERFACE_MODE_RMII ||
+	     priv->phydev->interface == PHY_INTERFACE_MODE_NCSI))
 		maccr |= FTGMAC100_MACCR_RMII_ENABLE;
 
 	writel(maccr, &ftgmac100->maccr);
@@ -500,7 +504,7 @@ static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 	rxlen = FTGMAC100_RXDES0_VDBC(curr_des->rxdes0);
 
 	debug("%s(): RX buffer %d, %x received\n",
-	       __func__, priv->rx_index, rxlen);
+	      __func__, priv->rx_index, rxlen);
 
 	/* Invalidate received data */
 	data_end = data_start.addr + roundup(rxlen, ARCH_DMA_MINALIGN);
@@ -564,7 +568,7 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 	curr_des->txdes0 |= FTGMAC100_TXDES0_FTS |
 			    FTGMAC100_TXDES0_LTS |
 			    FTGMAC100_TXDES0_TXBUF_SIZE(length) |
-			    FTGMAC100_TXDES0_TXDMA_OWN ;
+			    FTGMAC100_TXDES0_TXDMA_OWN;
 
 	/* Flush modified buffer descriptor */
 	flush_dcache_range(des_start, des_end);
@@ -602,10 +606,202 @@ static int ftgmac_read_hwaddr(struct udevice *dev)
 	return ftgmac100_get_mac(priv, pdata->enetaddr);
 }
 
+/*
+ * On the AST2600, the RGMII delay is controlled via the SCU registers. The
+ * delay chain configuration differs between MAC0/1 and MAC2/3, even though
+ * all four MACs use a 32-stage delay chain.
+ *
+ *         Delay unit  Delay stages  "no delay" RX stage
+ * MAC0/1  45 ps       32            0
+ * MAC2/3  250 ps      32            26
+ *
+ * For MAC2/3, the delay chain is a ring, and stage 26 is where the RX path
+ * sees no extra delay: 26 -> 0 ns, 27 -> 0.25 ns, ..., 31 -> 1.25 ns,
+ * 0 -> 1.5 ns, 1 -> 1.75 ns, ..., 25 -> 7.75 ns. So the RX delay stage for
+ * MAC2/3 is computed by adding 26 to the requested delay stage and wrapping
+ * around the 32-stage ring.
+ */
+static int ftgmac100_set_ast2600_rgmii_delay(struct udevice *dev)
+{
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	u32 rgmii_delay_unit;
+	u32 rx_delay_index;
+	u32 tx_delay_index;
+	struct regmap *scu;
+	int dly_mask;
+	int dly_reg;
+	int mac_id;
+
+	scu = syscon_regmap_lookup_by_phandle(dev, "aspeed,scu");
+	if (IS_ERR(scu))
+		return PTR_ERR(scu);
+
+	switch (pdata->iobase) {
+	case AST2600_MAC0_BASE_ADDR:
+		mac_id = 0;
+		rgmii_delay_unit = AST2600_MAC01_CLK_DLY_UNIT;
+		dly_reg = AST2600_MAC01_CLK_DLY;
+		break;
+	case AST2600_MAC1_BASE_ADDR:
+		mac_id = 1;
+		rgmii_delay_unit = AST2600_MAC01_CLK_DLY_UNIT;
+		dly_reg = AST2600_MAC01_CLK_DLY;
+		break;
+	case AST2600_MAC2_BASE_ADDR:
+		mac_id = 2;
+		rgmii_delay_unit = AST2600_MAC23_CLK_DLY_UNIT;
+		dly_reg = AST2600_MAC23_CLK_DLY;
+		break;
+	case AST2600_MAC3_BASE_ADDR:
+		mac_id = 3;
+		rgmii_delay_unit = AST2600_MAC23_CLK_DLY_UNIT;
+		dly_reg = AST2600_MAC23_CLK_DLY;
+		break;
+	default:
+		dev_err(dev, "Invalid mac base address\n");
+		return -EINVAL;
+	}
+
+	tx_delay_index = DIV_ROUND_CLOSEST(priv->rgmii_tx_delay,
+					   rgmii_delay_unit);
+	if (tx_delay_index >= 32) {
+		dev_err(dev, "The %u ps of TX delay is out of range\n",
+			priv->rgmii_tx_delay);
+		return -EINVAL;
+	}
+
+	rx_delay_index = DIV_ROUND_CLOSEST(priv->rgmii_rx_delay,
+					   rgmii_delay_unit);
+	if (rx_delay_index >= 32) {
+		dev_err(dev, "The %u ps of RX delay is out of range\n",
+			priv->rgmii_rx_delay);
+		return -EINVAL;
+	}
+
+	if (mac_id == 2 || mac_id == 3)
+		rx_delay_index = (AST2600_MAC23_RX_DLY_0_NS + rx_delay_index) &
+				  AST2600_MAC_TX_RX_DLY_MASK;
+
+	if (mac_id == 0 || mac_id == 2) {
+		dly_mask = ASPEED_MAC0_2_TX_DLY | ASPEED_MAC0_2_RX_DLY;
+		tx_delay_index = FIELD_PREP(ASPEED_MAC0_2_TX_DLY,
+					    tx_delay_index);
+		rx_delay_index = FIELD_PREP(ASPEED_MAC0_2_RX_DLY,
+					    rx_delay_index);
+	} else {
+		dly_mask = ASPEED_MAC1_3_TX_DLY | ASPEED_MAC1_3_RX_DLY;
+		tx_delay_index = FIELD_PREP(ASPEED_MAC1_3_TX_DLY,
+					    tx_delay_index);
+		rx_delay_index = FIELD_PREP(ASPEED_MAC1_3_RX_DLY,
+					    rx_delay_index);
+	}
+
+	return regmap_update_bits(scu, dly_reg, dly_mask,
+				   tx_delay_index | rx_delay_index);
+}
+
+static int ftgmac100_set_ast2700_rgmii_delay(struct udevice *dev)
+{
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	u32 rgmii_delay_tx_unit, rgmii_delay_rx_unit;
+	u32 rgmii_delay_tx_dis, rgmii_delay_rx_dis;
+	u32 tx_delay_index, rx_delay_index;
+	u32 reg_unit, reg_val;
+	struct regmap *scu;
+	int dly_mask;
+	int mac_id;
+
+	scu = syscon_regmap_lookup_by_phandle(dev, "aspeed,scu");
+	if (IS_ERR(scu))
+		return PTR_ERR(scu);
+
+	switch (pdata->iobase) {
+	case AST2700_MAC0_BASE_ADDR:
+		mac_id = 0;
+		regmap_read(scu, AST2700_MAC0_DLY_UNIT, &reg_unit);
+		regmap_read(scu, AST2700_MAC0_DLY_VAL, &reg_val);
+		break;
+	case AST2700_MAC1_BASE_ADDR:
+		mac_id = 1;
+		regmap_read(scu, AST2700_MAC1_DLY_UNIT, &reg_unit);
+		regmap_read(scu, AST2700_MAC1_DLY_VAL, &reg_val);
+		break;
+	case AST2700_MAC2_BASE_ADDR:
+		/* MAC2 only supports SGMII, no RGMII delay to configure */
+		return 0;
+	default:
+		dev_err(dev, "Invalid mac base address\n");
+		return -EINVAL;
+	}
+
+	rgmii_delay_tx_unit = AST2700_MAC_TX_DLY_UNIT(reg_unit);
+	rgmii_delay_rx_unit = AST2700_MAC_RX_DLY_UNIT(reg_unit);
+	rgmii_delay_tx_dis = AST2700_MAC_TX_DLY_DIS(reg_val);
+	rgmii_delay_rx_dis = AST2700_MAC_RX_DLY_DIS(reg_val);
+
+	tx_delay_index = DIV_ROUND_CLOSEST(priv->rgmii_tx_delay,
+					   rgmii_delay_tx_unit);
+	tx_delay_index += rgmii_delay_tx_dis;
+	if (tx_delay_index >= 32) {
+		dev_err(dev, "The %u ps of TX delay is out of range\n",
+			priv->rgmii_tx_delay);
+		return -EINVAL;
+	}
+
+	rx_delay_index = DIV_ROUND_CLOSEST(priv->rgmii_rx_delay,
+					   rgmii_delay_rx_unit);
+	rx_delay_index += rgmii_delay_rx_dis;
+	if (rx_delay_index >= 32) {
+		dev_err(dev, "The %u ps of RX delay is out of range\n",
+			priv->rgmii_rx_delay);
+		return -EINVAL;
+	}
+
+	if (mac_id == 0) {
+		dly_mask = ASPEED_MAC0_2_TX_DLY | ASPEED_MAC0_2_RX_DLY;
+		tx_delay_index = FIELD_PREP(ASPEED_MAC0_2_TX_DLY,
+					    tx_delay_index);
+		rx_delay_index = FIELD_PREP(ASPEED_MAC0_2_RX_DLY,
+					    rx_delay_index);
+	} else {
+		dly_mask = ASPEED_MAC1_3_TX_DLY | ASPEED_MAC1_3_RX_DLY;
+		tx_delay_index = FIELD_PREP(ASPEED_MAC1_3_TX_DLY,
+					    tx_delay_index);
+		rx_delay_index = FIELD_PREP(ASPEED_MAC1_3_RX_DLY,
+					    rx_delay_index);
+	}
+
+	return regmap_update_bits(scu, AST2700_MAC01_CLK_DLY, dly_mask,
+				   tx_delay_index | rx_delay_index);
+}
+
+static int ftgmac100_set_internal_delay(struct udevice *dev)
+{
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	ulong data = dev_get_driver_data(dev);
+
+	if (!priv->has_rgmii_delay)
+		return 0;
+
+	/* NC-SI does not drive an RGMII PHY, nothing to configure */
+	if (priv->phy_mode == PHY_INTERFACE_MODE_NCSI)
+		return 0;
+
+	if (data == FTGMAC100_MODEL_ASPEED_AST2600)
+		return ftgmac100_set_ast2600_rgmii_delay(dev);
+	else if (data == FTGMAC100_MODEL_ASPEED_AST2700)
+		return ftgmac100_set_ast2700_rgmii_delay(dev);
+
+	return 0;
+}
+
 static int ftgmac100_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ftgmac100_data *priv = dev_get_priv(dev);
+	ulong data = dev_get_driver_data(dev);
 
 	pdata->iobase = dev_read_addr(dev);
 
@@ -615,20 +811,27 @@ static int ftgmac100_of_to_plat(struct udevice *dev)
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 
-	if (dev_get_driver_data(dev) == FTGMAC100_MODEL_ASPEED) {
+	if (data == FTGMAC100_MODEL_ASPEED ||
+	    data == FTGMAC100_MODEL_ASPEED_AST2600 ||
+	    data == FTGMAC100_MODEL_ASPEED_AST2700) {
 		priv->rxdes0_edorr_mask = BIT(30);
 		priv->txdes0_edotr_mask = BIT(30);
-		priv->is_ast2700 = false;
-	} else if (dev_get_driver_data(dev) == FTGMAC100_MODEL_ASPEED_AST2700) {
-		priv->rxdes0_edorr_mask = BIT(30);
-		priv->txdes0_edotr_mask = BIT(30);
-		priv->is_ast2700 = true;
 	} else {
 		priv->rxdes0_edorr_mask = BIT(15);
 		priv->txdes0_edotr_mask = BIT(15);
 	}
 
 	priv->reset_ctl = devm_reset_control_get_optional(dev, NULL);
+
+	/*
+	 * These properties are opt-in: when neither is present, leave the
+	 * delay chain at whatever the clock driver already configured it
+	 * to, instead of forcing it to zero.
+	 */
+	priv->has_rgmii_delay = !dev_read_u32(dev, "tx-internal-delay-ps",
+					      &priv->rgmii_tx_delay);
+	priv->has_rgmii_delay |= !dev_read_u32(dev, "rx-internal-delay-ps",
+					       &priv->rgmii_rx_delay);
 
 	return clk_get_bulk(dev, &priv->clks);
 }
@@ -660,6 +863,10 @@ static int ftgmac100_probe(struct udevice *dev)
 		if (ret)
 			goto out;
 	}
+
+	ret = ftgmac100_set_internal_delay(dev);
+	if (ret)
+		goto out;
 
 	/*
 	 * If DM MDIO is enabled, the MDIO bus will be initialized later in
@@ -715,7 +922,7 @@ static const struct eth_ops ftgmac100_ops = {
 static const struct udevice_id ftgmac100_ids[] = {
 	{ .compatible = "faraday,ftgmac100", .data = FTGMAC100_MODEL_FARADAY },
 	{ .compatible = "aspeed,ast2500-mac", .data = FTGMAC100_MODEL_ASPEED },
-	{ .compatible = "aspeed,ast2600-mac", .data = FTGMAC100_MODEL_ASPEED },
+	{ .compatible = "aspeed,ast2600-mac", .data = FTGMAC100_MODEL_ASPEED_AST2600 },
 	{ .compatible = "aspeed,ast2700-mac", .data = FTGMAC100_MODEL_ASPEED_AST2700 },
 	{}
 };

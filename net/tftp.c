@@ -47,20 +47,10 @@
 
 static ulong timeout_ms = TIMEOUT;
 static int timeout_count_max = (CONFIG_NET_RETRY_COUNT * 2);
+static ulong request_timeout_ms;
+static int request_timeout_count_max;
 static ulong time_start;   /* Record time we started tftp */
 static struct in6_addr tftp_remote_ip6;
-
-/*
- * These globals govern the timeout behavior when attempting a connection to a
- * TFTP server. tftp_timeout_ms specifies the number of milliseconds to
- * wait for the server to respond to initial connection. Second global,
- * tftp_timeout_count_max, gives the number of such connection retries.
- * tftp_timeout_count_max must be non-negative and tftp_timeout_ms must be
- * positive. The globals are meant to be set (and restored) by code needing
- * non-standard timeout behavior when initiating a TFTP transfer.
- */
-ulong tftp_timeout_ms = TIMEOUT;
-int tftp_timeout_count_max = (CONFIG_NET_RETRY_COUNT * 2);
 
 enum {
 	TFTP_ERR_UNDEFINED           = 0,
@@ -527,7 +517,9 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		break;
 #endif
 
-	case TFTP_OACK:
+	case TFTP_OACK: {
+		bool first_oack = tftp_state == STATE_SEND_RRQ;
+
 		/*
 		 * RFC 2347 makes every option name and value a NUL terminated
 		 * string, so a well-formed OACK always ends in a NUL. Checking
@@ -590,6 +582,10 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		}
 
 		tftp_next_ack = tftp_windowsize;
+		if (first_oack && tftp_state == STATE_OACK) {
+			timeout_count = 0;
+			net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
+		}
 
 #ifdef CMD_TFTPPUT
 		if (tftp_put_active && tftp_state == STATE_OACK) {
@@ -600,6 +596,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 #endif
 		tftp_send(); /* Send ACK or first data block */
 		break;
+	}
 	case TFTP_DATA:
 		if (len < 2)
 			return;
@@ -664,7 +661,6 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 		update_block_number();
 		tftp_prev_block = tftp_cur_block;
-		timeout_count_max = tftp_timeout_count_max;
 		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 
 		if (store_block(tftp_cur_block, pkt + 2, len)) {
@@ -717,11 +713,15 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 static void tftp_timeout_handler(void)
 {
-	if (++timeout_count > timeout_count_max) {
+	bool request = tftp_state == STATE_SEND_RRQ;
+	int max_retries = request ? request_timeout_count_max : timeout_count_max;
+	ulong msecs = request ? request_timeout_ms : timeout_ms;
+
+	if (++timeout_count > max_retries) {
 		restart("Retry count exceeded");
 	} else {
 		puts("T ");
-		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
+		net_set_timeout_handler(msecs, tftp_timeout_handler);
 		if (tftp_state != STATE_RECV_WRQ)
 			tftp_send();
 	}
@@ -773,7 +773,11 @@ static void sanitize_tftp_block_size_option(enum proto_t protocol)
 
 void tftp_start(enum proto_t protocol)
 {
+	const struct tftp_request_timeout *request = tftp_get_request_timeout();
 	__maybe_unused char *ep;             /* Environment pointer */
+
+	timeout_ms = TIMEOUT;
+	timeout_count_max = CONFIG_NET_RETRY_COUNT * 2;
 
 	if (saved_tftp_block_size_option) {
 		tftp_block_size_option = saved_tftp_block_size_option;
@@ -807,16 +811,22 @@ void tftp_start(enum proto_t protocol)
 
 		ep = env_get("tftptimeoutcountmax");
 		if (ep != NULL)
-			tftp_timeout_count_max = simple_strtol(ep, NULL, 10);
+			timeout_count_max = simple_strtol(ep, NULL, 10);
 
-		if (tftp_timeout_count_max < 0) {
+		if (timeout_count_max < 0) {
 			printf("TFTP timeout count max (%d ms) negative, set to 0\n",
-			       tftp_timeout_count_max);
-			tftp_timeout_count_max = 0;
+			       timeout_count_max);
+			timeout_count_max = 0;
 		}
 	}
 
 	sanitize_tftp_block_size_option(protocol);
+	request_timeout_ms = timeout_ms;
+	request_timeout_count_max = timeout_count_max;
+	if (protocol == TFTPGET && request) {
+		request_timeout_ms = request->msecs;
+		request_timeout_count_max = request->max_retries;
+	}
 
 	debug("TFTP blocksize = %i, TFTP windowsize = %d timeout = %ld ms\n",
 	      tftp_block_size_option, tftp_window_size_option, timeout_ms);
@@ -920,9 +930,8 @@ void tftp_start(enum proto_t protocol)
 	}
 
 	time_start = get_timer(0);
-	timeout_count_max = tftp_timeout_count_max;
 
-	net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
+	net_set_timeout_handler(request_timeout_ms, tftp_timeout_handler);
 	net_set_udp_handler(tftp_handler);
 #ifdef CMD_TFTPPUT
 	net_set_icmp_handler(icmp_handler);
@@ -966,7 +975,7 @@ void tftp_start_server(void)
 
 	puts("Loading: *\b");
 
-	timeout_count_max = tftp_timeout_count_max;
+	timeout_count_max = CONFIG_NET_RETRY_COUNT * 2;
 	timeout_count = 0;
 	timeout_ms = TIMEOUT;
 	net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
