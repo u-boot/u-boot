@@ -83,7 +83,7 @@ static unsigned long cpu_mhz_from_cpuid(void)
 	if (cpuid_eax(0) < 0x16)
 		return 0;
 
-	return cpuid_eax(0x15);
+	return cpuid_eax(0x16);
 }
 
 /*

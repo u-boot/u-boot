@@ -63,30 +63,6 @@ struct cpuinfo_x86 {
 	uint8_t x86_mask;
 };
 
-/* gcc 7.3 does not wwant to drop x86_vendors, so use #ifdef */
-#ifndef CONFIG_TPL_BUILD
-/*
- * List of cpu vendor strings along with their normalized
- * id values.
- */
-static const struct {
-	int vendor;
-	const char *name;
-} x86_vendors[] = {
-	{ X86_VENDOR_INTEL,     "GenuineIntel", },
-	{ X86_VENDOR_CYRIX,     "CyrixInstead", },
-	{ X86_VENDOR_AMD,       "AuthenticAMD", },
-	{ X86_VENDOR_UMC,       "UMC UMC UMC ", },
-	{ X86_VENDOR_NEXGEN,    "NexGenDriven", },
-	{ X86_VENDOR_CENTAUR,   "CentaurHauls", },
-	{ X86_VENDOR_RISE,      "RiseRiseRise", },
-	{ X86_VENDOR_TRANSMETA, "GenuineTMx86", },
-	{ X86_VENDOR_TRANSMETA, "TransmetaCPU", },
-	{ X86_VENDOR_NSC,       "Geode by NSC", },
-	{ X86_VENDOR_SIS,       "SiS SiS SiS ", },
-};
-#endif
-
 static void load_ds(u32 segment)
 {
 	asm volatile("movl %0, %%ds" : : "r" (segment * X86_GDT_ENTRY_SIZE));
@@ -247,21 +223,6 @@ static bool has_mtrr(void)
 	return cpuid_edx(0x00000001) & (1 << 12) ? true : false;
 }
 
-#ifndef CONFIG_TPL_BUILD
-static int build_vendor_name(char *vendor_name)
-{
-	struct cpuid_result result;
-	result = cpuid(0x00000000);
-	unsigned int *name_as_ints = (unsigned int *)vendor_name;
-
-	name_as_ints[0] = result.ebx;
-	name_as_ints[1] = result.edx;
-	name_as_ints[2] = result.ecx;
-
-	return result.eax;
-}
-#endif
-
 int x86_cpu_vendor_info(char *name)
 {
 	uint cpu_device;
@@ -290,8 +251,7 @@ int x86_cpu_vendor_info(char *name)
 	} else {
 		int cpuid_level;
 
-		cpuid_level = build_vendor_name(name);
-		name[12] = '\0';
+		cpuid_level = x86_get_vendor_name(name);
 
 		/* Intel-defined flags: level 0x00000001 */
 		if (cpuid_level >= 0x00000001)
@@ -334,17 +294,10 @@ static void identify_cpu(struct cpu_device_id *cpu)
 #ifndef CONFIG_TPL_BUILD
 	{
 		char vendor_name[16];
-		int i;
 
 		cpu->device = x86_cpu_vendor_info(vendor_name);
 
-		cpu->vendor = X86_VENDOR_UNKNOWN;
-		for (i = 0; i < ARRAY_SIZE(x86_vendors); i++) {
-			if (memcmp(vendor_name, x86_vendors[i].name, 12) == 0) {
-				cpu->vendor = x86_vendors[i].vendor;
-				break;
-			}
-		}
+		cpu->vendor = x86_vendor_name_to_id(vendor_name);
 	}
 #endif
 }
