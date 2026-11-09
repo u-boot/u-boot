@@ -66,6 +66,7 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 	struct tpml_pcr_selection pcrs;
 	u32 active = 0;
 	u32 supported = 0;
+	bool unsupported_active = false;
 	int rc, i;
 
 	*mask = 0;
@@ -87,8 +88,19 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 		if (tpm2_algorithm_supported(sel->hash))
 			supported |= hash_mask;
 
-		if (tpm2_is_active_bank(sel))
+		if (tpm2_is_active_bank(sel)) {
 			active |= hash_mask;
+			/*
+			 * Algorithms unknown to U-Boot have no hash_mask, so
+			 * track unsupported active banks separately
+			 */
+			if (!tpm2_algorithm_supported(sel->hash)) {
+				unsupported_active = true;
+				if (!hash_mask)
+					log_warning("TPM active algorithm 0x%x unknown to U-Boot\n",
+						    sel->hash);
+			}
+		}
 	}
 
 	/* All eventlog algorithm(s) must be supported */
@@ -104,13 +116,18 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 	}
 
 	/* Any active algorithm(s) which are not supported must be removed */
-	if (active & ~supported) {
+	if (unsupported_active) {
 		log_warning("TPM active algorithm(s) unsupported by u-boot\n");
 		tpm2_print_selected_algorithm_name(active & ~supported);
 		if (*mask)
 			*mask = active & supported & *mask;
 		else
 			*mask = active & supported;
+
+		if (!*mask) {
+			log_err("No supported TPM algorithm would remain active\n");
+			rc = -EOPNOTSUPP;
+		}
 	}
 
 	return rc;
@@ -183,6 +200,19 @@ u32 tpm2_startup(struct udevice *dev, bool bon, enum tpm2_startup_types mode)
 	ret = tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 	if ((ret && ret != TPM2_RC_INITIALIZE) || !bon)
 		return ret;
+
+	/*
+	 * Only the boot stage which actually starts the TPM deactivates active
+	 * banks with unsupported algorithms. On success, this resets the board.
+	 */
+	if (IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE) && !ret &&
+	    mode == TPM2_SU_CLEAR) {
+		ret = tpm2_activate_banks(dev, 0);
+		if (ret) {
+			log_err("TPM: failed to deactivate unsupported banks\n");
+			return ret;
+		}
+	}
 
 	return tpm2_update_active_banks(dev);
 }
@@ -345,9 +375,15 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	if (!tpm2_check_active_banks(dev)) {
 		log_err("Cannot extend PCRs if all the TPM enabled algorithms are not supported\n");
 
-		ret = tpm2_pcr_allocate(dev, 0);
-		if (ret)
-			return -EINVAL;
+		/*
+		 * Deactivate the unsupported banks. On success this resets
+		 * the board, since the new allocation only takes effect after
+		 * the next TPM2_Startup.
+		 */
+		if (IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
+			tpm2_activate_banks(dev, 0);
+
+		return -EINVAL;
 	}
 	/*
 	 * Fill the command structure starting from the first buffer:
@@ -596,6 +632,7 @@ u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
 	};
 	u8 response[COMMAND_BUFFER_SIZE];
 	size_t response_len = COMMAND_BUFFER_SIZE;
+	u8 success;
 	u32 i;
 	int ret;
 
@@ -642,10 +679,25 @@ u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
 	}
 
 	ret = tpm_sendrecv_command(dev, command_v2, response, &response_len);
-	if (!ret)
-		tpm_init(dev);
+	if (ret)
+		return ret;
 
-	return ret;
+	/*
+	 * The TPM may refuse the new allocation without returning an error
+	 * code, e.g. if it lacks the memory for it. Check allocationSuccess,
+	 * located after the response header and the parameterSize field.
+	 */
+	if (unpack_byte_string(response, response_len, "b",
+			       TPM2_HDR_LEN + sizeof(u32), &success))
+		return TPM_LIB_ERROR;
+	if (success != TPMI_YES) {
+		log_err("TPM refused the PCR allocation\n");
+		return TPM_LIB_ERROR;
+	}
+
+	tpm_init(dev);
+
+	return 0;
 }
 
 static int tpm2_get_num_pcr(struct udevice *dev, u32 *num_pcr)
@@ -686,10 +738,12 @@ int tpm2_get_pcr_info(struct udevice *dev, struct tpml_pcr_selection *pcrs)
 
 	pcrs->count = get_unaligned_be32(response);
 	/*
-	 * check against the supported algorithms in hash_algo_list,
-	 * instead of TPM2_NUM_PCR_BANKS
+	 * The TPM may implement banks with algorithms unknown to U-Boot.
+	 * Only the active ones must be supported, which is checked by
+	 * tpm2_check_active_banks() and tpm2_scan_masks(), so accept up to
+	 * TPM2_NUM_PCR_BANKS here.
 	 */
-	if (pcrs->count > ARRAY_SIZE(hash_algo_list) || pcrs->count < 1) {
+	if (pcrs->count > ARRAY_SIZE(pcrs->selection) || pcrs->count < 1) {
 		printf("%s: too many pcrs: %u\n", __func__, pcrs->count);
 		return -EMSGSIZE;
 	}
