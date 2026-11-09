@@ -2238,6 +2238,7 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 	fit_image_get_comp(fit, noffset, &img_comp);
 
 	if (img_comp == IH_COMP_NONE && load_op != FIT_LOAD_IGNORED &&
+	    load_op != FIT_LOAD_PREPARE &&
 	    !fit_image_get_load(fit, noffset, &img_load)) {
 		dst = map_sysmem(img_load, data_sz);
 
@@ -2463,7 +2464,7 @@ static int fit_image_load_alloc(struct bootm_headers *images, ulong addr,
 
 	data = map_to_sysmem(buf);
 	load = data;
-	if (load_op == FIT_LOAD_IGNORED) {
+	if (load_op == FIT_LOAD_IGNORED || load_op == FIT_LOAD_PREPARE) {
 		log_debug("load_op: not loading\n");
 		/* Don't load */
 	} else if (fit_image_get_load(fit, noffset, &load)) {
@@ -2677,8 +2678,8 @@ out:
 
 int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 		     const char **fit_unamep, const char **fit_uname_configp,
-		     int arch, ulong *datap, ulong *lenp,
-		     bool *caller_must_free_datap)
+		     int arch, enum fit_load_op load_op, ulong *datap,
+		     ulong *lenp, bool *caller_must_free_datap)
 {
 	int fdt_noffset, cfg_noffset, count;
 	const void *fit;
@@ -2717,7 +2718,7 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	fdt_noffset = fit_image_load_alloc(images, addr, &fit_uname,
 					   &fit_uname_config, arch, IH_TYPE_FLATDT,
 					   BOOTSTAGE_ID_FIT_FDT_START,
-					   FIT_LOAD_OPTIONAL, &load, &len,
+					   load_op, &load, &len,
 					   &caller_must_free_data);
 
 	if (fdt_noffset < 0)
