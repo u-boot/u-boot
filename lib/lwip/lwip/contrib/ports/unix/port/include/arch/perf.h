@@ -34,6 +34,10 @@
 
 #include <sys/times.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef PERF
 #define PERF_START  { \
                          unsigned long __c1l, __c1h, __c2l, __c2h; \
@@ -59,5 +63,9 @@ void perf_print(unsigned long c1l, unsigned long c1h,
 void perf_print_times(struct tms *start, struct tms *end, char *key);
 
 void perf_init(char *fname);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LWIP_ARCH_PERF_H */

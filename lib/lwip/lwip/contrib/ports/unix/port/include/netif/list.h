@@ -2,6 +2,10 @@
 #ifndef LWIP_LIST_H
 #define LWIP_LIST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct elem;
 
 struct list {
@@ -22,5 +26,9 @@ int list_elems(struct list *list);
 void list_delete(struct list *list);
 int list_remove(struct list *list, void *elem);
 void list_map(struct list *list, void (* func)(void *arg));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

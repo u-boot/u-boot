@@ -4,6 +4,7 @@
 *.exe
 *lwip_unittests.xml
 *.suo
+*.swp
 *.log
 .depend*
 
@@ -35,8 +36,14 @@
 
 /contrib/ports/win32/msvc/Debug
 /contrib/ports/win32/msvc/Debug unittests
+/contrib/ports/win32/msvc/Debug fuzz
+/contrib/ports/win32/msvc/Debug fuzz2
+/contrib/ports/win32/msvc/Debug fuzz3
 /contrib/ports/win32/msvc/Release
 /contrib/ports/win32/msvc/Release unittests
+/contrib/ports/win32/msvc/Release fuzz
+/contrib/ports/win32/msvc/Release fuzz2
+/contrib/ports/win32/msvc/x64
 /contrib/ports/win32/msvc/*.user
 /contrib/ports/win32/msvc/*.ncb
 /contrib/ports/win32/msvc/*.cache

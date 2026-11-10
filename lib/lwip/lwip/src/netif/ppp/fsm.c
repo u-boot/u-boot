@@ -787,8 +787,9 @@ void fsm_sdata(fsm *f, u_char code, u_char id, const u_char *data, int datalen) 
     }
 
     outp = (u_char*)p->payload;
-    if (datalen) /* && data != outp + PPP_HDRLEN + HEADERLEN)  -- was only for fsm_sconfreq() */
-	MEMCPY(outp + PPP_HDRLEN + HEADERLEN, data, datalen);
+    if (datalen && data != NULL) { /* && data != outp + PPP_HDRLEN + HEADERLEN)  -- was only for fsm_sconfreq() */
+      MEMCPY(outp + PPP_HDRLEN + HEADERLEN, data, datalen);
+    }
     MAKEHEADER(outp, f->protocol);
     PUTCHAR(code, outp);
     PUTCHAR(id, outp);

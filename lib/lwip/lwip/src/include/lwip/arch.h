@@ -382,7 +382,7 @@ extern "C" {
 #define LWIP_PROVIDE_ERRNO
 #endif
 
-/* Use a special, reproducable version of rand() for fuzz tests? */
+/* Use a special, reproducible version of rand() for fuzz tests? */
 #ifdef LWIP_RAND_FOR_FUZZ
 #ifdef LWIP_RAND
 #undef LWIP_RAND

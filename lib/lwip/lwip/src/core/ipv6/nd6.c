@@ -687,7 +687,7 @@ nd6_input(struct pbuf *p, struct netif *inp)
       case ND6_OPTION_TYPE_SOURCE_LLADDR:
       {
         struct lladdr_option *lladdr_opt;
-        if (option_len < sizeof(struct lladdr_option)) {
+        if (option_len < (ND6_LLADDR_OPTION_MIN_LENGTH + inp->hwaddr_len)) {
           goto lenerr_drop_free_return;
         }
         lladdr_opt = (struct lladdr_option *)buffer;
@@ -1176,7 +1176,7 @@ nd6_tmr(void)
 
 /** Send a neighbor solicitation message for a specific neighbor cache entry
  *
- * @param entry the neightbor cache entry for which to send the message
+ * @param entry the neighbor cache entry for which to send the message
  * @param flags one of ND6_SEND_FLAG_*
  */
 static void
@@ -1707,7 +1707,7 @@ nd6_select_router(const ip6_addr_t *ip6addr, struct netif *netif)
   /* Look for valid routers. A reachable router is preferred. */
   valid_router = -1;
   for (i = 0; i < LWIP_ND6_NUM_ROUTERS; i++) {
-    /* Is the router netif both set and apppropriate? */
+    /* Is the router netif both set and appropriate? */
     if (default_router_list[i].neighbor_entry != NULL) {
       router_netif = default_router_list[i].neighbor_entry->netif;
       if ((router_netif != NULL) && (netif != NULL ? netif == router_netif :

@@ -148,6 +148,16 @@ char* lwip_strnstr(const char* buffer, const char* token, size_t n);
 /* This can be #defined to strnistr() depending on your platform */
 char* lwip_strnistr(const char* buffer, const char* token, size_t n);
 #endif
+#ifndef lwip_memcmp_consttime
+/* This could be #defined to something existing on your platform
+ * The goal of this function is to compare memory with constant runtime in order to prevent
+ * timing attacks to various parts in the stack.
+ * To do that, in contrast to memcmp(), it only returns:
+ * 0: equal
+ * != 0: not equal
+ */
+int lwip_memcmp_consttime(const void* s1, const void* s2, size_t len);
+#endif
 
 #ifdef __cplusplus
 }

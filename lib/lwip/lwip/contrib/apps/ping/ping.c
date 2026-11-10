@@ -268,7 +268,7 @@ ping_thread(void *arg)
   LWIP_ASSERT("setting receive timeout failed", ret == 0);
   LWIP_UNUSED_ARG(ret);
 
-  while (1) {
+  while (ping_target != NULL) {
     if (ping_send(s, ping_target) == ERR_OK) {
       LWIP_DEBUGF( PING_DEBUG, ("ping: send "));
       ip_addr_debug_print(PING_DEBUG, ping_target);
@@ -285,6 +285,7 @@ ping_thread(void *arg)
     }
     sys_msleep(PING_DELAY);
   }
+  lwip_close(s);
 }
 
 #else /* PING_USE_SOCKETS */
@@ -297,10 +298,11 @@ ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
   LWIP_UNUSED_ARG(arg);
   LWIP_UNUSED_ARG(pcb);
   LWIP_UNUSED_ARG(addr);
+  LWIP_ASSERT("addr != NULL", addr != NULL);
   LWIP_ASSERT("p != NULL", p != NULL);
 
-  if ((p->tot_len >= (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr))) &&
-      pbuf_remove_header(p, PBUF_IP_HLEN) == 0) {
+  if ((p->tot_len >= (IP_HLEN + sizeof(struct icmp_echo_hdr))) &&
+      pbuf_remove_header(p, IP_HLEN) == 0) {
     iecho = (struct icmp_echo_hdr *)p->payload;
 
     if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(ping_seq_num))) {
@@ -314,7 +316,7 @@ ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
       return 1; /* eat the packet */
     }
     /* not eaten, restore original packet */
-    pbuf_add_header(p, PBUF_IP_HLEN);
+    pbuf_add_header(p, IP_HLEN);
   }
 
   return 0; /* don't eat the packet */
@@ -376,14 +378,33 @@ void
 ping_send_now(void)
 {
   LWIP_ASSERT("ping_pcb != NULL", ping_pcb != NULL);
+  LWIP_ASSERT("ping_target != NULL", ping_target != NULL);
   ping_send(ping_pcb, ping_target);
+}
+
+static void
+ping_raw_stop(void)
+{
+  sys_untimeout(ping_timeout, ping_pcb);
+  if (ping_pcb != NULL) {
+    raw_remove(ping_pcb);
+    ping_pcb = NULL;
+  }
 }
 
 #endif /* PING_USE_SOCKETS */
 
+/**
+ * Initialize thread (socket mode) or timer (callback mode) to cyclically send pings
+ * to a target.
+ * Running ping is implicitly stopped.
+ */
 void
 ping_init(const ip_addr_t* ping_addr)
 {
+  ping_stop();
+
+  LWIP_ASSERT("ping_addr != NULL", ping_addr != NULL);
   ping_target = ping_addr;
 
 #if PING_USE_SOCKETS
@@ -391,6 +412,17 @@ ping_init(const ip_addr_t* ping_addr)
 #else /* PING_USE_SOCKETS */
   ping_raw_init();
 #endif /* PING_USE_SOCKETS */
+}
+
+/**
+ * Stop sending more pings.
+ */
+void ping_stop(void)
+{
+#if !PING_USE_SOCKETS
+  ping_raw_stop();
+#endif /* !PING_USE_SOCKETS */
+  ping_target = NULL;
 }
 
 #endif /* LWIP_RAW */

@@ -261,3 +261,26 @@ lwip_itoa(char *result, size_t bufsize, int number)
   memmove(res, tmp, (size_t)((result + bufsize) - tmp));
 }
 #endif
+
+#ifndef lwip_memcmp_consttime
+/**
+ * @ingroup sys_nonstandard
+ * The goal of this function is to compare memory with constant runtime in order to prevent
+ * timing attacks to various parts in the stack.
+ * To do that, in contrast to memcmp(), it only returns:
+ * 0: equal
+ * != 0: not equal
+ */
+int lwip_memcmp_consttime(const void* s1, const void* s2, size_t len)
+{
+  size_t i;
+  const unsigned char* a1 = (const unsigned char*)s1;
+  const unsigned char* a2 = (const unsigned char*)s2;
+  unsigned char ret = 0;
+
+  for (i = 0; i < len; i++) {
+    ret |= a1[i] ^ a2[i];
+  }
+  return ret;
+}
+#endif

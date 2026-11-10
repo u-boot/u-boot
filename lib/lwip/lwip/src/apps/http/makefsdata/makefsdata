@@ -21,7 +21,7 @@ while($file = <FILES>) {
 	print(HEADER "HTTP/1.0 200 OK\r\n");
     }
     print(HEADER "Server: lwIP/pre-0.6 (http://www.sics.se/~adam/lwip/)\r\n");
-    if($file =~ /\.html$/) {
+    if($file =~ /\.s?html?$/) {
 	print(HEADER "Content-type: text/html\r\n");
     } elsif($file =~ /\.gif$/) {
 	print(HEADER "Content-type: image/gif\r\n");
