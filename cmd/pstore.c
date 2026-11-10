@@ -163,13 +163,34 @@ static u32 pstore_round_size(u32 size)
 }
 
 /**
+ * pstore_has_ftrace_sig() - Check whether a zone has an FTrace signature
+ * @addr: Address of the zone
+ *
+ * Linux writes the signature of each zone when it starts: 'DBGC' XORed with
+ * LINUX_VERSION_CODE in the FTrace zones, the plain 'DBGC' in the others.
+ *
+ * Return: true if the zone at @addr has the signature of an FTrace zone
+ */
+static bool pstore_has_ftrace_sig(phys_addr_t addr)
+{
+	u32 *sig = map_sysmem(addr, sizeof(*sig));
+	u32 version = *sig ^ PERSISTENT_RAM_SIG;
+
+	unmap_sysmem(sig);
+
+	/* LINUX_VERSION_CODE of 3.0 to 255.255.255 */
+	return version >= 0x30000 && version <= 0xffffff;
+}
+
+/**
  * pstore_get_zones() - Find the zones where Linux keeps the records
  * @zones: Returns the zones
  *
  * Lay out the zones like ramoops_probe() in Linux: round each size down to a
  * power of two, split the memory left for the dump records into as many
  * zones as there is room for records, each rounded down to an even size, then
- * put the console, FTrace and user space zones after them.
+ * put the console, user space and FTrace zones after them. Linux 6.1 and older
+ * put the FTrace zone before the user space one, which its signature shows.
  *
  * Return: size of the largest zone, which a buffer needs for any record
  */
@@ -193,8 +214,16 @@ static u32 pstore_get_zones(struct pstore_zones *zones)
 			  (phys_size_t)count * zones->dump.size;
 
 	zones->console.addr = zones->dump_end;
-	zones->ftrace.addr = zones->console.addr + zones->console.size;
-	zones->pmsg.addr = zones->ftrace.addr + zones->ftrace.size;
+	zones->pmsg.addr = zones->console.addr + zones->console.size;
+	zones->ftrace.addr = zones->pmsg.addr + zones->pmsg.size;
+
+	/* A zone too small for a record holds none, so its place is moot */
+	if (zones->pmsg.size > sizeof(struct persistent_ram_buffer) &&
+	    zones->ftrace.size > sizeof(struct persistent_ram_buffer) &&
+	    pstore_has_ftrace_sig(zones->pmsg.addr)) {
+		zones->ftrace.addr = zones->pmsg.addr;
+		zones->pmsg.addr += zones->ftrace.size;
+	}
 
 	return max(max(zones->dump.size, zones->console.size),
 		   max(zones->ftrace.size, zones->pmsg.size));
