@@ -102,6 +102,7 @@ ANDROID AB
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 R:	Igor Opaniuk <igor.opaniuk@gmail.com>
 R:	Sam Protsenko <semen.protsenko@linaro.org>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	boot/android_ab.c
@@ -112,6 +113,7 @@ F:	test/py/tests/test_android/test_ab.py
 ANDROID AVB
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 R:	Igor Opaniuk <igor.opaniuk@gmail.com>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	cmd/avb.c
@@ -853,6 +855,7 @@ F:	test/boot/
 
 BOOTMETH_ANDROID
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	boot/bootmeth_android.c
@@ -1039,6 +1042,7 @@ F:	include/extension_board.h
 
 FASTBOOT
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	cmd/fastboot.c
