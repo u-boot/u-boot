@@ -197,3 +197,101 @@ def test_pstore_buffer_too_large(ubman):
     finally:
         # Restore the default record sizes
         ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_zone_layout(ubman):
+    """Test that pstore finds the zones where Linux puts them."""
+
+    # Linux rounds the console size down to 0x1000, which leaves 0xf000 for
+    # the dump records: 3 zones of 0x5000 for a record size of 0x4000
+    dump1 = PSTORE_ADDR + 0x5000
+    console = PSTORE_ADDR + 0xf000
+    # Larger than the record size, but fits in the zone
+    dump = b'x' * 0x4800 + b'\nend of dump 1\n'
+    # Looks like a dump record, to catch a read past the dump zones
+    text = b'====1.0-D\nconsole text\n'
+
+    ubman.run_command('')
+    try:
+        ubman.run_command_list([
+            'mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+            'pstore set 0x%x 0x12000 0x4000 0x1800 0x1000 0x1000' %
+            (PSTORE_ADDR)])
+        write_record(ubman, dump1, PSTORE_SIG, b'====1.0-D\n' + dump)
+        write_record(ubman, console, PSTORE_SIG, text)
+
+        response = ubman.run_command('pstore display')
+        assert('end of dump 1' in response)
+        assert('console text' in response)
+
+        # There is no dump zone 3
+        response = ubman.run_command('pstore display dump 3')
+        assert('****' not in response)
+        if ubman.config.buildconfig.get('config_64bit') == 'y':
+            # Nor zone 2^52 + 1, whose offset wraps around to zone 1
+            response = ubman.run_command('pstore display dump %d' %
+                                         ((1 << 52) + 1))
+            assert('****' not in response)
+
+        with tempfile.TemporaryDirectory() as outdir:
+            ubman.run_command('pstore save hostfs - %s' % (outdir))
+            with open('%s/dmesg-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == dump)
+            with open('%s/console-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == text)
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_no_dump_zones(ubman):
+    """Test that pstore finds the console zone with a record size of 0."""
+
+    ubman.run_command('')
+    try:
+        ubman.run_command_list([
+            'mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+            'pstore set 0x%x 0x%x 0 0x1000 0x1000 0x1000' %
+            (PSTORE_ADDR, PSTORE_LENGTH)])
+        # Linux makes no dump zones, the console zone comes first
+        write_record(ubman, PSTORE_ADDR, PSTORE_SIG, b'console text\n')
+
+        response = ubman.run_command('pstore display')
+        assert('console text' in response)
+        response = ubman.run_command('pstore display dump 0')
+        assert('****' not in response)
+
+        with tempfile.TemporaryDirectory() as outdir:
+            ubman.run_command('pstore save hostfs - %s' % (outdir))
+            with open('%s/console-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == b'console text\n')
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_rounded_sizes(ubman):
+    """Test that pstore set checks the sizes as Linux rounds them."""
+
+    ubman.run_command('')
+    try:
+        # Rounded down to 0x1000, a dump and a console zone fit in 0x2000
+        ubman.run_command('mw.b 0x%x 0 0x2000' % (PSTORE_ADDR))
+        response = ubman.run_command('pstore set 0x%x 0x2000 0x1800 0x1800 0 0'
+                                     % (PSTORE_ADDR))
+        assert('should be larger' not in response)
+        write_record(ubman, PSTORE_ADDR + 0x1000, PSTORE_SIG,
+                     b'console text\n')
+        response = ubman.run_command('pstore display console')
+        assert('console text' in response)
+
+        # Sizes whose sum wraps around in 32 bits
+        response = ubman.run_command(
+            'pstore set 0x%x 0x%x 0x80000000 0x80000000 0x80000000 0x80000000'
+            % (PSTORE_ADDR, PSTORE_LENGTH))
+        assert('should be larger' in response)
+        response = ubman.run_command('pstore display')
+        assert('Please set PStore configuration' in response)
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
