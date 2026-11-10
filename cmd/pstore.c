@@ -278,6 +278,11 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 		pstore_init_buffer_size();
 
 	buffer = malloc_cache_aligned(buffer_size);
+	if (!buffer) {
+		printf("Cannot allocate %u bytes for the records\n",
+		       buffer_size);
+		return CMD_RET_FAILURE;
+	}
 
 	if (type == PSTORE_TYPE_DMESG || type == PSTORE_TYPE_ALL) {
 		ptr = pstore_addr;
@@ -389,6 +394,11 @@ static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 		pstore_init_buffer_size();
 
 	buffer = malloc_cache_aligned(buffer_size);
+	if (!buffer) {
+		printf("Cannot allocate %u bytes for the records\n",
+		       buffer_size);
+		return CMD_RET_FAILURE;
+	}
 	sprintf(addr, "0x%p", buffer);
 
 	save_argv[0] = argv[0];
