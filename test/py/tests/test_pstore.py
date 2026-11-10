@@ -7,6 +7,7 @@ import utils
 import os
 import tempfile
 import shutil
+import struct
 
 PSTORE_ADDR=0x3000000
 PSTORE_LENGTH=0x100000
@@ -48,6 +49,14 @@ def write_header(ubman, addr, sig, start, size):
         'mw.l 0x%x 0x%x' % (addr, sig),
         'mw.l 0x%x 0x%x' % (addr + 4, start),
         'mw.l 0x%x 0x%x' % (addr + 8, size)])
+
+def write_record(ubman, addr, sig, data):
+    """Write a record holding data at addr"""
+
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(struct.pack('<III', sig, 0, len(data)) + data)
+        f.flush()
+        ubman.run_command('host load hostfs - 0x%x %s' % (addr, f.name))
 
 @pytest.mark.buildconfigspec('cmd_pstore')
 def test_pstore_display_all_records(ubman):
@@ -163,3 +172,28 @@ def test_pstore_cut_dump_header(ubman):
     assert(not os.path.exists('%s/dmesg-ramoops-1' % (outdir)))
 
     shutil.rmtree(outdir)
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_buffer_too_large(ubman):
+    """Test that pstore reports a buffer that it cannot allocate."""
+
+    # A record size larger than the malloc pool
+    malloc_len = int(ubman.config.buildconfig['config_sys_malloc_len'], 0)
+    size = 1 << malloc_len.bit_length()
+
+    ubman.run_command('')
+    try:
+        ubman.run_command('pstore set 0x%x 0x%x 0x%x 0 0 0' %
+                          (PSTORE_ADDR, size, size))
+        write_record(ubman, PSTORE_ADDR, PSTORE_SIG, b'====1.0-D\ndump\n')
+
+        response = ubman.run_command('pstore display')
+        assert('Cannot allocate' in response)
+
+        with tempfile.TemporaryDirectory() as outdir:
+            response = ubman.run_command('pstore save hostfs - %s' % outdir)
+            assert('Cannot allocate' in response)
+            assert(not os.listdir(outdir))
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
