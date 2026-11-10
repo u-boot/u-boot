@@ -515,7 +515,7 @@ START_TEST(test_tcp_recv_ooseq_overrun_rxwin)
     }
   }
 
-  /* pass in one more segment, cleary overrunning the rxwin */
+  /* pass in one more segment, clearly overrunning the rxwin */
   p_ovr = tcp_create_rx_segment(pcb, &data_full_wnd[TCP_MSS*(k+1)], TCP_MSS, TCP_MSS*(k+1), 0, TCP_ACK);
   EXPECT_RET(p_ovr != NULL);
   /* pass the segment to tcp_input */
@@ -602,7 +602,7 @@ START_TEST(test_tcp_recv_ooseq_overrun_rxwin_edge)
     }
   }
 
-  /* pass in one more segment, cleary overrunning the rxwin */
+  /* pass in one more segment, clearly overrunning the rxwin */
   p_ovr = tcp_create_rx_segment(pcb, &data_full_wnd[TCP_MSS*(k+1)], TCP_MSS, TCP_MSS*(k+1), 0, TCP_ACK);
   EXPECT_RET(p_ovr != NULL);
   /* pass the segment to tcp_input */

@@ -252,7 +252,7 @@ static void test_sockets_msgapi_update_iovs(struct msghdr *msg, size_t bytes)
 {
   msg_iovlen_t i;
 
-  /* note: this modifies the underyling iov_base and iov_len for a partial
+  /* note: this modifies the underlying iov_base and iov_len for a partial
      read for an individual vector. This updates the msg->msg_iov pointer
      to skip fully consumed vectors */
   

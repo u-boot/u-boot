@@ -147,6 +147,7 @@ START_TEST(test_ip4_frag)
   LWIP_UNUSED_ARG(_i);
 
   linkoutput_ctr = 0;
+  linkoutput_byte_ctr = 0;
 
   /* Verify that 8000 byte payload is split into six packets */
   fail_unless(data != NULL);

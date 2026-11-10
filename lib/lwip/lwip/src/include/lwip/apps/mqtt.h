@@ -79,6 +79,8 @@ struct mqtt_connect_client_info_t {
   const char* will_topic;
   /** will_msg, see will_topic */
   const char* will_msg;
+  /** will_msg length, 0 to compute length from will_msg string */
+  u8_t will_msg_len;
   /** will_qos, see will_topic */
   u8_t will_qos;
   /** will_retain, see will_topic */

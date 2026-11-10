@@ -186,6 +186,8 @@ pbuf_init_alloced_pbuf(struct pbuf *p, void *payload, u16_t tot_len, u16_t len, 
   p->flags = flags;
   p->ref = 1;
   p->if_idx = NETIF_NO_INDEX;
+
+  LWIP_PBUF_CUSTOM_DATA_INIT(p);
 }
 
 /**
@@ -858,6 +860,7 @@ pbuf_cat(struct pbuf *h, struct pbuf *t)
 
   LWIP_ERROR("(h != NULL) && (t != NULL) (programmer violates API)",
              ((h != NULL) && (t != NULL)), return;);
+  LWIP_ASSERT("Creating an infinite loop", h != t);
 
   /* proceed to last pbuf of chain */
   for (p = h; p->next != NULL; p = p->next) {
@@ -1094,12 +1097,15 @@ pbuf_copy_partial(const struct pbuf *buf, void *dataptr, u16_t len, u16_t offset
  * a copy into the user-supplied buffer.
  *
  * @param p the pbuf from which to copy data
- * @param buffer the application supplied buffer
- * @param bufsize size of the application supplied buffer
- * @param len length of data to copy (dataptr must be big enough). No more
- * than buf->tot_len will be copied, irrespective of len
+ * @param buffer the application supplied buffer. May be NULL if the caller does not
+ * want to copy. In this case, offset + len should be checked against p->tot_len,
+ * since there's no way for the caller to know why NULL is returned.
+ * @param bufsize size of the application supplied buffer (when buffer is != NULL)
+ * @param len length of data to copy (p and buffer must be big enough)
  * @param offset offset into the packet buffer from where to begin copying len bytes
- * @return the number of bytes copied, or 0 on failure
+ * @return - pointer into pbuf payload if that is already contiguous (no copy needed)
+ *         - pointer to 'buffer' if data was not contiguous and had to be copied
+ *         - NULL on error
  */
 void *
 pbuf_get_contiguous(const struct pbuf *p, void *buffer, size_t bufsize, u16_t len, u16_t offset)
@@ -1108,14 +1114,17 @@ pbuf_get_contiguous(const struct pbuf *p, void *buffer, size_t bufsize, u16_t le
   u16_t out_offset;
 
   LWIP_ERROR("pbuf_get_contiguous: invalid buf", (p != NULL), return NULL;);
-  LWIP_ERROR("pbuf_get_contiguous: invalid dataptr", (buffer != NULL), return NULL;);
-  LWIP_ERROR("pbuf_get_contiguous: invalid dataptr", (bufsize >= len), return NULL;);
+  LWIP_ERROR("pbuf_get_contiguous: invalid bufsize", (buffer == NULL) || (bufsize >= len), return NULL;);
 
   q = pbuf_skip_const(p, offset, &out_offset);
   if (q != NULL) {
     if (q->len >= (out_offset + len)) {
       /* all data in this pbuf, return zero-copy */
       return (u8_t *)q->payload + out_offset;
+    }
+    if (buffer == NULL) {
+      /* the caller does not want to copy */
+      return NULL;
     }
     /* need to copy */
     if (pbuf_copy_partial(q, buffer, len, out_offset) != len) {

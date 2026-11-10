@@ -1409,7 +1409,7 @@ netif_ip6_addr_set_parts(struct netif *netif, s8_t addr_idx, u32_t i0, u32_t i1,
     if (ip6_addr_isvalid(netif_ip6_addr_state(netif, addr_idx))) {
       netif_do_ip_addr_changed(netif_ip_addr6(netif, addr_idx), &new_ipaddr);
     }
-    /* @todo: remove/readd mib2 ip6 entries? */
+    /* @todo: remove/re-add mib2 ip6 entries? */
 
     ip_addr_copy(netif->ip6_addr[addr_idx], new_ipaddr);
 

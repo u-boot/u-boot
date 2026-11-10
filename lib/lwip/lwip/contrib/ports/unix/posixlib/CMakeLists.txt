@@ -84,7 +84,7 @@ install(DIRECTORY "${LWIP_DIR}/contrib/ports/unix/port/include/netif"
     FILES_MATCHING PATTERN "*.h"
 )
 
-install(DIRECTORY "${LWIP_DIR}/contrib/ports/unix/linuxlib/include/posix"
+install(DIRECTORY "${LWIP_DIR}/contrib/ports/unix/posixlib/include/posix"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/lwip"
     FILES_MATCHING PATTERN "*.h"
 )
