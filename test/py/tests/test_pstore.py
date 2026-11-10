@@ -99,8 +99,8 @@ def test_pstore_invalid_records(ubman):
     """Test that pstore skips records with an invalid header."""
 
     console = PSTORE_ADDR + PSTORE_LENGTH - 3 * 4096
-    ftrace = console + 4096
-    pmsg = ftrace + 4096
+    pmsg = console + 4096
+    ftrace = pmsg + 4096
     outdir = tempfile.mkdtemp()
 
     ubman.run_command('')
@@ -292,6 +292,66 @@ def test_pstore_rounded_sizes(ubman):
         assert('should be larger' in response)
         response = ubman.run_command('pstore display')
         assert('Please set PStore configuration' in response)
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_zone_order(ubman):
+    """Test that pstore finds the ftrace and user zones in both orders."""
+
+    # The ftrace zone is larger than the user space one, so that the two
+    # zones do not just swap places
+    console = PSTORE_ADDR + PSTORE_LENGTH - 0x4000
+    orders = [
+        # Linux 6.2 and later put the user space zone first
+        (console + 0x1000, console + 0x2000, 0x060200),
+        # Older kernels put the ftrace zone first
+        (console + 0x3000, console + 0x1000, 0x060100),
+    ]
+
+    ubman.run_command('')
+    try:
+        ubman.run_command('pstore set 0x%x 0x%x 0x1000 0x1000 0x2000 0x1000' %
+                          (PSTORE_ADDR, PSTORE_LENGTH))
+        for pmsg, ftrace, version in orders:
+            ubman.run_command('mw.b 0x%x 0 0x%x' % (PSTORE_ADDR,
+                                                    PSTORE_LENGTH))
+            write_record(ubman, pmsg, PSTORE_SIG, b'user text\n')
+            # The ftrace signature holds the Linux version
+            write_record(ubman, ftrace, PSTORE_SIG ^ version,
+                         b'ftrace text\n')
+
+            response = ubman.run_command('pstore display user')
+            assert('user text' in response)
+            assert('ftrace text' not in response)
+            response = ubman.run_command('pstore display ftrace')
+            assert('ftrace text' in response)
+            assert('user text' not in response)
+
+            with tempfile.TemporaryDirectory() as outdir:
+                ubman.run_command('pstore save hostfs - %s' % (outdir))
+                with open('%s/pmsg-ramoops-0' % (outdir), 'rb') as f:
+                    assert(f.read() == b'user text\n')
+                with open('%s/ftrace-ramoops-0' % (outdir), 'rb') as f:
+                    assert(f.read() == b'ftrace text\n')
+
+        # A user space record without a signature in the new order, and an
+        # ftrace record with data that looks like a user space record where
+        # the old order puts the user space zone
+        ubman.run_command('mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH))
+        write_record(ubman, console + 0x1000, 0, b'user text\n')
+        data = (b'ftrace text\n' + b'x' * (0x1000 - 12 - 12) +
+                struct.pack('<III', PSTORE_SIG, 0, 6) + b'bogus\n')
+        write_record(ubman, console + 0x2000, PSTORE_SIG ^ 0x060200, data)
+
+        response = ubman.run_command('pstore display user')
+        assert('****' not in response)
+        with tempfile.TemporaryDirectory() as outdir:
+            ubman.run_command('pstore save hostfs - %s' % (outdir))
+            assert(not os.path.exists('%s/pmsg-ramoops-0' % (outdir)))
+            with open('%s/ftrace-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == data)
     finally:
         # Restore the default record sizes
         ubman.restart_uboot()
