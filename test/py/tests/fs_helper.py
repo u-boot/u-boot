@@ -250,6 +250,10 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, fs_img=None, quiet=False)
                                       shell=True).decode()
             if 'metadata_csum' in sb_content:
                 check_call(f'tune2fs -O ^metadata_csum {fs_img}', shell=True)
+            # Cannot use check_call here as it will return an exit code of 1
+            # as it modifies the file system. The -f is needed as although the
+            # fs is marked clean, it is not really.
+            call(f'fsck.ext4 -f -y {fs_img}', shell=True)
         elif fs_lnxtype == 'vfat' and src_dir:
             flags = f"-smpQ{'' if quiet else 'v'}"
             check_call(f'mcopy -i {fs_img} {flags} {src_dir}/* ::/',
