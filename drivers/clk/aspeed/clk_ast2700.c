@@ -918,6 +918,11 @@ static int ast2700_clk_bind(struct udevice *dev)
 			debug("Warning: failed to bind reset controller: ret = %d\n", ret);
 	}
 
+	/* The SCU node is bound as a clock device, so bind its pinctrl child */
+	ret = dm_scan_fdt_dev(dev);
+	if (ret)
+		debug("Warning: failed to bind SCU children: ret = %d\n", ret);
+
 	return 0;
 }
 
