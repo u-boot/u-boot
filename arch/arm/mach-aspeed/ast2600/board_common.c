@@ -12,6 +12,7 @@
 #include <dm/uclass.h>
 #include <asm/arch/scu_ast2600.h>
 #include <asm/global_data.h>
+#include <dm/ofnode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,10 +49,62 @@ int dram_init(void)
 	return 0;
 }
 
+/*
+ * B650D4U-specific AST2600 THRU handover.
+ * Prepare the THRU pin selections before releasing the strap overrides.
+ */
+static int b650d4u_thru_init(void)
+{
+	const uintptr_t scu = 0x1e6e2000;
+	u32 strap2, strap3, local;
+
+	if (!ofnode_device_is_compatible(ofnode_root(),
+					 "asrock,b650d4u-bmc"))
+		return 0;
+
+	strap2 = readl(scu + 0x510);
+	strap3 = readl(scu + 0x51c);
+
+	if (!(strap2 & BIT(28)) &&
+	    ((strap2 & BIT(30)) || !(strap3 & BIT(9))))
+		return 0;
+
+	/* Prepare local THRU0, THRU1 and THRU2 selections. */
+	local = readl(scu + 0x4bc);
+	writel(local | GENMASK(29, 24), scu + 0x4bc);
+
+	local = readl(scu + 0x4bc);
+	if ((local & GENMASK(29, 24)) != GENMASK(29, 24))
+		return -EPERM;
+
+	if (!(strap2 & BIT(30)) && (strap3 & BIT(9))) {
+		local = readl(scu + 0x51c);
+		writel(local & ~BIT(9), scu + 0x51c);
+	}
+
+	if (strap2 & BIT(28))
+		writel(BIT(28), scu + 0x514);
+
+	strap2 = readl(scu + 0x510);
+	strap3 = readl(scu + 0x51c);
+
+	if ((strap2 & BIT(28)) ||
+	    (!(strap2 & BIT(30)) && (strap3 & BIT(9))))
+		return -EPERM;
+
+	return 0;
+}
+
 int board_init(void)
 {
 	int i = 0, rc;
 	struct udevice *dev;
+
+	rc = b650d4u_thru_init();
+	if (rc) {
+		printf("B650D4U: THRU handover failed: %d\n", rc);
+		return rc;
+	}
 
 	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
