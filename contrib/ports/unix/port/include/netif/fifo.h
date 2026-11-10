@@ -3,6 +3,10 @@
 
 #include "lwip/sys.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** How many bytes in fifo */
 #define FIFOSIZE 2048
 
@@ -49,6 +53,10 @@ void fifoPut(fifo_t * fifo, int fd);
 *	@param 	fifo	pointer to fifo data structure, allocated by the user
 */
 void fifoInit(fifo_t * fifo);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

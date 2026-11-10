@@ -1,7 +1,10 @@
 /* Author: Magnus Ivarsson <magnus.ivarsson@volvo.com> */
 
 /* to get rid of implicit function declarations */
+#ifndef __FreeBSD__
+/* defining this on FreeBSD hides non-standard defines that sio.c depends on */
 #define _XOPEN_SOURCE 600
+#endif
 #define _GNU_SOURCE
 
 /* build with Darwin C extensions not part of POSIX, i.e. FASYNC, SIGIO.
@@ -35,8 +38,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#if defined(LWIP_UNIX_OPENBSD)
+#if defined(LWIP_UNIX_OPENBSD) || defined(LWIP_UNIX_MACH)
 #include <util.h>
+#elif defined(LWIP_UNIX_FREEBSD)
+#include <libutil.h>
 #endif
 #include <termios.h>
 #include <stdio.h>

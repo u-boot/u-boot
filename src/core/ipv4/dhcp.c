@@ -1600,7 +1600,7 @@ again:
         /* special case: there might be more than one server */
         LWIP_DHCP_INPUT_ERROR("len %% 4 == 0", len % 4 == 0, return ERR_VAL;);
         /* limit number of DNS servers */
-        decode_len = LWIP_MIN(len, 4 * DNS_MAX_SERVERS);
+        decode_len = LWIP_MIN(len, 4 * LWIP_DHCP_PROVIDE_DNS_SERVERS);
         LWIP_DHCP_INPUT_ERROR("len >= decode_len", len >= decode_len, return ERR_VAL;);
         decode_idx = DHCP_OPTION_IDX_DNS_SERVER;
         break;

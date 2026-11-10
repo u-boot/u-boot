@@ -66,6 +66,50 @@ ip6_test_handle_timers(int count)
   }
 }
 
+/* Helper functions */
+static void
+create_ip6_input_fragment(u32_t ip_id, u16_t start, u16_t len, int last, u8_t next_hdr)
+{
+  struct pbuf* p;
+  struct netif* input_netif = netif_list; /* just use any netif */
+  fail_unless((start & 7) == 0);
+  fail_unless(((len & 7) == 0) || last);
+  fail_unless(input_netif != NULL);
+
+  p = pbuf_alloc(PBUF_RAW, len + sizeof(struct ip6_frag_hdr) +
+    sizeof(struct ip6_hdr), PBUF_RAM);
+  fail_unless(p != NULL);
+  if (p != NULL) {
+    err_t err;
+    struct ip6_frag_hdr* fraghdr;
+
+    struct ip6_hdr* ip6hdr = (struct ip6_hdr*)p->payload;
+    IP6H_VTCFL_SET(ip6hdr, 6, 0, 0);
+    IP6H_PLEN_SET(ip6hdr, len + sizeof(struct ip6_frag_hdr));
+    IP6H_NEXTH_SET(ip6hdr, IP6_NEXTH_FRAGMENT);
+    IP6H_HOPLIM_SET(ip6hdr, 64);
+    ip6_addr_copy_to_packed(ip6hdr->src, *netif_ip6_addr(input_netif, 0));
+    ip6hdr->src.addr[3]++;
+    ip6_addr_copy_to_packed(ip6hdr->dest, *netif_ip6_addr(input_netif, 0));
+
+    fraghdr = (struct ip6_frag_hdr*)(ip6hdr + 1);
+    fraghdr->_nexth = next_hdr;
+    fraghdr->reserved = 0;
+    if (last) {
+      fraghdr->_fragment_offset = htons(start & ~7);
+    } else {
+      fraghdr->_fragment_offset = htons((start & ~7) | 1);
+    }
+    fraghdr->_identification = htonl(ip_id);
+
+    err = ip6_input(p, input_netif);
+    if (err != ERR_OK) {
+      pbuf_free(p);
+    }
+    fail_unless(err == ERR_OK);
+  }
+}
+
 /* Setups/teardown functions */
 
 static void
@@ -432,6 +476,50 @@ START_TEST(test_ip6_frag)
 }
 END_TEST
 
+static void test_ip6_reass_helper(u32_t ip_id, const u16_t *segments, size_t num_segs, u16_t seglen)
+{
+  ip_addr_t my_addr = IPADDR6_INIT_HOST(0x20010db8, 0x0, 0x0, 0x1);
+  size_t i;
+
+  memset(&lwip_stats.mib2, 0, sizeof(lwip_stats.mib2));
+  memset(&lwip_stats.ip6_frag, 0, sizeof(lwip_stats.ip6_frag));
+
+  netif_set_up(&test_netif6);
+  netif_ip6_addr_set(&test_netif6, 0, ip_2_ip6(&my_addr));
+  netif_ip6_addr_set_state(&test_netif6, 0, IP6_ADDR_VALID);
+
+  for (i = 0; i < num_segs; i++) {
+    u16_t seg = segments[i];
+    int last = seg + 1U == num_segs;
+    create_ip6_input_fragment(ip_id, seg * seglen, seglen, last, IP6_NEXTH_UDP);
+    fail_unless(lwip_stats.ip6_frag.recv == i + 1);
+    fail_unless(lwip_stats.ip6_frag.err == 0);
+    fail_unless(lwip_stats.ip6_frag.memerr == 0);
+    fail_unless(lwip_stats.ip6_frag.drop == 0);
+    if (i + 1 == num_segs) {
+      fail_unless(lwip_stats.mib2.ip6reasmoks == 1);
+    }
+    else {
+      fail_unless(lwip_stats.mib2.ip6reasmoks == 0);
+    }
+  }
+}
+
+START_TEST(test_ip6_reass)
+{
+#define NUM_SEGS 9
+  const u16_t t1[NUM_SEGS] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+  const u16_t t2[NUM_SEGS] = { 8, 0, 1, 2, 3, 4, 7, 6, 5 };
+  const u16_t t3[NUM_SEGS] = { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
+  const u16_t t4[NUM_SEGS] = { 8, 2, 4, 6, 7, 5, 3, 1, 0 };
+  LWIP_UNUSED_ARG(_i);
+
+  test_ip6_reass_helper(128, t1, NUM_SEGS, 200);
+  test_ip6_reass_helper(129, t2, NUM_SEGS, 208);
+  test_ip6_reass_helper(130, t3, NUM_SEGS, 8);
+  test_ip6_reass_helper(130, t4, NUM_SEGS, 1448);
+}
+
 /** Create the suite including all tests for this module */
 Suite *
 ip6_suite(void)
@@ -444,7 +532,8 @@ ip6_suite(void)
     TESTFUNC(test_ip6_lladdr),
     TESTFUNC(test_ip6_dest_unreachable_chained_pbuf),
     TESTFUNC(test_ip6_frag_pbuf_len_assert),
-    TESTFUNC(test_ip6_frag)
+    TESTFUNC(test_ip6_frag),
+    TESTFUNC(test_ip6_reass)
   };
   return create_suite("IPv6", tests, sizeof(tests)/sizeof(testfunc), ip6_setup, ip6_teardown);
 }

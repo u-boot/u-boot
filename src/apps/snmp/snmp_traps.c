@@ -137,7 +137,6 @@ static s32_t req_id = 1;
  * @param dst_idx index in 0 .. SNMP_TRAP_DESTINATIONS-1
  * @param enable switch if 0 destination is disabled >0 enabled.
  *
- * @retval void
  */
 void
 snmp_trap_dst_enable(u8_t dst_idx, u8_t enable)
@@ -154,7 +153,6 @@ snmp_trap_dst_enable(u8_t dst_idx, u8_t enable)
  * @param dst_idx index in 0 .. SNMP_TRAP_DESTINATIONS-1
  * @param dst IPv4 address in host order.
  *
- * @retval void
  */
 void
 snmp_trap_dst_ip_set(u8_t dst_idx, const ip_addr_t *dst)
@@ -171,7 +169,6 @@ snmp_trap_dst_ip_set(u8_t dst_idx, const ip_addr_t *dst)
  *
  * @param enable enable SNMP traps
  *
- * @retval void
  */
 void
 snmp_set_auth_traps_enabled(u8_t enable)
@@ -200,7 +197,6 @@ snmp_get_auth_traps_enabled(void)
  *
  * @param snmp_version version that will be used for sending traps
  *
- * @retval void
  */
 void
 snmp_set_default_trap_version(u8_t snmp_version)
@@ -274,7 +270,6 @@ snmp_prepare_trap_oid(struct snmp_obj_id *dest_snmp_trap_oid, const struct snmp_
  * @param generic_trap SNMP v1 generic trap
  * @param specific_trap SNMP v1 specific trap
  * @param varbinds list of varbinds
- * @retval void
  */
 static void
 snmp_prepare_necessary_msg_fields(struct snmp_msg_trap *trap_msg, const struct snmp_obj_id *eoid, s32_t generic_trap, s32_t specific_trap, struct snmp_varbind *varbinds)
@@ -351,13 +346,11 @@ snmp_send_trap_or_notification_or_inform_generic(struct snmp_msg_trap *trap_msg,
   u16_t tot_len = 0;
   err_t err = ERR_OK;
   u32_t timestamp = 0;
-  struct snmp_varbind *original_varbinds = varbinds;
-  struct snmp_varbind *original_prev = NULL;
+  struct snmp_obj_id snmp_trap_oid = { 0 };  /* used for converting SNMPv1 generic/specific trap parameter to SNMPv2 snmpTrapOID */
   struct snmp_varbind snmp_v2_special_varbinds[] = {
                                                      /* First varbind is used to store sysUpTime */
                                                      {
                                                        NULL,                            /* *next */
-                                                       NULL,                            /* *prev */
                                                        {                                /* oid */
                                                          8,                             /* oid len */
                                                          {1, 3, 6, 1, 2, 1, 1, 3}       /* oid for sysUpTime */
@@ -369,7 +362,6 @@ snmp_send_trap_or_notification_or_inform_generic(struct snmp_msg_trap *trap_msg,
                                                      /* Second varbind is used to store snmpTrapOID */
                                                      {
                                                        NULL,                            /* *next */
-                                                       NULL,                            /* *prev */
                                                        {                                /* oid */
                                                          10,                            /* oid len */
                                                          {1, 3, 6, 1, 6, 3, 1, 1, 4, 1} /* oid for snmpTrapOID */
@@ -383,7 +375,6 @@ snmp_send_trap_or_notification_or_inform_generic(struct snmp_msg_trap *trap_msg,
   LWIP_ASSERT_SNMP_LOCKED();
 
   snmp_v2_special_varbinds[0].next = &snmp_v2_special_varbinds[1];
-  snmp_v2_special_varbinds[1].prev = &snmp_v2_special_varbinds[0];
 
   snmp_v2_special_varbinds[0].value = &timestamp;
 
@@ -391,15 +382,10 @@ snmp_send_trap_or_notification_or_inform_generic(struct snmp_msg_trap *trap_msg,
 
   /* see rfc3584 */
   if (trap_msg->snmp_version == SNMP_VERSION_2c) {
-    struct snmp_obj_id snmp_trap_oid =  { 0 };  /* used for converting SNMPv1 generic/specific trap parameter to SNMPv2 snmpTrapOID */
     err = snmp_prepare_trap_oid(&snmp_trap_oid, eoid, generic_trap, specific_trap);
     if (err == ERR_OK) {
       snmp_v2_special_varbinds[1].value_len = snmp_trap_oid.len * sizeof(snmp_trap_oid.id[0]);
       snmp_v2_special_varbinds[1].value = snmp_trap_oid.id;
-      if (varbinds != NULL) {
-        original_prev = varbinds->prev;
-        varbinds->prev = &snmp_v2_special_varbinds[1];
-      }
       varbinds = snmp_v2_special_varbinds;  /* After inserting two varbinds at the beginning of the list, make sure that pointer is pointing to the first element  */
     }
   }
@@ -421,9 +407,6 @@ snmp_send_trap_or_notification_or_inform_generic(struct snmp_msg_trap *trap_msg,
         err = ERR_RTE;
       }
     }
-  }
-  if ((trap_msg->snmp_version == SNMP_VERSION_2c) && (original_varbinds != NULL)) {
-    original_varbinds->prev = original_prev;
   }
   req_id++;
   return err;
@@ -498,7 +481,6 @@ snmp_send_trap_specific(s32_t specific_trap, struct snmp_varbind *varbinds)
 /**
  * @ingroup snmp_traps
  * Send coldstart trap
- * @retval void
  */
 void
 snmp_coldstart_trap(void)
@@ -509,7 +491,6 @@ snmp_coldstart_trap(void)
 /**
  * @ingroup snmp_traps
  * Send authentication failure trap (used internally by agent)
- * @retval void
  */
 void
 snmp_authfail_trap(void)
@@ -727,7 +708,6 @@ snmp_trap_header_enc_pdu(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pb
  * Encodes trap header part that is SNMP v1 header specific.
  * @param trap Trap message
  * @param pbuf_stream stream used for storing data inside pbuf
- * @retval void
  */
 static err_t
 snmp_trap_header_enc_v1_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pbuf_stream)
@@ -781,7 +761,6 @@ snmp_trap_header_enc_v1_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_st
  *
  * @param trap Trap message
  * @param pbuf_stream stream used for storing data inside pbuf
- * @retval void
  */
 static err_t
 snmp_trap_header_enc_v2c_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pbuf_stream)
@@ -814,7 +793,6 @@ snmp_trap_header_enc_v2c_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_s
  *
  * @param trap Trap message
  * @param pbuf_stream stream used for storing data inside pbuf
- * @retval void
  */
 static err_t
 snmp_trap_header_enc(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pbuf_stream)

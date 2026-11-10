@@ -914,7 +914,8 @@ sntp_getkodreceived(u8_t idx)
  * Initialize one of the NTP servers by name
  *
  * @param idx the index of the NTP server to set must be < SNTP_MAX_SERVERS
- * @param server DNS name of the NTP server to set, to be resolved at contact time
+ * @param server DNS name of the NTP server to set, to be resolved at contact
+ *        time.  Note sntp stores the pointer, it doesn't copy the string.
  */
 void
 sntp_setservername(u8_t idx, const char *server)

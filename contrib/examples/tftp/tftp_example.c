@@ -141,6 +141,7 @@ tftp_example_init_client(void)
   ip_addr_t srv;
   int ret = ipaddr_aton(LWIP_TFTP_EXAMPLE_CLIENT_REMOTEIP, &srv);
   LWIP_ASSERT("ipaddr_aton failed", ret == 1);
+  LWIP_UNUSED_ARG(ret);
 
   err = tftp_init_client(&tftp);
   LWIP_ASSERT("tftp_init_client failed", err == ERR_OK);

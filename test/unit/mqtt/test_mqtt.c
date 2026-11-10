@@ -77,7 +77,7 @@ START_TEST(basic_connect)
     "dumm",
     NULL, NULL,
     10,
-    NULL, NULL, 0, 0
+    NULL, NULL, 0, 0, 0
   };
   struct pbuf *p;
   unsigned char rxbuf[] = {0x20, 0x02, 0x00, 0x00};

@@ -157,7 +157,7 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
 static err_t
 send_error(const ip_addr_t *addr, u16_t port, enum tftp_error code, const char *str)
 {
-  int str_length = strlen(str);
+  size_t str_length = strlen(str);
   struct pbuf *p;
   u16_t *payload;
   err_t ret;

@@ -1305,7 +1305,7 @@ smtp_process(void *arg, struct altcp_pcb *pcb, struct pbuf *p)
     LWIP_DEBUGF(SMTP_DEBUG_TRACE, ("smtp_process: received response code: %d\n", response_code));
     if (smtp_is_response_finished(s) != ERR_OK) {
       LWIP_DEBUGF(SMTP_DEBUG_TRACE, ("smtp_process: partly received response code: %d\n", response_code));
-      /* wait for next packet to complete the respone */
+      /* wait for next packet to complete the response */
       return;
     }
   } else {

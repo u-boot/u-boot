@@ -6,6 +6,58 @@ HISTORY
 
   * [Enter new changes just after this line - do not remove this line]
 
+(STABLE-2.2.1):
+
+  ++ New features:
+
+  2023-10-11: Faidon Liambotis
+  * Add MEM_CUSTOM_ALLOCATOR and make LIBC a subset of it
+
+  2023-09-29: Jiri Findejs
+  * mqtt: support binary Will Message
+
+  ++ Bugfixes:
+
+  2024-02-19: Simon Goldschmidt
+  * tcpip: fix that TCPIP_CORE_LOCK is not released for LWIP_TIMERS==0
+
+  2024-01-09: Simon Goldschmidt
+  * snmp v3, ppp: prevent possible timing attacks by using a constant-runtime-memcmp when
+    checking credentials
+
+  2023-01-04: Simon Goldschmidt
+  * makefsdata: update tinydir.h to newest version (1.2.6)
+
+  2023-10-12: Borys Szefler
+  * dhcp: fix memory corruption when LWIP_DHCP_MAX_DNS_SERVERS  > DNS_MAX_SERVERS
+
+  2023-10-11: Mazakazu
+  * sockets: fix socket leak when using setsockopt/getsockopt hook with LWIP_NETCONN_FULLDUPLEX==1
+
+  2023-10-10: Simon Goldschmidt
+  * sockets: fix bug #63898: allow socket option IPV6_CHECKSUM for both IPPROTO_IPV6 and IPPROTO_RAW
+
+  2023-10-10: Simon Goldschmidt
+  * ipv6: fix ip6_current_header() after reassembly
+
+  2023-10-07: Simon Goldschmidt
+  * ipv6 reassembly: fix detecting holes in reassembled packets
+
+  2023-10-04: Simon Goldschmidt
+  * apps: http client: improve the HTTP client; ensure connection settings are passed
+
+  2023-10-03: Simon Goldschmidt
+  * ipv6: frag: fix bogus icmp6 response on reassembly timeout
+
+  2023-09-28: Szabolcs Szekelyi
+  * httpd: ensure headers are parsed case-insensitive
+
+  2023-09-28: Erik Ekman
+  * Fix ND6 Router Advertisement parsing when NETIF_MAX_HWADDR_LEN is above 6.
+
+  2023-09-27: Hardy Griech
+  * Fix iperf byte counting mode
+
 (STABLE-2.2.0):
 
   2018-10-02: Dirk Ziegelmeier

@@ -391,7 +391,7 @@ netbiosns_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t 
               resp->resp_hdr.authorityRRs  = 0;
               resp->resp_hdr.additionalRRs = 0;
 
-              /* prepare NetBIOS header datas */
+              /* prepare NetBIOS header data */
               MEMCPY( resp->resp_name.encname, netbios_question_hdr->encname, sizeof(netbios_question_hdr->encname));
               resp->resp_name.nametype     = netbios_question_hdr->nametype;
               resp->resp_name.type         = netbios_question_hdr->type;
