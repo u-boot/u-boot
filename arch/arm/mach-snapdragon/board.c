@@ -172,15 +172,13 @@ static int get_cmdline_option(const char *cmdline, const char *key, char *out, i
 		return -ENOENT;
 
 	p += strlen(key);
-	p_end = strstr(p, " ");
-	if (!p_end)
-		return -ENOENT;
 
-	len = p_end - p;
-	if (len > out_len)
-		len = out_len;
+	p_end = strchr(p, ' ');
+	len = p_end ? p_end - p : strlen(p);
+	if (len >= out_len)
+		len = out_len - 1;
 
-	strncpy(out, p, len);
+	memcpy(out, p, len);
 	out[len] = '\0';
 
 	return 0;
@@ -209,6 +207,9 @@ void qcom_set_serialno(void)
 	const char *cmdline;
 	char serial[32];
 
+	if (env_get("serial#"))
+		return;
+
 	if (!qcom_socinfo_init())
 		return;
 
@@ -219,7 +220,9 @@ void qcom_set_serialno(void)
 		return;
 	}
 
-	get_cmdline_option(cmdline, "androidboot.serialno=", serial, sizeof(serial));
+	if (get_cmdline_option(cmdline, "androidboot.serialno=", serial, sizeof(serial)))
+		return;
+
 	if (serial[0] != '\0')
 		env_set("serial#", serial);
 }
