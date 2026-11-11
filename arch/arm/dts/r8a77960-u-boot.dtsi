@@ -57,10 +57,6 @@
 	/delete-node/ vga;
 };
 
-&i2c4 {
-	/delete-node/ video-receiver@70;
-};
-
 / {
 	soc {
 		/delete-node/ fdp1@fe940000;
@@ -95,4 +91,8 @@
 
 &a57_1 {
 	/delete-property/ operating-points-v2;
+};
+
+&i2c4 {
+	/delete-node/ video-receiver@70;
 };
