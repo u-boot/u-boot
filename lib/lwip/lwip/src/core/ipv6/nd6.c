@@ -250,6 +250,12 @@ nd6_process_autoconfig_prefix(struct netif *netif,
   u8_t addr_state;
   s8_t i, free_idx;
 
+#ifdef LWIP_HOOK_ND6_AUTOCONFIG
+  if (!LWIP_HOOK_ND6_AUTOCONFIG(netif)) {
+    return;
+  }
+#endif
+
   /* The caller already checks RFC 4862 Sec. 5.5.3 points (a) and (b). We do
    * the rest, starting with checks for (c) and (d) here. */
   valid_life = lwip_htonl(prefix_opt->valid_lifetime);

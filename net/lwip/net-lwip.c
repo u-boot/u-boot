@@ -350,6 +350,9 @@ static void net_lwip_remove_netif(struct netif *netif)
 	ip6_addr_t allnodes;
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+	net_lwip_dhcp6_detach(netif);
+#endif
 	netif_remove(netif);
 #if CONFIG_IS_ENABLED(DNS)
 	/* Do not carry router-advertised name servers to the next interface. */
@@ -546,8 +549,59 @@ int net_lwip_ip6_init(struct net_lwip_ctx *ctx)
 	ip6_addr_assign_zone(&net_lwip_runtime.ip6_gateway, IP6_UNICAST, netif);
 	net_lwip_runtime.ip6_configured = true;
 
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+	ret = net_lwip_dhcp6_restore(ctx, &addr);
+	if (ret) {
+		net_lwip_runtime.ip6_configured = false;
+		return ret;
+	}
+#endif
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+bool net_lwip_is_exclusive(struct net_lwip_ctx *ctx)
+{
+	return ctx->netif == net_lwip_runtime.netif && net_lwip_runtime.users == 1;
+}
+
+/* Start DAD; DHCPv6 checks completion from the shared runtime poller. */
+int net_lwip_ip6_lease(struct net_lwip_ctx *ctx, const ip6_addr_t *addr,
+		       u32 preferred, u32 valid)
+{
+	struct netif *netif = ctx->netif;
+
+	if (netif != net_lwip_runtime.netif || !net_lwip_runtime.ip6_configured)
+		return -EINVAL;
+	if (!valid || preferred > valid)
+		return -EINVAL;
+	for (unsigned int i = 1; i < LWIP_IPV6_NUM_ADDRESSES; i++)
+		netif_ip6_addr_set_state(netif, i, IP6_ADDR_INVALID);
+	netif_set_ip6_autoconfig_enabled(netif, 0);
+	netif_ip6_addr_set(netif, 1, addr);
+	netif_ip6_addr_set_valid_life(netif, 1, valid);
+	netif_ip6_addr_set_pref_life(netif, 1, preferred);
+	netif_ip6_addr_set_state(netif, 1, IP6_ADDR_TENTATIVE);
+	return 0;
+}
+
+int net_lwip_ip6_lease_commit(struct net_lwip_ctx *ctx)
+{
+	const ip6_addr_t *addr;
+	int ret;
+
+	if (ctx->netif != net_lwip_runtime.netif || !net_lwip_runtime.ip6_configured ||
+	    !ip6_addr_isvalid(netif_ip6_addr_state(ctx->netif, 1)))
+		return -EINVAL;
+	addr = netif_ip6_addr(ctx->netif, 1);
+	ret = env_set("ip6addr", ip6addr_ntoa(addr));
+	if (ret)
+		return ret;
+	ip6_addr_copy(net_lwip_runtime.ip6_addr, *addr);
+	net_lwip_runtime.ip6_prefix_len = 64;
+	return 0;
+}
+#endif
 
 int net_lwip_ip6_start(struct net_lwip_ctx *ctx)
 {
@@ -989,7 +1043,7 @@ static int net_lwip_rx(struct udevice *udev, struct netif *netif)
  */
 int net_lwip_poll(void)
 {
-	int ret;
+	int ret = 0;
 
 	if (!net_lwip_runtime.users)
 		return -ENODEV;
@@ -999,6 +1053,9 @@ int net_lwip_poll(void)
 	net_lwip_runtime.polling = true;
 #if CONFIG_IS_ENABLED(IPV6)
 	net_lwip_ip6_update_lifetimes();
+#endif
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+	net_lwip_dhcp6_poll();
 #endif
 	ret = net_lwip_rx(net_lwip_runtime.dev, net_lwip_runtime.netif);
 	net_lwip_runtime.polling = false;

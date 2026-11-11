@@ -96,6 +96,13 @@ int net_lwip_ip6_aton(const char *text, ip6_addr_t *addr);
 int net_lwip_ip6_init(struct net_lwip_ctx *ctx);
 int net_lwip_ip6_ready(struct net_lwip_ctx *ctx, ip_addr_t *dest);
 int net_lwip_ip6_start(struct net_lwip_ctx *ctx);
+int net_lwip_ip6_lease(struct net_lwip_ctx *ctx, const ip6_addr_t *addr,
+		       u32 preferred, u32 valid);
+int net_lwip_ip6_lease_commit(struct net_lwip_ctx *ctx);
+bool net_lwip_is_exclusive(struct net_lwip_ctx *ctx);
+int net_lwip_dhcp6_restore(struct net_lwip_ctx *ctx, const ip6_addr_t *addr);
+void net_lwip_dhcp6_detach(struct netif *netif);
+void net_lwip_dhcp6_poll(void);
 int net_lwip_ip6_prepare(struct net_lwip_ctx *ctx, ip_addr_t *dest);
 #endif
 int net_lwip_tftp_download(struct net_lwip_ctx *net, int argc, char *const argv[]);

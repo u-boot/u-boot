@@ -23,6 +23,10 @@ int net_lwip_ip6_static_prefix(struct netif *netif, unsigned int index,
 const ip6_addr_t *net_lwip_ip6_gateway(struct netif *netif,
 				       const ip6_addr_t *dest);
 #define LWIP_HOOK_ND6_GET_GW net_lwip_ip6_gateway
+#ifdef CONFIG_CMD_DHCP6
+/* DHCPv6 owns global-address lifetimes while SLAAC is disabled. */
+#define LWIP_HOOK_ND6_AUTOCONFIG(netif) ((netif)->ip6_autoconfig_enabled)
+#endif
 #ifdef CONFIG_PROT_ICMP_LWIP
 struct pbuf;
 void net_lwip_icmp6_dest_unreach(unsigned int code, struct pbuf *p);

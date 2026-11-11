@@ -1996,11 +1996,11 @@ config CMD_BOOTP
 	help
 	  bootp - boot image via network using BOOTP/TFTP protocol
 
-if NET_LEGACY
-
 config CMD_DHCP6
 	bool "dhcp6"
 	depends on IPV6
+	select PROT_UDP_LWIP if NET_LWIP
+	select IPV6_ROUTER_DISCOVERY if NET_LWIP
 	help
 	  Boot image via network using DHCPv6/TFTP protocol using IPv6.
 
@@ -2023,8 +2023,6 @@ config DHCP6_RAPID_COMMIT
 	  Request the Rapid Commit option (option 14) in DHCPv6 Solicit
 	  messages to enable a 2-message exchange (Solicit-Reply) rather
 	  than the default 4-message exchange.
-
-endif
 
 endif
 
