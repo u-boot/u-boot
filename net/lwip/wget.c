@@ -98,9 +98,8 @@ static int parse_url(char *url, char *host, u16 *port, char **path,
 	*is_https = false;
 	*port = HTTP_PORT_DEFAULT;
 	prefix_len = strlen("http://");
-	p = strstr(url, "http://");
-	if (!p) {
-		p = strstr(url, "https://");
+	p = url;
+	if (strncmp(p, "http://", prefix_len)) {
 		prefix_len = strlen("https://");
 		*port = HTTPS_PORT_DEFAULT;
 		*is_https = true;
