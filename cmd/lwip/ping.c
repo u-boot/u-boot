@@ -170,15 +170,16 @@ static int ping_loop(struct net_lwip_ctx *net, const ip_addr_t *addr)
 	return ret < 0 ? ret : -ETIMEDOUT;
 }
 
-static int ping_execute(const ip_addr_t *addr)
+static int ping_execute(const char *name, u8 type)
 {
 	struct net_lwip_ctx net = {};
+	ip_addr_t addr;
 	int ret;
 
 	net_try_count = 1;
 
 	do {
-		ret = net_lwip_start(&net, IP_IS_V6(addr) ? NET_LWIP_ADDR_ENV_FLEXIBLE :
+		ret = net_lwip_start(&net, type == IPADDR_TYPE_V6 ? NET_LWIP_ADDR_ENV_FLEXIBLE :
 				    NET_LWIP_ADDR_ENV_STRICT);
 		if (!ret)
 			break;
@@ -187,7 +188,9 @@ static int ping_execute(const ip_addr_t *addr)
 		return CMD_RET_FAILURE;
 
 	do {
-		ret = ping_loop(&net, addr);
+		ret = net_lwip_resolve(&net, name, &addr, type);
+		if (!ret)
+			ret = ping_loop(&net, &addr);
 		if (!ret || ret == -EINTR || ret == -EINVAL || ret == -EADDRINUSE ||
 		    ret == -EBUSY)
 			break;
@@ -203,12 +206,10 @@ static int ping_execute(const ip_addr_t *addr)
 #if CONFIG_IS_ENABLED(CMD_PING)
 int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	ip_addr_t addr;
-
-	if (argc != 2 || net_lwip_dns_resolve(argv[1], &addr) || !IP_IS_V4(&addr))
+	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	return ping_execute(&addr);
+	return ping_execute(argv[1], IPADDR_TYPE_V4);
 }
 
 U_BOOT_CMD(ping, 2, 1, do_ping, "send ICMP ECHO_REQUEST to network host",
@@ -218,15 +219,12 @@ U_BOOT_CMD(ping, 2, 1, do_ping, "send ICMP ECHO_REQUEST to network host",
 #if CONFIG_IS_ENABLED(CMD_PING6)
 static int do_ping6(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	ip_addr_t addr;
-
-	if (argc != 2 || net_lwip_ip6_aton(argv[1], ip_2_ip6(&addr)))
+	if (argc != 2)
 		return CMD_RET_USAGE;
-	IP_SET_TYPE_VAL(addr, IPADDR_TYPE_V6);
 
-	return ping_execute(&addr);
+	return ping_execute(argv[1], IPADDR_TYPE_V6);
 }
 
 U_BOOT_CMD(ping6, 2, 1, do_ping6, "send ICMPv6 ECHO_REQUEST to network host",
-	   "IPv6address");
+	   "IPv6addressOrHostName");
 #endif

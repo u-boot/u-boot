@@ -227,7 +227,7 @@ typedef struct ip6_addr ip6_addr_t;
 #define ip6_addr_isipv4compat(ip6addr) (((ip6addr)->addr[0] == 0UL) && \
                                         ((ip6addr)->addr[1] == 0UL) && \
                                         ((ip6addr)->addr[2] == 0UL) && \
-                                        (htonl((ip6addr)->addr[3]) > 1))
+                                        (lwip_htonl((ip6addr)->addr[3]) > 1))
 
 #define ip6_addr_ismulticast(ip6addr) (((ip6addr)->addr[0] & PP_HTONL(0xff000000UL)) == PP_HTONL(0xff000000UL))
 #define ip6_addr_multicast_transient_flag(ip6addr)  ((ip6addr)->addr[0] & PP_HTONL(0x00100000UL))

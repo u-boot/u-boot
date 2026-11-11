@@ -23,6 +23,10 @@ int net_lwip_ip6_static_prefix(struct netif *netif, unsigned int index,
 const ip6_addr_t *net_lwip_ip6_gateway(struct netif *netif,
 				       const ip6_addr_t *dest);
 #define LWIP_HOOK_ND6_GET_GW net_lwip_ip6_gateway
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+int net_lwip_rdnss_accept(struct netif *netif);
+#define LWIP_HOOK_ND6_RDNSS_ACCEPT net_lwip_rdnss_accept
+#endif
 #endif
 
 #endif /* __UBOOT_LWIP_HOOKS_H */

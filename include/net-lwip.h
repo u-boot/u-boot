@@ -75,7 +75,7 @@ int eth_init_state_only(void); /* Set active state */
 
 int net_lwip_parse_decimal(const char *text, size_t len, unsigned int max,
 			   unsigned int *value);
-int net_lwip_dns_init(void);
+int net_lwip_dns_init(struct net_lwip_ctx *ctx);
 int net_lwip_start(struct net_lwip_ctx *ctx,
 		   enum net_lwip_addr_mode addr_mode);
 void net_lwip_stop(struct net_lwip_ctx *ctx);
@@ -83,6 +83,14 @@ int net_lwip_restart(struct net_lwip_ctx *ctx);
 int net_lwip_refresh(struct net_lwip_ctx *ctx);
 int net_lwip_poll(void);
 int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip);
+int net_lwip_resolve(struct net_lwip_ctx *ctx, const char *name,
+		     ip_addr_t *addr, u8 type);
+int net_lwip_prepare_addr(struct net_lwip_ctx *ctx, ip_addr_t *addr);
+#if CONFIG_IS_ENABLED(DNS)
+int net_lwip_dns_refresh(struct net_lwip_ctx *ctx);
+int net_lwip_dns_lookup(struct net_lwip_ctx *ctx, const char *name,
+			ip_addr_t *addr, u8 type);
+#endif
 #if CONFIG_IS_ENABLED(IPV6)
 void net_lwip_ip6_update_lifetimes(void);
 int net_lwip_ip6_aton(const char *text, ip6_addr_t *addr);

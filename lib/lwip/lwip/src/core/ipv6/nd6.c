@@ -91,6 +91,48 @@ struct nd6_destination_cache_entry destination_cache[LWIP_ND6_NUM_DESTINATIONS];
 struct nd6_prefix_list_entry prefix_list[LWIP_ND6_NUM_PREFIXES];
 struct nd6_router_list_entry default_router_list[LWIP_ND6_NUM_ROUTERS];
 
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+static struct {
+  struct netif *netif;
+  ip_addr_t addr;
+  u32_t lifetime;
+} rdnss_servers[DNS_MAX_SERVERS];
+
+/* Refresh an existing server before considering an empty or expiring slot. */
+static void
+nd6_update_rdnss(struct netif *netif, const ip_addr_t *addr, u32_t lifetime)
+{
+  u8_t i, slot = 0;
+
+  for (i = 0; i < DNS_MAX_SERVERS; i++) {
+    if (rdnss_servers[i].netif == netif && ip_addr_cmp(&rdnss_servers[i].addr, addr)) {
+      if (lifetime == 0) {
+        if (ip_addr_cmp(dns_getserver(i), addr)) {
+          dns_setserver(i, NULL);
+        }
+        rdnss_servers[i].netif = NULL;
+      } else {
+        rdnss_servers[i].lifetime = lifetime;
+        dns_setserver(i, addr);
+      }
+      return;
+    }
+    if (rdnss_servers[slot].netif &&
+        (!rdnss_servers[i].netif ||
+         rdnss_servers[i].lifetime < rdnss_servers[slot].lifetime)) {
+      slot = i;
+    }
+  }
+  if (lifetime == 0) {
+    return;
+  }
+  rdnss_servers[slot].netif = netif;
+  rdnss_servers[slot].addr = *addr;
+  rdnss_servers[slot].lifetime = lifetime;
+  dns_setserver(slot, addr);
+}
+#endif
+
 /* Default values, can be updated by a RA message. */
 u32_t reachable_time = LWIP_ND6_REACHABLE_TIME;
 u32_t retrans_timer = LWIP_ND6_RETRANS_TIMER; /* @todo implement this value in timer */
@@ -105,7 +147,9 @@ static netif_addr_idx_t nd6_cached_destination_index;
 /* Multicast address holder. */
 static ip6_addr_t multicast_address;
 
+#if LWIP_IPV6_SEND_ROUTER_SOLICIT
 static u8_t nd6_tmr_rs_reduction;
+#endif
 
 /* Static buffer to parse RA packet options */
 union ra_options {
@@ -575,10 +619,6 @@ nd6_input(struct pbuf *p, struct netif *inp)
     struct ra_header *ra_hdr;
     u8_t *buffer; /* Used to copy options. */
     u16_t offset;
-#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
-    /* There can be multiple RDNSS options per RA */
-    u8_t rdnss_server_idx = 0;
-#endif /* LWIP_ND6_RDNSS_MAX_DNS_SERVERS */
 
     /* Check that RA header fits in packet. */
     if (p->len < sizeof(struct ra_header)) {
@@ -673,18 +713,22 @@ nd6_input(struct pbuf *p, struct netif *inp)
         /* no need to copy from contiguous pbuf */
         buffer = &((u8_t*)p->payload)[offset];
       } else {
+        u16_t copy_len = option_len;
+
         /* check if this option fits into our buffer */
-        if (option_len > sizeof(nd6_ra_buffer)) {
+        if (copy_len > sizeof(nd6_ra_buffer)) {
           option_type = pbuf_get_at(p, offset);
           /* invalid option length */
           if (option_type != ND6_OPTION_TYPE_RDNSS) {
             goto lenerr_drop_free_return;
           }
-          /* we allow RDNSS option to be longer - we'll just drop some servers */
-          option_len = sizeof(nd6_ra_buffer);
+          /* RDNSS addresses are copied directly from the pbuf below. */
+          copy_len = sizeof(nd6_ra_buffer);
         }
         buffer = (u8_t*)&nd6_ra_buffer;
-        option_len = pbuf_copy_partial(p, &nd6_ra_buffer, option_len, offset);
+        if (pbuf_copy_partial(p, &nd6_ra_buffer, copy_len, offset) != copy_len) {
+          goto lenerr_drop_free_return;
+        }
       }
       option_type = buffer[0];
       switch (option_type) {
@@ -779,13 +823,19 @@ nd6_input(struct pbuf *p, struct netif *inp)
         u8_t num, n;
         u16_t copy_offset = offset + SIZEOF_RDNSS_OPTION_BASE;
         struct rdnss_option * rdnss_opt;
-        if (option_len < SIZEOF_RDNSS_OPTION_BASE) {
+        if (option_len < SIZEOF_RDNSS_OPTION_BASE + sizeof(ip6_addr_p_t) ||
+            (option_len - SIZEOF_RDNSS_OPTION_BASE) % sizeof(ip6_addr_p_t)) {
           goto lenerr_drop_free_return;
         }
+#ifdef LWIP_HOOK_ND6_RDNSS_ACCEPT
+        if (!LWIP_HOOK_ND6_RDNSS_ACCEPT(inp)) {
+          break;
+        }
+#endif
 
         rdnss_opt = (struct rdnss_option *)buffer;
         num = (rdnss_opt->length - 1) / 2;
-        for (n = 0; (rdnss_server_idx < DNS_MAX_SERVERS) && (n < num); n++, copy_offset += sizeof(ip6_addr_p_t)) {
+        for (n = 0; n < num; n++, copy_offset += sizeof(ip6_addr_p_t)) {
           ip_addr_t rdnss_address;
 
           /* Copy directly from pbuf to get an aligned, zoned copy of the prefix. */
@@ -793,19 +843,15 @@ nd6_input(struct pbuf *p, struct netif *inp)
             IP_SET_TYPE_VAL(rdnss_address, IPADDR_TYPE_V6);
             ip6_addr_assign_zone(ip_2_ip6(&rdnss_address), IP6_UNKNOWN, inp);
 
-            if (htonl(rdnss_opt->lifetime) > 0) {
-              /* TODO implement Lifetime > 0 */
-              dns_setserver(rdnss_server_idx++, &rdnss_address);
-            } else {
-              /* TODO implement DNS removal in dns.c */
-              u8_t s;
-              for (s = 0; s < DNS_MAX_SERVERS; s++) {
-                const ip_addr_t *addr = dns_getserver(s);
-                if(ip_addr_eq(addr, &rdnss_address)) {
-                  dns_setserver(s, NULL);
-                }
-              }
+            if (ip6_addr_isany(ip_2_ip6(&rdnss_address)) ||
+                ip6_addr_ismulticast(ip_2_ip6(&rdnss_address)) ||
+                ip6_addr_isloopback(ip_2_ip6(&rdnss_address)) ||
+                ip6_addr_isipv4mappedipv6(ip_2_ip6(&rdnss_address)) ||
+                ip6_addr_isipv4compat(ip_2_ip6(&rdnss_address))) {
+              continue;
             }
+
+            nd6_update_rdnss(inp, &rdnss_address, lwip_ntohl(rdnss_opt->lifetime));
           }
         }
         break;
@@ -975,6 +1021,22 @@ nd6_age_lifetimes(u32_t elapsed)
   if (elapsed == 0) {
     return;
   }
+
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+  for (i = 0; i < DNS_MAX_SERVERS; i++) {
+    if (rdnss_servers[i].netif && rdnss_servers[i].lifetime != 0xffffffffUL) {
+      if (rdnss_servers[i].lifetime <= elapsed) {
+        if (ip_addr_cmp(dns_getserver(i), &rdnss_servers[i].addr)) {
+          dns_setserver(i, NULL);
+        }
+        rdnss_servers[i].netif = NULL;
+      } else {
+        rdnss_servers[i].lifetime -= elapsed;
+      }
+    }
+  }
+#endif
+
   /* Process router entries. */
   for (i = 0; i < LWIP_ND6_NUM_ROUTERS; i++) {
     if (default_router_list[i].neighbor_entry != NULL) {
@@ -2409,6 +2471,24 @@ nd6_reachability_hint(const ip6_addr_t *ip6addr)
 }
 #endif /* LWIP_ND6_TCP_REACHABILITY_HINTS */
 
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+/** Remove the DNS servers learned through router advertisements on netif. */
+void
+nd6_clear_rdnss(struct netif *netif)
+{
+  u8_t i;
+
+  for (i = 0; i < DNS_MAX_SERVERS; i++) {
+    if (rdnss_servers[i].netif == netif) {
+      if (ip_addr_cmp(dns_getserver(i), &rdnss_servers[i].addr)) {
+        dns_setserver(i, NULL);
+      }
+      rdnss_servers[i].netif = NULL;
+    }
+  }
+}
+#endif
+
 /**
  * Remove all prefix, neighbor_cache and router entries of the specified netif.
  *
@@ -2419,6 +2499,9 @@ nd6_cleanup_netif(struct netif *netif)
 {
   u8_t i;
   s8_t router_index;
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+  nd6_clear_rdnss(netif);
+#endif
   for (i = 0; i < LWIP_ND6_NUM_PREFIXES; i++) {
     if (prefix_list[i].netif == netif) {
       prefix_list[i].netif = NULL;

@@ -77,6 +77,9 @@ u16_t nd6_get_destination_mtu(const ip6_addr_t *ip6addr, struct netif *netif);
 void nd6_reachability_hint(const ip6_addr_t *ip6addr);
 #endif /* LWIP_ND6_TCP_REACHABILITY_HINTS */
 void nd6_cleanup_netif(struct netif *netif);
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+void nd6_clear_rdnss(struct netif *netif);
+#endif
 #if LWIP_IPV6_MLD
 void nd6_adjust_mld_membership(struct netif *netif, s8_t addr_idx, u8_t new_state);
 #endif /* LWIP_IPV6_MLD */

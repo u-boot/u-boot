@@ -261,40 +261,6 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 #endif
 
 /*
- * Initialize DNS via env
- */
-int net_lwip_dns_init(void)
-{
-#if CONFIG_IS_ENABLED(DNS)
-	bool has_server = false;
-	ip_addr_t ns;
-	char *nsenv;
-
-	nsenv = env_get("dnsip");
-	if (nsenv && ipaddr_aton(nsenv, &ns)) {
-		dns_setserver(0, &ns);
-		has_server = true;
-	}
-
-	nsenv = env_get("dnsip2");
-	if (nsenv && ipaddr_aton(nsenv, &ns)) {
-		dns_setserver(1, &ns);
-		has_server = true;
-	}
-
-	if (!has_server) {
-		log_err("No valid name server (dnsip/dnsip2)\n");
-		return -EINVAL;
-	}
-
-	return 0;
-#else
-	log_err("DNS disabled\n");
-	return -EINVAL;
-#endif
-}
-
-/*
  * Initialize the network stack if needed and start the current device if valid
  */
 static int net_lwip_eth_start(void)
@@ -385,6 +351,11 @@ static void net_lwip_remove_netif(struct netif *netif)
 #endif
 
 	netif_remove(netif);
+#if CONFIG_IS_ENABLED(DNS)
+	/* Do not carry router-advertised name servers to the next interface. */
+	for (unsigned int i = 0; i < DNS_MAX_SERVERS; i++)
+		dns_setserver(i, NULL);
+#endif
 #if CONFIG_IS_ENABLED(IPV6)
 	ip6_addr_set_allnodes_linklocal(&allnodes);
 	net_lwip_mld_filter(netif, &allnodes, NETIF_DEL_MAC_FILTER);
@@ -671,6 +642,15 @@ int net_lwip_ip6_prepare(struct net_lwip_ctx *ctx, ip_addr_t *dest)
 	return -ETIMEDOUT;
 }
 #endif
+
+int net_lwip_prepare_addr(struct net_lwip_ctx *ctx, ip_addr_t *addr)
+{
+#if CONFIG_IS_ENABLED(IPV6)
+	if (IP_IS_V6(addr))
+		return net_lwip_ip6_prepare(ctx, addr);
+#endif
+	return 0;
+}
 
 static int net_lwip_configure(enum net_lwip_addr_mode addr_mode)
 {
@@ -1036,31 +1016,35 @@ int net_lwip_poll(void)
  */
 int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip)
 {
-#if defined(CONFIG_DNS)
-	char *var = "_dnsres";
-	char *argv[] = { "dns", name_or_ip, var, NULL };
-	int argc = ARRAY_SIZE(argv) - 1;
+	struct net_lwip_ctx ctx = {};
+	int ret;
+
+	ret = net_lwip_start(&ctx, NET_LWIP_ADDR_ENV_STRICT);
+	if (!ret)
+		ret = net_lwip_resolve(&ctx, name_or_ip, ip, IPADDR_TYPE_ANY);
+	net_lwip_stop(&ctx);
+	return ret;
+}
+
+int net_lwip_resolve(struct net_lwip_ctx *ctx, const char *name,
+		     ip_addr_t *addr, u8 type)
+{
+	if (ipaddr_aton(name, addr)) {
+		if (type != IPADDR_TYPE_ANY && IP_GET_TYPE(addr) != type)
+			return -EAFNOSUPPORT;
+#if CONFIG_IS_ENABLED(IPV6)
+		if (IP_IS_V6(addr))
+			return net_lwip_ip6_aton(name, ip_2_ip6(addr));
 #endif
-
-	if (ipaddr_aton(name_or_ip, ip))
 		return 0;
-
-#if defined(CONFIG_DNS)
-	if (do_dns(NULL, 0, argc, argv) != CMD_RET_SUCCESS)
-		return -1;
-
-	name_or_ip = env_get(var);
-	if (!name_or_ip)
-		return -1;
-
-	if (!ipaddr_aton(name_or_ip, ip))
-		return -1;
-
-	env_set(var, NULL);
-
-	return 0;
+	}
+	/* A malformed address is not a DNS hostname. */
+	if (strchr(name, ':'))
+		return -EINVAL;
+#if CONFIG_IS_ENABLED(DNS)
+	return net_lwip_dns_lookup(ctx, name, addr, type);
 #else
-	return -1;
+	return -ENOSYS;
 #endif
 }
 

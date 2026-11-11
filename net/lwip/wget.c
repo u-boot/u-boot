@@ -310,7 +310,7 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 
 	/* if URL with hostname init dns */
 	if (!ipaddr_aton(ctx->server_name, NULL)) {
-		ret = net_lwip_dns_init();
+		ret = net_lwip_dns_init(net);
 		if (ret)
 			return ret;
 	}
