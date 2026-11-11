@@ -294,7 +294,7 @@ static ulong rk3568_pwm_set_pmuclk(struct rk3568_pmuclk_priv *priv,
 				     CLK_PWM0_SEL_MASK | CLK_PWM0_DIV_MASK,
 				     (CLK_PWM0_SEL_XIN24M <<
 				      CLK_PWM0_SEL_SHIFT) |
-				     0 << CLK_PWM0_SEL_SHIFT);
+				     0 << CLK_PWM0_DIV_SHIFT);
 		} else {
 			src_clk_div = DIV_ROUND_UP(priv->ppll_hz, rate);
 			assert(src_clk_div - 1 <= 127);
