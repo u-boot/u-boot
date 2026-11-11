@@ -776,7 +776,7 @@ static ulong rk3588_mmc_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 		sel = (con & DCLK_DECOM_SEL_MASK) >>
 		      DCLK_DECOM_SEL_SHIFT;
 		if (sel == DCLK_DECOM_SEL_SPLL)
-			prate = 702 * MHz;
+			prate = SPLL_HZ;
 		else
 			prate = priv->gpll_hz;
 		return DIV_TO_RATE(prate, div);
@@ -816,9 +816,9 @@ static ulong rk3588_mmc_set_clk(struct rk3588_clk_priv *priv,
 		}
 		break;
 	case DCLK_DECOM:
-		if (!(702 * MHz % rate)) {
+		if (!(SPLL_HZ % rate)) {
 			src_clk = DCLK_DECOM_SEL_SPLL;
-			div = DIV_ROUND_UP(702 * MHz, rate);
+			div = DIV_ROUND_UP(SPLL_HZ, rate);
 		} else {
 			src_clk = DCLK_DECOM_SEL_GPLL;
 			div = DIV_ROUND_UP(priv->gpll_hz, rate);
@@ -941,7 +941,7 @@ static ulong rk3588_aclk_vop_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 		else if (sel == ACLK_VOP_ROOT_SEL_NPLL)
 			parent = priv->npll_hz;
 		else
-			parent = 702 * MHz;
+			parent = SPLL_HZ;
 		return DIV_TO_RATE(parent, div);
 	case ACLK_VOP_LOW_ROOT:
 		con = readl(&cru->clksel_con[110]);
