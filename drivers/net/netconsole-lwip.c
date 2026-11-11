@@ -177,7 +177,7 @@ void nc_transport_send(const char *buf, int len)
 	if (err != ERR_OK)
 		goto out;
 
-	ip_addr_set_ip4_u32(&dest, nc_settings.ip.s_addr);
+	ip_addr_set_ip4_u32_val(dest, nc_settings.ip.s_addr);
 	err = udp_sendto_if(nc_pcb, p, &dest, nc_settings.out_port,
 			    nc_net.netif);
 	if (err == ERR_OK &&

@@ -78,7 +78,7 @@ static int dhcp_policy_tx(struct udevice *dev, void *packet, unsigned int len)
 	dhcp = netif_dhcp_data(netif_default);
 	ip4addr_aton("1.1.2.3", &dhcp->offered_ip_addr);
 	ip4addr_aton("255.255.255.0", &dhcp->offered_sn_mask);
-	ip4addr_aton("1.1.2.2", &dhcp->server_ip_addr);
+	ipaddr_aton("1.1.2.2", &dhcp->server_ip_addr);
 	netif_set_addr(netif_default, &dhcp->offered_ip_addr,
 		       &dhcp->offered_sn_mask, &dhcp->offered_gw_addr);
 	dhcp->state = DHCP_STATE_BOUND;

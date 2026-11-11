@@ -47,7 +47,7 @@ static bool ntp_server_known(void)
 	for (i = 0; i < SNTP_MAX_SERVERS; i++) {
 		const ip_addr_t *ip = sntp_getserver(i);
 
-		if (ip && ip->addr)
+		if (ip && !ip_addr_isany(ip))
 			return true;
 	}
 
