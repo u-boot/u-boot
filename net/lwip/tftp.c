@@ -508,13 +508,20 @@ static void no_request(void *arg)
 	ctx->retry = true;
 }
 
-static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
+static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr, bool ipv6)
 {
 	struct tftp_ctx ctx;
 	int ret = -1;
 	err_t err;
 
-	if (tftp_check_ip(net))
+#if CONFIG_IS_ENABLED(IPV6)
+	if (ipv6) {
+		ret = net_lwip_ip6_start(net);
+		if (ret)
+			return ret;
+	}
+#endif
+	if (!ipv6 && tftp_check_ip(net))
 		return -1;
 
 	memset(&ctx, 0, sizeof(ctx));
@@ -524,8 +531,14 @@ static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
 	net_boot_file_size = 0;
 
 	printf("Using %s device\n", net->dev->name);
-	printf("Listening for TFTP transfer on %pI4\n",
-	       &netif_ip4_addr(net->netif)->addr);
+#if CONFIG_IS_ENABLED(IPV6)
+	if (ipv6)
+		printf("Listening for TFTP transfer on %s\n",
+		       ip6addr_ntoa(netif_ip6_addr(net->netif, 0)));
+	else
+#endif
+		printf("Listening for TFTP transfer on %pI4\n",
+		       &netif_ip4_addr(net->netif)->addr);
 	printf("Load address: 0x%lx\n", ctx.daddr);
 
 	tftpsrv_active_ctx = &ctx;
@@ -570,6 +583,12 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char *end;
 	ulong laddr;
 	ulong addr;
+	bool ipv6 = false;
+
+	if (IS_ENABLED(CONFIG_IPV6) && argc > 1 && !strcmp(argv[argc - 1], "-ipv6")) {
+		ipv6 = true;
+		argc--;
+	}
 
 	net_boot_file_size = 0;
 	if (!IS_ENABLED(CONFIG_CMD_TFTPSRV))
@@ -601,7 +620,7 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	net_try_count = 1;
 	net_restart_wrap = 0;
 	for (;;) {
-		ret = tftpsrv_loop(&net, laddr);
+		ret = tftpsrv_loop(&net, laddr, ipv6);
 		if (ret != -EAGAIN)
 			break;
 		puts("Starting again\n\n");
@@ -807,22 +826,6 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 		}
 	}
 
-	if (!ipaddr_aton(server_ip, &srvip) || (ipv6 && !IP_IS_V6(&srvip))) {
-		log_err("error: invalid TFTP server address\n");
-		ret = CMD_RET_FAILURE;
-		goto out;
-	}
-#if CONFIG_IS_ENABLED(IPV6)
-	if (IP_IS_V6(&srvip)) {
-		ret = net_lwip_ip6_aton(server_ip, ip_2_ip6(&srvip));
-		if (ret || !fname || !*fname) {
-			log_err("error: IPv6 TFTP requires a unicast server address and filename\n");
-			ret = CMD_RET_FAILURE;
-			goto out;
-		}
-	}
-#endif
-
 	if (fname && strlen(fname) > TFTP_MAX_FILENAME_LEN) {
 		log_err("error: TFTP file name is too long\n");
 		ret = CMD_RET_FAILURE;
@@ -837,7 +840,7 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	}
 
 	if (!parent) {
-		if (net_lwip_start(net, IP_IS_V6(&srvip) ? NET_LWIP_ADDR_ENV_FLEXIBLE :
+		if (net_lwip_start(net, ipv6 ? NET_LWIP_ADDR_ENV_FLEXIBLE :
 				   NET_LWIP_ADDR_ENV_STRICT)) {
 			ret = CMD_RET_FAILURE;
 			goto out;
@@ -847,6 +850,15 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	}
 
 	for (;;) {
+		ret = net_lwip_resolve(net, server_ip, &srvip,
+				     ipv6 ? IPADDR_TYPE_V6 : IPADDR_TYPE_ANY);
+		if (ret)
+			break;
+		if (IP_IS_V6(&srvip) && (!fname || !*fname)) {
+			log_err("error: IPv6 TFTP requires a filename\n");
+			ret = -EINVAL;
+			break;
+		}
 #if CONFIG_IS_ENABLED(IPV6)
 		if (IP_IS_V6(&srvip))
 			ret = net_lwip_ip6_prepare(net, &srvip);
