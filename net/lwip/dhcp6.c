@@ -824,6 +824,34 @@ static int dhcp6_bootfile(struct dhcp6_client *client, char *file, size_t size)
 	return ret;
 }
 
+/* Resolve a filename against the advertised HTTP URL's path, not its query. */
+static int dhcp6_http_override(char *url, size_t size, const char *filename)
+{
+	const char *path, *end;
+	size_t prefix = 0;
+	bool slash = false;
+
+	if (!strstr(filename, "://")) {
+		path = strstr(url, "://") + 3;
+		path += strcspn(path, "/?#");
+		prefix = path - url;
+		if (*filename != '/') {
+			end = path + strcspn(path, "?#");
+			for (const char *p = path; p < end; p++) {
+				if (*p == '/')
+					prefix = p + 1 - url;
+			}
+			slash = *path != '/';
+		}
+	}
+	if (prefix + slash >= size || strlen(filename) >= size - prefix - slash)
+		return -ENAMETOOLONG;
+	if (slash)
+		url[prefix++] = '/';
+	strcpy(url + prefix, filename);
+	return 0;
+}
+
 static int do_dhcp6(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct net_lwip_ctx net = {};
@@ -887,10 +915,14 @@ static int do_dhcp6(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[
 			goto out;
 	}
 	if (filename) {
-		if (strlcpy(file, filename, sizeof(file)) >= sizeof(file)) {
-			ret = -ENAMETOOLONG;
+		if (offered && !tftp_url &&
+		    (!strncmp(file, "http://", 7) || !strncmp(file, "https://", 8)))
+			ret = dhcp6_http_override(file, sizeof(file), filename);
+		else
+			ret = strlcpy(file, filename, sizeof(file)) >= sizeof(file) ?
+				-ENAMETOOLONG : 0;
+		if (ret)
 			goto out;
-		}
 	} else if (!offered) {
 		filename = env_get("bootfile");
 		if (strlcpy(file, filename ?: "", sizeof(file)) >= sizeof(file)) {
@@ -907,6 +939,26 @@ static int do_dhcp6(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[
 		goto out;
 	if (!*file) {
 		ret = -ENOENT;
+		goto out;
+	}
+	if (CONFIG_IS_ENABLED(WGET) && (!tftp_url || filename) &&
+	    (!strncmp(file, "http://", 7) || !strncmp(file, "https://", 8))) {
+		struct wget_http_info info = {
+			.method = WGET_HTTP_METHOD_GET,
+			.set_bootdev = true,
+		};
+		struct wget_http_info *saved = wget_info;
+
+		net_boot_file_size = 0;
+		ret = wget_request(load, file, &info);
+		wget_info = saved;
+		if (!ret) {
+			net_boot_file_size = info.file_size;
+			ret = env_set_hex("fileaddr", load);
+			if (!ret)
+				ret = env_set_hex("filesize", info.file_size);
+		}
+		downloaded = !ret;
 		goto out;
 	}
 	if ((offered && !tftp_url) ||
