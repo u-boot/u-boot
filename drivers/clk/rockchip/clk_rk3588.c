@@ -1922,10 +1922,10 @@ static void rk3588_clk_init(struct rk3588_clk_priv *priv)
 {
 	int ret, div;
 
-	div = DIV_ROUND_UP(GPLL_HZ, 300 * MHz);
+	div = DIV_ROUND_UP(CPLL_HZ, 375 * MHz);
 	rk_clrsetreg(&priv->cru->clksel_con[38],
-		     ACLK_BUS_ROOT_SEL_MASK |
-		     ACLK_BUS_ROOT_DIV_MASK,
+		     ACLK_BUS_ROOT_SEL_MASK | ACLK_BUS_ROOT_DIV_MASK,
+		     (ACLK_BUS_ROOT_SEL_CPLL << ACLK_BUS_ROOT_SEL_SHIFT) |
 		     (div - 1) << ACLK_BUS_ROOT_DIV_SHIFT);
 
 	if (priv->cpll_hz != CPLL_HZ) {
