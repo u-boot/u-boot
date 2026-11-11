@@ -1926,7 +1926,7 @@ static void rk3588_clk_init(struct rk3588_clk_priv *priv)
 	rk_clrsetreg(&priv->cru->clksel_con[38],
 		     ACLK_BUS_ROOT_SEL_MASK |
 		     ACLK_BUS_ROOT_DIV_MASK,
-		     div << ACLK_BUS_ROOT_DIV_SHIFT);
+		     (div - 1) << ACLK_BUS_ROOT_DIV_SHIFT);
 
 	if (priv->cpll_hz != CPLL_HZ) {
 		ret = rockchip_pll_set_rate(&rk3588_pll_clks[CPLL], priv->cru,
