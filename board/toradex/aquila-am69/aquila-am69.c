@@ -204,7 +204,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 void spl_board_init(void)
 {
 	struct udevice *dev;
-	int ret;
+	int ret = 0;
 
 	if (IS_ENABLED(CONFIG_ESM_K3)) {
 		const char * const esms[] = {"esm@700000", "esm@40800000", "esm@42080000"};
