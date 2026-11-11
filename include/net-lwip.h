@@ -82,7 +82,6 @@ void net_lwip_stop(struct net_lwip_ctx *ctx);
 int net_lwip_restart(struct net_lwip_ctx *ctx);
 int net_lwip_refresh(struct net_lwip_ctx *ctx);
 int net_lwip_poll(void);
-int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip);
 int net_lwip_resolve(struct net_lwip_ctx *ctx, const char *name,
 		     ip_addr_t *addr, u8 type);
 int net_lwip_prepare_addr(struct net_lwip_ctx *ctx, ip_addr_t *addr);

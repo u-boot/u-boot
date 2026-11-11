@@ -56,6 +56,8 @@ static bool ntp_server_known(void)
 
 static int sntp_loop(struct net_lwip_ctx *net, ip_addr_t *srvip)
 {
+	int ret;
+
 	sntp_state = NOT_DONE;
 
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
@@ -68,11 +70,22 @@ static int sntp_loop(struct net_lwip_ctx *net, ip_addr_t *srvip)
 			return -1;
 		}
 	}
+	for (unsigned int i = 0; i < SNTP_MAX_SERVERS; i++) {
+		ip_addr_t addr = *sntp_getserver(i);
+
+		if (ip_addr_isany(&addr))
+			continue;
+		ret = net_lwip_prepare_addr(net, &addr);
+		if (ret)
+			return ret;
+		sntp_setserver(i, &addr);
+	}
 	sntp_init();
 
 	sys_timeout(SNTP_TIMEOUT, no_response, NULL);
 	while (sntp_state == NOT_DONE) {
-		net_lwip_poll();
+		if (net_lwip_poll() < 0)
+			break;
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			sntp_state = ABORTED;
@@ -92,27 +105,17 @@ static int sntp_loop(struct net_lwip_ctx *net, ip_addr_t *srvip)
 int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct net_lwip_ctx net = {};
-	ip_addr_t *srvip;
-	char *server;
+	ip_addr_t *srvip = NULL;
+	const char *server;
 	ip_addr_t ipaddr;
 	int ret = CMD_RET_FAILURE;
 
 	switch (argc) {
 	case 1:
-		srvip = NULL;
 		server = env_get("ntpserverip");
-		if (server) {
-			if (!ipaddr_aton(server, &ipaddr)) {
-				printf("ntpserverip is invalid\n");
-				return CMD_RET_FAILURE;
-			}
-			srvip = &ipaddr;
-		}
 		break;
 	case 2:
-		if (net_lwip_dns_resolve(argv[1], &ipaddr))
-			return CMD_RET_FAILURE;
-		srvip = &ipaddr;
+		server = argv[1];
 		break;
 	default:
 		return CMD_RET_USAGE;
@@ -120,6 +123,11 @@ int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT))
 		return CMD_RET_FAILURE;
+	if (server) {
+		if (net_lwip_resolve(&net, server, &ipaddr, IPADDR_TYPE_ANY))
+			goto out;
+		srvip = &ipaddr;
+	}
 
 	if (sntp_loop(&net, srvip) < 0)
 		goto out;

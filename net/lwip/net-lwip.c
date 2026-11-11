@@ -1006,26 +1006,6 @@ int net_lwip_poll(void)
 	return ret;
 }
 
-/**
- * net_lwip_dns_resolve() - find IP address from name or IP
- *
- * @name_or_ip: host name or IP address
- * @ip: output IP address
- *
- * Return value: 0 on success, -1 on failure.
- */
-int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip)
-{
-	struct net_lwip_ctx ctx = {};
-	int ret;
-
-	ret = net_lwip_start(&ctx, NET_LWIP_ADDR_ENV_STRICT);
-	if (!ret)
-		ret = net_lwip_resolve(&ctx, name_or_ip, ip, IPADDR_TYPE_ANY);
-	net_lwip_stop(&ctx);
-	return ret;
-}
-
 int net_lwip_resolve(struct net_lwip_ctx *ctx, const char *name,
 		     ip_addr_t *addr, u8 type)
 {

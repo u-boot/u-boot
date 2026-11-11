@@ -11,6 +11,7 @@
 #define PROG_PORTMAP    100000
 #define PROG_NFS        100003
 #define PROG_MOUNT      100005
+#define RPCB_GETADDR    3
 
 #define MSG_CALL        0
 #define MSG_REPLY       1
@@ -52,6 +53,7 @@ extern struct in_addr nfs_server_ip;
 extern int nfs_server_mount_port;
 extern int nfs_server_port;
 extern int nfs_our_port;
+extern bool nfs_use_rpcbind;
 extern int nfs_timeout_count;
 extern unsigned long rpc_id;
 extern int nfs_offset;

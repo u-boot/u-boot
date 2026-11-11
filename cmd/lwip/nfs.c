@@ -4,8 +4,9 @@
 #include <command.h>
 #include <net.h>
 
-U_BOOT_CMD(nfs,	3,	1,	do_nfs,
+U_BOOT_CMD(nfs,	3 + IS_ENABLED(CONFIG_IPV6),	1,	do_nfs,
 	   "boot image via network using NFS protocol",
-	   "[loadAddress] [[hostIPaddr:]bootfilename]"
+	   "[loadAddress] [[host:]bootfilename] [-ipv6]\n"
+	   "Bracket IPv6 addresses: [IPv6address]:bootfilename"
 	  );
 

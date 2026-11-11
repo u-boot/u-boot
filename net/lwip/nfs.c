@@ -75,7 +75,7 @@ exitfree:
 
 static int nfs_udp_init(struct nfs_ctx *ctx)
 {
-	ctx->pcb = udp_new();
+	ctx->pcb = udp_new_ip_type(IP_GET_TYPE(&ctx->nfs_server));
 	if (!ctx->pcb)
 		return -ENOMEM;
 
@@ -104,6 +104,12 @@ static int nfs_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 {
 	int ret;
 
+	ret = net_lwip_prepare_addr(net, &srvip);
+	if (ret)
+		return ret;
+	ip_addr_set(&sess_ctx.nfs_server, &srvip);
+	nfs_use_rpcbind = IP_IS_V6(&srvip);
+
 	nfs_download_state = NETLOOP_FAIL;
 	net_set_state(NETLOOP_FAIL);
 
@@ -117,8 +123,7 @@ static int nfs_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 
 	printf("Using %s device\n", net->dev->name);
 
-	printf("File transfer via NFS from server %s; our IP address is %s\n",
-	       ipaddr_ntoa(&srvip), env_get("ipaddr"));
+	printf("File transfer via NFS from server %s\n", ipaddr_ntoa(&srvip));
 
 	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
@@ -141,13 +146,12 @@ static int nfs_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 
 	net_set_state(NETLOOP_CONTINUE);
 
-	ip_addr_set(&sess_ctx.nfs_server, &srvip);
-
 	nfs_send();
 
 	timer_start = get_timer(0);
 	do {
-		net_lwip_poll();
+		if (net_lwip_poll() < 0)
+			break;
 		if (net_state != NETLOOP_CONTINUE)
 			break;
 		if (ctrlc()) {
@@ -192,6 +196,12 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	ip_addr_t srvip;
 	ulong laddr;
 	ulong addr;
+	bool ipv6 = false;
+
+	if (IS_ENABLED(CONFIG_IPV6) && argc > 1 && !strcmp(argv[argc - 1], "-ipv6")) {
+		ipv6 = true;
+		argc--;
+	}
 
 	laddr = env_get_ulong("loadaddr", 16, image_load_addr);
 
@@ -234,11 +244,21 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			goto out;
 		}
 		/*
-		 * Split the optional IPv4 prefix once. Keep the allocation base
+		 * Split the optional server prefix once. Keep the allocation base
 		 * for cleanup, and do not modify argv, bootfile or the global name.
 		 */
 		fname = strchr(arg_copy, ':');
-		if (fname) {
+		if (IS_ENABLED(CONFIG_IPV6) && *arg_copy == '[') {
+			end = strchr(arg_copy, ']');
+			if (!end || end[1] != ':') {
+				ret = CMD_RET_USAGE;
+				goto out;
+			}
+			*end = '\0';
+			server_ip = arg_copy + 1;
+			fname = end + 2;
+			ipv6 = true;
+		} else if (fname) {
 			*fname++ = '\0';
 			server_ip = arg_copy;
 		} else {
@@ -249,15 +269,9 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (!server_ip || !*server_ip)
 		server_ip = env_get("nfsserverip");
 	if (!server_ip || !*server_ip)
-		server_ip = env_get("serverip");
+		server_ip = env_get(ipv6 ? "serverip6" : "serverip");
 	if (!server_ip || !*server_ip) {
 		log_err("error: nfsserverip/serverip not set\n");
-		ret = CMD_RET_FAILURE;
-		goto out;
-	}
-
-	if (!ipaddr_aton(server_ip, &srvip)) {
-		log_err("error: ipaddr_aton\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -279,7 +293,9 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (nfs_loop(&net, laddr, fname, srvip) < 0)
+	if (net_lwip_resolve(&net, server_ip, &srvip,
+			     ipv6 ? IPADDR_TYPE_V6 : IPADDR_TYPE_ANY) ||
+	    nfs_loop(&net, laddr, fname, srvip) < 0)
 		ret = CMD_RET_FAILURE;
 out:
 	net_lwip_stop(&net);
