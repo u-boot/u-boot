@@ -23,6 +23,11 @@ int net_lwip_ip6_static_prefix(struct netif *netif, unsigned int index,
 const ip6_addr_t *net_lwip_ip6_gateway(struct netif *netif,
 				       const ip6_addr_t *dest);
 #define LWIP_HOOK_ND6_GET_GW net_lwip_ip6_gateway
+#ifdef CONFIG_PROT_ICMP_LWIP
+struct pbuf;
+void net_lwip_icmp6_dest_unreach(unsigned int code, struct pbuf *p);
+#define LWIP_HOOK_ICMP6_DEST_UNREACH net_lwip_icmp6_dest_unreach
+#endif
 #if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
 int net_lwip_rdnss_accept(struct netif *netif);
 #define LWIP_HOOK_ND6_RDNSS_ACCEPT net_lwip_rdnss_accept

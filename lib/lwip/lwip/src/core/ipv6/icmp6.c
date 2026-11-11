@@ -57,6 +57,10 @@
 
 #include <string.h>
 
+#ifdef LWIP_HOOK_FILENAME
+#include LWIP_HOOK_FILENAME
+#endif
+
 #if !LWIP_ICMP6_DATASIZE || (LWIP_ICMP6_DATASIZE > (IP6_MIN_MTU_LENGTH - IP6_HLEN - ICMP6_HLEN))
 #undef LWIP_ICMP6_DATASIZE
 #define LWIP_ICMP6_DATASIZE   (IP6_MIN_MTU_LENGTH - IP6_HLEN - ICMP6_HLEN)
@@ -113,6 +117,11 @@ icmp6_input(struct pbuf *p, struct netif *inp)
 #endif /* CHECKSUM_CHECK_ICMP6 */
 
   switch (icmp6hdr->type) {
+  case ICMP6_TYPE_DUR:
+#ifdef LWIP_HOOK_ICMP6_DEST_UNREACH
+    LWIP_HOOK_ICMP6_DEST_UNREACH(icmp6hdr->code, p);
+#endif
+    break;
   case ICMP6_TYPE_NA: /* Neighbor advertisement */
   case ICMP6_TYPE_NS: /* Neighbor solicitation */
   case ICMP6_TYPE_RA: /* Router advertisement */

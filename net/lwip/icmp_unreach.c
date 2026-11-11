@@ -8,6 +8,8 @@
 #include <lwip/ip4_addr.h>
 #include <lwip/pbuf.h>
 #include <lwip/prot/ip4.h>
+#include <lwip/prot/ip6.h>
+#include <lwip/prot/icmp6.h>
 #include <lwip/prot/udp.h>
 
 static void tftp_port_unreachable(struct pbuf *p, u16 offset)
@@ -74,3 +76,34 @@ void net_lwip_icmp_dest_unreach(int code, struct pbuf *p)
 	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT) && code == ICMP_DUR_PORT)
 		tftp_port_unreachable(p, IPH_HL_BYTES(iphdr) + sizeof(struct icmp_hdr));
 }
+
+#if CONFIG_IS_ENABLED(IPV6)
+void net_lwip_icmp6_dest_unreach(unsigned int code, struct pbuf *p)
+{
+	struct ip6_hdr quoted;
+	struct udp_hdr udp;
+	ip6_addr_t local;
+	ip_addr_t peer;
+	u16 offset = sizeof(struct icmp6_hdr);
+
+	if (IS_ENABLED(CONFIG_LWIP_ICMP_SHOW_UNREACH))
+		printf("ICMPv6 destination unreachable (code %u) from %s\n",
+		       code, ip6addr_ntoa(ip6_current_src_addr()));
+	if (!IS_ENABLED(CONFIG_CMD_TFTPBOOT) || code != ICMP6_DUR_PORT)
+		return;
+	/* Our UDP requests have no extension headers. Ignore other quotations. */
+	if (pbuf_copy_partial(p, &quoted, sizeof(quoted), offset) != sizeof(quoted) ||
+	    IP6H_V(&quoted) != 6 || IP6H_NEXTH(&quoted) != IP6_NEXTH_UDP ||
+	    IP6H_PLEN(&quoted) < UDP_HLEN)
+		return;
+	if (pbuf_copy_partial(p, &udp, sizeof(udp), offset + IP6_HLEN) != sizeof(udp) ||
+	    lwip_ntohs(udp.len) < UDP_HLEN)
+		return;
+	ip6_addr_copy_from_packed(local, quoted.src);
+	if (!ip6_addr_zoneless_eq(&local, ip6_current_dest_addr()))
+		return;
+	ip_addr_copy_from_ip6_packed(peer, quoted.dest);
+	ip6_addr_assign_zone(ip_2_ip6(&peer), IP6_UNICAST, ip_current_netif());
+	tftp_handle_port_unreachable(&peer, lwip_ntohs(udp.src), lwip_ntohs(udp.dest));
+}
+#endif
