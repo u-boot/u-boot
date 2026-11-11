@@ -42,6 +42,32 @@ struct lwip_test_recv_ctx {
 	int nested_poll_ret;
 };
 
+static int dm_test_lwip_decimal(struct unit_test_state *uts)
+{
+	static const char *const invalid[] = {
+		"", "-1", "+1", " 1", "1 ", "1x", "65536", "4294967365",
+		"18446744073709551685", "99999999999999999999999999999999999",
+	};
+	const char *padded = "0000000000000000000000065535";
+	unsigned int value = 123;
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(invalid); i++) {
+		ut_asserteq(-EINVAL, net_lwip_parse_decimal(invalid[i], strlen(invalid[i]),
+							    U16_MAX, &value));
+		ut_asserteq(123, value);
+	}
+	ut_assertok(net_lwip_parse_decimal("0", 1, 0, &value));
+	ut_asserteq(0, value);
+	ut_asserteq(-EINVAL, net_lwip_parse_decimal("1", 1, 0, &value));
+	ut_assertok(net_lwip_parse_decimal(padded, strlen(padded), U16_MAX, &value));
+	ut_asserteq(U16_MAX, value);
+	ut_assertok(net_lwip_parse_decimal("4294967295/", 10, U32_MAX, &value));
+	ut_asserteq(U32_MAX, value);
+	ut_asserteq(-EINVAL, net_lwip_parse_decimal("4294967296", 10, U32_MAX, &value));
+	return 0;
+}
+DM_TEST(dm_test_lwip_decimal, 0);
+
 #if CONFIG_IS_ENABLED(PROT_DNS_LWIP)
 struct lwip_test_dns_ctx {
 	unsigned int callbacks;
