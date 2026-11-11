@@ -86,8 +86,8 @@ int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len,
 static int parse_url(char *url, char *host, u16 *port, char **path,
 		     bool *is_https)
 {
-	char *p, *pp;
-	long lport;
+	char *p, *pp, *host_end;
+	unsigned int lport;
 	size_t prefix_len = 0;
 
 	if (!wget_validate_uri(url)) {
@@ -108,25 +108,33 @@ static int parse_url(char *url, char *host, u16 *port, char **path,
 	p += prefix_len;
 
 	/* Parse hostname */
-	pp = strchr(p, ':');
-	if (!pp)
-		pp = strchr(p, '/');
-	if (!pp)
+	pp = strchr(p, '/');
+	if (!pp || strcspn(p, "\r\n\t @#") < pp - p)
+		return -EINVAL;
+	if (*p == '[') {
+		host_end = strchr(++p, ']');
+		if (!host_end || host_end >= pp ||
+		    (host_end[1] != ':' && host_end[1] != '/'))
+			return -EINVAL;
+		pp = host_end + 1;
+	} else {
+		host_end = memchr(p, ':', pp - p);
+		if (host_end)
+			pp = host_end;
+		else
+			host_end = pp;
+	}
+	if (host_end == p || host_end - p >= SERVER_NAME_SIZE)
 		return -EINVAL;
 
-	if (p + SERVER_NAME_SIZE <= pp)
-		return -EINVAL;
-
-	memcpy(host, p, pp - p);
-	host[pp - p] = '\0';
+	memcpy(host, p, host_end - p);
+	host[host_end - p] = '\0';
 
 	if (*pp == ':') {
 		/* Parse port number */
 		p = pp + 1;
-		lport = simple_strtol(p, &pp, 10);
-		if (pp && *pp != '/')
-			return -EINVAL;
-		if (lport > 65535)
+		pp = strchr(p, '/');
+		if (!pp || net_lwip_parse_decimal(p, pp - p, U16_MAX, &lport) || !lport)
 			return -EINVAL;
 		*port = (u16)lport;
 	}
@@ -292,10 +300,6 @@ static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct 
 	return ERR_OK;
 }
 
-
-#if CONFIG_IS_ENABLED(WGET_CACERT)
-#endif
-
 static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 			       struct net_lwip_ctx *net)
 {
@@ -305,21 +309,27 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 #endif
 	httpc_connection_t conn;
 	httpc_state_t *state;
+	ip_addr_t server;
+	char host[SERVER_NAME_SIZE + sizeof("[]:65535")];
 	err_t err;
 	int ret;
 
-	/* if URL with hostname init dns */
-	if (!ipaddr_aton(ctx->server_name, NULL)) {
-		ret = net_lwip_dns_init(net);
-		if (ret)
-			return ret;
-	}
+	ret = net_lwip_resolve(net, ctx->server_name, &server, IPADDR_TYPE_ANY);
+	if (ret)
+		return ret;
+	ret = net_lwip_prepare_addr(net, &server);
+	if (ret)
+		return ret;
+	if (strchr(ctx->server_name, ':'))
+		snprintf(host, sizeof(host), "[%s]:%u", ctx->server_name, ctx->port);
+	else
+		snprintf(host, sizeof(host), "%s:%u", ctx->server_name, ctx->port);
 
 	memset(&conn, 0, sizeof(conn));
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
 	if (is_https) {
-		char *ca;
-		size_t ca_sz;
+		char *ca = NULL;
+		size_t ca_sz = 0;
 
 #if CONFIG_IS_ENABLED(WGET_CACERT) || CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
 #if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
@@ -369,8 +379,8 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 
 	conn.result_fn = httpc_result_cb;
 	conn.headers_done_fn = httpc_headers_done_cb;
-	err = httpc_get_file_dns(ctx->server_name, ctx->port, ctx->path, &conn,
-				 httpc_recv_cb, ctx, &state);
+	err = httpc_get_file_host(&server, host, ctx->port, ctx->path, &conn,
+				  httpc_recv_cb, ctx, &state);
 	if (err) {
 		ret = -ENODEV;
 		goto out;
@@ -379,7 +389,11 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 	errno = 0;
 
 	while (!ctx->done) {
-		net_lwip_poll();
+		if (net_lwip_poll() < 0 && !ctx->done) {
+			ctx->aborted = true;
+			httpc_abort(state);
+			break;
+		}
 		if (!ctx->done && ctrlc()) {
 			ctx->aborted = true;
 			httpc_abort(state);
@@ -443,12 +457,11 @@ int wget_do_request(ulong dst_addr, char *uri)
  *
  * @uri:	uri string
  *
- * This function follows the current U-Boot wget implementation.
- * scheme: only "http:" is supported
+ * Supported schemes: HTTP and, when enabled, HTTPS.
  * authority:
  *   - user information: not supported
  *   - host: supported
- *   - port: not supported(always use the default port)
+ *   - port: optional; validated by the URL parser
  *
  * Uri is expected to be correctly percent encoded.
  * This is the minimum check, control codes(0x1-0x19, 0x7F, except '\0')
@@ -495,7 +508,7 @@ bool wget_validate_uri(char *uri)
 	if (!str_copy)
 		return false;
 
-	s = str_copy + strlen("http://");
+	s = str_copy + prefix_len;
 	authority = strsep(&s, "/");
 	if (!s) {
 		log_err("invalid uri, no file path\n");
