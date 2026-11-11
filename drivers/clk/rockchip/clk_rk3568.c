@@ -1889,7 +1889,7 @@ static ulong rk3568_gmac_src_get_clk(struct rk3568_clk_priv *priv,
 	case CLK_MAC0_2TOP_SEL_25M:
 		return 25 * MHz;
 	case CLK_MAC0_2TOP_SEL_PPLL:
-		return rk3568_pmu_pll_get_rate(priv, HPLL);
+		return rk3568_pmu_pll_get_rate(priv, PPLL);
 	default:
 		return -ENOENT;
 	}
