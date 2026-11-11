@@ -1342,7 +1342,7 @@ static ulong rk3588_uart_set_rate(struct rk3588_clk_priv *priv,
 	} else if (priv->cpll_hz % rate == 0) {
 		clk_src = CLK_UART_SRC_SEL_CPLL;
 		uart_src = CLK_UART_SEL_SRC;
-		div = DIV_ROUND_UP(priv->gpll_hz, rate);
+		div = DIV_ROUND_UP(priv->cpll_hz, rate);
 	} else if (rate == OSC_HZ) {
 		clk_src = CLK_UART_SRC_SEL_GPLL;
 		uart_src = CLK_UART_SEL_XIN24M;
