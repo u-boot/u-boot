@@ -57,18 +57,6 @@
 	/delete-node/ vga;
 };
 
-/ {
-	soc {
-		/delete-node/ fdp1@fe940000;
-		/delete-node/ fdp1@fe944000;
-		/delete-node/ fdp1@fe948000;
-		/delete-node/ imr-lx4@fe860000;
-		/delete-node/ imr-lx4@fe870000;
-		/delete-node/ imr-lx4@fe880000;
-		/delete-node/ imr-lx4@fe890000;
-	};
-};
-
 &a53_0 {
 	/delete-property/ operating-points-v2;
 };
@@ -95,4 +83,14 @@
 
 &i2c4 {
 	/delete-node/ video-receiver@70;
+};
+
+&soc {
+	/delete-node/ fdp1@fe940000;
+	/delete-node/ fdp1@fe944000;
+	/delete-node/ fdp1@fe948000;
+	/delete-node/ imr-lx4@fe860000;
+	/delete-node/ imr-lx4@fe870000;
+	/delete-node/ imr-lx4@fe880000;
+	/delete-node/ imr-lx4@fe890000;
 };
