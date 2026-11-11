@@ -654,7 +654,7 @@ static ulong rk3588_adc_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 		if (sel == CLK_TSADC_SEL_24M)
 			prate = OSC_HZ;
 		else
-			prate = 100 * MHz;
+			prate = priv->gpll_hz;
 		return DIV_TO_RATE(prate, div);
 	default:
 		return -ENOENT;
