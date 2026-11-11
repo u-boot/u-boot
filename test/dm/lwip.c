@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright 2026 James Hilliard <james.hilliard1@gmail.com> */
 
+#include <command.h>
 #include <console.h>
 #include <dm.h>
 #include <env.h>
 #include <lwip/pbuf.h>
 #include <lwip/udp.h>
 #include <lwip/timeouts.h>
+#include <mapmem.h>
 #include <net.h>
 #include <time.h>
 #include <asm/eth.h>
@@ -24,6 +26,9 @@
 #if CONFIG_IS_ENABLED(WGET)
 #include <lwip/apps/http_client.h>
 #include <lwip/priv/tcp_priv.h>
+#endif
+#if CONFIG_IS_ENABLED(WGET_CACERT)
+#include <lwip/altcp_tls.h>
 #endif
 
 struct lwip_test_eth_hdr {
@@ -490,3 +495,21 @@ out:
 }
 
 DM_TEST(dm_test_lwip_restart, UTF_SCAN_FDT | UTF_CONSOLE);
+
+#if CONFIG_IS_ENABLED(CMD_WGET) && CONFIG_IS_ENABLED(WGET_CACERT)
+static int dm_test_lwip_wget_cacert(struct unit_test_state *uts)
+{
+	void *buf = map_sysmem(0x20000, 8);
+
+	memset(buf, 0, 8);
+	unmap_sysmem(buf);
+	ut_asserteq(CMD_RET_FAILURE, run_command("wget cacert 20000 8", 0));
+	ut_assert_nextlinen("Could not parse certificates");
+	ut_assertnull(cacert);
+	ut_asserteq(0, cacert_size);
+	ut_assertok(run_command("wget cacert 0 0", 0));
+	ut_assert_console_end();
+	return 0;
+}
+DM_TEST(dm_test_lwip_wget_cacert, UTF_SCAN_FDT | UTF_CONSOLE);
+#endif
