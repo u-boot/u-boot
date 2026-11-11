@@ -135,6 +135,17 @@ static int pin_to_gpio(struct airoha_pinctrl *pinctrl, unsigned int pin)
 	return pin - data->gpio_offs;
 }
 
+static int func_has_group(const struct airoha_pinctrl_func *func,
+			  const char *name)
+{
+	for (unsigned int i = 0; i < func->group_size; i++) {
+		if (!strcmp(func->groups[i].name, name))
+			return 1;
+	}
+
+	return 0;
+}
+
 /* gpio callbacks */
 static int airoha_gpio_set(struct airoha_pinctrl *pinctrl, unsigned int gpio,
 			   int value)
@@ -350,7 +361,7 @@ static int airoha_pinconf_get(struct airoha_pinctrl *pinctrl,
 		else if (param == PIN_CONFIG_BIAS_PULL_DOWN &&
 			 !(pull_down && !pull_up))
 			return -EINVAL;
-		else if (pull_up || pull_down)
+		else if (param == PIN_CONFIG_BIAS_DISABLE && (pull_up || pull_down))
 			return -EINVAL;
 
 		arg = 1;
@@ -749,19 +760,34 @@ static int airoha_pinmux_set(struct udevice *dev,
 {
 	struct airoha_pinctrl *pinctrl = dev_get_priv(dev);
 	const struct airoha_pinctrl_match_data *data = pinctrl->data;
-	const char *pin_name;
-	unsigned int selector;
+	const struct airoha_pinctrl_func *func = &data->funcs[func_selector];
+	unsigned int pin = data->pins[pin_selector].number;
+	int found = -1;
 
-	pin_name = data->pins[pin_selector].name;
+	/*
+	 * A pin can only be muxed on its own if there is exactly one
+	 * single-pin group of the requested function that contains it.
+	 * Multi-pin groups must be selected with "groups" in DT.
+	 */
+	for (unsigned int g = 0; g < data->num_grps; g++) {
+		const struct pingroup *grp = &data->grps[g];
 
-	/* find group matching the pin_name */
-	for (selector = 0; selector < data->num_grps; selector++) {
-		if (!strcmp(pin_name, data->grps[selector].name))
-			return airoha_pinmux_group_set(dev, selector,
-						       func_selector);
+		if (grp->npins != 1 || grp->pins[0] != pin)
+			continue;
+
+		if (!func_has_group(func, grp->name))
+			continue;
+
+		if (found >= 0)
+			return -EINVAL; /* ambiguous, use "groups" */
+
+		found = g;
 	}
 
-	return -ENOENT;
+	if (found < 0)
+		return -ENOENT;
+
+	return airoha_pinmux_group_set(dev, found, func_selector);
 }
 
 static const struct pinconf_param airoha_pinconf_params[] = {
