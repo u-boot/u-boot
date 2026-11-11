@@ -13,6 +13,8 @@
 #include <lwip/apps/tftp_client.h>
 #include <lwip/apps/tftp_server.h>
 #include <lwip/etharp.h>
+#include <lwip/ip6.h>
+#include <lwip/prot/ip6.h>
 #include <lwip/timeouts.h>
 #include <mapmem.h>
 #include <net.h>
@@ -274,23 +276,26 @@ static const struct tftp_context tftp_context = {
 	tftp_error
 };
 
-static int tftp_get_blocksize(enum tftp_operation operation, u16 *blksize)
+static int tftp_get_blocksize(enum tftp_operation operation, bool ipv6, u16 *blksize)
 {
 	const char *ep = NULL;
-	ulong value = CONFIG_TFTP_BLOCKSIZE;
-	ulong max_blksize = 1468;
+	unsigned int value = CONFIG_TFTP_BLOCKSIZE;
+	unsigned int max_blksize = 1500 - (ipv6 ? IP6_HLEN : IP_HLEN) - UDP_HDR_SIZE - 4;
+	unsigned int fragment_size = ipv6 ? IP6_MIN_MTU_LENGTH - IP6_HLEN - IP6_FRAG_HLEN :
+				    IP_FRAG_MTU_USABLE;
 
 	/* Keep uploads within the Ethernet MTU, like legacy. Downloads may
-	 * use the pbuf budget sized for full-MTU fragments in lwipopts.h.
+	 * use the pbuf budget, allowing for IPv6's minimum MTU.
 	 * CONFIG_TFTP_BLOCKSIZE is the default, not the receive limit.
 	 */
-	if (operation == TFTP_DOWNLOAD && IP_REASSEMBLY)
-		max_blksize = min_t(ulong, 65464,
-				    IP_REASS_MAX_PBUFS * IP_FRAG_MTU_USABLE - UDP_HDR_SIZE - 4);
+	if (operation == TFTP_DOWNLOAD &&
+	    (ipv6 ? LWIP_IPV6_REASS : IP_REASSEMBLY))
+		max_blksize = min_t(unsigned int, 65464,
+				    IP_REASS_MAX_PBUFS * fragment_size - UDP_HDR_SIZE - 4);
 	if (IS_ENABLED(CONFIG_NET_TFTP_VARS))
 		ep = env_get("tftpblocksize");
 
-	if (ep && strict_strtoul(ep, 10, &value)) {
+	if (ep && net_lwip_parse_decimal(ep, strlen(ep), U32_MAX, &value)) {
 		log_err("error: invalid TFTP block size\n");
 		return -EINVAL;
 	}
@@ -299,7 +304,7 @@ static int tftp_get_blocksize(enum tftp_operation operation, u16 *blksize)
 		return -EINVAL;
 	}
 	if (value > max_blksize) {
-		printf("Capping TFTP block size to %lu (was %lu)\n",
+		printf("Capping TFTP block size to %u (was %u)\n",
 		       max_blksize, value);
 		value = max_blksize;
 	}
@@ -360,7 +365,7 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	struct tftp_ctx ctx;
 	bool initialized = false;
 	const char *window_env = NULL;
-	ulong windowsize = CONFIG_TFTP_WINDOWSIZE;
+	unsigned int windowsize = CONFIG_TFTP_WINDOWSIZE;
 	u16 blksize;
 	err_t err;
 
@@ -369,12 +374,13 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	if (operation == TFTP_UPLOAD &&
 	    (size > U32_MAX || addr + size < addr))
 		return -E2BIG;
-	if (tftp_get_blocksize(operation, &blksize))
+	if (tftp_get_blocksize(operation, IP_IS_V6(&srvip), &blksize))
 		return -1;
 	if (IS_ENABLED(CONFIG_NET_TFTP_VARS))
 		window_env = env_get("tftpwindowsize");
 	if (operation == TFTP_DOWNLOAD &&
-	    ((window_env && strict_strtoul(window_env, 10, &windowsize)) ||
+	    ((window_env && net_lwip_parse_decimal(window_env, strlen(window_env),
+						 U16_MAX, &windowsize)) ||
 	     !windowsize || windowsize > U16_MAX)) {
 		log_err("error: TFTP window size must be between 1 and 65535\n");
 		return -EINVAL;
@@ -391,9 +397,20 @@ static int tftp_loop(struct net_lwip_ctx *net,
 	net_boot_file_size = 0;
 
 	printf("Using %s device\n", net->dev->name);
-	printf("TFTP %s server %s; our IP address is %pI4\n",
-	       ctx.upload ? "to" : "from", ipaddr_ntoa(&srvip),
-	       &netif_ip4_addr(net->netif)->addr);
+	printf("TFTP %s server %s; our IP address is ",
+	       ctx.upload ? "to" : "from", ipaddr_ntoa(&srvip));
+#if CONFIG_IS_ENABLED(IPV6)
+	if (IP_IS_V6(&srvip)) {
+		const ip_addr_t *src = ip6_select_source_address(net->netif, ip_2_ip6(&srvip));
+
+		if (!src)
+			return -EADDRNOTAVAIL;
+		printf("%s\n", ipaddr_ntoa(src));
+	} else
+#endif
+	{
+		printf("%pI4\n", &netif_ip4_addr(net->netif)->addr);
+	}
 	printf("Filename '%s'.\n", fname);
 	if (ctx.upload) {
 		printf("Save address: 0x%lx\n", ctx.daddr);
@@ -404,7 +421,7 @@ static int tftp_loop(struct net_lwip_ctx *net,
 		printf("Loading: ");
 	}
 
-	if (operation == TFTP_DOWNLOAD && request) {
+	if (operation == TFTP_DOWNLOAD && request && IP_IS_V4(&srvip)) {
 		int ret = tftp_probe_arp(net->netif, ip_2_ip4(&srvip));
 
 		if (ret)
@@ -635,10 +652,15 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	ulong size = 0;
 	ulong addr;
 	const char *ep;
-	ulong value;
+	unsigned int value;
+	bool ipv6 = false;
 
 	net_boot_file_size = 0;
 	laddr = env_get_ulong("loadaddr", 16, image_load_addr);
+	if (IS_ENABLED(CONFIG_IPV6) && argc > 1 && !strcmp(argv[argc - 1], "-ipv6")) {
+		ipv6 = true;
+		argc--;
+	}
 
 	if (operation == TFTP_UPLOAD) {
 		if (argc < 3 || argc > 4 ||
@@ -685,7 +707,17 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 		}
 		fname = arg_copy;
 		end = strchr(fname, ':');
-		if (end) {
+		if (IS_ENABLED(CONFIG_IPV6) && *fname == '[') {
+			end = strchr(fname, ']');
+			if (!end || end[1] != ':') {
+				ret = CMD_RET_USAGE;
+				goto out;
+			}
+			*end = '\0';
+			server_ip = fname + 1;
+			fname = end + 2;
+			ipv6 = true;
+		} else if (end) {
 			*end = '\0';
 			/* Like legacy, only an IP address introduces a server.
 			 * Retain the lwIP empty-server and numeric-port extensions,
@@ -694,28 +726,35 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 			if (!*fname || ipaddr_aton(fname, &srvip)) {
 				server_ip = fname;
 				fname = end + 1;
-				end = strchr(fname, ':');
-				if (end) {
-					*end = '\0';
-					if (strspn(fname, "0123456789") == strlen(fname)) {
-						server_port = fname;
-						fname = end + 1;
-					} else {
-						*end = ':';
-					}
-				}
 			} else {
 				*end = ':';
 			}
 		}
+		if (server_ip) {
+			end = strchr(fname, ':');
+			if (end) {
+				*end = '\0';
+				if (strspn(fname, "0123456789") == strlen(fname)) {
+					server_port = fname;
+					fname = end + 1;
+				} else {
+					*end = ':';
+				}
+			}
+		}
 	}
 
-	if (!server_ip || !*server_ip)
-		server_ip = env_get("tftpserverip");
-	if (!server_ip || !*server_ip)
-		server_ip = env_get("serverip");
 	if (!server_ip || !*server_ip) {
-		log_err("error: tftpserverip/serverip has to be set\n");
+		if (ipv6) {
+			server_ip = env_get("serverip6");
+		} else {
+			server_ip = env_get("tftpserverip");
+			if (!server_ip || !*server_ip)
+				server_ip = env_get("serverip");
+		}
+	}
+	if (!server_ip || !*server_ip) {
+		log_err("error: %s has to be set\n", ipv6 ? "serverip6" : "tftpserverip/serverip");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -723,7 +762,7 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	if (!server_port || !*server_port)
 		server_port = env_get("tftpdstp");
 	if (server_port && *server_port) {
-		if (strict_strtoul(server_port, 10, &value) || value > U16_MAX) {
+		if (net_lwip_parse_decimal(server_port, strlen(server_port), U16_MAX, &value)) {
 			log_err("error: invalid TFTP destination port\n");
 			ret = CMD_RET_FAILURE;
 			goto out;
@@ -733,7 +772,7 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 
 	ep = env_get("tftpsrcp");
 	if (ep && *ep) {
-		if (strict_strtoul(ep, 10, &value) || value > U16_MAX) {
+		if (net_lwip_parse_decimal(ep, strlen(ep), U16_MAX, &value)) {
 			log_err("error: invalid TFTP source port\n");
 			ret = CMD_RET_FAILURE;
 			goto out;
@@ -744,7 +783,7 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	if (IS_ENABLED(CONFIG_NET_TFTP_VARS)) {
 		ep = env_get("tftptimeout");
 		if (ep && *ep) {
-			if (strict_strtoul(ep, 10, &value) || value > U32_MAX / 4) {
+			if (net_lwip_parse_decimal(ep, strlen(ep), U32_MAX / 4, &value)) {
 				log_err("error: invalid TFTP timeout\n");
 				ret = CMD_RET_FAILURE;
 				goto out;
@@ -759,7 +798,7 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 
 		ep = env_get("tftptimeoutcountmax");
 		if (ep && *ep) {
-			if (strict_strtoul(ep, 10, &value) || value > U32_MAX) {
+			if (net_lwip_parse_decimal(ep, strlen(ep), U32_MAX, &value)) {
 				log_err("error: invalid TFTP timeout count max\n");
 				ret = CMD_RET_FAILURE;
 				goto out;
@@ -768,11 +807,21 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 		}
 	}
 
-	if (!ipaddr_aton(server_ip, &srvip)) {
-		log_err("error: ipaddr_aton\n");
+	if (!ipaddr_aton(server_ip, &srvip) || (ipv6 && !IP_IS_V6(&srvip))) {
+		log_err("error: invalid TFTP server address\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
+#if CONFIG_IS_ENABLED(IPV6)
+	if (IP_IS_V6(&srvip)) {
+		ret = net_lwip_ip6_aton(server_ip, ip_2_ip6(&srvip));
+		if (ret || !fname || !*fname) {
+			log_err("error: IPv6 TFTP requires a unicast server address and filename\n");
+			ret = CMD_RET_FAILURE;
+			goto out;
+		}
+	}
+#endif
 
 	if (fname && strlen(fname) > TFTP_MAX_FILENAME_LEN) {
 		log_err("error: TFTP file name is too long\n");
@@ -788,7 +837,8 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	}
 
 	if (!parent) {
-		if (net_lwip_start(net, NET_LWIP_ADDR_ENV_STRICT)) {
+		if (net_lwip_start(net, IP_IS_V6(&srvip) ? NET_LWIP_ADDR_ENV_FLEXIBLE :
+				   NET_LWIP_ADDR_ENV_STRICT)) {
 			ret = CMD_RET_FAILURE;
 			goto out;
 		}
@@ -797,7 +847,12 @@ static int do_tftp(int argc, char *const argv[], enum tftp_operation operation,
 	}
 
 	for (;;) {
-		ret = tftp_check_ip(net);
+#if CONFIG_IS_ENABLED(IPV6)
+		if (IP_IS_V6(&srvip))
+			ret = net_lwip_ip6_prepare(net, &srvip);
+		else
+#endif
+			ret = tftp_check_ip(net);
 		if (ret)
 			break;
 		/* Rotation may select an interface with a different IP address. */
