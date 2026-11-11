@@ -740,7 +740,7 @@ int board_late_init(void)
 	rev = get_board_revision();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
 	env_set("board_rev", env_str);
-#endif /* CONFIG_BOARD_LATE_INIT */
+#endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
 	if (IS_ENABLED(CONFIG_USB) && is_boot_from_usb()) {
 		env_set("bootdelay", "0");
