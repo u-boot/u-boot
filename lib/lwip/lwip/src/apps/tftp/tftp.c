@@ -512,11 +512,21 @@ is_expected_response(struct pbuf *p, u16_t opcode)
 static void
 tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port)
 {
-  u16_t *sbuf = (u16_t *) p->payload;
+  u16_t *sbuf;
   int opcode;
 
   LWIP_UNUSED_ARG(arg);
   LWIP_UNUSED_ARG(upcb);
+
+  /* IP reassembly can leave the TFTP header in a later pbuf. */
+  if ((p->len < TFTP_HEADER_LENGTH) && (p->len < p->tot_len)) {
+    p = pbuf_coalesce(p, PBUF_RAW);
+    if (p->next != NULL) {
+      pbuf_free(p);
+      return;
+    }
+  }
+  sbuf = (u16_t *) p->payload;
 
   if (p->len < sizeof(*sbuf)) {
     pbuf_free(p);
