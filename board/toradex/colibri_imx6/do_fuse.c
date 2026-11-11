@@ -54,10 +54,10 @@ int do_updt_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	unsigned val;
 	int ret;
-	int confirmed = argc >= 1 && !strcmp(argv[1], "-y");
+	int confirmed = argc >= 2 && !strcmp(argv[1], "-y");
 
 	/* can be used in scripts for command availability check */
-	if (argc >= 1 && !strcmp(argv[1], "-n"))
+	if (argc >= 2 && !strcmp(argv[1], "-n"))
 		return CMD_RET_SUCCESS;
 
 	/* boot cfg */
