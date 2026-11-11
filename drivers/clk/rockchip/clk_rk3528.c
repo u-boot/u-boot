@@ -72,7 +72,8 @@ static struct rockchip_pll_clock rk3528_pll_clks[] = {
 		     RK3528_MODE_CON, 4, 10, 0, rk3528_pll_rates),
 
 	[PPLL] = PLL(pll_rk3328, PLL_PPLL, RK3528_PCIE_PLL_CON(32),
-		     RK3528_MODE_CON, 6, 10, ROCKCHIP_PLL_FIXED_MODE, rk3528_pll_rates),
+		     RK3528_MODE_CON, 6, 10, ROCKCHIP_PLL_FIXED_MODE,
+		     rk3528_pll_rates),
 
 	[DPLL] = PLL(pll_rk3328, PLL_DPLL, RK3528_DDRPHY_PLL_CON(16),
 		     RK3528_DDRPHY_MODE_CON, 0, 10, 0, rk3528_pll_rates),
