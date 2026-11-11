@@ -2185,14 +2185,15 @@ config SYS_DISABLE_AUTOLOAD
 	  is complete.  Enable this option to disable this behavior and instead
 	  require files to be loaded over the network by subsequent commands.
 
-if NET_LEGACY
-
 config CMD_PING6
 	bool "ping6"
 	depends on IPV6
 	default y if (CMD_PING && IPV6)
+	select PROT_RAW_LWIP if NET_LWIP
 	help
 	  Send ICMPv6 ECHO_REQUEST to network host
+
+if NET_LEGACY
 
 config CMD_CDP
 	bool "cdp"

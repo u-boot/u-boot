@@ -2,7 +2,9 @@ obj-$(CONFIG_CMD_BOOTP) += bootp.o
 obj-$(CONFIG_CMD_DHCP) += dhcp.o
 obj-$(CONFIG_CMD_DNS) += dns.o
 obj-$(CONFIG_CMD_NFS) += nfs.o
-obj-$(CONFIG_CMD_PING) += ping.o
+ifneq ($(filter y,$(CONFIG_CMD_PING) $(CONFIG_CMD_PING6)),)
+obj-y += ping.o
+endif
 obj-$(CONFIG_CMD_SNTP) += sntp.o
 obj-$(CONFIG_CMD_TFTPBOOT) += tftp.o
 obj-$(CONFIG_CMD_TFTPPUT) += tftpput.o
