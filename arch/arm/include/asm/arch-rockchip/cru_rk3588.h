@@ -104,9 +104,6 @@ struct pll_rate_table {
 	unsigned int k;
 };
 
-#define RK3588_PLL_CON(x)		((x) * 0x4)
-#define RK3588_MODE_CON			0x280
-
 #define RK3588_PHP_CRU_BASE		0x8000
 #define RK3588_PMU_CRU_BASE		0x30000
 #define RK3588_BIGCORE0_CRU_BASE	0x50000
