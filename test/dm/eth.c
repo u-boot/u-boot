@@ -23,7 +23,7 @@
 
 #define DM_TEST_ETH_NUM		4
 
-#if IS_ENABLED(CONFIG_IPV6)
+#if IS_ENABLED(CONFIG_IPV6) && IS_ENABLED(CONFIG_NET_LEGACY)
 static int dm_test_string_to_ip6(struct unit_test_state *uts)
 {
 	char *str;
@@ -774,7 +774,7 @@ DM_TEST(dm_test_dhcp6_clientid_reject, UTF_SCAN_FDT);
 #endif
 #endif
 
-#if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
+#if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY) && IS_ENABLED(CONFIG_NET_LEGACY)
 
 static u8 ip6_ra_buf[] = {0x60, 0xf, 0xc5, 0x4a, 0x0, 0x38, 0x3a, 0xff, 0xfe,
 			  0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x6, 0x85, 0xe6,

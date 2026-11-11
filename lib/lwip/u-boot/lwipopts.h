@@ -60,7 +60,12 @@
 #define NO_SYS                          1
 
 #define LWIP_IPV4			1
-#define LWIP_IPV6			0
+#define LWIP_IPV6			IS_ENABLED(CONFIG_IPV6)
+#define LWIP_IPV6_SEND_ROUTER_SOLICIT	IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
+#define LWIP_IPV6_AUTOCONFIG		IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
+/* A 64-bit reassembly pointer does not fit in the fragment header. */
+#define IPV6_FRAG_COPYHEADER		IS_ENABLED(CONFIG_64BIT)
+#define LWIP_HOOK_FILENAME		"lwip-hooks.h"
 
 #define MEM_ALIGNMENT                   8
 
@@ -136,9 +141,6 @@
 #endif
 
 #if defined(CONFIG_CMD_BOOTP) || defined(CONFIG_CMD_DHCP)
-#ifdef CONFIG_CMD_DHCP
-#define LWIP_HOOK_FILENAME "lwip-dhcp.h"
-#endif
 /* Core/PXE options plus two maximum-length hostname/vendor-class options. */
 #define DHCP_OPTIONS_LEN		640
 /* Stage NTP after concatenating fragments, not in the core option parser. */

@@ -305,6 +305,10 @@ nd6_input(struct pbuf *p, struct netif *inp)
   s8_t i;
   s16_t dest_idx;
 
+#ifdef LWIP_HOOK_ND6_UPDATE_LIFETIMES
+  LWIP_HOOK_ND6_UPDATE_LIFETIMES();
+#endif
+
   ND6_STATS_INC(nd6.recv);
 
   msg_type = *((u8_t *)p->payload);
@@ -959,22 +963,121 @@ lenerr_drop_free_return:
   pbuf_free(p);
 }
 
+/** Age finite configuration lifetimes by elapsed seconds, without sending probes. */
+void
+nd6_age_lifetimes(u32_t elapsed)
+{
+  s8_t i;
+#if LWIP_IPV6_ADDRESS_LIFETIMES
+  struct netif *netif;
+#endif
 
-/**
- * Periodic timer for Neighbor discovery functions:
- *
- * - Update neighbor reachability states
- * - Update destination cache entries age
- * - Update invalidation timers of default routers and on-link prefixes
- * - Update lifetimes of our addresses
- * - Perform duplicate address detection (DAD) for our addresses
- * - Send router solicitations
- */
+  if (elapsed == 0) {
+    return;
+  }
+  /* Process router entries. */
+  for (i = 0; i < LWIP_ND6_NUM_ROUTERS; i++) {
+    if (default_router_list[i].neighbor_entry != NULL) {
+      /* Active entry. */
+      if (default_router_list[i].invalidation_timer <= elapsed) {
+        /* Clear the expired entry. Also clear any of
+         * its destination cache entries, as per RFC 4861 Sec. 5.3 and 6.3.5. */
+        s8_t j;
+        for (j = 0; j < LWIP_ND6_NUM_DESTINATIONS; j++) {
+          if (ip6_addr_eq(&destination_cache[j].next_hop_addr,
+               &default_router_list[i].neighbor_entry->next_hop_address)) {
+             ip6_addr_set_any(&destination_cache[j].destination_addr);
+          }
+        }
+        default_router_list[i].neighbor_entry->isrouter = 0;
+        default_router_list[i].neighbor_entry = NULL;
+        default_router_list[i].invalidation_timer = 0;
+        default_router_list[i].flags = 0;
+      } else {
+        default_router_list[i].invalidation_timer -= elapsed;
+      }
+    }
+  }
+
+  /* Process prefix entries. */
+  for (i = 0; i < LWIP_ND6_NUM_PREFIXES; i++) {
+    if (prefix_list[i].netif != NULL) {
+      if (prefix_list[i].invalidation_timer == 0xffffffffUL) {
+        continue;
+      }
+      if (prefix_list[i].invalidation_timer <= elapsed) {
+        /* Entry timed out, remove it */
+        prefix_list[i].invalidation_timer = 0;
+        prefix_list[i].netif = NULL;
+      } else {
+        prefix_list[i].invalidation_timer -= elapsed;
+      }
+    }
+  }
+
+#if LWIP_IPV6_ADDRESS_LIFETIMES
+  /* Process our own addresses, including tentative and duplicate addresses. */
+  NETIF_FOREACH(netif) {
+    for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; ++i) {
+      u8_t addr_state = netif_ip6_addr_state(netif, i);
+      /* RFC 4862 is not entirely clear as to whether address lifetimes affect
+       * tentative addresses, and is even less clear as to what should happen
+       * with duplicate addresses. We choose to track and update lifetimes for
+       * both those types, although for different reasons:
+       * - for tentative addresses, the line of thought of Sec. 5.7 combined
+       *   with the potentially long period that an address may be in tentative
+       *   state (due to the interface being down) suggests that lifetimes
+       *   should be independent of external factors which would include DAD;
+       * - for duplicate addresses, retiring them early could result in a new
+       *   but unwanted attempt at marking them as valid, while retiring them
+       *   late/never could clog up address slots on the netif.
+       * As a result, we may end up expiring addresses of either type here.
+       */
+      if (!ip6_addr_isinvalid(addr_state) &&
+          !netif_ip6_addr_isstatic(netif, i)) {
+        u32_t life = netif_ip6_addr_valid_life(netif, i);
+        if (!ip6_addr_life_isinfinite(life) && life <= elapsed) {
+          /* The address has expired. */
+          netif_ip6_addr_set_valid_life(netif, i, 0);
+          netif_ip6_addr_set_pref_life(netif, i, 0);
+          netif_ip6_addr_set_state(netif, i, IP6_ADDR_INVALID);
+        } else {
+          if (!ip6_addr_life_isinfinite(life)) {
+            life -= elapsed;
+            LWIP_ASSERT("bad valid lifetime", life != IP6_ADDR_LIFE_STATIC);
+            netif_ip6_addr_set_valid_life(netif, i, life);
+          }
+          /* The address is still here. Update the preferred lifetime too. */
+          life = netif_ip6_addr_pref_life(netif, i);
+          if (!ip6_addr_life_isinfinite(life) && life <= elapsed) {
+            /* This case must also trigger if 'life' was already zero, so as to
+             * deal correctly with advertised preferred-lifetime reductions. */
+            netif_ip6_addr_set_pref_life(netif, i, 0);
+            if (addr_state == IP6_ADDR_PREFERRED)
+              netif_ip6_addr_set_state(netif, i, IP6_ADDR_DEPRECATED);
+          } else if (!ip6_addr_life_isinfinite(life)) {
+            life -= elapsed;
+            netif_ip6_addr_set_pref_life(netif, i, life);
+          }
+        }
+      }
+    }
+  }
+#endif /* LWIP_IPV6_ADDRESS_LIFETIMES */
+}
+
+/** Periodic neighbor probes, DAD and router solicitations. */
 void
 nd6_tmr(void)
 {
   s8_t i;
   struct netif *netif;
+
+#ifdef LWIP_HOOK_ND6_UPDATE_LIFETIMES
+  LWIP_HOOK_ND6_UPDATE_LIFETIMES();
+#else
+  nd6_age_lifetimes(ND6_TMR_INTERVAL / 1000);
+#endif
 
   /* Process neighbor entries. */
   for (i = 0; i < LWIP_ND6_NUM_NEIGHBORS; i++) {
@@ -1038,95 +1141,10 @@ nd6_tmr(void)
     destination_cache[i].age++;
   }
 
-  /* Process router entries. */
-  for (i = 0; i < LWIP_ND6_NUM_ROUTERS; i++) {
-    if (default_router_list[i].neighbor_entry != NULL) {
-      /* Active entry. */
-      if (default_router_list[i].invalidation_timer <= ND6_TMR_INTERVAL / 1000) {
-        /* No more than 1 second remaining. Clear this entry. Also clear any of
-         * its destination cache entries, as per RFC 4861 Sec. 5.3 and 6.3.5. */
-        s8_t j;
-        for (j = 0; j < LWIP_ND6_NUM_DESTINATIONS; j++) {
-          if (ip6_addr_eq(&destination_cache[j].next_hop_addr,
-               &default_router_list[i].neighbor_entry->next_hop_address)) {
-             ip6_addr_set_any(&destination_cache[j].destination_addr);
-          }
-        }
-        default_router_list[i].neighbor_entry->isrouter = 0;
-        default_router_list[i].neighbor_entry = NULL;
-        default_router_list[i].invalidation_timer = 0;
-        default_router_list[i].flags = 0;
-      } else {
-        default_router_list[i].invalidation_timer -= ND6_TMR_INTERVAL / 1000;
-      }
-    }
-  }
-
-  /* Process prefix entries. */
-  for (i = 0; i < LWIP_ND6_NUM_PREFIXES; i++) {
-    if (prefix_list[i].netif != NULL) {
-      if (prefix_list[i].invalidation_timer <= ND6_TMR_INTERVAL / 1000) {
-        /* Entry timed out, remove it */
-        prefix_list[i].invalidation_timer = 0;
-        prefix_list[i].netif = NULL;
-      } else {
-        prefix_list[i].invalidation_timer -= ND6_TMR_INTERVAL / 1000;
-      }
-    }
-  }
-
-  /* Process our own addresses, updating address lifetimes and/or DAD state. */
   NETIF_FOREACH(netif) {
     for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; ++i) {
-      u8_t addr_state;
-#if LWIP_IPV6_ADDRESS_LIFETIMES
-      /* Step 1: update address lifetimes (valid and preferred). */
-      addr_state = netif_ip6_addr_state(netif, i);
-      /* RFC 4862 is not entirely clear as to whether address lifetimes affect
-       * tentative addresses, and is even less clear as to what should happen
-       * with duplicate addresses. We choose to track and update lifetimes for
-       * both those types, although for different reasons:
-       * - for tentative addresses, the line of thought of Sec. 5.7 combined
-       *   with the potentially long period that an address may be in tentative
-       *   state (due to the interface being down) suggests that lifetimes
-       *   should be independent of external factors which would include DAD;
-       * - for duplicate addresses, retiring them early could result in a new
-       *   but unwanted attempt at marking them as valid, while retiring them
-       *   late/never could clog up address slots on the netif.
-       * As a result, we may end up expiring addresses of either type here.
-       */
-      if (!ip6_addr_isinvalid(addr_state) &&
-          !netif_ip6_addr_isstatic(netif, i)) {
-        u32_t life = netif_ip6_addr_valid_life(netif, i);
-        if (life <= ND6_TMR_INTERVAL / 1000) {
-          /* The address has expired. */
-          netif_ip6_addr_set_valid_life(netif, i, 0);
-          netif_ip6_addr_set_pref_life(netif, i, 0);
-          netif_ip6_addr_set_state(netif, i, IP6_ADDR_INVALID);
-        } else {
-          if (!ip6_addr_life_isinfinite(life)) {
-            life -= ND6_TMR_INTERVAL / 1000;
-            LWIP_ASSERT("bad valid lifetime", life != IP6_ADDR_LIFE_STATIC);
-            netif_ip6_addr_set_valid_life(netif, i, life);
-          }
-          /* The address is still here. Update the preferred lifetime too. */
-          life = netif_ip6_addr_pref_life(netif, i);
-          if (life <= ND6_TMR_INTERVAL / 1000) {
-            /* This case must also trigger if 'life' was already zero, so as to
-             * deal correctly with advertised preferred-lifetime reductions. */
-            netif_ip6_addr_set_pref_life(netif, i, 0);
-            if (addr_state == IP6_ADDR_PREFERRED)
-              netif_ip6_addr_set_state(netif, i, IP6_ADDR_DEPRECATED);
-          } else if (!ip6_addr_life_isinfinite(life)) {
-            life -= ND6_TMR_INTERVAL / 1000;
-            netif_ip6_addr_set_pref_life(netif, i, life);
-          }
-        }
-      }
-      /* The address state may now have changed, so reobtain it next. */
-#endif /* LWIP_IPV6_ADDRESS_LIFETIMES */
-      /* Step 2: update DAD state. */
-      addr_state = netif_ip6_addr_state(netif, i);
+      u8_t addr_state = netif_ip6_addr_state(netif, i);
+
       if (ip6_addr_istentative(addr_state)) {
         if ((addr_state & IP6_ADDR_TENTATIVE_COUNT_MASK) >= LWIP_IPV6_DUP_DETECT_ATTEMPTS) {
           /* No NA received in response. Mark address as valid. For dynamic
@@ -1203,20 +1221,14 @@ nd6_send_ns(struct netif *netif, const ip6_addr_t *target_addr, u8_t flags)
   LWIP_ASSERT("target address is required", target_addr != NULL);
 
   if (!(flags & ND6_SEND_FLAG_ANY_SRC)) {
-    int i;
-    for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
-      if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
-            ip6_addr_net_eq(target_addr, netif_ip6_addr(netif, i))) {
-        src_addr = netif_ip6_addr(netif, i);
-        break;
-      }
-    }
+    const ip_addr_t *selected = ip6_select_source_address(netif, target_addr);
 
-    if (i == LWIP_IPV6_NUM_ADDRESSES) {
+    if (selected == NULL) {
       LWIP_DEBUGF(IP6_DEBUG | LWIP_DBG_LEVEL_WARNING, ("ICMPv6 NS: no available src address\n"));
       ND6_STATS_INC(nd6.err);
       return;
     }
+    src_addr = ip_2_ip6(selected);
 
     /* calculate option length (in 8-byte-blocks) */
     lladdr_opt_len = ((netif->hwaddr_len + 2) + 7) >> 3;
@@ -1673,7 +1685,11 @@ nd6_is_prefix_in_netif(const ip6_addr_t *ip6addr, struct netif *netif)
   for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
     if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
         netif_ip6_addr_isstatic(netif, i) &&
+#ifdef LWIP_HOOK_IP6_STATIC_PREFIX_MATCH
+        LWIP_HOOK_IP6_STATIC_PREFIX_MATCH(netif, i, ip6addr)) {
+#else
         ip6_addr_net_eq(ip6addr, netif_ip6_addr(netif, i))) {
+#endif
       return 1;
     }
   }

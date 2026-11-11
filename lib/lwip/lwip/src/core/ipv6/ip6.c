@@ -191,17 +191,21 @@ ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest)
    * with RFC 5942, dynamically configured addresses do not have an implied
    * local subnet, and thus should be considered /128 assignments. However, as
    * such, the destination address may still match a local address, and so we
-   * still need to check for exact matches here. By (lwIP) policy, statically
-   * configured addresses do always have an implied local /64 subnet. */
+   * still need to check for exact matches here. Static addresses default to
+   * an implied /64 subnet unless the static-prefix hook overrides it. */
   NETIF_FOREACH(netif) {
     if (!netif_is_up(netif) || !netif_is_link_up(netif)) {
       continue;
     }
     for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
       if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
-          ip6_addr_net_eq(dest, netif_ip6_addr(netif, i)) &&
-          (netif_ip6_addr_isstatic(netif, i) ||
-          ip6_addr_nethost_eq(dest, netif_ip6_addr(netif, i)))) {
+          ((netif_ip6_addr_isstatic(netif, i) &&
+#ifdef LWIP_HOOK_IP6_STATIC_PREFIX_MATCH
+            LWIP_HOOK_IP6_STATIC_PREFIX_MATCH(netif, i, dest)) ||
+#else
+            ip6_addr_net_eq(dest, netif_ip6_addr(netif, i))) ||
+#endif
+           ip6_addr_eq(dest, netif_ip6_addr(netif, i)))) {
         return netif;
       }
     }

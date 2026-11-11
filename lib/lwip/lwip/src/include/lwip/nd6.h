@@ -67,6 +67,7 @@ struct pbuf;
 struct netif;
 
 void nd6_tmr(void);
+void nd6_age_lifetimes(u32_t elapsed);
 void nd6_input(struct pbuf *p, struct netif *inp);
 void nd6_clear_destination_cache(void);
 struct netif *nd6_find_route(const ip6_addr_t *ip6addr);

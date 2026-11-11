@@ -73,6 +73,8 @@ static inline int eth_is_on_demand_init(void)
 
 int eth_init_state_only(void); /* Set active state */
 
+int net_lwip_parse_decimal(const char *text, size_t len, unsigned int max,
+			   unsigned int *value);
 int net_lwip_dns_init(void);
 int net_lwip_start(struct net_lwip_ctx *ctx,
 		   enum net_lwip_addr_mode addr_mode);
@@ -81,6 +83,14 @@ int net_lwip_restart(struct net_lwip_ctx *ctx);
 int net_lwip_refresh(struct net_lwip_ctx *ctx);
 int net_lwip_poll(void);
 int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip);
+#if CONFIG_IS_ENABLED(IPV6)
+void net_lwip_ip6_update_lifetimes(void);
+int net_lwip_ip6_aton(const char *text, ip6_addr_t *addr);
+int net_lwip_ip6_init(struct net_lwip_ctx *ctx);
+int net_lwip_ip6_ready(struct net_lwip_ctx *ctx, ip_addr_t *dest);
+int net_lwip_ip6_start(struct net_lwip_ctx *ctx);
+int net_lwip_ip6_prepare(struct net_lwip_ctx *ctx, ip_addr_t *dest);
+#endif
 int net_lwip_tftp_download(struct net_lwip_ctx *net, int argc, char *const argv[]);
 
 /**

@@ -245,6 +245,8 @@ config PROT_TCP_SACK
 	  This option should be turn on if you want to achieve the fastest
 	  file transfer possible.
 
+endif   # if NET_LEGACY
+
 config IPV6
 	bool "IPv6 support"
 	help
@@ -254,8 +256,6 @@ config IPV6
 	  through IPv6 network. It allows to use environment variables such as
 	  ip6addr, serverip6. If a u-boot command is capable to parse an IPv6
 	  address and find it, it will force using IPv6 in the network stack.
-
-endif   # if NET_LEGACY
 
 source "net/lwip/Kconfig"
 
