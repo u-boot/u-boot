@@ -131,7 +131,6 @@
 
 &sdhci0 {
 	bootph-pre-ram;
-	cd-gpios = <&gpio K1_GPIO(80) (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 	max-frequency = <204800000>;
 };
 
