@@ -400,6 +400,112 @@ static int rcar_gen4_pcie_load_firmware(struct rcar_gen4_pcie *rcar)
 	return ret;
 }
 
+static int rcar_gen4_pcie_post_probe(void *ctx, struct event *event)
+{
+	struct udevice *dev, *bus = event->data.dm.dev;
+	int pcie_off, ret;
+	u16 devctl;
+
+	if (!bus || !bus->driver)
+		return 0;
+
+	if (bus->driver->id != UCLASS_PCI && bus->driver->id != UCLASS_PCI_GENERIC)
+		return 0;
+
+	if (dev_has_ofnode(bus) && dev_read_bool(bus, "pci,no-autoconfig"))
+		return 0;
+
+	pcie_off = dm_pci_find_capability(bus, PCI_CAP_ID_EXP);
+	if (!pcie_off)
+		return 0;
+
+	dm_pci_read_config16(bus, pcie_off + PCI_EXP_DEVCTL, &devctl);
+	/*
+	 * R-Car Gen4 PCIe controller has a hardware limitation of 256 Bytes
+	 * Max_Payload_Size (MPS). PCIe specification indicates that the MPS
+	 * must not exceed minimum MPS of any element along the packet path.
+	 * The controller reports Max_Payload_Size_Supported (MPSS) 256 Bytes
+	 * for header type 0 and 128 Bytes for header type 1. The PCIe core
+	 * will not allow MPS to be set higher than MPSS; warn here in case
+	 * something went very wrong in the core.
+	 *
+	 * For details, refer to chapter "104.1.1 Features" in either of:
+	 * R-Car S4 R19UH0161EJ0140 Rev.1.40 Jul. 31, 2026 or
+	 * R-Car V4H R19UH0186EJ0140 Rev.1.40 Aug. 7, 2026 or
+	 * R-Car V4M R19UH0217EJ0110 Rev.1.10 Jun. 30, 2026.
+	 */
+	if ((devctl & PCI_EXP_DEVCTL_PAYLOAD) > PCI_EXP_DEVCTL_PAYLOAD_256B) {
+		/* Controller MPS should already be 256B or less. */
+		dev_err(bus, "MPS over limit, DEVCTL=0x%04x\n", devctl);
+		ret = dm_pci_clrset_config16(bus, pcie_off + PCI_EXP_DEVCTL,
+					     PCI_EXP_DEVCTL_PAYLOAD, PCI_EXP_DEVCTL_PAYLOAD_256B);
+		if (ret)
+			dev_err(bus, "MPS update failed, ret=%d\n", ret);
+	}
+
+	/*
+	 * R-Car Gen4 Reference Manual, chapter 104.4.8 Usage notes for
+	 * MRRS (Max Read Request Size) states:
+	 *
+	 *   Please set "Max Read Request Size" to 128 bytes or 256 bytes.
+	 *   If "Max Read Request Size" is set to anything other than the
+	 *   above, the transferred data will not match the expected value.
+	 *
+	 * This limitation also seems to apply to devices issuing MRd TLPs.
+	 * This limitation can be triggered by using non-HMB NVMe SSD with
+	 * Max_Read_Request_Size 512 Bytes, for example Crucial P5 Plus.
+	 * Any write into the SSD (MRd TLP issued by the SSD) longer than
+	 * 256 Bytes wraps around at 256 Byte boundary, and the same data
+	 * are written into the SSD starting at offset 0 and at 256 Bytes.
+	 *
+	 * Limit Max_Read_Request_Size to at most 256 Bytes for each
+	 * device connected to this PCIe controller to avoid this behavior.
+	 *
+	 * For details, refer to aforementioned chapter in either of:
+	 * R-Car S4 R19UH0161EJ0140 Rev.1.40 Jul. 31, 2026 or
+	 * R-Car V4H R19UH0186EJ0140 Rev.1.40 Aug. 7, 2026 or
+	 * R-Car V4M R19UH0217EJ0110 Rev.1.10 Jun. 30, 2026.
+	 */
+	if ((devctl & PCI_EXP_DEVCTL_READRQ) > PCI_EXP_DEVCTL_READRQ_256B) {
+		ret = dm_pci_clrset_config16(bus, pcie_off + PCI_EXP_DEVCTL,
+					     PCI_EXP_DEVCTL_READRQ, PCI_EXP_DEVCTL_READRQ_256B);
+		if (ret)
+			dev_err(bus, "MRRS update failed, ret=%d\n", ret);
+	}
+
+	/* Apply aforementioned limits to downstream devices too. */
+	for (device_find_first_child(bus, &dev); dev; device_find_next_child(&dev)) {
+		if (dev_has_ofnode(dev) && dev_read_bool(dev, "pci,no-autoconfig"))
+			continue;
+
+		pcie_off = dm_pci_find_capability(dev, PCI_CAP_ID_EXP);
+		if (!pcie_off)
+			continue;
+
+		dm_pci_read_config16(dev, pcie_off + PCI_EXP_DEVCTL, &devctl);
+
+		if ((devctl & PCI_EXP_DEVCTL_PAYLOAD) > PCI_EXP_DEVCTL_PAYLOAD_256B) {
+			/* MPS should already be 256B or less. */
+			dev_err(dev, "MPS over limit, DEVCTL=0x%04x\n", devctl);
+			ret = dm_pci_clrset_config16(bus, pcie_off + PCI_EXP_DEVCTL,
+						     PCI_EXP_DEVCTL_PAYLOAD,
+						     PCI_EXP_DEVCTL_PAYLOAD_256B);
+			if (ret)
+				dev_err(dev, "MPS update failed, ret=%d\n", ret);
+		}
+
+		if ((devctl & PCI_EXP_DEVCTL_READRQ) > PCI_EXP_DEVCTL_READRQ_256B) {
+			ret = dm_pci_clrset_config16(dev, pcie_off + PCI_EXP_DEVCTL,
+						     PCI_EXP_DEVCTL_READRQ,
+						     PCI_EXP_DEVCTL_READRQ_256B);
+			if (ret)
+				dev_err(dev, "MRRS update failed, ret=%d\n", ret);
+		}
+	}
+
+	return 0;
+}
+
 /**
  * rcar_gen4_pcie_probe() - Probe the PCIe bus for active link
  *
@@ -448,6 +554,11 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (IS_ERR(rcar->pe_rst))
 		return PTR_ERR(rcar->pe_rst);
+
+	ret = event_register("pcie post probe", EVT_DM_POST_PROBE,
+			     rcar_gen4_pcie_post_probe, dev);
+	if (ret)
+		return ret;
 
 	ret = rcar_gen4_pcie_host_init(dev);
 	if (ret)
