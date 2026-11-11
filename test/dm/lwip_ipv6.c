@@ -29,6 +29,22 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
+enum ip6_solmax_test {
+	IP6_SOLMAX_NORMAL,
+	IP6_SOLMAX_DEFAULT,
+	IP6_SOLMAX_EMPTY,
+	IP6_SOLMAX_STATUS_BEFORE,
+	IP6_SOLMAX_STATUS_AFTER,
+	IP6_SOLMAX_IA_STATUS,
+	IP6_SOLMAX_BAD_XID,
+	IP6_SOLMAX_BAD_CLIENT,
+	IP6_SOLMAX_TRUNCATED,
+	IP6_SOLMAX_TOO_LOW,
+	IP6_SOLMAX_TOO_HIGH,
+	IP6_SOLMAX_CONFLICT,
+	IP6_SOLMAX_COUNT,
+};
+
 struct ip6_test {
 	struct net_lwip_ctx net;
 	unsigned int dad;
@@ -45,6 +61,25 @@ struct ip6_test {
 	unsigned int dns4_queries;
 	bool drop_dns;
 	ip6_addr_t last_dns;
+	unsigned int dhcp_solicits;
+	unsigned int dhcp_requests;
+	unsigned int dhcp_declines;
+	unsigned int dhcp_renews;
+	unsigned int dhcp_rebinds;
+	u64 request_times[16];
+	u32 request_xids[16];
+	enum ip6_solmax_test solmax;
+	bool drop_requests;
+	bool request_no_binding;
+	bool drop_renew;
+	bool drop_rebind;
+	bool withdraw_lease;
+	bool no_binding;
+	bool bad_renew;
+	u32 lease_t1;
+	u32 lease_t2;
+	u32 lease_valid;
+	unsigned int dhcp_bad;
 	unsigned int http_requests;
 	unsigned int rpc_requests;
 	unsigned int sntp_requests;
@@ -52,12 +87,20 @@ struct ip6_test {
 	bool console_no_reply;
 	const char *http_host;
 	const char *http_target;
+	const char *boot_url;
+	const char *renew_boot_url;
+	const char *lease_dns;
+	const char *lease_addr;
+	const char *withdraw_addr;
+	bool withdraw_first;
 	const char *tftp_file;
 	bool unreachable;
 	bool listener;
 	bool listener_done;
 	u32 rdnss_lifetime;
+	bool rapid;
 	bool lease_conflict;
+	bool lease_ra;
 	bool conflict;
 	bool advertise;
 	bool cancel;
@@ -329,6 +372,12 @@ static int ip6_test_dns_reply(struct udevice *dev, struct ip6_hdr *ip)
 	u8 *query = (void *)((struct udp_hdr *)(ip + 1) + 1), reply[512];
 	int len;
 
+	if (test->renew_boot_url) {
+		test->boot_url = test->renew_boot_url;
+		test->renew_boot_url = NULL;
+		timer_test_add_offset(9000);
+		return 0;
+	}
 	if (test->drop_dns) {
 		test->dns_queries++;
 		timer_test_add_offset(11000);
@@ -378,6 +427,187 @@ static int ip6_test_ipv4(struct udevice *dev, void *packet, unsigned int len)
 	priv->recv_packet_length[priv->recv_packets++] = ETHER_HDR_SIZE + IP_UDP_HDR_SIZE + size;
 	test->dns4_queries++;
 	return 0;
+}
+
+static u8 *ip6_test_option(u8 *p, u16 code, const void *value, u16 len)
+{
+	put_unaligned_be16(code, p);
+	put_unaligned_be16(len, p + 2);
+	if (len)
+		memcpy(p + 4, value, len);
+	return p + 4 + len;
+}
+
+static int ip6_test_dhcp_reply(struct udevice *dev, struct ip6_hdr *ip)
+{
+	struct ip6_test *test = ((struct eth_sandbox_priv *)dev_get_priv(dev))->priv;
+	u8 *query = (void *)((struct udp_hdr *)(ip + 1) + 1);
+	u8 reply[1200], ia[68] = {}, *p = reply, *client_id = NULL;
+	const u8 *q = query + 4, *end = query + IP6H_PLEN(ip) - UDP_HLEN;
+	const u8 server[] = { 0, 3, 0, 1, 0, 1, 2, 3, 4, 5 };
+	const char *url = test->boot_url ?: "tftp://[fe80::2]/ipv6.bin";
+	ip6_addr_t addr;
+	u8 preference = 255;
+	u32 iaid = 0;
+	u16 ia_len = 40;
+	unsigned int bad_offset = 0;
+	int ret;
+
+	if (query[0] == 9) {
+		test->dhcp_declines++;
+		return 0;
+	}
+	if (query[0] != 1 && query[0] != 3 && query[0] != 5 && query[0] != 6)
+		return -EINVAL;
+	if (query[0] == 1) {
+		if (test->solmax && test->dhcp_solicits < ARRAY_SIZE(test->request_times)) {
+			test->request_times[test->dhcp_solicits] = get_timer_us(0);
+			test->request_xids[test->dhcp_solicits] =
+				get_unaligned_be32(query) & 0xffffff;
+		}
+		test->dhcp_solicits++;
+		if (test->solmax && test->dhcp_solicits == 10)
+			console_in_puts("\x03");
+		if (test->solmax && test->dhcp_solicits > 2)
+			return 0;
+	} else if (query[0] == 3) {
+		if (test->dhcp_requests < ARRAY_SIZE(test->request_times)) {
+			test->request_times[test->dhcp_requests] = get_timer_us(0);
+			test->request_xids[test->dhcp_requests] =
+				get_unaligned_be32(query) & 0xffffff;
+		}
+		test->dhcp_requests++;
+		if (test->drop_requests)
+			return 0;
+	} else if (query[0] == 5) {
+		test->dhcp_renews++;
+		if (test->drop_renew)
+			return 0;
+	} else {
+		test->dhcp_rebinds++;
+		if (test->drop_rebind)
+			return 0;
+	}
+	memcpy(p, query, 4);
+	*p = query[0] == 1 && !test->rapid ? 2 : 7;
+	p += 4;
+	while (q < end) {
+		u16 code, len;
+
+		if (end - q < 4)
+			return -EINVAL;
+		code = get_unaligned_be16(q);
+		len = get_unaligned_be16(q + 2);
+		if (len > end - q - 4)
+			return -EINVAL;
+		if (code == 1) {
+			client_id = p + 4;
+			p = ip6_test_option(p, 1, q + 4, len);
+		}
+		if (code == 2 && query[0] == 6)
+			return -EINVAL;
+		if (code == 3 && len >= 12)
+			iaid = get_unaligned_be32(q + 4);
+		q += 4 + len;
+	}
+	if (!client_id)
+		return -EINVAL;
+	p = ip6_test_option(p, 2, server, sizeof(server));
+	p = ip6_test_option(p, 7, &preference, 1);
+	put_unaligned_be32(iaid, ia);
+	if (test->solmax) {
+		u8 limit[4], status[] = { 0, 2 };
+		u32 seconds = 60;
+
+		if (test->solmax == IP6_SOLMAX_TOO_LOW)
+			seconds = 59;
+		else if (test->solmax == IP6_SOLMAX_TOO_HIGH)
+			seconds = 86401;
+		else if (test->solmax == IP6_SOLMAX_CONFLICT && test->dhcp_solicits == 2)
+			seconds = 120;
+		if (test->solmax == IP6_SOLMAX_STATUS_BEFORE)
+			p = ip6_test_option(p, 13, status, sizeof(status));
+		put_unaligned_be32(seconds, limit);
+		if (test->solmax != IP6_SOLMAX_DEFAULT)
+			p = ip6_test_option(p, 82, limit, sizeof(limit));
+		if (test->solmax == IP6_SOLMAX_STATUS_AFTER)
+			p = ip6_test_option(p, 13, status, sizeof(status));
+		if (test->solmax == IP6_SOLMAX_IA_STATUS) {
+			ip6_test_option(ia + 12, 13, status, sizeof(status));
+			p = ip6_test_option(p, 3, ia, 18);
+		}
+		if (test->solmax == IP6_SOLMAX_BAD_XID)
+			reply[3] ^= 1;
+		if (test->solmax == IP6_SOLMAX_BAD_CLIENT)
+			client_id[4] ^= 1;
+		if (test->solmax == IP6_SOLMAX_TRUNCATED)
+			*p++ = 0;
+		if (test->rapid)
+			p = ip6_test_option(p, 14, NULL, 0);
+		return ip6_test_udp(dev, ip, 547, reply, p - reply);
+	}
+	put_unaligned_be32(test->lease_t1, ia + 4);
+	put_unaligned_be32(test->lease_t2, ia + 8);
+	put_unaligned_be16(5, ia + 12);
+	put_unaligned_be16(24, ia + 14);
+	ip6addr_aton(test->lease_addr ?: "2001:db8:1::123", &addr);
+	memcpy(ia + 16, addr.addr, 16);
+	put_unaligned_be32(test->lease_valid ? test->lease_valid / 2 : 900, ia + 32);
+	put_unaligned_be32(test->lease_valid ?: 1800, ia + 36);
+	if (query[0] == 5 && test->withdraw_lease)
+		memset(ia + 32, 0, 8);
+	if (test->withdraw_addr) {
+		u8 *withdraw = ia + (test->withdraw_first ? 12 : 40);
+
+		if (test->withdraw_first)
+			memmove(ia + 40, ia + 12, 28);
+		memset(withdraw, 0, 28);
+		put_unaligned_be16(5, withdraw);
+		put_unaligned_be16(24, withdraw + 2);
+		ip6addr_aton(test->withdraw_addr, &addr);
+		memcpy(withdraw + 4, addr.addr, 16);
+		ia_len += 28;
+	}
+	bad_offset = p + 4 + 14 - reply;
+	if (((query[0] == 5 || query[0] == 6) && test->no_binding) ||
+	    (query[0] == 3 && test->request_no_binding)) {
+		put_unaligned_be16(13, ia + 12);
+		put_unaligned_be16(2, ia + 14);
+		put_unaligned_be16(3, ia + 16);
+		p = ip6_test_option(p, 3, ia, 18);
+	} else {
+		p = ip6_test_option(p, 3, ia, ia_len);
+	}
+	if (*url)
+		p = ip6_test_option(p, 59, url, strlen(url));
+	if (!test->lease_dns || *test->lease_dns) {
+		ip6addr_aton(test->lease_dns ?: "fe80::2", &addr);
+		p = ip6_test_option(p, 23, addr.addr, 16);
+	}
+	if (test->rapid)
+		p = ip6_test_option(p, 14, NULL, 0);
+	if (query[0] == 5 && test->bad_renew)
+		reply[3] ^= 1;
+	if (test->dhcp_bad) {
+		u8 bad[512];
+
+		memcpy(bad, reply, p - reply);
+		switch (test->dhcp_bad) {
+		case 1:
+			bad[3] ^= 1;
+			break;
+		case 2:
+			bad[client_id - reply + 4] ^= 1;
+			break;
+		case 3:
+			put_unaligned_be16(255, bad + bad_offset);
+			break;
+		}
+		ret = ip6_test_udp(dev, ip, 547, bad, p - reply);
+		if (ret)
+			return ret;
+	}
+	return ip6_test_udp(dev, ip, 547, reply, p - reply);
 }
 
 static int ip6_test_http_reply(struct udevice *dev, struct ip6_hdr *ip)
@@ -521,6 +751,8 @@ static int ip6_test_tx(struct udevice *dev, void *packet, unsigned int len)
 		}
 		if (ntohs(udp->dest) == 53)
 			return ip6_test_dns_reply(dev, ip);
+		if (ntohs(udp->dest) == 547)
+			return ip6_test_dhcp_reply(dev, ip);
 		if (ntohs(udp->dest) == 111 || ntohs(udp->dest) == 4000 || ntohs(udp->dest) == 4001)
 			return ip6_test_rpc_reply(dev, ip);
 		if (ntohs(udp->dest) == 123)
@@ -558,6 +790,8 @@ static int ip6_test_tx(struct udevice *dev, void *packet, unsigned int len)
 			     !memcmp(&ns->target_address, "\x20\x01", 2)))
 				return ip6_test_na(dev, ns, &src, true);
 			timer_test_add_offset(1100);
+			if (test->lease_ra && !memcmp(&ns->target_address, "\x20\x01", 2))
+				return ip6_test_ra(dev);
 			return 0;
 		}
 		test->neighbors++;
@@ -1802,6 +2036,1036 @@ static int dm_test_lwip_ip6_rdnss_chain(struct unit_test_state *uts)
 	return ip6_test_run(uts, ip6_test_rdnss_chain);
 }
 DM_TEST(dm_test_lwip_ip6_rdnss_chain, UTF_SCAN_FDT);
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+static void ip6_test_retry_tick(void *arg)
+{
+	timer_test_add_offset(1000);
+	sys_timeout(1, ip6_test_retry_tick, arg);
+}
+
+static int ip6_test_solmax(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ut_assertok(env_set("autoload", "no"));
+	for (unsigned int rapid = 0; rapid <= IS_ENABLED(CONFIG_DHCP6_RAPID_COMMIT); rapid++) {
+		for (test->solmax = IP6_SOLMAX_DEFAULT;
+		     test->solmax < IP6_SOLMAX_COUNT; test->solmax++) {
+			bool capped = test->solmax >= IP6_SOLMAX_EMPTY &&
+				      test->solmax <= IP6_SOLMAX_IA_STATUS;
+			u64 last_interval;
+			int ret;
+
+			/* Conflicting Advertises are not a Reply-selection policy. */
+			if (rapid && test->solmax == IP6_SOLMAX_CONFLICT)
+				continue;
+			test->rapid = rapid;
+			test->dhcp_solicits = 0;
+			test->dhcp_requests = 0;
+			console_record_reset();
+			clear_ctrlc();
+			sys_timeout(1, ip6_test_retry_tick, NULL);
+			ret = run_command("dhcp6", 0);
+			sys_untimeout(ip6_test_retry_tick, NULL);
+			ut_asserteq(CMD_RET_FAILURE, ret);
+			ut_asserteq(10, test->dhcp_solicits);
+			ut_asserteq(0, test->dhcp_requests);
+			ut_assertnull(env_get("ip6addr"));
+			ut_assertnull(netif_default);
+			for (unsigned int i = 1; i < test->dhcp_solicits; i++)
+				ut_asserteq(test->request_xids[0], test->request_xids[i]);
+			last_interval = test->request_times[9] - test->request_times[8];
+			if (capped) {
+				/* A 60-second cap allows 10% jitter and one timer tick. */
+				ut_assert(last_interval >= 54000000);
+				ut_assert(last_interval < 68000000);
+			} else {
+				/* The default must allow retries beyond the old 120-second cap. */
+				ut_assert(last_interval > 140000000);
+			}
+		}
+	}
+	return 0;
+}
+
+static int dm_test_lwip_ip6_solmax(struct unit_test_state *uts)
+{
+	/* Allow enough simulated time to observe ten exponential retries. */
+	if (CONFIG_NET_RETRY_COUNT < 200)
+		return -EAGAIN;
+	return ip6_test_run(uts, ip6_test_solmax);
+}
+DM_TEST(dm_test_lwip_ip6_solmax, UTF_SCAN_FDT | UTF_CONSOLE);
+
+static int ip6_test_dhcp_ports(struct unit_test_state *uts, struct ip6_test *test)
+{
+	static const char *const ports[] = {
+		"", "0", "65536", "+69", "69junk", "4294967365",
+		"18446744073709551685", "99999999999999999999999999999999",
+	};
+	char url[128];
+
+	ut_assertok(env_set("autoload", "no"));
+	for (unsigned int i = 0; i < ARRAY_SIZE(ports); i++) {
+		ut_assertok(env_set("tftpdstp", "1069"));
+		snprintf(url, sizeof(url), "tftp://[fe80::2]:%s/ipv6.bin", ports[i]);
+		test->boot_url = url;
+		ut_asserteq(CMD_RET_FAILURE, run_command("dhcp6", 0));
+		ut_asserteq_str("1069", env_get("tftpdstp"));
+		ut_asserteq(0, test->requests);
+		ut_assertnull(netif_default);
+	}
+	test->boot_url = "tftp://[fe80::2]:00065535/ipv6.bin";
+	ut_assertok(run_command("dhcp6", 0));
+	ut_asserteq_str("65535", env_get("tftpdstp"));
+	return 0;
+}
+
+static int dm_test_lwip_ip6_dhcp_ports(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_dhcp_ports);
+}
+DM_TEST(dm_test_lwip_ip6_dhcp_ports, UTF_SCAN_FDT | UTF_CONSOLE);
+
+static int ip6_test_dhcp_config(struct unit_test_state *uts, struct ip6_test *test)
+{
+	static const char *const urls[] = {
+		"tftp://missing.test:1069/ipv6.bin",
+		"http://missing.test/ipv6.bin",
+		"https://missing.test/ipv6.bin",
+		"unsupported://missing.test/ipv6.bin",
+	};
+
+	ut_assertok(env_set("ipaddr", NULL));
+	ut_assertok(env_set("autoload", "no"));
+	test->drop_dns = true;
+	for (unsigned int i = 0; i < ARRAY_SIZE(urls); i++) {
+		test->boot_url = urls[i];
+		ut_assertok(run_command("dhcp6", 0));
+		ut_asserteq_str("2001:DB8:1::123", env_get("ip6addr"));
+		ut_asserteq_str(i ? urls[i] : "ipv6.bin", env_get("bootfile"));
+		ut_asserteq(0, test->dns_queries);
+		ut_asserteq(0, test->requests);
+		ut_asserteq(0, test->http_requests);
+		ut_assertnull(netif_default);
+		if (!i) {
+			ut_asserteq_str("missing.test", env_get("serverip6"));
+			ut_asserteq_str("1069", env_get("tftpdstp"));
+		}
+	}
+	ut_assertok(env_set("autoload", "yes"));
+	ut_asserteq(CMD_RET_FAILURE, run_command("dhcp6 2100000", 0));
+	ut_asserteq(CMD_RET_FAILURE, run_command("dhcp6 2100000 override.bin", 0));
+	ut_asserteq(0, test->dns_queries);
+	return 0;
+}
+
+static int dm_test_lwip_ip6_dhcp_config(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_dhcp_config);
+}
+DM_TEST(dm_test_lwip_ip6_dhcp_config, UTF_SCAN_FDT | UTF_CONSOLE);
+
+static int ip6_test_restore_failure(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ut_assertok(env_set("autoload", "no"));
+	ut_assertok(env_set("ipaddr", "192.0.2.10"));
+	ut_assertok(env_set("netmask", "255.255.255.0"));
+	test->lease_t1 = 20;
+	test->lease_t2 = 40;
+	test->lease_valid = 1000;
+	test->drop_renew = true;
+	for (unsigned int i = 0; i < 2; i++) {
+		struct net_lwip_ctx command = {};
+		struct udp_pcb *blocker = NULL;
+		unsigned int renews = test->dhcp_renews;
+		unsigned int rebinds = test->dhcp_rebinds;
+		int ret;
+
+		ut_assertok(run_command("dhcp6", 0));
+		ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+		ut_assertok(net_lwip_start(&command, NET_LWIP_ADDR_ENV_STRICT));
+		if (i) {
+			blocker = udp_new_ip_type(IPADDR_TYPE_V6);
+			ut_assertnonnull(blocker);
+			ut_asserteq(ERR_OK, udp_bind(blocker, IP6_ADDR_ANY, 546));
+		} else {
+			malloc_enable_testing(0);
+		}
+		ret = net_lwip_ip6_init(&command);
+		malloc_disable_testing();
+		net_lwip_stop(&command);
+		if (blocker)
+			udp_remove(blocker);
+		ut_asserteq(i ? -EADDRINUSE : -ENOMEM, ret);
+		ut_asserteq_ptr(test->net.netif, netif_default);
+		ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_assertok(net_lwip_poll());
+#if CONFIG_IS_ENABLED(CMD_PING)
+		ut_assertok(run_command("ping 192.0.2.2", 0));
+#endif
+		/* The keeper retains the same interface throughout failure and retry. */
+		ut_assertok(net_lwip_ip6_start(&test->net));
+		timer_test_add_offset(21000);
+		ut_assertok(net_lwip_poll());
+		ut_asserteq(renews + 1, test->dhcp_renews);
+		timer_test_add_offset(21000);
+		ut_assertok(net_lwip_poll());
+		ut_asserteq(rebinds + 1, test->dhcp_rebinds);
+		ut_assertok(net_lwip_poll());
+		ut_assert(ip6_addr_isvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		net_lwip_stop(&test->net);
+	}
+	return 0;
+}
+
+static int dm_test_lwip_ip6_restore_failure(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_restore_failure);
+}
+DM_TEST(dm_test_lwip_ip6_restore_failure, UTF_SCAN_FDT);
+
+#if CONFIG_IS_ENABLED(DNS) && CONFIG_IS_ENABLED(CMD_TFTPBOOT)
+static int ip6_test_boot_url_renew(struct unit_test_state *uts, struct ip6_test *test)
+{
+	static const char *const urls[] = {
+		"tftp://new-long.test/wrong.bin", "http://new.test/wrong.bin", "",
+	};
+	u8 *data = map_sysmem(0x2100000, 9);
+
+	ut_assertok(env_set("ipaddr", NULL));
+	ut_assertok(env_set("autoload", "yes"));
+	ut_assertok(env_set("autostart", "no"));
+	test->lease_t1 = 8;
+	test->lease_t2 = 20;
+	test->lease_valid = 60;
+	test->tftp_file = "123:image";
+	for (unsigned int i = 0; i < ARRAY_SIZE(urls); i++) {
+		unsigned int renews = test->dhcp_renews;
+
+		for (unsigned int j = 0; j < 31; j++)
+			dns_tmr();
+		test->boot_url = "tftp://old.test/123%3Aimage";
+		test->renew_boot_url = urls[i];
+		ut_assertok(run_command("dhcp6 2100000", 0));
+		ut_assert(test->dhcp_renews > renews);
+		ut_asserteq_str("123:image", env_get("bootfile"));
+		ut_asserteq(i + 1, test->requests);
+		ut_asserteq(9, net_boot_file_size);
+		ut_asserteq_mem("ipv6-tftp", data, 9);
+	}
+	unmap_sysmem(data);
+	return 0;
+}
+
+static int dm_test_lwip_ip6_boot_url_renew(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_boot_url_renew);
+}
+DM_TEST(dm_test_lwip_ip6_boot_url_renew, UTF_SCAN_FDT);
+#endif
+
+static int ip6_test_no_binding(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ut_assertok(env_set("autoload", "no"));
+	test->lease_t1 = 20;
+	test->lease_t2 = 40;
+	test->lease_valid = 3600;
+	for (unsigned int mode = 0; mode < 3; mode++) {
+		test->dhcp_requests = 0;
+		test->dhcp_rebinds = 0;
+		test->drop_requests = false;
+		test->request_no_binding = false;
+		ut_assertok(run_command("dhcp6", 0));
+		ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+		ut_assertok(net_lwip_ip6_start(&test->net));
+		test->drop_requests = mode != 2;
+		test->request_no_binding = mode == 2;
+		test->drop_renew = mode == 1;
+		test->no_binding = true;
+		timer_test_add_offset(mode == 1 ? 41000 : 21000);
+		ut_assertok(net_lwip_poll());
+		ut_assertok(net_lwip_poll());
+		for (unsigned int i = 0; i < 300; i++) {
+			timer_test_add_offset(1000);
+			ut_assertok(net_lwip_poll());
+		}
+		/* One initial Request and ten recovery transmissions, then failure. */
+		ut_asserteq(11, test->dhcp_requests);
+		ut_asserteq(mode == 1, test->dhcp_rebinds);
+		for (unsigned int i = 2; i < test->dhcp_requests; i++) {
+			ut_asserteq(test->request_xids[1], test->request_xids[i]);
+			ut_assert(test->request_times[i] - test->request_times[i - 1] <
+				  35000000);
+		}
+		ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_assertok(run_command("ping6 fe80::2", 0));
+		net_lwip_stop(&test->net);
+		/* Reopening the interface must not revive the unrecovered lease. */
+		ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+		ut_assertok(net_lwip_ip6_start(&test->net));
+		ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		timer_test_add_offset(300000);
+		ut_assertok(net_lwip_poll());
+		ut_asserteq(11, test->dhcp_requests);
+		net_lwip_stop(&test->net);
+	}
+	test->drop_requests = false;
+	test->request_no_binding = false;
+	test->no_binding = false;
+	test->drop_renew = false;
+	ut_assertok(run_command("dhcp6", 0));
+	return 0;
+}
+
+static int dm_test_lwip_ip6_no_binding(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_no_binding);
+}
+DM_TEST(dm_test_lwip_ip6_no_binding, UTF_SCAN_FDT);
+
+static int ip6_test_lease_ra(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ip6_addr_t addr, remote;
+	u32 before, preferred;
+
+	test->lease_ra = true;
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	ip6addr_aton("2001:db8:1::123", &addr);
+	ut_assertok(net_lwip_ip6_lease(&test->net, &addr, 5000, 10000));
+	for (unsigned int i = 0; i < 5; i++) {
+		timer_test_add_offset(1000);
+		ut_assertok(net_lwip_poll());
+	}
+	ut_assertok(net_lwip_ip6_lease_commit(&test->net));
+	ut_assert(netif_ip6_addr_valid_life(test->net.netif, 1) > 9900);
+	ut_assert(netif_ip6_addr_pref_life(test->net.netif, 1) > 4900);
+	net_lwip_stop(&test->net);
+	ut_assertok(env_set("ip6addr", NULL));
+
+	ut_assertok(env_set("autoload", "no"));
+	test->lease_t1 = 8000;
+	test->lease_t2 = 9000;
+	test->lease_valid = 10000;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	before = netif_ip6_addr_valid_life(test->net.netif, 1);
+	preferred = netif_ip6_addr_pref_life(test->net.netif, 1);
+	ut_assertok(ip6_test_ra(test->net.dev));
+	ut_assertok(net_lwip_poll());
+	ut_assert(netif_ip6_addr_valid_life(test->net.netif, 1) >= before - 1);
+	ut_assert(netif_ip6_addr_pref_life(test->net.netif, 1) >= preferred - 1);
+	ip6addr_aton("2001:db8:2::2", &remote);
+	ut_asserteq_ptr(test->net.netif, nd6_find_route(&remote));
+	for (unsigned int i = 0; i < 7205; i++) {
+		timer_test_add_offset(1000);
+		ut_assertok(net_lwip_poll());
+	}
+	ut_assert(ip6_addr_isvalid(netif_ip6_addr_state(test->net.netif, 1)));
+	ut_asserteq(0, test->dhcp_renews);
+
+	/* Router advertisements must not extend the DHCP lease either. */
+	test->drop_renew = true;
+	test->drop_rebind = true;
+	for (unsigned int i = 0; i < 2800; i++) {
+		before = netif_ip6_addr_valid_life(test->net.netif, 1);
+		preferred = netif_ip6_addr_pref_life(test->net.netif, 1);
+		if (!(i % 100))
+			ut_assertok(ip6_test_ra(test->net.dev));
+		timer_test_add_offset(1000);
+		ut_assertok(net_lwip_poll());
+		ut_assert(netif_ip6_addr_valid_life(test->net.netif, 1) <= before);
+		ut_assert(netif_ip6_addr_pref_life(test->net.netif, 1) <= preferred);
+	}
+	ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+	ut_assert(test->dhcp_renews);
+	ut_assert(test->dhcp_rebinds);
+	return 0;
+}
+
+static int dm_test_lwip_ip6_lease_ra(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_lease_ra);
+}
+DM_TEST(dm_test_lwip_ip6_lease_ra, UTF_SCAN_FDT);
+
+static int ip6_test_dhcp(struct unit_test_state *uts, struct ip6_test *test)
+{
+	void *data = map_sysmem(0x2100000, 9);
+
+	ut_assertok(env_set("ipaddr", NULL));
+	ut_assertok(env_set("autoload", "no"));
+	ut_assertok(env_set("autostart", "no"));
+	for (unsigned int i = 0; i < 4; i++) {
+		test->dhcp_bad = i;
+		ut_assertok(env_set("ip6addr", NULL));
+		ut_assertok(run_command("dhcp6", 0));
+		ut_asserteq_str("2001:DB8:1::123", env_get("ip6addr"));
+		ut_asserteq_str("fe80::2", env_get("serverip6"));
+		ut_asserteq_str("ipv6.bin", env_get("bootfile"));
+		ut_asserteq(i + 1, test->dhcp_requests);
+		ut_assertnull(netif_default);
+	}
+	ut_assertok(env_set("ip6addr", NULL));
+	test->dhcp_bad = 0;
+	test->lease_conflict = true;
+	ut_asserteq(CMD_RET_FAILURE, run_command("dhcp6", 0));
+	ut_assertnull(env_get("ip6addr"));
+	ut_asserteq(1, test->dhcp_declines);
+	test->lease_conflict = false;
+#if CONFIG_IS_ENABLED(DHCP6_RAPID_COMMIT)
+	test->rapid = true;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_asserteq(5, test->dhcp_requests);
+#endif
+#if CONFIG_IS_ENABLED(CMD_TFTPBOOT)
+	ut_assertok(env_set("ip6addr", NULL));
+	ut_assertok(env_set("autoload", "yes"));
+	ut_assertok(run_command("dhcp6 2100000", 0));
+	ut_asserteq(9, net_boot_file_size);
+	ut_asserteq_mem("ipv6-tftp", data, 9);
+	test->boot_url = "tftp://[fe80::2]/123%3Aimage";
+	test->tftp_file = "123:image";
+	ut_assertok(run_command("dhcp6 2100000", 0));
+	ut_asserteq_str(test->tftp_file, env_get("bootfile"));
+	ut_asserteq_mem("ipv6-tftp", data, 9);
+	test->boot_url = "tftp://[fe80::2]/http%3A//image";
+	test->tftp_file = "http://image";
+	ut_assertok(run_command("dhcp6 2100000", 0));
+	ut_asserteq_str(test->tftp_file, env_get("bootfile"));
+	ut_asserteq_mem("ipv6-tftp", data, 9);
+	test->tftp_file = "override.bin";
+	ut_assertok(env_set("serverip6", NULL));
+	ut_assertok(run_command("dhcp6 2100000 override.bin", 0));
+	ut_asserteq_str("fe80::2", env_get("serverip6"));
+	ut_asserteq_str(test->tftp_file, env_get("bootfile"));
+	ut_asserteq_mem("ipv6-tftp", data, 9);
+#endif
+	if (CONFIG_IS_ENABLED(WGET)) {
+		test->http_host = "Host: [fe80::2]:8080\r\n";
+		test->boot_url = "http://[fe80::2]:8080/ipv6.bin";
+		ut_assertok(env_set("autoload", "yes"));
+		ut_assertok(run_command("dhcp6 2100000", 0));
+		ut_asserteq_str(test->boot_url, env_get("bootfile"));
+		ut_asserteq(9, net_boot_file_size);
+		ut_asserteq_mem("ipv6-http", data, 9);
+		test->boot_url = "http://[fe80::2]:8080/images/ipv6.bin";
+		ut_assertok(run_command("dhcp6 2100000 override.bin", 0));
+		ut_asserteq_str("http://[fe80::2]:8080/images/override.bin", env_get("bootfile"));
+		ut_asserteq_mem("ipv6-http", data, 9);
+		ut_assertok(run_command("dhcp6 2100000 /override.bin", 0));
+		ut_asserteq_str("http://[fe80::2]:8080/override.bin", env_get("bootfile"));
+		ut_asserteq_mem("ipv6-http", data, 9);
+	}
+	ut_assertnull(netif_default);
+	unmap_sysmem(data);
+	return 0;
+}
+
+static int dm_test_lwip_ip6_dhcp(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_dhcp);
+}
+DM_TEST(dm_test_lwip_ip6_dhcp, UTF_SCAN_FDT | UTF_CONSOLE);
+
+#if CONFIG_IS_ENABLED(WGET_CACERT) || CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+static int ip6_test_dhcp_https_scheme(struct unit_test_state *uts, struct ip6_test *test)
+{
+	static const char *const urls[] = {
+		"https://[fe80::3]:8443/http://[fe80::2]:8080/ipv6.bin",
+		"https://[fe80::3]:8443/image?next=http://[fe80::2]:8080/ipv6.bin",
+	};
+
+	ut_assertok(env_set("ipaddr", NULL));
+	ut_assertok(env_set("autoload", "yes"));
+	ut_assertok(env_set("autostart", "no"));
+	test->http_host = "Host: [fe80::2]:8080\r\n";
+	for (unsigned int i = 0; i < ARRAY_SIZE(urls); i++) {
+		int ret;
+
+		test->boot_url = urls[i];
+		ret = run_command("dhcp6 2100000", 0);
+		ut_asserteq(0, test->http_requests);
+		ut_asserteq(CMD_RET_FAILURE, ret);
+		ut_asserteq(i + 1, test->dhcp_requests);
+		ut_asserteq_str(urls[i], env_get("bootfile"));
+		ut_assertnull(netif_default);
+	}
+	return 0;
+}
+
+static int dm_test_lwip_ip6_dhcp_https_scheme(struct unit_test_state *uts)
+{
+	return ip6_test_https_run(uts, ip6_test_dhcp_https_scheme);
+}
+DM_TEST(dm_test_lwip_ip6_dhcp_https_scheme, UTF_SCAN_FDT | UTF_CONSOLE);
+#endif
+
+static int ip6_test_boot_override(struct unit_test_state *uts, struct ip6_test *test)
+{
+	static const struct {
+		const char *url;
+		const char *expected;
+	} cases[] = {
+		{ "http://[fe80::2]:8080/images/original.bin",
+		  "http://[fe80::2]:8080/images/override.bin" },
+		{ "http://[fe80::2]:8080/images/original.bin?path=/other/file",
+		  "http://[fe80::2]:8080/images/override.bin" },
+		{ "http://[fe80::2]:8080/images/original.bin#path/other/file",
+		  "http://[fe80::2]:8080/images/override.bin" },
+		{ "https://boot.test/images/original.bin?q=/other/#frag/file",
+		  "https://boot.test/images/override.bin" },
+		{ "https://boot.test?path=/other/file", "https://boot.test/override.bin" },
+		{ "https://boot.test#path/other/file", "https://boot.test/override.bin" },
+		{ "https://boot.test", "https://boot.test/override.bin" },
+	};
+	char url[512], filename[600];
+	size_t prefix;
+
+	ut_assertok(env_set("autoload", "no"));
+	for (unsigned int i = 0; i < ARRAY_SIZE(cases); i++) {
+		test->boot_url = cases[i].url;
+		ut_assertok(run_command("dhcp6 2100000 override.bin", 0));
+		ut_asserteq_str(cases[i].expected, env_get("bootfile"));
+	}
+	test->boot_url = cases[1].url;
+	ut_assertok(run_command("dhcp6 2100000 /override.bin", 0));
+	ut_asserteq_str("http://[fe80::2]:8080/override.bin", env_get("bootfile"));
+	ut_assertok(run_command("dhcp6 2100000 https://new.test/override.bin", 0));
+	ut_asserteq_str("https://new.test/override.bin", env_get("bootfile"));
+	ut_assertok(run_command("dhcp6 2100000", 0));
+	ut_asserteq_str(cases[1].url, env_get("bootfile"));
+
+	/* Accept the exact buffer limit, but reject one more filename byte. */
+	prefix = strlcpy(url, "http://boot.test/", sizeof(url));
+	memset(url + prefix, 'd', sizeof(url) - prefix - 3);
+	strcpy(url + sizeof(url) - 3, "/x");
+	prefix = sizeof(url) - 2;
+	memset(filename, 'f', 1023 - prefix);
+	filename[1023 - prefix] = 0;
+	test->boot_url = url;
+	ut_assertok(run_commandf("dhcp6 2100000 %s", filename));
+	ut_asserteq(1023, strlen(env_get("bootfile")));
+	ut_asserteq_mem(url, env_get("bootfile"), prefix);
+	filename[1023 - prefix] = 'f';
+	filename[1024 - prefix] = 0;
+	ut_asserteq(CMD_RET_FAILURE, run_commandf("dhcp6 2100000 %s", filename));
+	return 0;
+}
+
+static int dm_test_lwip_ip6_boot_override(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_boot_override);
+}
+DM_TEST(dm_test_lwip_ip6_boot_override, UTF_SCAN_FDT | UTF_CONSOLE);
+
+static int ip6_test_renew(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ut_assertok(env_set("autoload", "no"));
+	test->lease_t1 = 20;
+	test->lease_t2 = 40;
+	test->lease_valid = 80;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_assertnull(netif_default);
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	ut_assert(!netif_ip6_addr_isstatic(test->net.netif, 1));
+	test->lease_dns = "fe80::3";
+	timer_test_add_offset(21000);
+	ut_assertok(net_lwip_poll());
+	ut_asserteq(1, test->dhcp_renews);
+	ut_assertok(net_lwip_poll());
+	ut_assert(netif_ip6_addr_valid_life(test->net.netif, 1) > 70);
+	ut_asserteq_str("FE80::3", env_get("dnsip6"));
+#if CONFIG_IS_ENABLED(DNS)
+	ut_asserteq_str("FE80::3", ipaddr_ntoa(dns_getserver(0)));
+	for (unsigned int i = 0; i < 31; i++)
+		dns_tmr();
+	ut_assertok(run_command("dns renewed.test dnsresult -ipv6", 0));
+	ut_asserteq_str("FE80::3", ip6addr_ntoa(&test->last_dns));
+#endif
+
+	/* Wrong-XID replies must not postpone Rebind or expiry. */
+	test->bad_renew = true;
+	test->lease_dns = "fe80::4";
+	timer_test_add_offset(21000);
+	ut_assertok(net_lwip_poll());
+	ut_asserteq(2, test->dhcp_renews);
+	ut_asserteq_str("FE80::3", env_get("dnsip6"));
+	timer_test_add_offset(21000);
+	ut_assertok(net_lwip_poll());
+	ut_asserteq(1, test->dhcp_rebinds);
+	ut_assertok(net_lwip_poll());
+	ut_asserteq_str("FE80::4", env_get("dnsip6"));
+#if CONFIG_IS_ENABLED(DNS)
+	ut_asserteq_str("FE80::4", ipaddr_ntoa(dns_getserver(0)));
+#endif
+	test->bad_renew = false;
+	test->no_binding = true;
+	test->lease_dns = "";
+	timer_test_add_offset(21000);
+	ut_assertok(net_lwip_poll());
+	timer_test_add_offset(1100);
+	ut_assertok(net_lwip_poll());
+	ut_asserteq(2, test->dhcp_requests);
+	ut_assertok(net_lwip_poll());
+	ut_assertnull(env_get("dnsip6"));
+	ut_assertnull(env_get("dnsip6_2"));
+#if CONFIG_IS_ENABLED(DNS)
+	ut_assert(ip_addr_isany(dns_getserver(0)));
+#endif
+
+	/* Lease age includes time spent with no active network command. */
+	net_lwip_stop(&test->net);
+	timer_test_add_offset(81000);
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+	ut_assertok(run_command("ping6 fe80::2", 0));
+	net_lwip_stop(&test->net);
+	ut_assertok(env_set("ip6addr", NULL));
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	net_lwip_stop(&test->net);
+
+	/* An explicit zero lifetime withdraws the current address. */
+	test->no_binding = false;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	test->withdraw_lease = true;
+	timer_test_add_offset(21000);
+	ut_assertok(net_lwip_poll());
+	ut_assertok(net_lwip_poll());
+	ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+	return 0;
+}
+
+static int dm_test_lwip_ip6_renew(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_renew);
+}
+DM_TEST(dm_test_lwip_ip6_renew, UTF_SCAN_FDT | UTF_CONSOLE);
+
+#if CONFIG_IS_ENABLED(NETCONSOLE)
+static int ip6_test_netconsole_lease(struct unit_test_state *uts, struct ip6_test *test)
+{
+	struct stdio_dev *nc = stdio_get_by_name("nc");
+	unsigned int before, renewed, after, renews;
+	ulong start, elapsed;
+	u32 remaining;
+	bool valid;
+
+	ut_assertnonnull(nc);
+	ut_assertok(env_set("autoload", "no"));
+	ut_assertok(env_set("ipaddr", NULL));
+	ut_assertok(env_set("ncip", NULL));
+	ut_assertok(env_set("ncip6", "2001:db8:2::2"));
+	ut_assertok(env_set("ncinport", NULL));
+	ut_assertok(env_set("ncoutport", NULL));
+	test->console_no_reply = true;
+	test->lease_t1 = 20;
+	test->lease_t2 = 40;
+	test->lease_valid = 80;
+	test->advertise = true;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_assertok(nc->start(nc));
+	test->advertise = false;
+	nc->puts(nc, "before renewal");
+	before = test->console_packets;
+	/* Output alone must service renewal and install the accepted reply. */
+	timer_test_add_offset(21000);
+	nc->puts(nc, "renew lease");
+	nc->puts(nc, "apply renewed lease");
+	renewed = test->console_packets;
+	renews = test->dhcp_renews;
+	remaining = netif_ip6_addr_valid_life(netif_default, 1);
+	test->drop_renew = true;
+	test->drop_rebind = true;
+	timer_test_add_offset(81000);
+	start = get_timer(0);
+	nc->puts(nc, "after lease expiry");
+	nc->puts(nc, "still after lease expiry");
+	elapsed = get_timer(start);
+	after = test->console_packets;
+	valid = ip6_addr_isvalid(netif_ip6_addr_state(netif_default, 1));
+	nc->stop(nc);
+
+	ut_asserteq(1, before);
+	ut_asserteq(before + 2, renewed);
+	ut_asserteq(1, renews);
+	ut_assert(remaining > 70);
+	ut_asserteq(renewed, after);
+	ut_assert(!valid);
+	ut_assert(elapsed < 1000);
+	ut_assertnull(netif_default);
+	return 0;
+}
+
+static int dm_test_lwip_ip6_netconsole_lease(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_netconsole_lease);
+}
+DM_TEST(dm_test_lwip_ip6_netconsole_lease, UTF_SCAN_FDT | UTF_CONSOLE);
+#endif
+
+static void ip6_test_timer(void *arg)
+{
+	*(bool *)arg = true;
+}
+
+#if LWIP_TCP
+static void ip6_test_tcp_error(void *arg, err_t err)
+{
+	*(err_t *)arg = err;
+}
+#endif
+
+static int ip6_test_replacement_setup(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ut_assertok(env_set("autoload", "no"));
+	ut_assertok(env_set("ipaddr", "192.0.2.10"));
+	ut_assertok(env_set("netmask", "255.255.255.0"));
+	test->lease_t1 = 20;
+	test->lease_t2 = 40;
+	test->lease_valid = 3600;
+	test->lease_addr = NULL;
+	test->withdraw_addr = NULL;
+	test->no_binding = false;
+	test->drop_renew = false;
+	test->lease_conflict = false;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	for (unsigned int i = 0; i < 5; i++) {
+		timer_test_add_offset(1000);
+		ut_assertok(net_lwip_poll());
+	}
+	ut_assert(ip6_addr_isvalid(netif_ip6_addr_state(test->net.netif, 1)));
+	test->lease_addr = "2001:db8:1::456";
+	return 0;
+}
+
+/* Receive the reply, but leave installation and DAD to the next poll. */
+static int ip6_test_replacement_reply(struct unit_test_state *uts, struct ip6_test *test)
+{
+	unsigned int requests = test->dhcp_requests;
+	unsigned int renews = test->dhcp_renews;
+	unsigned int rebinds = test->dhcp_rebinds;
+
+	timer_test_add_offset(test->drop_renew ? 41000 : 21000);
+	ut_assertok(net_lwip_poll());
+	ut_asserteq(renews + !test->drop_renew, test->dhcp_renews);
+	ut_asserteq(rebinds + test->drop_renew, test->dhcp_rebinds);
+	if (test->no_binding) {
+		for (unsigned int i = 0; i < 20 && test->dhcp_requests == requests; i++) {
+			timer_test_add_offset(100);
+			ut_assertok(net_lwip_poll());
+		}
+		ut_asserteq(requests + 1, test->dhcp_requests);
+	}
+	return 0;
+}
+
+static int ip6_test_replacement(struct unit_test_state *uts, struct ip6_test *test)
+{
+	struct net_lwip_ctx other = {};
+	ip6_addr_t expected;
+	ip4_addr_t ip4;
+
+	ip6addr_aton("2001:db8:1::456", &expected);
+	for (unsigned int mode = 0; mode < 4; mode++) {
+		struct udp_pcb *udp;
+		struct pbuf *packet;
+		ip_addr_t dest;
+		int send;
+#if LWIP_TCP
+		struct tcp_pcb *tcp;
+		err_t error = ERR_OK;
+#endif
+
+		ut_assertok(ip6_test_replacement_setup(uts, test));
+		ip4 = *netif_ip4_addr(test->net.netif);
+		/* Lease maintenance also runs with other runtime clients attached. */
+		ut_assertok(net_lwip_start(&other, NET_LWIP_ADDR_ENV_STRICT));
+		udp = udp_new_ip_type(IPADDR_TYPE_V6);
+		ut_assertnonnull(udp);
+		ut_asserteq(ERR_OK, udp_bind(udp, netif_ip_addr6(test->net.netif, 1), 0));
+		packet = pbuf_alloc(PBUF_TRANSPORT, 1, PBUF_RAM);
+		ut_assertnonnull(packet);
+		*(u8 *)packet->payload = 0;
+		ipaddr_aton("2001:db8:1::2", &dest);
+#if LWIP_TCP
+		tcp = tcp_new_ip_type(IPADDR_TYPE_V6);
+		ut_assertnonnull(tcp);
+		ut_asserteq(ERR_OK, tcp_bind(tcp, netif_ip_addr6(test->net.netif, 1), 0));
+		tcp_arg(tcp, &error);
+		tcp_err(tcp, ip6_test_tcp_error);
+#endif
+		test->no_binding = mode < 2;
+		test->drop_renew = mode & 1;
+		test->withdraw_addr = mode == 1 || mode == 2 ? "2001:db8:1::123" : NULL;
+		test->withdraw_first = mode == 1;
+		ut_assertok(ip6_test_replacement_reply(uts, test));
+		/* Only the DHCP state machine runs here: DAD has not run yet. */
+		net_lwip_dhcp6_poll();
+		send = udp_sendto_if(udp, packet, &dest, 1234, test->net.netif);
+		pbuf_free(packet);
+		udp_remove(udp);
+#if LWIP_TCP
+		if (error == ERR_OK) {
+			tcp_err(tcp, NULL);
+			tcp_abort(tcp);
+		}
+		ut_asserteq(ERR_ABRT, error);
+#endif
+		ut_asserteq(ERR_RTE, send);
+		ut_assert(ip6_addr_zoneless_eq(&expected, netif_ip6_addr(test->net.netif, 1)));
+		ut_assert(ip6_addr_istentative(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_asserteq_str("2001:DB8:1::123", env_get("ip6addr"));
+		net_lwip_stop(&other);
+		if (mode == 1) {
+			/* A close during DAD must not restore the old published address. */
+			net_lwip_stop(&test->net);
+			ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+			ut_assertok(net_lwip_ip6_init(&test->net));
+			ut_assert(ip6_addr_zoneless_eq(&expected,
+						       netif_ip6_addr(test->net.netif, 1)));
+			ut_assert(ip6_addr_istentative(netif_ip6_addr_state(test->net.netif, 1)));
+		}
+		for (unsigned int i = 0; i < 5; i++) {
+			timer_test_add_offset(1000);
+			ut_assertok(net_lwip_poll());
+		}
+		ut_asserteq_str("2001:DB8:1::456", env_get("ip6addr"));
+		ut_assert(ip6_addr_isvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_assert(!netif_ip6_addr_isstatic(test->net.netif, 1));
+		ut_assertok(net_lwip_ip6_init(&test->net));
+		ut_assert(ip4_addr_cmp(&ip4, netif_ip4_addr(test->net.netif)));
+		ut_assertok(run_command("ping6 fe80::2", 0));
+#if CONFIG_IS_ENABLED(CMD_PING)
+		ut_assertok(run_command("ping 192.0.2.2", 0));
+#endif
+		net_lwip_stop(&test->net);
+		ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+		ut_assertok(net_lwip_ip6_start(&test->net));
+		ut_assert(ip6_addr_zoneless_eq(&expected, netif_ip6_addr(test->net.netif, 1)));
+		ut_assert(!netif_ip6_addr_isstatic(test->net.netif, 1));
+		net_lwip_stop(&test->net);
+	}
+	return 0;
+}
+
+static int dm_test_lwip_ip6_replacement(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_replacement);
+}
+DM_TEST(dm_test_lwip_ip6_replacement, UTF_SCAN_FDT);
+
+static int ip6_test_replacement_failure(struct unit_test_state *uts, struct ip6_test *test)
+{
+	ip6_addr_t expected;
+
+	ip6addr_aton("2001:db8:1::456", &expected);
+	for (unsigned int mode = 0; mode < 4; mode++) {
+		unsigned int declines = test->dhcp_declines;
+
+		ut_assertok(ip6_test_replacement_setup(uts, test));
+		test->no_binding = true;
+		ut_assertok(ip6_test_replacement_reply(uts, test));
+		if (!mode) {
+			/* A live interface has a usable source for Decline. */
+			ut_assert(ip6_addr_isvalid(netif_ip6_addr_state(test->net.netif, 0)));
+			net_lwip_dhcp6_poll();
+		} else {
+			/* Close before the accepted replacement has been installed. */
+			net_lwip_stop(&test->net);
+			ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+			ut_assertok(net_lwip_ip6_init(&test->net));
+		}
+		ut_assert(ip6_addr_zoneless_eq(&expected, netif_ip6_addr(test->net.netif, 1)));
+		ut_assert(ip6_addr_istentative(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_asserteq_str("2001:DB8:1::123", env_get("ip6addr"));
+		if (!mode) {
+			test->lease_conflict = true;
+			for (unsigned int i = 0; i < 5; i++) {
+				timer_test_add_offset(1000);
+				ut_assertok(net_lwip_poll());
+			}
+		} else if (mode == 3) {
+			/* Do not send Decline while link-local DAD is still pending. */
+			ut_assert(ip6_addr_istentative(netif_ip6_addr_state(test->net.netif, 0)));
+			netif_ip6_addr_set_state(test->net.netif, 1, IP6_ADDR_DUPLICATED);
+			net_lwip_dhcp6_poll();
+		} else {
+			/* Expiry and DAD timeout both leave the candidate unusable. */
+			timer_test_add_offset(mode == 1 ? 3601000 : 16000);
+			net_lwip_dhcp6_poll();
+		}
+		ut_asserteq(declines + !mode, test->dhcp_declines);
+		ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_asserteq_str("2001:DB8:1::123", env_get("ip6addr"));
+		net_lwip_stop(&test->net);
+		ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+		ut_assertok(net_lwip_ip6_start(&test->net));
+		ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		ut_assertok(run_command("ping6 fe80::2", 0));
+		net_lwip_stop(&test->net);
+	}
+	/* A failed explicit reacquisition must clear the old DHCP-owned value. */
+	test->cancel = true;
+	ut_asserteq(CMD_RET_FAILURE, run_command("dhcp6", 0));
+	ut_assertnull(env_get("ip6addr"));
+	return 0;
+}
+
+static int dm_test_lwip_ip6_replacement_failure(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_replacement_failure);
+}
+DM_TEST(dm_test_lwip_ip6_replacement_failure, UTF_SCAN_FDT | UTF_CONSOLE);
+
+static int ip6_test_expiry(struct unit_test_state *uts, struct ip6_test *test)
+{
+	struct udp_pcb *udp;
+	struct pbuf *packet;
+	ip_addr_t dest;
+	bool ran = false;
+	int poll, send;
+#if LWIP_TCP
+	struct tcp_pcb *tcp;
+	err_t error = ERR_OK;
+#endif
+
+	ut_assertok(env_set("autoload", "no"));
+	ut_assertok(env_set("ipaddr", "192.0.2.10"));
+	ut_assertok(env_set("netmask", "255.255.255.0"));
+	test->lease_valid = 80;
+	ut_assertok(run_command("dhcp6", 0));
+	ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+	ut_assertok(net_lwip_ip6_start(&test->net));
+	udp = udp_new_ip_type(IPADDR_TYPE_V6);
+	ut_assertnonnull(udp);
+	ut_asserteq(ERR_OK, udp_bind(udp, netif_ip_addr6(test->net.netif, 1), 0));
+	packet = pbuf_alloc(PBUF_TRANSPORT, 1, PBUF_RAM);
+	ut_assertnonnull(packet);
+	*(u8 *)packet->payload = 0;
+	ipaddr_aton("2001:db8:1::2", &dest);
+#if LWIP_TCP
+	tcp = tcp_new_ip_type(IPADDR_TYPE_V6);
+	ut_assertnonnull(tcp);
+	ut_asserteq(ERR_OK, tcp_bind(tcp, netif_ip_addr6(test->net.netif, 1), 0));
+	tcp_arg(tcp, &error);
+	tcp_err(tcp, ip6_test_tcp_error);
+#endif
+	sys_timeout(1, ip6_test_timer, &ran);
+	timer_test_add_offset(81000);
+	poll = net_lwip_poll();
+	sys_untimeout(ip6_test_timer, &ran);
+	send = udp_sendto_if(udp, packet, &dest, 1234, test->net.netif);
+	pbuf_free(packet);
+	udp_remove(udp);
+#if LWIP_TCP
+	if (error == ERR_OK) {
+		tcp_err(tcp, NULL);
+		tcp_abort(tcp);
+	}
+	ut_asserteq(ERR_ABRT, error);
+#endif
+	ut_assertok(poll);
+	ut_assert(ran);
+	ut_asserteq(ERR_RTE, send);
+	ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+	ut_assertok(net_lwip_poll());
+	ut_assertok(run_command("ping6 fe80::2", 0));
+#if CONFIG_IS_ENABLED(CMD_PING)
+	ut_assertok(run_command("ping 192.0.2.2", 0));
+#endif
+	return 0;
+}
+
+static int dm_test_lwip_ip6_expiry(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_expiry);
+}
+DM_TEST(dm_test_lwip_ip6_expiry, UTF_SCAN_FDT);
+
+static int ip6_test_reacquire(struct unit_test_state *uts, struct ip6_test *test)
+{
+	int ret;
+
+	ut_assertok(env_set("autoload", "no"));
+	test->lease_valid = 80;
+	for (unsigned int i = 0; i < 3; i++) {
+		ut_assertok(run_command("dhcp6", 0));
+		if (!i) {
+			timer_test_add_offset(81000);
+		} else {
+			ut_assertok(env_set("ip6addr", i == 1 ? "2001:db8:1::123/64" :
+					   "2001:db8:1::456/64"));
+		}
+		test->cancel = true;
+		ret = run_command("dhcp6", 0);
+		console_record_reset();
+		clear_ctrlc();
+		test->cancel = false;
+		ut_asserteq(CMD_RET_FAILURE, ret);
+		if (i == 2)
+			ut_asserteq_str("2001:db8:1::456/64", env_get("ip6addr"));
+		else
+			ut_assertnull(env_get("ip6addr"));
+		ut_assertok(net_lwip_start(&test->net, NET_LWIP_ADDR_ENV_STRICT));
+		ut_assertok(net_lwip_ip6_start(&test->net));
+		if (i != 2)
+			ut_assert(ip6_addr_isinvalid(netif_ip6_addr_state(test->net.netif, 1)));
+		net_lwip_stop(&test->net);
+	}
+	return 0;
+}
+
+static int dm_test_lwip_ip6_reacquire(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_reacquire);
+}
+DM_TEST(dm_test_lwip_ip6_reacquire, UTF_SCAN_FDT | UTF_CONSOLE);
+
+#if CONFIG_IS_ENABLED(WGET) && CONFIG_IS_ENABLED(LMB)
+static int ip6_test_boot_lmb(struct unit_test_state *uts, struct ip6_test *test)
+{
+	phys_addr_t load = 0x2100000;
+	u8 expected[9], *data = map_sysmem(load, sizeof(expected));
+	int direct, dhcp, freed;
+	bool changed;
+
+	ut_assertok(env_set("autoload", "yes"));
+	ut_assertok(env_set("autostart", "no"));
+	ut_assertok(lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &load, 4096, LMB_NOOVERWRITE));
+	memset(expected, 0xa5, sizeof(expected));
+	memcpy(data, expected, sizeof(expected));
+	test->http_host = "Host: [fe80::2]:8080\r\n";
+	test->boot_url = "http://[fe80::2]:8080/ipv6.bin";
+	direct = run_command("wget 2100000 http://[fe80::2]:8080/ipv6.bin", 0);
+	dhcp = run_command("dhcp6 2100000", 0);
+	changed = memcmp(data, expected, sizeof(expected));
+	freed = lmb_free(load, 4096, LMB_NOOVERWRITE);
+	unmap_sysmem(data);
+	ut_assertok(freed);
+	ut_asserteq(CMD_RET_FAILURE, direct);
+	ut_asserteq(CMD_RET_FAILURE, dhcp);
+	ut_assert(!changed);
+	ut_asserteq(0, net_boot_file_size);
+	ut_assertnull(netif_default);
+	return 0;
+}
+
+static int dm_test_lwip_ip6_boot_lmb(struct unit_test_state *uts)
+{
+	return ip6_test_run(uts, ip6_test_boot_lmb);
+}
+DM_TEST(dm_test_lwip_ip6_boot_lmb, UTF_SCAN_FDT);
+#endif
 #endif
 
 static int dm_test_lwip_ip6_ping(struct unit_test_state *uts)
