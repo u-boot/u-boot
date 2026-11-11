@@ -770,7 +770,7 @@ static ulong rk3528_pwm_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 	sel = (con & mask) >> shift;
 	if (sel == CLK_PWM0_SEL_CLK_MATRIX_100M_SRC)
 		rate = 100 * MHz;
-	if (sel == CLK_PWM0_SEL_CLK_MATRIX_50M_SRC)
+	else if (sel == CLK_PWM0_SEL_CLK_MATRIX_50M_SRC)
 		rate = 50 * MHz;
 	else
 		rate = OSC_HZ;
