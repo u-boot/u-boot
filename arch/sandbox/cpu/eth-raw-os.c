@@ -84,8 +84,9 @@ static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
 	device->sll_ifindex = if_nametoindex(priv->host_ifname);
 	priv->host_ifindex = device->sll_ifindex;
 	device->sll_family = AF_PACKET;
+	device->sll_protocol = htons(ETH_P_ALL);
 	memcpy(device->sll_addr, ethmac, 6);
-	device->sll_halen = htons(6);
+	device->sll_halen = 6;
 
 	/* Open socket */
 	priv->sd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
@@ -95,8 +96,7 @@ static int _raw_packet_start(struct eth_sandbox_raw_priv *priv,
 		return -errno;
 	}
 	/* Bind to the specified interface */
-	ret = setsockopt(priv->sd, SOL_SOCKET, SO_BINDTODEVICE,
-			 priv->host_ifname, strlen(priv->host_ifname) + 1);
+	ret = bind(priv->sd, (struct sockaddr *)device, sizeof(*device));
 	if (ret < 0) {
 		printf("Failed to bind to '%s': %d %s\n", priv->host_ifname,
 		       errno, strerror(errno));
@@ -285,14 +285,10 @@ int sandbox_eth_raw_os_recv(void *packet, int *length,
 			    const struct eth_sandbox_raw_priv *priv)
 {
 	int retval;
-	int saddr_size;
 
 	if (priv->sd < 0 || !priv->device)
 		return -EINVAL;
-	saddr_size = sizeof(struct sockaddr);
-	retval = recvfrom(priv->sd, packet, 1536, 0,
-			  (struct sockaddr *)priv->device,
-			  (socklen_t *)&saddr_size);
+	retval = recv(priv->sd, packet, 1536, 0);
 	*length = 0;
 	if (retval >= 0) {
 		if (priv->local && retval >= sizeof(struct iphdr)) {
