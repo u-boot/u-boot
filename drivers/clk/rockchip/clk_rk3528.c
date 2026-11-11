@@ -1097,7 +1097,7 @@ static ulong rk3528_dclk_vop_set_clk(struct rk3528_clk_priv *priv,
 	}
 
 	div = ((DIV_ROUND_UP(prate, rate) - 1) << div_shift) & div_mask;
-	rk_clrsetreg(&cru->clksel_con[id], sel, div);
+	rk_clrsetreg(&cru->clksel_con[id], sel_mask | div_mask, sel | div);
 
 	return rk3528_dclk_vop_get_clk(priv, clk_id);
 }
