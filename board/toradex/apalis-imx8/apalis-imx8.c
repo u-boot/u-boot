@@ -361,7 +361,7 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 /* TODO move to common */
-	env_set("board_name", "Apalis iMX8QM");
+	env_set("board_name", is_imx8qp() ? "Apalis iMX8QP" : "Apalis iMX8QM");
 	env_set("board_rev", "v1.0");
 #endif
 
