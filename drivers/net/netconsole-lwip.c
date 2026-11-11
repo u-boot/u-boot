@@ -18,23 +18,31 @@ static struct net_lwip_ctx nc_net;
 static struct udp_pcb *nc_pcb;
 static unsigned int nc_users;
 static int nc_env_id = -1;
+static ip_addr_t nc_dest;
 
 static void nc_lwip_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p,
 			 const ip_addr_t *addr, u16_t port)
 {
-	struct in_addr src_ip = {
-		.s_addr = ip_addr_get_ip4_u32(addr),
-	};
 	struct pbuf *q;
 
-	for (q = p; q; q = q->next)
-		nc_input_packet(q->payload, src_ip, pcb->local_port, port,
-				q->len);
+	if (IP_GET_TYPE(addr) != IP_GET_TYPE(&nc_dest))
+		goto out;
+	if (IP_IS_V6(addr)) {
+		if (!ip_addr_cmp(addr, &nc_dest))
+			goto out;
+	} else {
+		struct in_addr peer = { .s_addr = ip4_addr_get_u32(ip_2_ip4(&nc_dest)) };
 
+		if (!ip_addr_cmp(addr, &nc_dest) && !nc_is_broadcast(peer))
+			goto out;
+	}
+	for (q = p; q; q = q->next)
+		nc_input_data(q->payload, q->len);
+out:
 	pbuf_free(p);
 }
 
-static int nc_lwip_refresh(void)
+static int nc_lwip_refresh(bool prepare)
 {
 	struct udp_pcb *pcb;
 	int env_id;
@@ -50,23 +58,40 @@ static int nc_lwip_refresh(void)
 		ret = net_lwip_refresh(&nc_net);
 		if (ret)
 			return ret;
+		ip_addr_set_ip4_u32_val(nc_dest, nc_settings.ip.s_addr);
+#if CONFIG_IS_ENABLED(IPV6)
+		if (nc_settings.ipv6) {
+			ip_addr_copy_from_ip6(nc_dest, nc_settings.ip6);
+			ip6_addr_assign_zone(ip_2_ip6(&nc_dest), IP6_UNICAST, nc_net.netif);
+			ret = net_lwip_ip6_init(&nc_net);
+			if (ret)
+				return ret;
+		}
+#endif
 		nc_env_id = env_id;
+	}
+
+	if (prepare) {
+		ret = net_lwip_prepare_addr(&nc_net, &nc_dest);
+		if (ret)
+			return ret;
 	}
 
 	if (nc_pcb && nc_pcb->local_port == nc_settings.in_port)
 		return 0;
 
-	pcb = udp_new();
+	pcb = udp_new_ip_type(IPADDR_TYPE_ANY);
 	if (!pcb)
 		return -ENOMEM;
 
-	err = udp_bind(pcb, IP_ADDR_ANY, nc_settings.in_port);
+	err = udp_bind(pcb, IP_ANY_TYPE, nc_settings.in_port);
 	if (err != ERR_OK) {
 		udp_remove(pcb);
 		return err;
 	}
 
 	ip_set_option(pcb, SOF_BROADCAST);
+	udp_bind_netif(pcb, nc_net.netif);
 	udp_recv(pcb, nc_lwip_recv, NULL);
 	if (nc_pcb)
 		udp_remove(nc_pcb);
@@ -119,7 +144,7 @@ int nc_transport_start(void)
 	int ret;
 
 	if (nc_users) {
-		ret = nc_lwip_refresh();
+		ret = nc_lwip_refresh(true);
 		if (!ret)
 			nc_users++;
 
@@ -130,7 +155,7 @@ int nc_transport_start(void)
 	if (ret)
 		return ret;
 
-	ret = nc_lwip_refresh();
+	ret = nc_lwip_refresh(true);
 	if (ret) {
 		net_lwip_stop(&nc_net);
 		return ret;
@@ -162,12 +187,23 @@ int nc_transport_stop(void)
 void nc_transport_send(const char *buf, int len)
 {
 	ip4_addr_t arp_target;
-	ip_addr_t dest;
 	struct pbuf *p;
 	err_t err;
 
-	if (!nc_users || nc_lwip_refresh())
+	if (!nc_users || nc_lwip_refresh(false))
 		return;
+
+#if CONFIG_IS_ENABLED(IPV6)
+	if (IP_IS_V6(&nc_dest)) {
+		/* Output-only consoles also need lifetime and lease maintenance. */
+		int ret = net_lwip_poll();
+
+		if (ret < 0 && ret != -EBUSY)
+			return;
+		if (net_lwip_ip6_ready(&nc_net, &nc_dest))
+			return;
+	}
+#endif
 
 	p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
 	if (!p)
@@ -177,12 +213,24 @@ void nc_transport_send(const char *buf, int len)
 	if (err != ERR_OK)
 		goto out;
 
-	ip_addr_set_ip4_u32_val(dest, nc_settings.ip.s_addr);
-	err = udp_sendto_if(nc_pcb, p, &dest, nc_settings.out_port,
+	err = udp_sendto_if(nc_pcb, p, &nc_dest, nc_settings.out_port,
 			    nc_net.netif);
-	if (err == ERR_OK &&
-	    nc_lwip_arp_target(ip_2_ip4(&dest), &arp_target))
-		nc_lwip_wait_for_arp(&arp_target);
+	if (err == ERR_OK) {
+		if (IP_IS_V4(&nc_dest) &&
+		    nc_lwip_arp_target(ip_2_ip4(&nc_dest), &arp_target))
+			nc_lwip_wait_for_arp(&arp_target);
+#if CONFIG_IS_ENABLED(IPV6)
+		/* ND retains this RAM pbuf while the neighbor is unresolved. */
+		if (IP_IS_V6(&nc_dest)) {
+			ulong start = get_timer(0);
+
+			while (p->ref > 1 && get_timer(start) < NC_ARP_TIMEOUT_MS) {
+				if (net_lwip_poll() < 0)
+					break;
+			}
+		}
+#endif
+	}
 
 out:
 	pbuf_free(p);
@@ -190,7 +238,7 @@ out:
 
 void nc_transport_poll(bool block)
 {
-	if (!nc_users || nc_lwip_refresh())
+	if (!nc_users || nc_lwip_refresh(false))
 		return;
 
 	do {
