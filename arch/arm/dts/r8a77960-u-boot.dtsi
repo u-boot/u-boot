@@ -30,6 +30,17 @@
 /delete-node/ &fcpvd1;
 /delete-node/ &fcpvd2;
 /delete-node/ &fcpvi0;
+/delete-node/ &ipmmu_ds0;
+/delete-node/ &ipmmu_ds1;
+/delete-node/ &ipmmu_hc;
+/delete-node/ &ipmmu_ir;
+/delete-node/ &ipmmu_mm;
+/delete-node/ &ipmmu_mp;
+/delete-node/ &ipmmu_pv0;
+/delete-node/ &ipmmu_pv1;
+/delete-node/ &ipmmu_rt;
+/delete-node/ &ipmmu_vc0;
+/delete-node/ &ipmmu_vi0;
 /delete-node/ &hdmi0;
 /delete-node/ &lvds0;
 /delete-node/ &rcar_sound;
@@ -81,8 +92,48 @@
 	/delete-property/ operating-points-v2;
 };
 
+&avb {
+	/delete-property/ iommus;
+};
+
+&dmac0 {
+	/delete-property/ iommus;
+};
+
+&dmac1 {
+	/delete-property/ iommus;
+};
+
+&dmac2 {
+	/delete-property/ iommus;
+};
+
 &i2c4 {
 	/delete-node/ video-receiver@70;
+};
+
+&pciec0 {
+	/delete-property/ iommu-map;
+};
+
+&pciec1 {
+	/delete-property/ iommu-map;
+};
+
+&sdhi0 {
+	/delete-property/ iommus;
+};
+
+&sdhi1 {
+	/delete-property/ iommus;
+};
+
+&sdhi2 {
+	/delete-property/ iommus;
+};
+
+&sdhi3 {
+	/delete-property/ iommus;
 };
 
 &soc {
