@@ -1072,6 +1072,47 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
 }
 
 /**
+ * fit_image_get_ext_data_offset - locate a sub-image's external data
+ * @fit: pointer to the FIT format image header
+ * @noffset: component image node offset
+ * @offsetp: holds the data offset from the start of the FIT, on success
+ *
+ * returns:
+ *     0, if the sub-image has external data
+ *     -ENOENT, if its data is embedded in the FIT
+ *     -EINVAL, if the recorded offset is out of range
+ */
+static int fit_image_get_ext_data_offset(const void *fit, int noffset, u32 *offsetp)
+{
+	size_t fdt_total_size_aligned;
+	u32 offset;
+
+	if (!fit_image_get_data_position(fit, noffset, &offset)) {
+		*offsetp = offset;
+
+		return 0;
+	}
+
+	if (fit_image_get_data_offset(fit, noffset, &offset))
+		return -ENOENT;
+
+	/*
+	 * data-offset counts from the end of the FDT, so that is the base for
+	 * every image; the sum has to stay within a u32.
+	 */
+	fdt_total_size_aligned = ALIGN(fdt_totalsize(fit), 4);
+	if (fdt_total_size_aligned > UINT32_MAX - offset) {
+		printf("Invalid external data offset: %u\n", offset);
+
+		return -EINVAL;
+	}
+
+	*offsetp = offset + fdt_total_size_aligned;
+
+	return 0;
+}
+
+/**
  * fit_image_get_data - get data and its size including
  *				 both embedded and external data
  * @fit: pointer to the FIT format image header
@@ -1090,82 +1131,63 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
 int fit_image_get_data(const void *fit, int noffset, const void **data,
 		       size_t *size)
 {
-	bool external_data = false;
 	int ret;
-	size_t fdt_total_size_aligned;
 	u32 offset;
 	u32 len;
 	uintptr_t max_offset;
 
-	if (!fit_image_get_data_position(fit, noffset, &offset)) {
-		external_data = true;
-	} else if (!fit_image_get_data_offset(fit, noffset, &offset)) {
-		/*
-		 * For FIT with external data, figure out where
-		 * the external images start. This is the base
-		 * for the data-offset properties in each image.
-		 */
-		fdt_total_size_aligned = ((fdt_totalsize(fit) + 3) & ~3);
-		/* The resulting offset cannot exceed UINT32_MAX */
-		if (fdt_total_size_aligned > UINT32_MAX - offset) {
-			printf("Invalid external data offset: %u\n", offset);
-			return -EINVAL;
-		}
-		offset += fdt_total_size_aligned;
+	ret = fit_image_get_ext_data_offset(fit, noffset, &offset);
+	if (ret == -ENOENT)
+		return fit_image_get_emb_data(fit, noffset, data, size);
+	if (ret)
+		return ret;
 
-		external_data = true;
+	debug("External Data\n");
+
+	max_offset = UINTPTR_MAX - (uintptr_t)fit;
+	/* Check that external data offset is within the addressable range */
+	if (offset > max_offset) {
+		printf("Invalid external data offset: %u\n", offset);
+		return -EINVAL;
 	}
 
-	if (external_data) {
-		debug("External Data\n");
-
-		max_offset = UINTPTR_MAX - (uintptr_t)fit;
-		/* Check that external data offset is within the addressable range */
-		if (offset > max_offset) {
-			printf("Invalid external data offset: %u\n", offset);
+	ret = fit_image_get_data_size(fit, noffset, &len);
+	if (!ret) {
+		/*
+		 * For non-signed FIT images, we can only check that
+		 * (offset + len) doesn't exceed the addressable range.
+		 * For signed FITs, we can additionally check that
+		 * (offset + len) doesn't exceed the allowed FIT image
+		 * maximum size.
+		 */
+		if (len > max_offset - offset
+		/*
+		 * #if (not a runtime if) is required: FIT_SIGNATURE_MAX_SIZE
+		 * depends on FIT_SIGNATURE, so CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)
+		 * is undefined when signing is disabled and referencing it
+		 * here would fail to compile.
+		 */
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+		    || offset > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) ||
+		    len > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) - offset
+#endif
+		) {
+			printf("FIT external data is out of bounds (offset=%u, size=%u)\n",
+			       offset, len);
 			return -EINVAL;
 		}
-
-		ret = fit_image_get_data_size(fit, noffset, &len);
-		if (!ret) {
-			/*
-			 * For non-signed FIT images, we can only check that
-			 * (offset + len) doesn't exceed the addressable range.
-			 * For signed FITs, we can additionally check that
-			 * (offset + len) doesn't exceed the allowed FIT image
-			 * maximum size.
-			 */
-			if (len > max_offset - offset
-			/*
-			 * #if (not a runtime if) is required: FIT_SIGNATURE_MAX_SIZE
-			 * depends on FIT_SIGNATURE, so CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)
-			 * is undefined when signing is disabled and referencing it
-			 * here would fail to compile.
-			 */
-#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
-			    || offset > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) ||
-			    len > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) - offset
-#endif
-			) {
-				printf("FIT external data is out of bounds (offset=%u, size=%u)\n",
-				       offset, len);
-				return -EINVAL;
-			}
-			*data = fit + offset;
+		*data = fit + offset;
 #if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
-			if (images.imagemap) {
-				void *mapped;
+		if (bootm_imagemap(&images)) {
+			void *mapped;
 
-				mapped = imagemap_lookup(images.imagemap,
-							 offset, len);
-				if (mapped)
-					*data = mapped;
-			}
-#endif
-			*size = len;
+			mapped = imagemap_lookup(bootm_imagemap(&images),
+						 offset, len);
+			if (mapped)
+				*data = mapped;
 		}
-	} else {
-		ret = fit_image_get_emb_data(fit, noffset, data, size);
+#endif
+		*size = len;
 	}
 
 	return ret;
@@ -2200,12 +2222,13 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 				  int noffset, enum fit_load_op load_op,
 				  ulong *datap, ulong *lenp, bool *early)
 {
-	int data_off = 0, data_sz = 0;
-	bool external = false;
+	u32 data_off = 0, data_sz = 0;
 	ulong img_load;
 	u8 img_comp = IH_COMP_NONE;
 	void *mapped;
 	void *dst;
+	struct udevice *imagemap = bootm_imagemap(images);
+	int ret;
 
 	if (CONFIG_IS_ENABLED(FIT_VERITY)) {
 		u8 img_type;
@@ -2222,18 +2245,12 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 		}
 	}
 
-	if (!fit_image_get_data_position(fit, noffset, &data_off)) {
-		external = true;
-	} else if (!fit_image_get_data_offset(fit, noffset, &data_off)) {
-		external = true;
-		data_off += ALIGN(fdt_totalsize(fit), 4);
-	}
+	ret = fit_image_get_ext_data_offset(fit, noffset, &data_off);
+	if (ret)
+		return ret == -ENOENT ? 0 : ret;
 
-	if (!external || fit_image_get_data_size(fit, noffset, &data_sz))
+	if (fit_image_get_data_size(fit, noffset, &data_sz))
 		return 0;
-
-	if (data_off < 0 || data_sz < 0)
-		return -EINVAL;
 
 	fit_image_get_comp(fit, noffset, &img_comp);
 
@@ -2241,11 +2258,11 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 	    !fit_image_get_load(fit, noffset, &img_load)) {
 		dst = map_sysmem(img_load, data_sz);
 
-		mapped = imagemap_map_to(images->imagemap, data_off, data_sz,
+		mapped = imagemap_map_to(imagemap, data_off, data_sz,
 					 dst);
 		unmap_sysmem(dst);
 	} else {
-		mapped = imagemap_map(images->imagemap, data_off, data_sz);
+		mapped = imagemap_map(imagemap, data_off, data_sz);
 	}
 
 	return IS_ERR(mapped) ? PTR_ERR(mapped) : 0;
@@ -2360,7 +2377,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	 * On-demand storage: pre-load external-data payloads into RAM (or leave
 	 * dm-verity filesystems on storage) before fit_image_select() verifies.
 	 */
-	if (CONFIG_IS_ENABLED(IMAGEMAP) && !tools_build() && images->imagemap) {
+	if (!tools_build() && bootm_imagemap(images)) {
 		bool early = false;
 
 		ret = fit_image_load_storage(images, fit, noffset, load_op,
@@ -2485,7 +2502,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		}
 
 		/* A storage-backed image was read straight to its load address */
-		if (!images->imagemap || data != load)
+		if (!bootm_imagemap(images) || data != load)
 			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
 			       prop_name, data, load);
 	} else {

@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <imagemap.h>
 #include <lmb.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <memalign.h>
 #include <part.h>
@@ -72,10 +73,11 @@ void *imagemap_lookup(struct udevice *dev, loff_t img_offset, ulong size)
 		 *
 		 *  2) img_offset - r->img_offset <= r->size
 		 *     The offset into the region does not exceed the
-		 *     region size.  This guard is essential: without it,
-		 *     the subtraction in (3) wraps to a huge value on
-		 *     LP64 where ulong and loff_t have the same rank
-		 *     and the arithmetic is performed as unsigned.
+		 *     region size.  This guard is essential: on LP64,
+		 *     ulong and loff_t have the same width, so the usual
+		 *     arithmetic conversions turn the subtraction in (3)
+		 *     unsigned and it wraps, making every range appear to
+		 *     fit.
 		 *
 		 *  3) size <= r->size - (img_offset - r->img_offset)
 		 *     The requested range fits in the remaining space.
@@ -441,6 +443,9 @@ int imagemap_create(struct udevice *dev, const char *name,
 	struct imagemap_plat *plat;
 	struct disk_partition info;
 	struct udevice *imdev;
+	char buf[32];
+	char *devname;
+	const char *base;
 	int ret;
 
 	if (name && *name)
@@ -450,10 +455,28 @@ int imagemap_create(struct udevice *dev, const char *name,
 	if (ret < 0)
 		return ret;
 
-	ret = device_bind_driver(desc->bdev, "imagemap",
-				 name && *name ? name : "imagemap", &imdev);
-	if (ret)
+	/*
+	 * Name the device after the partition it covers, so that two mappings
+	 * on one block device stay distinct in the device tree.
+	 */
+	if (name && *name) {
+		base = name;
+	} else {
+		snprintf(buf, sizeof(buf), "imagemap%d", part);
+		base = buf;
+	}
+
+	/* device_bind_driver() keeps the pointer, so hand it one DM can own */
+	devname = strdup(base);
+	if (!devname)
+		return -ENOMEM;
+
+	ret = device_bind_driver(desc->bdev, "imagemap", devname, &imdev);
+	if (ret) {
+		free(devname);
 		return ret;
+	}
+	device_set_name_alloced(imdev);
 
 	plat = dev_get_plat(imdev);
 	plat->part_start = info.start;
