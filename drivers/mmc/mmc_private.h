@@ -117,6 +117,15 @@ void mmc_list_init(void);
 void mmc_list_add(struct mmc *mmc);
 
 /**
+ * mmc_set_capacity() - Update capacity for a new MMC hardware partition
+ *
+ * @mmc:	MMC device
+ * @part_num:	Hardware partition number
+ * Return: 0 if OK, -ve on error
+ */
+int mmc_set_capacity(struct mmc *mmc, int part_num);
+
+/**
  * mmc_switch_part() - Switch to a new MMC hardware partition
  *
  * @mmc:	MMC device

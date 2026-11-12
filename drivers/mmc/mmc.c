@@ -1096,7 +1096,7 @@ static int mmc_get_capabilities(struct mmc *mmc)
 }
 #endif
 
-static int mmc_set_capacity(struct mmc *mmc, int part_num)
+int mmc_set_capacity(struct mmc *mmc, int part_num)
 {
 	switch (part_num) {
 	case 0:
