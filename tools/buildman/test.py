@@ -1012,8 +1012,10 @@ class TestBuild(unittest.TestCase):
 
     def test_skip_dtc(self):
         """Test skipping building the dtc tool"""
-        old_path = os.getenv('PATH')
-        try:
+        local_env = os.environ.copy()
+        if 'DTC' in local_env:
+            local_env.pop('DTC')
+        with unittest.mock.patch.dict('os.environ', local_env, clear=True):
             os.environ['PATH'] = self.base_dir
 
             # Check a missing tool
@@ -1038,8 +1040,6 @@ class TestBuild(unittest.TestCase):
             toolchain = self.toolchains.Select('arm')
             env = build.make_environment(toolchain)
             self.assertNotIn(b'DTC', env)
-        finally:
-            os.environ['PATH'] = old_path
 
     def testHomedir(self):
         """Test using ~ in a toolchain or toolchain-prefix section"""
