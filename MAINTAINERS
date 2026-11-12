@@ -848,6 +848,7 @@ F:	drivers/mmc/mmc_bootdev.c
 F:	include/bootdev.h
 F:	include/bootflow.h
 F:	include/bootmeth.h
+F:	include/bootmeth_rauc.h
 F:	include/bootstd.h
 F:	test/boot/
 

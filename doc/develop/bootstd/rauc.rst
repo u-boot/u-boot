@@ -14,6 +14,13 @@ filesystem each. The partition numbers must be specified with
 the following syntax: ``1,2 3,4``, where 1 and 3 are the slots' boot partition
 and 2 and 4 the slots' root partition.
 
+Instead of their numbers, the partitions can also be given by their GPT
+partition names, for example ``boot_a,root_a boot_b,root_b``. The bootmeth then
+only uses a device if it has partitions with these names for all slots. This
+prevents it from claiming devices with a different layout which happen to have
+a filesystem in the first partition. A value consisting only of digits is
+always taken as a partition number.
+
 Each pair of boot and rootfs partition form a "slot". The default order in which
 available slots are tried is set through ``CONFIG_BOOTMETH_RAUC_BOOT_ORDER``,
 with the left one tried first.
@@ -37,6 +44,13 @@ The boot script must be located in each boot partition. The bootmeth searches
 for ``boot.scr`` first, then ``boot.scr.uimg`` if not found. It will search in
 all directories of the bootstd list of prefixes (``"/", "/boot"`` by default).
 
+Alternatively, ``CONFIG_BOOTMETH_RAUC_BOOTCMD`` sets a command built into
+U-Boot, for example ``run distro_boot_rauc``, which boots the slot instead of a
+boot script. The boot partitions then need no boot script, and the bootmeth
+executes nothing from them. For verified boot, the command must load only
+signed images, and any environment variable it runs must not be writable at
+runtime (see ``CONFIG_ENV_WRITEABLE_LIST``).
+
 When the bootflow is booted, the bootmeth sets these environment variables:
 
 devtype
@@ -56,6 +70,7 @@ raucargs
     kernel command line arguments needed for RAUC to detect the currently booted
     slot
 
+The boot script or the boot command can use these variables to boot the slot.
 The script file must be a FIT or a legacy uImage. It is loaded into memory and
 executed.
 

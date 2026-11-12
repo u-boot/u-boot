@@ -396,6 +396,16 @@ int bootflow_first_glob(struct bootflow **bflowp);
 int bootflow_next_glob(struct bootflow **bflowp);
 
 /**
+ * bootflow_free_images() - Free the list of images of a bootflow
+ *
+ * This frees the file names of the images and empties the list. It does not
+ * free the image data itself.
+ *
+ * @bflow: Bootflow to update
+ */
+void bootflow_free_images(struct bootflow *bflow);
+
+/**
  * bootflow_free() - Free memory used by a bootflow
  *
  * This frees fields within @bflow, but not the @bflow pointer itself

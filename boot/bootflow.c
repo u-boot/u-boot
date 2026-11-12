@@ -634,10 +634,17 @@ void bootflow_init(struct bootflow *bflow, struct udevice *bootdev,
 	alist_init_struct(&bflow->images, struct bootflow_img);
 }
 
-void bootflow_free(struct bootflow *bflow)
+void bootflow_free_images(struct bootflow *bflow)
 {
 	struct bootflow_img *img;
 
+	alist_for_each(img, &bflow->images)
+		free(img->fname);
+	alist_empty(&bflow->images);
+}
+
+void bootflow_free(struct bootflow *bflow)
+{
 	free(bflow->name);
 	free(bflow->subdir);
 	free(bflow->fname);
@@ -647,9 +654,7 @@ void bootflow_free(struct bootflow *bflow)
 	free(bflow->fdt_fname);
 	free(bflow->bootmeth_priv);
 
-	alist_for_each(img, &bflow->images)
-		free(img->fname);
-	alist_empty(&bflow->images);
+	bootflow_free_images(bflow);
 }
 
 void bootflow_remove(struct bootflow *bflow)
