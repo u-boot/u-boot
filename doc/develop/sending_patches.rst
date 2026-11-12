@@ -184,6 +184,31 @@ General Patch Submission Rules
   cases, you did something wrong if your patch exceeds this limit. Think again
   if you should not split it into separate logical parts.
 
+Tips for creating patch series
+------------------------------
+
+A series of related patches can be sent as a "patch series", as described
+above. Individual patches should be small and self-contained. Likewise,
+this also applies to each "patch series". Keep the following in mind:
+
+* large series are harder to review. Maintainers are busy and may postpone
+  large reviews, whereas smaller reviews are more easily accommodated.
+
+* bug fixes should not be part of a larger series, so that the fixes can
+  get reviewed and merged quickly.
+
+* tools like ``b4`` and ``patman`` send the entire patch series to all
+  reviewers, even though individual reviews may only care about some parts.
+  Filtering out the relevant parts takes time away from actual reviews.
+
+Therefore large series should be broken into smaller sub-series, for example by
+subsystem (clock, pinctrl, reset, etc.). This allows better targeting of only
+the relevant reviewers for each sub-series. Finding the right granularity can
+be difficult, but when in doubt, aim for smaller changes.
+
+Overall, the goal is to make changes easily understood by reviewers, as well
+as the next person who works on the code.
+
 Attributing Code, Copyrights, Signing
 -------------------------------------
 
