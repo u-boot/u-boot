@@ -15,6 +15,7 @@
 #include <video_console.h>
 #include <asm/test.h>
 #include <asm/sdl.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <test/lib.h>
@@ -45,6 +46,34 @@ static int dm_test_video_base(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_video_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/* Test that a mode larger than the reserved frame buffer is refused */
+static int dm_test_video_fb_size(struct unit_test_state *uts)
+{
+	struct video_uc_plat *uc_plat;
+	struct sandbox_sdl_plat *plat;
+	struct udevice *dev;
+	int line_length;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	ut_assert(!device_active(dev));
+	uc_plat = dev_get_uclass_plat(dev);
+
+	/*
+	 * Change the mode after the frame buffer has been reserved, as drivers
+	 * do with a mode read from the display, so that it needs one line more
+	 * than the reserved memory holds
+	 */
+	plat = dev_get_plat(dev);
+	line_length = plat->xres * VNBYTES(plat->bpix);
+	plat->yres = uc_plat->size / line_length + 1;
+	ut_asserteq(-ENOSPC, device_probe(dev));
+	ut_assert(!device_active(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_fb_size, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 int video_compress_fb(struct unit_test_state *uts, struct udevice *dev,
 		      bool use_copy)

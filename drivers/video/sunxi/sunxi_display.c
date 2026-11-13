@@ -287,10 +287,11 @@ static int sunxi_hdmi_edid_get_mode(struct sunxi_display_priv *sunxi_display,
 		return -EINVAL;
 	}
 
-	/* Take the first usable detailed timing */
+	/* Take the first usable detailed timing which fits in the fb */
 	for (i = 0; i < 4; i++, t++) {
 		r = video_edid_dtd_to_ctfb_res_modes(t, mode);
-		if (r == 0)
+		if (r == 0 && mode->xres <= LCD_MAX_WIDTH &&
+		    mode->yres <= LCD_MAX_HEIGHT)
 			break;
 	}
 	if (i == 4) {

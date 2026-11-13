@@ -245,6 +245,7 @@ static void rkvop_mode_set(struct udevice *dev,
  */
 static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 {
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int vop_id, remote_vop_id;
 	struct display_timing timing;
@@ -326,6 +327,22 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 	}
 	debug("vop_id=%d\n", vop_id);
 
+	/* Set bitwidth for vop display according to vop mode */
+	switch (vop_id) {
+	case VOP_MODE_EDP:
+#if defined(CONFIG_ROCKCHIP_RK3288)
+	case VOP_MODE_LVDS:
+#endif
+		l2bpp = VIDEO_BPP16;
+		break;
+	case VOP_MODE_HDMI:
+	case VOP_MODE_MIPI:
+		l2bpp = VIDEO_BPP32;
+		break;
+	default:
+		l2bpp = VIDEO_BPP16;
+	}
+
 	disp_uc_plat = dev_get_uclass_plat(disp);
 	debug("Found device '%s', disp_uc_priv=%p\n", disp->name, disp_uc_plat);
 	if (display_in_use(disp)) {
@@ -335,6 +352,8 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 
 	disp_uc_plat->source_id = remote_vop_id;
 	disp_uc_plat->src_dev = dev;
+	disp_uc_plat->fb_size = plat->size;
+	disp_uc_plat->fb_bpp = 1 << l2bpp;
 
 	ret = device_probe(disp);
 	if (ret) {
@@ -357,22 +376,6 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 		return ret;
 	}
 
-	/* Set bitwidth for vop display according to vop mode */
-	switch (vop_id) {
-	case VOP_MODE_EDP:
-#if defined(CONFIG_ROCKCHIP_RK3288)
-	case VOP_MODE_LVDS:
-#endif
-		l2bpp = VIDEO_BPP16;
-		break;
-	case VOP_MODE_HDMI:
-	case VOP_MODE_MIPI:
-		l2bpp = VIDEO_BPP32;
-		break;
-	default:
-		l2bpp = VIDEO_BPP16;
-	}
-
 	rkvop_mode_set(dev, &timing, vop_id);
 
 	ret = reset_get_by_name(dev, "dclk", &dclk_rst);
@@ -381,9 +384,9 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 		return ret;
 	}
 
-	rkvop_enable(dev, fbbase, 1 << l2bpp, &timing, &dclk_rst);
+	rkvop_enable(dev, fbbase, disp_uc_plat->fb_bpp, &timing, &dclk_rst);
 
-	ret = display_enable(disp, 1 << l2bpp, &timing);
+	ret = display_enable(disp, disp_uc_plat->fb_bpp, &timing);
 	if (ret)
 		return ret;
 

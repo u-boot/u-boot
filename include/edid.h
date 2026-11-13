@@ -315,7 +315,8 @@ struct display_timing;
  *
  * @param buf		Buffer containing EDID data
  * @param buf_size	Size of buffer in bytes
- * @param timing	Place to put preferring timing information
+ * @param timing	Place to put preferring timing information, left
+ *			unchanged on error
  * @param panel_bits_per_colourp	Place to put the number of bits per
  *			colour supported by the panel. This will be set to
  *			-1 if not available

@@ -42,6 +42,16 @@ static bool display_mode_valid(void *priv, const struct display_timing *timing)
 {
 	struct udevice *dev = priv;
 	struct dm_display_ops *ops = display_get_ops(dev);
+	struct display_plat *disp_uc_plat = dev_get_uclass_plat(dev);
+	u64 bits;
+
+	/* Skip modes which do not fit in the source's frame buffer */
+	if (disp_uc_plat->fb_size) {
+		bits = (u64)timing->hactive.typ * timing->vactive.typ *
+		       disp_uc_plat->fb_bpp;
+		if (bits > (u64)disp_uc_plat->fb_size * 8)
+			return false;
+	}
 
 	if (ops && ops->mode_valid)
 		return ops->mode_valid(dev, timing);
