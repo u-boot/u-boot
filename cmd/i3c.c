@@ -3,23 +3,14 @@
  * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
-#include <bootretry.h>
-#include <cli.h>
 #include <command.h>
-#include <console.h>
 #include <dm.h>
 #include <dw-i3c.h>
-#include <edid.h>
 #include <errno.h>
 #include <hexdump.h>
-#include <log.h>
 #include <malloc.h>
-#include <asm/byteorder.h>
-#include <linux/compiler.h>
-#include <linux/delay.h>
-#include <u-boot/crc.h>
+#include <string.h>
 #include <linux/i3c/master.h>
-#include <linux/printk.h>
 #include <linux/types.h>
 
 static struct udevice *currdev;
@@ -103,7 +94,12 @@ static int handle_i3c_device_list(void)
 	}
 
 	for (int i = 0; i < master->num_i3cdevs; i++) {
-		struct i3c_device_info *info = &master->i3cdev[i]->info;
+		struct i3c_device_info *info;
+
+		if (!master->i3cdev[i])
+			continue;
+
+		info = &master->i3cdev[i]->info;
 
 		printf("Device %d:\n", i);
 		printf("  Static Address  : 0x%02X\n", info->static_addr);
