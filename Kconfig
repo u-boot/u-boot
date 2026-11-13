@@ -796,7 +796,7 @@ config HAS_LDR
 
 config LDR_CPU
 	string "CPU name to be passed to LDR utility."
-	depends on HAS_LDR
+	depends on ARCH_SC5XX
 	help
 	  Set the CPU name for the -T parameter in the LDR utility.  This is
 	  generally used on processors from Analog Devices, but may be also
