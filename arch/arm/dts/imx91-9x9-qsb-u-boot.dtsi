@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2024, 2026 NXP
+ */
+
+#include "imx91-u-boot.dtsi"
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog3>;
+		bootph-pre-ram;
+		bootph-some-ram;
+	};
+
+	aliases {
+		usb_gadget0 = &usbg1;
+	};
+
+	usbg1: usbg1 {
+		compatible = "fsl,imx27-usb-gadget";
+		dr_mode = "peripheral";
+		chipidea,usb = <&usbotg1>;
+		status = "okay";
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+};
+
+&A55_0 {
+	clocks = <&clk IMX93_CLK_A55_SEL>;
+};
+
+&pcal6524 {
+	ext1-pwren {
+		gpio-hog;
+		gpios = <13 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "EXT1_PWREN";
+	};
+
+	sd3-nrst {
+		gpio-hog;
+		gpios = <12 GPIO_ACTIVE_LOW>;
+		output-low;
+		line-name = "SD3_nRST";
+	};
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&usdhc2 {
+	fsl,signal-voltage-switch-extra-delay-ms = <8>;
+};
+
+&usbotg1 {
+	status = "okay";
+	extcon = <&ptn5110>;
+};
+
+&clk {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-rates;
+	/delete-property/ assigned-clock-parents;
+};
