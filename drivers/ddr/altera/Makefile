@@ -14,4 +14,7 @@ obj-$(CONFIG_ARCH_SOCFPGA_AGILEX) += sdram_soc64.o sdram_agilex.o
 obj-$(CONFIG_ARCH_SOCFPGA_N5X) += sdram_soc64.o sdram_n5x.o
 obj-$(CONFIG_ARCH_SOCFPGA_AGILEX5) += sdram_soc64.o sdram_agilex5.o iossm_mailbox.o
 obj-$(CONFIG_ARCH_SOCFPGA_AGILEX7M) += sdram_soc64.o sdram_agilex7m.o iossm_mailbox.o uibssm_mailbox.o
+else
+# No SDRAM driver in this phase: mailbox helpers for ddr_ecc CLI.
+obj-$(CONFIG_CMD_SOCFPGA_DDR_ECC) += iossm_mailbox.o
 endif

@@ -10,9 +10,9 @@
 #include <reset.h>
 #include <wait_bit.h>
 #include <wdt.h>
+#include <asm/arch/iossm_mailbox.h>
 #include <asm/arch/system_manager.h>
 #include <linux/bitfield.h>
-#include "iossm_mailbox.h"
 #include "sdram_soc64.h"
 #include "uibssm_mailbox.h"
 
@@ -39,11 +39,6 @@ enum reset_type {
 	NCONFIG,
 	JTAG_CONFIG,
 	RSU_RECONFIG
-};
-
-phys_addr_t io96b_csr_reg_addr[] = {
-	0xf8400000, /* IO96B_0 CSR registers address */
-	0xf8800000  /* IO96B_1 CSR registers address */
 };
 
 phys_addr_t uib_csr_reg_addr[] = {
@@ -101,11 +96,24 @@ static bool is_ddr_in_use(struct udevice *dev)
 	return (plat->mem_type == DDR_MEMORY ? true : false);
 }
 
+static void update_io96b_assigned_to_hps(u32 mask)
+{
+	mask &= GENMASK(MAX_IO96B_SUPPORTED - 1, 0);
+	clrsetbits_le32(socfpga_get_sysmgr_addr() +
+			SYSMGR_SOC64_BOOT_SCRATCH_COLD8,
+			ALT_SYSMGR_SCRATCH_REG_8_IO96B_HPS_MASK,
+			FIELD_PREP(ALT_SYSMGR_SCRATCH_REG_8_IO96B_HPS_MASK, mask));
+
+	debug("%s: update IO96B assigned to HPS: 0x%x\n", __func__,
+	      readl(socfpga_get_sysmgr_addr() +
+		    SYSMGR_SOC64_BOOT_SCRATCH_COLD8));
+}
+
 int populate_ddr_handoff(struct udevice *dev, struct io96b_info *io96b_ctrl,
 			 struct uib_info *uib_ctrl)
 {
 	struct altera_sdram_plat *plat = dev_get_plat(dev);
-	int i;
+	int i, ret;
 	u8 count = 0;
 	u32 len = SOC64_HANDOFF_DDR_LEN;
 	u32 handoff_table[len];
@@ -157,20 +165,17 @@ int populate_ddr_handoff(struct udevice *dev, struct io96b_info *io96b_ctrl,
 
 		debug("%s: ECC status 0x%x\n", __func__, uib_ctrl->ecc_status);
 	} else {
-		/* Assign IO96B CSR base address if it is valid */
-		for (i = 0; i < MAX_IO96B_SUPPORTED; i++) {
-			if (handoff_table[1] & BIT(i)) {
-				io96b_ctrl->io96b[i].io96b_csr_addr = io96b_csr_reg_addr[i];
+		/* handoff[1] bit N => IO96B_N enabled (same as table decode) */
+		update_io96b_assigned_to_hps(handoff_table[1]);
 
-				debug("%s: IO96B 0x%llx CSR enabled\n", __func__,
-				      io96b_ctrl->io96b[i].io96b_csr_addr);
-
-				count++;
-			}
+		ret = io96b_csr_from_handoff_table(io96b_ctrl, handoff_table, len);
+		if (ret) {
+			printf("%s: failed to get IO96B CSR from handoff (%d)\n",
+			       __func__, ret);
+			return ret;
 		}
-
-		io96b_ctrl->num_instance = count;
-		debug("%s: returned num_instance 0x%x\n", __func__, io96b_ctrl->num_instance);
+		debug("%s: returned num_instance 0x%x\n", __func__,
+		      io96b_ctrl->num_instance);
 	}
 
 	return 0;
@@ -215,6 +220,11 @@ bool hps_ocram_dbe_status(void)
 	return false;
 }
 
+/**
+ * ddr_ecc_dbe_status() - check DDR DBE flag in boot scratch
+ *
+ * Return: true if the DDR DBE scratch bit is set, false otherwise.
+ */
 bool ddr_ecc_dbe_status(void)
 {
 	u32 reg = readl(socfpga_get_sysmgr_addr() +
@@ -224,6 +234,25 @@ bool ddr_ecc_dbe_status(void)
 		return true;
 
 	return false;
+}
+
+/**
+ * ddr_ecc_set_dbe_status() - set/clear DDR DBE in boot scratch
+ * @set: true to set (SDM tears down IOSSM/IO on WDT cold recovery),
+ *	 false to clear (end of successful SDRAM init)
+ */
+static void ddr_ecc_set_dbe_status(bool set)
+{
+	if (set) {
+		setbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_SOC64_BOOT_SCRATCH_COLD8,
+			     ALT_SYSMGR_SCRATCH_REG_8_DDR_DBE_MASK);
+		printf("DDR: DBE status set in boot scratch\n");
+	} else {
+		clrbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_SOC64_BOOT_SCRATCH_COLD8,
+			     ALT_SYSMGR_SCRATCH_REG_8_DDR_DBE_MASK);
+	}
 }
 
 int sdram_mmr_init_full(struct udevice *dev)
@@ -423,7 +452,13 @@ int sdram_mmr_init_full(struct udevice *dev)
 		 * enabled to preserve memory content
 		 */
 		if (io96b_ctrl->ecc_status) {
-			if (ecc_interrupt_status(io96b_ctrl)) {
+			bool dbe = false;
+
+			ret = io96b_ecc_status_iossm(io96b_ctrl, &dbe);
+			if (dbe) {
+				/* Allow SDM to tear down IO for recovery. */
+				ddr_ecc_set_dbe_status(true);
+
 				if (CONFIG_IS_ENABLED(WDT)) {
 					struct udevice *wdt;
 
@@ -438,11 +473,21 @@ int sdram_mmr_init_full(struct udevice *dev)
 				}
 				hang();
 			}
+			/*
+			 * CLEAR is best-effort after a clean (no-DBE) scan; do
+			 * not fail boot.
+			 */
+			if (ret) {
+				printf("DDR: Failed to read/clear IOSSM ECC Q (%d)\n",
+				       ret);
+			}
 
-			full_mem_init = hps_ocram_dbe_status() | is_ddr_hang_be4_rst;
+			full_mem_init = hps_ocram_dbe_status() |
+					ddr_ecc_dbe_status() |
+					is_ddr_hang_be4_rst;
 			if (full_mem_init || !(reset_t == WARM_RESET || reset_t == COLD_RESET)) {
-				debug("%s: Needed to fully initialize DDR memory\n",
-				      io96b_ctrl->ddr_type);
+				printf("%s: Full DDR memory initialization\n",
+				       io96b_ctrl->ddr_type);
 
 				ret = bist_mem_init_start(io96b_ctrl);
 				if (ret) {
@@ -489,6 +534,8 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Ending DDR driver initialization success tracking */
 	ddr_init_inprogress(false);
+
+	ddr_ecc_set_dbe_status(false);
 
 	printf("%s init success\n", (is_ddr_in_use(dev) ? io96b_ctrl->ddr_type : "HBM"));
 
