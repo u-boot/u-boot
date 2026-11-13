@@ -788,12 +788,6 @@ config SYS_CLK_FREQ
 	  A static value for the CPU frequency.  Note that if not required
 	  for a given SoC, this can be left at 0.
 
-config HAS_LDR
-	bool
-	help
-	  Enables building .ldr targets for U-Boot and SPL. This does not
-	  automatically build any additional targets with make or buildman.
-
 config LDR_CPU
 	string "CPU name to be passed to LDR utility"
 	depends on ARCH_SC5XX
