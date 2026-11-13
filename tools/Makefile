@@ -221,8 +221,13 @@ HOSTCFLAGS_mkexynosspl.o := -pedantic
 
 HOSTCFLAGS_kwboot.o += -pthread
 HOSTLDLIBS_kwboot += -pthread
+# macOS has no libtinfo, its libncurses provides the terminfo functions
+ifeq ($(shell uname -s),Darwin)
+HOSTLDLIBS_kwboot += -lncurses
+else
 HOSTLDLIBS_kwboot += \
 	$(shell pkg-config --libs tinfo 2> /dev/null || echo "-ltinfo")
+endif
 
 ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
 hostprogs-always-$(CONFIG_X86) += ifdtool

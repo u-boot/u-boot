@@ -727,12 +727,14 @@ kwboot_tty_baudrate_to_speed(int baudrate)
 	}
 }
 
+#ifdef BOTHER
 static int
 _is_within_tolerance(int value, int reference, int tolerance)
 {
 	return 100 * value >= reference * (100 - tolerance) &&
 	       100 * value <= reference * (100 + tolerance);
 }
+#endif
 
 static int
 kwboot_tty_change_baudrate(int fd, int baudrate)

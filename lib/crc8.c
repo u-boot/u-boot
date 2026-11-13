@@ -5,8 +5,10 @@
 
 #ifdef USE_HOSTCC
 #include <arpa/inet.h>
-#endif
+#define __rcode
+#else
 #include <asm/sections.h>
+#endif
 #include <u-boot/crc.h>
 
 #define POLY	(0x1070U << 3)
