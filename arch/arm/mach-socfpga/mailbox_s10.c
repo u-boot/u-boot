@@ -11,7 +11,9 @@
 #include <asm/io.h>
 #include <asm/secure.h>
 #include <asm/system.h>
+#include <errno.h>
 #include <hang.h>
+#include <stdio.h>
 #include <wait_bit.h>
 
 #define MBOX_READL(reg)			\
@@ -481,6 +483,68 @@ int mbox_hps_stage_notify(u32 execution_stage)
 	return mbox_send_cmd(MBOX_ID_UBOOT, MBOX_HPS_STAGE_NOTIFY,
 			     MBOX_CMD_DIRECT, 1, &execution_stage, 0, 0, NULL);
 #endif
+}
+
+/**
+ * mbox_hps_push_emif_ecc() - append EMIF ECC entries to the SDM queue
+ * @entry_words: packed entries, N * 3 words (word0, word1, word2 each)
+ * @n_entries: number of entries (1..MBOX_HPS_PUSH_EMIF_MAX_ENTRIES)
+ *
+ * Return: 0 on success, mailbox error code otherwise.
+ */
+int mbox_hps_push_emif_ecc(const u32 *entry_words, u32 n_entries)
+{
+	u32 arg[MBOX_HPS_PUSH_EMIF_MAX_WORDS];
+	u32 i, len;
+	int ret;
+
+	if (!entry_words || !n_entries ||
+	    n_entries > MBOX_HPS_PUSH_EMIF_MAX_ENTRIES)
+		return -EINVAL;
+
+	len = 1 + n_entries * MBOX_HPS_PUSH_EMIF_ENTRY_WORDS;
+	arg[0] = n_entries & MBOX_HPS_PUSH_EMIF_N_MASK;
+	for (i = 1; i < len; i++)
+		arg[i] = entry_words[i - 1];
+
+	ret = mbox_send_cmd(MBOX_ID_UBOOT, MBOX_HPS_PUSH_EMIF_ECC,
+			    MBOX_CMD_DIRECT, len, arg, 0, NULL, NULL);
+	if (ret) {
+		printf("WARNING: HPS_PUSH_EMIF_ECC, SDM resp 0x%x, cross-check SDM support.\n",
+		       ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+/**
+ * mbox_read_emif_error() - pop one EMIF ECC entry from SDM dedicated Q
+ * @resp_buf: response payload buffer
+ * @resp_buf_len: in: capacity in words; out: words received
+ *
+ * Return: 0 on success, mailbox/SMC error code otherwise.
+ */
+int mbox_read_emif_error(u32 *resp_buf, u32 *resp_buf_len)
+{
+	int ret;
+
+	if (!resp_buf || !resp_buf_len || !*resp_buf_len)
+		return -EINVAL;
+
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)) {
+		ret = smc_send_mailbox(MBOX_READ_EMIF_ERROR, 0, NULL, 0,
+				       resp_buf_len, resp_buf);
+	} else {
+		ret = mbox_send_cmd(MBOX_ID_UBOOT, MBOX_READ_EMIF_ERROR,
+				    MBOX_CMD_DIRECT, 0, NULL, 0, resp_buf_len,
+				    resp_buf);
+	}
+	if (ret)
+		printf("WARNING: READ_EMIF_ERROR, SDM resp 0x%x, cross-check SDM support.\n",
+		       ret);
+
+	return ret;
 }
 
 int mbox_send_cmd_only(u8 id, u32 cmd, u8 is_indirect, u32 len, u32 *arg)
