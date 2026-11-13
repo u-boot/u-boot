@@ -1554,11 +1554,9 @@ F:	cmd/rockusb.c
 F:	doc/README.rockusb
 
 SANDBOX
-S:	Orphan
-F:	arch/sandbox/
-F:	configs/sandbox*
-F:	drivers/*/*sandbox*.c
-F:	include/dt-bindings/*/sandbox*.h
+M:	Tom Rini <trini@konsulko.com>
+S:	Maintained
+N:	sandbox
 F:	include/os.h
 
 SCMI
