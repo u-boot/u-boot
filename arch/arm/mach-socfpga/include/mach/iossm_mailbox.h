@@ -4,6 +4,9 @@
  *
  */
 
+#ifndef _IOSSM_MAILBOX_H_
+#define _IOSSM_MAILBOX_H_
+
 #define MAX_IO96B_SUPPORTED			2
 #define MAX_MEM_INTERFACE_SUPPORTED			2
 #define NUM_CMD_RESPONSE_DATA			3
@@ -139,3 +142,5 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl);
 int ecc_enable_status(struct io96b_info *io96b_ctrl);
 int bist_mem_init_start(struct io96b_info *io96b_ctrl);
 bool ecc_interrupt_status(struct io96b_info *io96b_ctrl);
+
+#endif /* _IOSSM_MAILBOX_H_ */

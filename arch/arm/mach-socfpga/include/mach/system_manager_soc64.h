@@ -40,9 +40,6 @@ void populate_sysmgr_pinmux(void);
 #define SYSMGR_SCRATCH_REG_0_QSPI_REFCLK_MASK		GENMASK(31, 0)
 #define ALT_SYSMGR_SCRATCH_REG_3_DDR_RESET_TYPE_MASK	GENMASK(31, 29)
 #define ALT_SYSMGR_SCRATCH_REG_3_DDR_RESET_TYPE_SHIFT	29
-#define ALT_SYSMGR_SCRATCH_REG_3_DDR_PORT_INFO_MASK	BIT(27)
-#define ALT_SYSMGR_SCRATCH_REG_3_DDR_EMIF_INFO_MASK	BIT(28)
-#define ALT_SYSMGR_SCRATCH_REG_3_DDR_PORT_EMIF_INFO_MASK	GENMASK(28, 27)
 #define ALT_SYSMGR_SCRATCH_REG_3_DDR_DBE_MASK	BIT(1)
 #define ALT_SYSMGR_SCRATCH_REG_3_OCRAM_DBE_MASK	BIT(0)
 #define ALT_SYSMGR_SCRATCH_REG_POR_0_DDR_PROGRESS_MASK	BIT(0)
@@ -154,12 +151,25 @@ void populate_sysmgr_pinmux(void);
 #define ALT_SYSMGR_SCRATCH_REG_0_DDR_RESET_TYPE_SHIFT	28
 
 /*
+ * Bits for SYSMGR_SOC64_BOOT_SCRATCH_COLD3 (Agilex5 only)
+ * Bit[28] dual-EMIF (1 => IO96B0+IO96B1, 0 => IO96B0 only)
+ * Bit[27] dual-port
+ */
+#define ALT_SYSMGR_SCRATCH_REG_3_DDR_PORT_INFO_MASK	BIT(27)
+#define ALT_SYSMGR_SCRATCH_REG_3_DDR_EMIF_INFO_MASK	BIT(28)
+#define ALT_SYSMGR_SCRATCH_REG_3_DDR_PORT_EMIF_INFO_MASK	GENMASK(28, 27)
+
+/*
  * Bits for SYSMGR_SOC64_BOOT_SCRATCH_COLD8
  * Bit[31] reserved for FSBL to check DBE is triggered (set by SDM to "1") ?
  *
  * Bit[30] reserved for FSBL to update the DDR init progress
 
  * 1 - means in progress, 0 - haven't started / DDR is up running.
+ *
+ * Bit[29] OCRAM DBE
+ * Bit[28:27] FP8_IO96B_ASSIGNED_TO_HPS (Agilex7M only)
+ *            00 neither, 01 IO96B0, 10 IO96B1, 11 both
  *
  * Bit[19] store ATF CPU0 ON OFF value.
  *

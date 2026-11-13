@@ -12,7 +12,7 @@
 #include <wdt.h>
 #include <asm/arch/system_manager.h>
 #include <linux/bitfield.h>
-#include "iossm_mailbox.h"
+#include <asm/arch/iossm_mailbox.h>
 #include "sdram_soc64.h"
 #include "uibssm_mailbox.h"
 

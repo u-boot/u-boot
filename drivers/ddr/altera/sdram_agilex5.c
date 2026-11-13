@@ -22,7 +22,7 @@
 #include <asm/arch/system_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include "iossm_mailbox.h"
+#include <asm/arch/iossm_mailbox.h>
 #include "sdram_soc64.h"
 
 DECLARE_GLOBAL_DATA_PTR;

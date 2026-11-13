@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <linux/bitfield.h>
 #include <linux/sizes.h>
-#include "iossm_mailbox.h"
+#include <asm/arch/iossm_mailbox.h>
 
 #define TIMEOUT_120000MS			120000
 #define TIMEOUT_60000MS				60000
