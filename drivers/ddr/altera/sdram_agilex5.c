@@ -18,11 +18,12 @@
 #include <linux/bitfield.h>
 #include <linux/sizes.h>
 #include <asm/arch/firewall.h>
+#include <asm/arch/handoff_soc64.h>
+#include <asm/arch/iossm_mailbox.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <asm/arch/iossm_mailbox.h>
 #include "sdram_soc64.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -36,11 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 					F2SDRAM_SIDEBAND_FLAGOUTSTATUS0
 #define BOOT_SCRATCH_COLD3_REG	(socfpga_get_sysmgr_addr() +\
 				 SYSMGR_SOC64_BOOT_SCRATCH_COLD3)
-#define PORT_EMIF_CONFIG_OFFSET 4
 #define EMIF_PLL_MASK	GENMASK(19, 16)
-
-#define IO96B0_DUAL_PORT_MASK		BIT(0)
-#define IO96B0_DUAL_EMIF_MASK		BIT(1)
 
 #define FIREWALL_MPFE_SCR_IO96B0_REG		0x18000d00
 #define FIREWALL_MPFE_SCR_IO96B1_REG		0x18000d04
@@ -56,11 +53,6 @@ enum reset_type {
 	NCONFIG,
 	JTAG_CONFIG,
 	RSU_RECONFIG
-};
-
-phys_addr_t io96b_csr_reg_addr[] = {
-	0x18400000, /* IO96B_0 CSR registers address */
-	0x18800000  /* IO96B_1 CSR registers address */
 };
 
 struct dram_bank_info_s {
@@ -127,18 +119,19 @@ static void ddr_init_inprogress(bool start)
 				ALT_SYSMGR_SCRATCH_REG_POR_0_DDR_PROGRESS_MASK);
 }
 
-static void populate_ddr_handoff(struct udevice *dev, struct io96b_info *io96b_ctrl)
+static int populate_ddr_handoff(struct udevice *dev, struct io96b_info *io96b_ctrl)
 {
 	struct altera_sdram_plat *plat = dev_get_plat(dev);
-	int i;
 	u32 len = SOC64_HANDOFF_SDRAM_LEN;
 	u32 handoff_table[len];
+	int ret;
 
 	/* Read handoff for DDR configuration */
 	socfpga_handoff_read((void *)SOC64_HANDOFF_SDRAM, handoff_table, len);
 
 	/* Read handoff - dual port */
-	plat->dualport = FIELD_GET(IO96B0_DUAL_PORT_MASK, handoff_table[PORT_EMIF_CONFIG_OFFSET]);
+	plat->dualport = FIELD_GET(SOC64_HANDOFF_SDRAM_IO96B0_DUAL_PORT_MASK,
+				   handoff_table[SOC64_HANDOFF_SDRAM_PORT_EMIF_CONFIG_OFFSET]);
 	debug("%s: dualport from handoff: 0x%x\n", __func__, plat->dualport);
 
 	if (plat->dualport)
@@ -147,26 +140,24 @@ static void populate_ddr_handoff(struct udevice *dev, struct io96b_info *io96b_c
 		io96b_ctrl->num_port = 1;
 
 	/* Read handoff - dual EMIF */
-	plat->dualemif = FIELD_GET(IO96B0_DUAL_EMIF_MASK, handoff_table[PORT_EMIF_CONFIG_OFFSET]);
+	plat->dualemif = FIELD_GET(SOC64_HANDOFF_SDRAM_IO96B0_DUAL_EMIF_MASK,
+				   handoff_table[SOC64_HANDOFF_SDRAM_PORT_EMIF_CONFIG_OFFSET]);
 	debug("%s: dualemif from handoff: 0x%x\n", __func__, plat->dualemif);
 
-	if (plat->dualemif)
-		io96b_ctrl->num_instance = 2;
-	else
-		io96b_ctrl->num_instance = 1;
-
 	io96b_ctrl->io96b_pll = FIELD_GET(EMIF_PLL_MASK,
-					  handoff_table[PORT_EMIF_CONFIG_OFFSET]);
+		handoff_table[SOC64_HANDOFF_SDRAM_PORT_EMIF_CONFIG_OFFSET]);
 	debug("%s: io96b enabled pll from handoff: 0x%x\n", __func__, io96b_ctrl->io96b_pll);
 
 	update_io96b_assigned_to_hps(plat->dualport, plat->dualemif);
 
-	/* Assign IO96B CSR base address if it is valid */
-	for (i = 0; i < io96b_ctrl->num_instance; i++) {
-		io96b_ctrl->io96b[i].io96b_csr_addr = io96b_csr_reg_addr[i];
-		debug("%s: IO96B 0x%llx CSR enabled\n", __func__,
-		      io96b_ctrl->io96b[i].io96b_csr_addr);
+	ret = io96b_csr_from_handoff_table(io96b_ctrl, handoff_table, len);
+	if (ret) {
+		printf("%s: failed to get IO96B CSR from handoff (%d)\n",
+		       __func__, ret);
+		return ret;
 	}
+
+	return 0;
 }
 
 static void config_mpfe_sideband_mgr(struct udevice *dev)
@@ -232,6 +223,38 @@ static bool hps_ocram_dbe_status(void)
 	return false;
 }
 
+/**
+ * ddr_ecc_dbe_status() - check DDR DBE flag in boot scratch
+ *
+ * Return: true if the DDR DBE scratch bit is set, false otherwise.
+ */
+static bool ddr_ecc_dbe_status(void)
+{
+	u32 reg = readl(BOOT_SCRATCH_COLD3_REG);
+
+	if (reg & ALT_SYSMGR_SCRATCH_REG_3_DDR_DBE_MASK)
+		return true;
+
+	return false;
+}
+
+/**
+ * ddr_ecc_set_dbe_status() - set/clear DDR DBE in boot scratch
+ * @set: true to set (SDM tears down IOSSM/IO on WDT cold recovery),
+ *	 false to clear (end of successful SDRAM init)
+ */
+static void ddr_ecc_set_dbe_status(bool set)
+{
+	if (set) {
+		setbits_le32(BOOT_SCRATCH_COLD3_REG,
+			     ALT_SYSMGR_SCRATCH_REG_3_DDR_DBE_MASK);
+		printf("DDR: DBE status set in boot scratch\n");
+	} else {
+		clrbits_le32(BOOT_SCRATCH_COLD3_REG,
+			     ALT_SYSMGR_SCRATCH_REG_3_DDR_DBE_MASK);
+	}
+}
+
 int sdram_mmr_init_full(struct udevice *dev)
 {
 	int i, ret = 0;
@@ -257,7 +280,11 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Populating DDR handoff data */
 	debug("DDR: Checking SDRAM configuration in progress ...\n");
-	populate_ddr_handoff(dev, io96b_ctrl);
+	ret = populate_ddr_handoff(dev, io96b_ctrl);
+	if (ret) {
+		printf("DDR: Failed to populate DDR handoff\n");
+		goto err;
+	}
 
 	/* Configuring MPFE sideband manager registers - dual port & dual emif */
 	config_mpfe_sideband_mgr(dev);
@@ -369,7 +396,13 @@ int sdram_mmr_init_full(struct udevice *dev)
 	 *  enabled to preserve memory content
 	 */
 	if (io96b_ctrl->ecc_status) {
-		if (ecc_interrupt_status(io96b_ctrl)) {
+		bool dbe = false;
+
+		ret = io96b_ecc_status_iossm(io96b_ctrl, &dbe);
+		if (dbe) {
+			/* Allow SDM to tear down IO for recovery. */
+			ddr_ecc_set_dbe_status(true);
+
 			if (CONFIG_IS_ENABLED(WDT)) {
 				struct udevice *wdt;
 
@@ -384,12 +417,25 @@ int sdram_mmr_init_full(struct udevice *dev)
 			}
 			hang();
 		}
+		/*
+		 * CLEAR is best-effort after a clean (no-DBE) scan; do not
+		 * fail boot.
+		 */
+		if (ret) {
+			printf("DDR: Failed to read/clear IOSSM ECC Q (%d)\n",
+			       ret);
+		}
 
-		full_mem_init = hps_ocram_dbe_status() | is_ddr_hang_be4_rst;
+		full_mem_init = hps_ocram_dbe_status() | ddr_ecc_dbe_status() |
+				is_ddr_hang_be4_rst;
 		if (full_mem_init || !(reset_t == WARM_RESET || reset_t == COLD_RESET)) {
+			printf("%s: Full DDR memory initialization\n",
+			       io96b_ctrl->ddr_type);
+
 			ret = bist_mem_init_start(io96b_ctrl);
 			if (ret) {
-				printf("DDR: Failed to fully initialize DDR memory\n");
+				printf("%s: Failed to fully initialize DDR memory\n",
+				       io96b_ctrl->ddr_type);
 
 				goto err;
 			}
@@ -399,14 +445,14 @@ int sdram_mmr_init_full(struct udevice *dev)
 	}
 
 	sdram_size_check(gd->bd);
-	printf("DDR: size check success\n");
+	printf("%s: size check success\n", io96b_ctrl->ddr_type);
 
 	sdram_set_firewall(gd->bd);
 
 	/* Firewall setting for MPFE CSR */
 	config_firewall_mpfe_csr(dev);
 
-	printf("DDR: firewall init success\n");
+	printf("%s: firewall init success\n", io96b_ctrl->ddr_type);
 
 	priv->info.base = gd->dram[0].start;
 	priv->info.size = gd->ram_size;
@@ -414,7 +460,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 	/* Ending DDR driver initialization success tracking */
 	ddr_init_inprogress(false);
 
-	printf("DDR: init success\n");
+	ddr_ecc_set_dbe_status(false);
+
+	printf("%s init success\n", io96b_ctrl->ddr_type);
 
 err:
 	free(io96b_ctrl);
