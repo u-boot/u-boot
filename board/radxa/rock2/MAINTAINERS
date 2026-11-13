@@ -1,5 +1,5 @@
 ROCK2-SQUARE
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-rock2*
 F:	board/radxa/rock2
