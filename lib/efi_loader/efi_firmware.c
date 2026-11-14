@@ -403,6 +403,13 @@ efi_status_t efi_firmware_capsule_authenticate(const void **p_image,
 
 		if (status == EFI_SECURITY_VIOLATION) {
 			printf("Capsule authentication check failed. Aborting update\n");
+			/*
+			 * Even though authentication failed, skip past the
+			 * auth wrapper so the caller can read the FMP payload
+			 * header for version information.
+			 */
+			*p_image = capsule_payload;
+			*p_image_size = capsule_payload_size;
 			return status;
 		} else if (status != EFI_SUCCESS) {
 			return status;
@@ -540,10 +547,9 @@ efi_status_t efi_firmware_verify_image(const void **p_image,
 	efi_guid_t *image_type_id;
 
 	ret = efi_firmware_capsule_authenticate(p_image, p_image_size);
+	efi_firmware_get_fw_version(p_image, p_image_size, state);
 	if (ret != EFI_SUCCESS)
 		return ret;
-
-	efi_firmware_get_fw_version(p_image, p_image_size, state);
 
 	image_type_id = efi_firmware_get_image_type_id(image_index);
 	if (!image_type_id)
