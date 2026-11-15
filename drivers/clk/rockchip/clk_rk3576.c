@@ -1807,7 +1807,7 @@ static ulong rk3576_uart_get_rate(struct rk3576_clk_priv *priv, ulong clk_id)
 		return -ENOENT;
 	}
 	if (clk_id == SCLK_UART1) {
-		src = (con & CLK_UART1_SRC_SEL_SHIFT) >> CLK_UART1_SRC_SEL_SHIFT;
+		src = (con & CLK_UART1_SRC_SEL_MASK) >> CLK_UART1_SRC_SEL_SHIFT;
 		div = (con & CLK_UART1_SRC_DIV_MASK) >> CLK_UART1_SRC_DIV_SHIFT;
 	} else {
 		src = (con & CLK_UART_SEL_MASK) >> CLK_UART_SEL_SHIFT;
