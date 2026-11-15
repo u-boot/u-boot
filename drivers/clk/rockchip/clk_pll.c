@@ -329,13 +329,12 @@ static int rk3036_pll_set_rate(struct rockchip_pll_clock *pll,
 		     rate->fbdiv);
 	rk_clrsetreg(base + pll->con_offset + 0x4,
 		     (RK3036_PLLCON1_POSTDIV2_MASK |
-		     RK3036_PLLCON1_REFDIV_MASK),
+		     RK3036_PLLCON1_REFDIV_MASK |
+		     RK3036_PLLCON1_DSMPD_MASK),
 		     (rate->postdiv2 << RK3036_PLLCON1_POSTDIV2_SHIFT |
-		     rate->refdiv << RK3036_PLLCON1_REFDIV_SHIFT));
+		     rate->refdiv << RK3036_PLLCON1_REFDIV_SHIFT |
+		     rate->dsmpd << RK3036_PLLCON1_DSMPD_SHIFT));
 	if (!rate->dsmpd) {
-		rk_clrsetreg(base + pll->con_offset + 0x4,
-			     RK3036_PLLCON1_DSMPD_MASK,
-			     rate->dsmpd << RK3036_PLLCON1_DSMPD_SHIFT);
 		writel((readl(base + pll->con_offset + 0x8) &
 			(~RK3036_PLLCON2_FRAC_MASK)) |
 			    (rate->frac << RK3036_PLLCON2_FRAC_SHIFT),
