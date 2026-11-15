@@ -306,7 +306,7 @@ static ulong rk3576_top_set_clk(struct rk3576_clk_priv *priv,
 			     ACLK_TOP_SEL_MASK,
 			     (src_clk <<
 			      ACLK_TOP_SEL_SHIFT) |
-			     (src_clk_div - 1) << ACLK_TOP_SEL_SHIFT);
+			     (src_clk_div - 1) << ACLK_TOP_DIV_SHIFT);
 		break;
 	case ACLK_TOP_MID:
 		if (!(priv->cpll_hz % rate)) {
