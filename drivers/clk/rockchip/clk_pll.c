@@ -114,7 +114,7 @@ rockchip_pll_clk_set_by_auto(ulong fin_hz,
 	struct rockchip_pll_rate_table *rate_table = &rockchip_auto_table;
 	/* FIXME set postdiv1/2 always 1*/
 	u32 foutvco = fout_hz;
-	ulong fin_64, frac_64;
+	u64 frac_64;
 	u32 f_frac, postdiv1, postdiv2;
 	ulong clk_gcd = 0;
 
@@ -155,10 +155,8 @@ rockchip_pll_clk_set_by_auto(ulong fin_hz,
 		rate_table->frac = 0;
 
 		f_frac = (foutvco % MHZ);
-		fin_64 = fin_hz;
-		fin_64 = fin_64 / rate_table->refdiv;
-		frac_64 = f_frac << 24;
-		frac_64 = frac_64 / fin_64;
+		frac_64 = (u64)f_frac << 24;
+		do_div(frac_64, fin_hz / rate_table->refdiv);
 		rate_table->frac = frac_64;
 		if (rate_table->frac > 0)
 			rate_table->dsmpd = 0;
