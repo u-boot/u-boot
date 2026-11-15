@@ -56,7 +56,8 @@ static struct rockchip_pll_clock rk3576_pll_clks[] = {
 	[GPLL] = PLL(pll_rk3588, PLL_GPLL, RK3576_PLL_CON(112),
 		     RK3576_MODE_CON0, 2, 15, 0, rk3576_24m_pll_rates),
 	[PPLL] = PLL(pll_rk3588, PLL_PPLL, RK3576_PHP_PLL_CON(128),
-		     RK3576_MODE_CON0, 10, 15, 0, rk3576_24m_pll_rates),
+		     RK3576_MODE_CON0, 10, 15, ROCKCHIP_PLL_FIXED_MODE,
+		     rk3576_24m_pll_rates),
 };
 
 #ifdef CONFIG_SPL_BUILD

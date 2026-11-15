@@ -460,9 +460,11 @@ static int rk3588_pll_set_rate(struct rockchip_pll_clock *pll,
 	if (pll_id == 3)
 		rk_clrsetreg(base + 0x84c, 0x1 << 1, 0x1 << 1);
 
-	rk_clrsetreg(base + pll->mode_offset,
-		     pll->mode_mask << pll->mode_shift,
-		     RKCLK_PLL_MODE_SLOW << pll->mode_shift);
+	if (!(pll->pll_flags & ROCKCHIP_PLL_FIXED_MODE)) {
+		rk_clrsetreg(base + pll->mode_offset,
+			     pll->mode_mask << pll->mode_shift,
+			     RKCLK_PLL_MODE_SLOW << pll->mode_shift);
+	}
 	if (pll_id == 0)
 		rk_clrsetreg(base + RK3588_B0PLL_CLKSEL_CON(0),
 			     pll->mode_mask << 6,
@@ -502,8 +504,11 @@ static int rk3588_pll_set_rate(struct rockchip_pll_clock *pll,
 		debug("%s: wait pll lock, pll_id=%ld\n", __func__, pll_id);
 	}
 
-	rk_clrsetreg(base + pll->mode_offset, pll->mode_mask << pll->mode_shift,
-		     RKCLK_PLL_MODE_NORMAL << pll->mode_shift);
+	if (!(pll->pll_flags & ROCKCHIP_PLL_FIXED_MODE)) {
+		rk_clrsetreg(base + pll->mode_offset,
+			     pll->mode_mask << pll->mode_shift,
+			     RKCLK_PLL_MODE_NORMAL << pll->mode_shift);
+	}
 	if (pll_id == 0) {
 		rk_clrsetreg(base + RK3588_B0PLL_CLKSEL_CON(0),
 			     pll->mode_mask << 6,
@@ -564,10 +569,10 @@ static ulong rk3588_pll_get_rate(struct rockchip_pll_clock *pll,
 
 	con = readl(base + pll->mode_offset);
 	shift = pll->mode_shift;
-	if (pll_id == 8)
-		mode = RKCLK_PLL_MODE_NORMAL;
-	else
+	if (!(pll->pll_flags & ROCKCHIP_PLL_FIXED_MODE))
 		mode = (con & (pll->mode_mask << shift)) >> shift;
+	else
+		mode = RKCLK_PLL_MODE_NORMAL;
 	switch (mode) {
 	case RKCLK_PLL_MODE_SLOW:
 		return OSC_HZ;
