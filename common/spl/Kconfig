@@ -1735,10 +1735,17 @@ config SPL_OPTEE_IMAGE
 	  OP-TEE is an open source Trusted OS which is loaded by SPL.
 	  More detail at: https://github.com/OP-TEE/optee_os
 
-config SPL_OPENSBI
-	bool "Support RISC-V OpenSBI"
+choice
+	prompt "RISC-V SBI firmware"
 	depends on RISCV && SPL_RISCV_MMODE && RISCV_SMODE
 	depends on SPL_LOAD_FIT && !SPL_FIT_IMAGE_TINY
+	default SPL_OPENSBI
+	help
+	  Select the SBI firmware that U-Boot SPL will load and start.
+	  OpenSBI is selected by default.
+
+config SPL_OPENSBI
+	bool "Support RISC-V OpenSBI firmware"
 	help
 	  OpenSBI is an open-source implementation of the RISC-V Supervisor Binary
 	  Interface (SBI) specification. U-Boot supports the OpenSBI FW_DYNAMIC
@@ -1747,16 +1754,30 @@ config SPL_OPENSBI
 	  More details are available at https://github.com/riscv/opensbi and
 	  https://github.com/riscv/riscv-sbi-doc
 
-config SPL_OPENSBI_LOAD_ADDR
-	hex "OpenSBI load address"
-	depends on SPL_OPENSBI
+config SPL_RUSTSBI
+	bool "Support RISC-V RustSBI firmware"
 	help
-	  Load address of the OpenSBI binary.
+	  RustSBI is a security-focused RISC-V Supervisor Binary Interface (SBI)
+	  implementation written in Rust. U-Boot supports RustSBI Prototyper
+	  dynamic firmware, which is loaded and started by U-Boot SPL.
+
+	  More details are available at https://github.com/rustsbi/rustsbi and
+	  https://github.com/riscv/riscv-sbi-doc
+
+endchoice
+
+config SPL_OPENSBI_LOAD_ADDR
+	hex "SBI firmware load address"
+	depends on SPL_OPENSBI || SPL_RUSTSBI
+	help
+	  Load address of the SBI firmware binary.
 
 config SPL_OPENSBI_SCRATCH_OPTIONS
-	hex "Scratch options passed to OpenSBI"
-	default 0x1
-	depends on SPL_OPENSBI
+	hex "Scratch options passed to OpenSBI" if SPL_OPENSBI
+	default 0x1 if SPL_OPENSBI
+	# RustSBI shares the dynamic handoff but does not use OpenSBI options.
+	default 0x0 if SPL_RUSTSBI
+	depends on SPL_OPENSBI || SPL_RUSTSBI
 	help
 	  This bitmap of options is passed from U-Boot SPL to OpenSBI.
 	  As of OpenSBI 1.3 the following bits are defined:

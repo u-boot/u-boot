@@ -30,6 +30,7 @@
 		fit,fdt-list = "of-list";
 
 		images {
+#ifdef CONFIG_SPL_OPENSBI
 			opensbi {
 				description = "OpenSBI fw_dynamic Firmware";
 				type = "firmware";
@@ -43,11 +44,30 @@
 					missing-msg = "opensbi";
 				};
 			};
+#elif defined(CONFIG_SPL_RUSTSBI)
+			rustsbi {
+				description = "RustSBI dynamic Firmware";
+				type = "firmware";
+				os = "rustsbi";
+				arch = "riscv";
+				load = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+				entry = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+
+				rustsbi_blob: rustsbi {
+					filename = "rustsbi-prototyper-dynamic.bin";
+					missing-msg = "rustsbi";
+				};
+			};
+#endif
 
 			uboot {
 				description = "U-Boot";
 				type = "standalone";
+#ifdef CONFIG_SPL_OPENSBI
 				firmware = "opensbi";
+#elif defined(CONFIG_SPL_RUSTSBI)
+				firmware = "rustsbi";
+#endif
 				os = "U-boot";
 				arch = "riscv";
 				compression = "none";
@@ -71,7 +91,11 @@
 			@conf-SEQ {
 				description = "NAME";
 				fdt = "fdt-SEQ";
+#ifdef CONFIG_SPL_OPENSBI
 				firmware = "opensbi";
+#elif defined(CONFIG_SPL_RUSTSBI)
+				firmware = "rustsbi";
+#endif
 				loadables = "uboot";
 			};
 		};

@@ -97,6 +97,7 @@ TEE_OS_DATA           = b'this is some tee OS data'
 TI_DM_DATA            = b'tidmtidm'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
+RUSTSBI_DATA          = b'rustsbi'
 SCP_DATA              = b'scp'
 ROCKCHIP_TPL_DATA     = b'rockchip-tpl'
 TEST_FDT1_DATA        = b'fdt1'
@@ -236,6 +237,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('dm.bin', TI_DM_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
+        TestFunctional._MakeInputFile('rustsbi-test.bin', RUSTSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
         TestFunctional._MakeInputFile('rockchip-tpl.bin', ROCKCHIP_TPL_DATA)
         TestFunctional._MakeInputFile('ti_unsecure.bin', TI_UNSECURE_DATA)
@@ -5058,6 +5060,20 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an OpenSBI binary can be created"""
         data = self._DoReadFile('fip/opensbi.dts')
         self.assertEqual(OPENSBI_DATA, data[:len(OPENSBI_DATA)])
+
+    def testPackRustSBI(self):
+        """Test that rustsbi-path selects the supplied firmware binary"""
+        data, _, _, _ = self._DoReadFileDtb(
+            'fip/rustsbi.dts', entry_args={'rustsbi-path': 'rustsbi-test.bin'})
+        self.assertEqual(RUSTSBI_DATA, data)
+
+    def testPackRustSBIMissing(self):
+        """Test that a missing RustSBI binary is reported"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb(
+                'fip/rustsbi.dts', entry_args={'rustsbi-path': 'missing-rustsbi.bin'})
+        self.assertIn("Filename 'missing-rustsbi.bin' not found in input path",
+                      str(exc.exception))
 
     def testSectionsSingleThread(self):
         """Test sections without multithreading"""
