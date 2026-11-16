@@ -8,6 +8,7 @@
 #include <dm/of_extra.h>
 #include <dm/test.h>
 #include <fdt_support.h>
+#include <fdtdec.h>
 #include <mapmem.h>
 #include <smbios.h>
 #include <test/ut.h>
@@ -188,3 +189,37 @@ static int dm_test_fdt_chosen_smbios(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdt_chosen_smbios, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/* test fdtdec_get_alias_seq() and fdtdec_get_alias_highest_id() */
+static int dm_test_fdtdec_alias_seq(struct unit_test_state *uts)
+{
+	const void *blob = gd->fdt_blob;
+	int seq;
+
+	ut_assertok(fdtdec_get_alias_seq(blob, "testfdt",
+					 fdt_path_offset(blob,
+							 "/some-bus/c-test@1"),
+					 &seq));
+	ut_asserteq(12, seq);
+	ut_assertok(fdtdec_get_alias_seq(blob, "testbus",
+					 fdt_path_offset(blob, "/some-bus"),
+					 &seq));
+	ut_asserteq(3, seq);
+
+	/* the stem must be followed by the number: testbus3 is no "test" */
+	ut_asserteq(-ENOENT,
+		    fdtdec_get_alias_seq(blob, "test",
+					 fdt_path_offset(blob, "/some-bus"),
+					 &seq));
+	ut_asserteq(-ENOENT,
+		    fdtdec_get_alias_seq(blob, "spi",
+					 fdt_path_offset(blob, "/i2c@0"),
+					 &seq));
+
+	ut_asserteq(12, fdtdec_get_alias_highest_id(blob, "testfdt"));
+	ut_asserteq(3, fdtdec_get_alias_highest_id(blob, "testbus"));
+	ut_asserteq(-1, fdtdec_get_alias_highest_id(blob, "test"));
+
+	return 0;
+}
+DM_TEST(dm_test_fdtdec_alias_seq, UTF_SCAN_PDATA | UTF_SCAN_FDT);

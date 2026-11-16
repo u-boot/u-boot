@@ -508,10 +508,29 @@ int fdtdec_add_aliases_for_id(const void *blob, const char *name,
 	return num_found;
 }
 
+/**
+ * alias_seq_of() - get the number an alias gives a stem
+ *
+ * @name: Alias name, e.g. "serial2"
+ * @base: Stem to match, e.g. "serial"
+ * Return: the number that follows the stem, -1 if @name is not @base
+ * followed by a number (usbphy0 is not a "usb" alias)
+ */
+static int alias_seq_of(const char *name, const char *base)
+{
+	int base_len = strlen(base);
+	const char *num = name + base_len;
+
+	if (strncmp(name, base, base_len) || !*num ||
+	    strspn(num, "0123456789") != strlen(num))
+		return -1;
+
+	return dectoul(num, NULL);
+}
+
 int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 			 int *seqp)
 {
-	int base_len = strlen(base);
 	const char *find_name;
 	int find_namelen;
 	int prop_offset;
@@ -531,8 +550,11 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 
 		prop = fdt_getprop_by_offset(blob, prop_offset, &name, &len);
 		debug("   - %s, %s\n", name, prop);
-		if (len < find_namelen || *prop != '/' || prop[len - 1] ||
-		    strncmp(name, base, base_len))
+		if (len < find_namelen || *prop != '/' || prop[len - 1])
+			continue;
+
+		val = alias_seq_of(name, base);
+		if (val < 0)
 			continue;
 
 		slash = strrchr(prop, '/');
@@ -549,12 +571,9 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 				continue;
 		}
 
-		val = trailing_strtol(name);
-		if (val != -1) {
-			*seqp = val;
-			debug("Found seq %d\n", *seqp);
-			return 0;
-		}
+		*seqp = val;
+		debug("Found seq %d\n", *seqp);
+		return 0;
 	}
 
 	debug("Not found\n");
@@ -563,7 +582,6 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 
 int fdtdec_get_alias_highest_id(const void *blob, const char *base)
 {
-	int base_len = strlen(base);
 	int prop_offset;
 	int aliases;
 	int max = -1;
@@ -580,11 +598,10 @@ int fdtdec_get_alias_highest_id(const void *blob, const char *base)
 
 		prop = fdt_getprop_by_offset(blob, prop_offset, &name, &len);
 		debug("   - %s, %s\n", name, prop);
-		if (*prop != '/' || prop[len - 1] ||
-		    strncmp(name, base, base_len))
+		if (*prop != '/' || prop[len - 1])
 			continue;
 
-		val = trailing_strtol(name);
+		val = alias_seq_of(name, base);
 		if (val > max) {
 			debug("Found seq %d\n", val);
 			max = val;
