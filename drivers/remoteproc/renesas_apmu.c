@@ -76,12 +76,6 @@ static int renesas_apmu_rproc_load(struct udevice *dev, ulong addr, ulong size)
 	asm volatile("dsb sy\n");
 	asm volatile("isb sy\n");
 
-	/* CR52 boot address set */
-	writel(trampolineaddr | APMU_CRBARP_CR_VLD_BARP,
-	       priv->regs + APMU_CRBARP(priv->core_id));
-	writel(trampolineaddr | APMU_CRBARP_CR_VLD_BARP | APMU_CRBARP_CR_BAREN_VALID,
-	       priv->regs + APMU_CRBARP(priv->core_id));
-
 	return 0;
 }
 
@@ -94,6 +88,13 @@ static int renesas_apmu_rproc_load(struct udevice *dev, ulong addr, ulong size)
 static int renesas_apmu_rproc_start(struct udevice *dev)
 {
 	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	u32 trampolineaddr = (u32)(uintptr_t)(priv->trampoline);
+
+	/* CR52 boot address and valid flags set */
+	writel(trampolineaddr | APMU_CRBARP_CR_VLD_BARP,
+	       priv->regs + APMU_CRBARP(priv->core_id));
+	writel(trampolineaddr | APMU_CRBARP_CR_VLD_BARP | APMU_CRBARP_CR_BAREN_VALID,
+	       priv->regs + APMU_CRBARP(priv->core_id));
 
 	/* Clear APMU_CRRSTCTRL_CR52RST, the only bit in this register */
 	writel(0, priv->regs + APMU_CRRSTCTRL(priv->core_id));
