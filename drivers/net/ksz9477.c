@@ -113,7 +113,7 @@ struct ksz_phy_ops {
 
 struct ksz_dsa_priv {
 	struct udevice *dev;
-	struct ksz_phy_ops *phy_ops;
+	const struct ksz_phy_ops *phy_ops;
 
 	u32 features;			/* chip specific features */
 };
@@ -129,7 +129,7 @@ static inline int ksz_i2c_write(struct udevice *dev, u32 reg, u8 *val, int len)
 	return dm_i2c_write(dev, reg, val, len);
 }
 
-static struct ksz_phy_ops phy_i2c_ops = {
+static const struct ksz_phy_ops phy_i2c_ops = {
 	.read = ksz_i2c_read,
 	.write = ksz_i2c_write,
 };
@@ -215,7 +215,7 @@ static inline int ksz_spi_write(struct udevice *dev, u32 reg, u8 *val, int len)
 	return ksz_spi_xfer(dev, reg, val, NULL, len);
 }
 
-static struct ksz_phy_ops phy_spi_ops = {
+static const struct ksz_phy_ops phy_spi_ops = {
 	.read = ksz_spi_read,
 	.write = ksz_spi_write,
 };
@@ -224,7 +224,7 @@ static struct ksz_phy_ops phy_spi_ops = {
 static inline int ksz_read8(struct udevice *dev, u32 reg, u8 *val)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+	const struct ksz_phy_ops *phy_ops = priv->phy_ops;
 
 	int ret = phy_ops->read(dev, reg, val, 1);
 
@@ -241,7 +241,7 @@ static inline int ksz_pread8(struct udevice *dev, int port, int reg, u8 *val)
 static inline int ksz_write8(struct udevice *dev, u32 reg, u8 val)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+	const struct ksz_phy_ops *phy_ops = priv->phy_ops;
 
 	dev_dbg(dev, "%s 0x%04x>>0x%02x\n", __func__, reg, val);
 	return phy_ops->write(dev, reg, &val, 1);
@@ -255,7 +255,7 @@ static inline int ksz_pwrite8(struct udevice *dev, int port, int reg, u8 val)
 static inline int ksz_write16(struct udevice *dev, u32 reg, u16 val)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+	const struct ksz_phy_ops *phy_ops = priv->phy_ops;
 	u8 buf[2];
 
 	buf[1] = val & 0xff;
@@ -273,7 +273,7 @@ static inline int ksz_pwrite16(struct udevice *dev, int port, int reg, u16 val)
 static inline int ksz_read16(struct udevice *dev, u32 reg, u16 *val)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+	const struct ksz_phy_ops *phy_ops = priv->phy_ops;
 	u8 buf[2];
 	int ret;
 
@@ -292,7 +292,7 @@ static inline int ksz_pread16(struct udevice *dev, int port, int reg, u16 *val)
 static inline int ksz_read32(struct udevice *dev, u32 reg, u32 *val)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+	const struct ksz_phy_ops *phy_ops = priv->phy_ops;
 
 	return phy_ops->read(dev, reg, (u8 *)val, 4);
 }
@@ -305,7 +305,7 @@ static inline int ksz_pread32(struct udevice *dev, int port, int reg, u32 *val)
 static inline int ksz_write32(struct udevice *dev, u32 reg, u32 val)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+	const struct ksz_phy_ops *phy_ops = priv->phy_ops;
 	u8 buf[4];
 
 	buf[3] = val & 0xff;
@@ -662,14 +662,14 @@ static int ksz_probe_mdio(struct udevice *dev)
 	return 0;
 }
 
-static void ksz_ops_register(struct udevice *dev, struct ksz_phy_ops *ops)
+static void ksz_ops_register(struct udevice *dev, const struct ksz_phy_ops *ops)
 {
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
 
 	priv->phy_ops = ops;
 }
 
-static bool dsa_ksz_check_ops(struct ksz_phy_ops *phy_ops)
+static bool dsa_ksz_check_ops(const struct ksz_phy_ops *phy_ops)
 {
 	if (!phy_ops || !phy_ops->read || !phy_ops->write)
 		return false;
