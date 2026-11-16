@@ -492,6 +492,11 @@ static void do_exit_on_complete(struct usb_ep *ep, struct usb_request *req)
 #ifndef CONFIG_XPL_BUILD
 static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 {
+	req->complete = fastboot_complete;
+	/* Do not boot if the acknowledgment transfer failed. */
+	if (req->status)
+		return;
+
 	fastboot_boot();
 	do_exit_on_complete(ep, req);
 }
