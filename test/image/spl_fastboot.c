@@ -124,10 +124,13 @@ static int check_images(struct unit_test_state *uts, void *image, size_t size,
 					   NULL, NULL));
 	ut_assertok(check_download(uts, image, size - 1, NULL, NULL));
 
-	magic = fdt_magic(image);
-	fdt_set_magic(image, 0);
-	ut_assertok(check_download(uts, image, size, NULL, NULL));
-	fdt_set_magic(image, magic);
+	if (!IS_ENABLED(CONFIG_SPL_RAW_IMAGE_SUPPORT) ||
+	    CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
+		magic = fdt_magic(image);
+		fdt_set_magic(image, 0);
+		ut_assertok(check_download(uts, image, size, NULL, NULL));
+		fdt_set_magic(image, magic);
+	}
 
 	/* The Android envelope is independent of the payload format. */
 	if (type != FIT_INTERNAL)
@@ -139,7 +142,7 @@ static int check_images(struct unit_test_state *uts, void *image, size_t size,
 	ut_assertok(check_download(uts, wrapped, wrapped_size, info, data));
 	ut_assertok(check_download(uts, wrapped, sizeof(*hdr) - 100, NULL, NULL));
 	ut_assertok(check_download(uts, wrapped, wrapped_size - 1, NULL, NULL));
-	/* Android padding must not make a truncated FIT payload look complete. */
+	/* Android padding must not make a truncated payload look complete. */
 	hdr->kernel_size = cpu_to_le32(size - 1);
 	ut_assertok(check_download(uts, wrapped, wrapped_size, NULL, NULL));
 	hdr->kernel_size = cpu_to_le32(size);
@@ -190,3 +193,38 @@ out:
 SPL_IMG_TEST(spl_test_fastboot, FIT_INTERNAL, 0);
 SPL_IMG_TEST(spl_test_fastboot, FIT_EXTERNAL, 0);
 SPL_IMG_TEST(spl_test_fastboot, LEGACY, 0);
+
+static int spl_test_fastboot_raw(struct unit_test_state *uts)
+{
+	u8 image[31], buffer[sizeof(image)], *dest;
+	struct spl_image_info expected = {}, loaded = {};
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_SPL_RAW_IMAGE_SUPPORT))
+		return -EAGAIN;
+	generate_data(image, sizeof(image), __func__);
+	spl_set_header_raw_uboot(&expected);
+	dest = map_sysmem(expected.load_addr, sizeof(image) + 1);
+	dest[sizeof(image)] = 0xa5;
+	fastboot_init(buffer, sizeof(buffer));
+	ut_assertok(download_image(uts, image, sizeof(image)));
+	ut_assertok(run_fastboot_command(uts, "boot", FASTBOOT_COMMAND_BOOT, "OKAY"));
+	fastboot_boot();
+	ret = spl_fastboot_load(&loaded);
+	fastboot_init(NULL, 0);
+	ut_asserteq(0xa5, dest[sizeof(image)]);
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
+		ut_asserteq(-EPERM, ret);
+		ut_asserteq(0, loaded.size);
+		return 0;
+	}
+	ut_assertok(ret);
+	ut_asserteq(expected.load_addr, loaded.load_addr);
+	ut_asserteq(expected.entry_point, loaded.entry_point);
+	ut_asserteq(expected.os, loaded.os);
+	ut_asserteq(sizeof(image), loaded.size);
+	ut_asserteq_mem(image, dest, sizeof(image));
+	return 0;
+}
+
+SPL_TEST(spl_test_fastboot_raw, 0);

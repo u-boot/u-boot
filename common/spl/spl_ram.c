@@ -52,21 +52,43 @@ int spl_ram_load_fit(struct spl_image_info *spl_image, void *fit, size_t size)
 	return spl_load_simple_fit(spl_image, &load, 0, fit);
 }
 
+static int spl_ram_load_raw(struct spl_image_info *spl_image, void *buf,
+			    size_t size)
+{
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE))
+		return -EPERM;
+	if (!IS_ENABLED(CONFIG_SPL_RAW_IMAGE_SUPPORT))
+		return -ENOEXEC;
+	if (!size || size == SIZE_MAX)
+		return -EINVAL;
+	if (size > CONFIG_SYS_BOOTM_LEN)
+		return -EFBIG;
+
+	spl_set_header_raw_uboot(spl_image);
+	if (size > ULONG_MAX - spl_image->load_addr)
+		return -EOVERFLOW;
+	spl_image->size = size;
+	memmove(map_sysmem(spl_image->load_addr, size), buf, size);
+	return 0;
+}
+
 int spl_ram_load(struct spl_image_info *spl_image, void *buf, size_t size)
 {
 	struct legacy_img_hdr *header = buf;
 	struct spl_ram_image image = { .data = buf, .size = size };
 	struct spl_load_info load;
 
-	/* Require a complete magic word to identify a headered image. */
+	/* A buffer too short for a magic word can only be a raw image. */
 	if (size < sizeof(header->ih_magic))
-		return -EINVAL;
+		return spl_ram_load_raw(spl_image, buf, size);
 
 	/* FIT images can contain multiple payloads with separate load addresses. */
 	if (image_get_magic(header) == FDT_MAGIC)
 		return spl_ram_load_fit(spl_image, buf, size);
+
+	/* Only unknown magic selects raw; recognized formats keep their errors. */
 	if (image_get_magic(header) != IH_MAGIC)
-		return -ENOEXEC;
+		return spl_ram_load_raw(spl_image, buf, size);
 
 	/* Legacy images need a complete header and an uncompressed payload. */
 	if (CONFIG_IS_ENABLED(FIT_SIGNATURE))

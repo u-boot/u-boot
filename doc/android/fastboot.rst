@@ -159,9 +159,12 @@ FIT verification uses the board's existing SPL configuration.
 ``CONFIG_SPL_LEGACY_IMAGE_FORMAT`` also permits uncompressed legacy U-Boot
 images, using their header's load address and entry point. Legacy CRC checks
 follow ``CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK``.
-With ``CONFIG_SPL_FIT_SIGNATURE``, legacy downloads are rejected to prevent
-bypassing FIT verification.
-Raw U-Boot binaries are not supported.
+``CONFIG_SPL_RAW_IMAGE_SUPPORT`` permits a raw ``u-boot.bin``. SPL uses its
+configured or binman-provided load address and entry point, and loads exactly
+the downloaded bytes. The image must match that address and firmware handoff
+contract; raw images carry no size, checksum or signature of their own.
+With ``CONFIG_SPL_FIT_SIGNATURE``, legacy and raw downloads are rejected to
+prevent bypassing FIT verification.
 
 The loader accepts these images directly or inside the Android v0 wrapper
 added by the standard fastboot client; separate ramdisk and second-stage
