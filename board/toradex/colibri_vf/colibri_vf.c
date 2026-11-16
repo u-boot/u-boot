@@ -11,7 +11,6 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-vf610.h>
 #include <asm/gpio.h>
@@ -29,120 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define PTC0_GPIO_45		45
 
-static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
-	{ DDRMC_CR79_CTLUPD_AREF(1), 79 },
-	/* sets manual values for read lvl. (gate) delay of data slice 0/1 */
-	{ DDRMC_CR105_RDLVL_DL_0(28), 105 },
-	{ DDRMC_CR106_RDLVL_GTDL_0(24), 106 },
-	{ DDRMC_CR110_RDLVL_DL_1(28) | DDRMC_CR110_RDLVL_GTDL_1(24), 110 },
-	{ DDRMC_CR102_RDLVL_GT_REGEN | DDRMC_CR102_RDLVL_REG_EN, 102 },
-
-	/* AXI */
-	{ DDRMC_CR117_AXI0_W_PRI(0) | DDRMC_CR117_AXI0_R_PRI(0), 117 },
-	{ DDRMC_CR118_AXI1_W_PRI(1) | DDRMC_CR118_AXI1_R_PRI(1), 118 },
-	{ DDRMC_CR120_AXI0_PRI1_RPRI(2) |
-		   DDRMC_CR120_AXI0_PRI0_RPRI(2), 120 },
-	{ DDRMC_CR121_AXI0_PRI3_RPRI(2) |
-		   DDRMC_CR121_AXI0_PRI2_RPRI(2), 121 },
-	{ DDRMC_CR122_AXI1_PRI1_RPRI(1) | DDRMC_CR122_AXI1_PRI0_RPRI(1) |
-		   DDRMC_CR122_AXI0_PRIRLX(100), 122 },
-	{ DDRMC_CR123_AXI1_P_ODR_EN | DDRMC_CR123_AXI1_PRI3_RPRI(1) |
-		   DDRMC_CR123_AXI1_PRI2_RPRI(1), 123 },
-	{ DDRMC_CR124_AXI1_PRIRLX(100), 124 },
-	{ DDRMC_CR126_PHY_RDLAT(8), 126 },
-	{ DDRMC_CR132_WRLAT_ADJ(5) |
-		   DDRMC_CR132_RDLAT_ADJ(6), 132 },
-	{ DDRMC_CR137_PHYCTL_DL(2), 137 },
-	{ DDRMC_CR138_PHY_WRLV_MXDL(256) |
-		   DDRMC_CR138_PHYDRAM_CK_EN(1), 138 },
-	{ DDRMC_CR139_PHY_WRLV_RESPLAT(4) | DDRMC_CR139_PHY_WRLV_LOAD(7) |
-		   DDRMC_CR139_PHY_WRLV_DLL(3) |
-		   DDRMC_CR139_PHY_WRLV_EN(3), 139 },
-	{ DDRMC_CR140_PHY_WRLV_WW(64), 140 },
-	{ DDRMC_CR143_RDLV_GAT_MXDL(1536) |
-		   DDRMC_CR143_RDLV_MXDL(128), 143 },
-	{ DDRMC_CR144_PHY_RDLVL_RES(4) | DDRMC_CR144_PHY_RDLV_LOAD(7) |
-		   DDRMC_CR144_PHY_RDLV_DLL(3) |
-		   DDRMC_CR144_PHY_RDLV_EN(3), 144 },
-	{ DDRMC_CR145_PHY_RDLV_RR(64), 145 },
-	{ DDRMC_CR146_PHY_RDLVL_RESP(64), 146 },
-	{ DDRMC_CR147_RDLV_RESP_MASK(983040), 147 },
-	{ DDRMC_CR148_RDLV_GATE_RESP_MASK(983040), 148 },
-	{ DDRMC_CR151_RDLV_GAT_DQ_ZERO_CNT(1) |
-		   DDRMC_CR151_RDLVL_DQ_ZERO_CNT(1), 151 },
-
-	{ DDRMC_CR154_PAD_ZQ_EARLY_CMP_EN_TIMER(13) |
-		   DDRMC_CR154_PAD_ZQ_MODE(1) |
-		   DDRMC_CR154_DDR_SEL_PAD_CONTR(3) |
-		   DDRMC_CR154_PAD_ZQ_HW_FOR(1), 154 },
-	{ DDRMC_CR155_PAD_ODT_BYTE1(2) | DDRMC_CR155_PAD_ODT_BYTE0(2), 155 },
-	{ DDRMC_CR158_TWR(6), 158 },
-	{ DDRMC_CR161_ODT_EN(1) | DDRMC_CR161_TODTH_RD(2) |
-		   DDRMC_CR161_TODTH_WR(2), 161 },
-	/* end marker */
-	{ 0, -1 }
-};
-
 int dram_init(void)
 {
-	static const struct ddr3_jedec_timings timings = {
-		.tinit             = 5,
-		.trst_pwron        = 80000,
-		.cke_inactive      = 200000,
-		.wrlat             = 5,
-		.caslat_lin        = 12,
-		.trc               = 21,
-		.trrd              = 4,
-		.tccd              = 4,
-		.tbst_int_interval = 0,
-		.tfaw              = 20,
-		.trp               = 6,
-		.twtr              = 4,
-		.tras_min          = 15,
-		.tmrd              = 4,
-		.trtp              = 4,
-		.tras_max          = 28080,
-		.tmod              = 12,
-		.tckesr            = 4,
-		.tcke              = 3,
-		.trcd_int          = 6,
-		.tras_lockout      = 0,
-		.tdal              = 12,
-		.bstlen            = 3,
-		.tdll              = 512, /* not applicable since freq. scaling
-					   * is not used
-					   */
-		.trp_ab            = 6,
-		.tref              = 3120,
-		.trfc              = 64,
-		.tref_int          = 0,
-		.tpdex             = 3,
-		.txpdll            = 10,
-		.txsnr             = 68,  /* changed to conform to JEDEC
-					   * specifications
-					   */
-		.txsr              = 506, /* changed to conform to JEDEC
-					   * specifications
-					   */
-		.cksrx             = 5,
-		.cksre             = 5,
-		.freq_chg_en       = 0,
-		.zqcl              = 256,
-		.zqinit            = 512,
-		.zqcs              = 64,
-		.ref_per_zq        = 64,
-		.zqcs_rotate       = 0,
-		.aprebit           = 10,
-		.cmd_age_cnt       = 64,
-		.age_cnt           = 64,
-		.q_fullness        = 7,
-		.odt_rd_mapcs0     = 0,
-		.odt_wr_mapcs0     = 1,
-		.wlmrd             = 40,
-		.wldqsen           = 25,
-	};
-
-	ddrmc_ctrl_init_ddr3(&timings, colibri_vf_cr_settings, NULL, 1, 2);
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
 	return 0;
@@ -263,12 +150,10 @@ static void clock_init(void)
 			ANADIG_PLL5_CTRL_POWERDOWN, ANADIG_PLL5_CTRL_ENABLE |
 			ANADIG_PLL5_CTRL_DIV_SELECT);
 
-	if (is_colibri_vf61()) {
-		clrsetbits_le32(&anadig->pll2_ctrl, ANADIG_PLL5_CTRL_BYPASS |
-				ANADIG_PLL2_CTRL_POWERDOWN,
-				ANADIG_PLL2_CTRL_ENABLE |
-				ANADIG_PLL2_CTRL_DIV_SELECT);
-	}
+	clrsetbits_le32(&anadig->pll2_ctrl, ANADIG_PLL5_CTRL_BYPASS |
+			ANADIG_PLL2_CTRL_POWERDOWN,
+			ANADIG_PLL2_CTRL_ENABLE |
+			ANADIG_PLL2_CTRL_DIV_SELECT);
 
 	clrsetbits_le32(&anadig->pll1_ctrl, ANADIG_PLL1_CTRL_POWERDOWN,
 			ANADIG_PLL1_CTRL_ENABLE | ANADIG_PLL1_CTRL_DIV_SELECT);
@@ -277,13 +162,11 @@ static void clock_init(void)
 			CCM_CCR_FIRC_EN | CCM_CCR_OSCNT(5));
 
 	/* See "Typical PLL Configuration" */
-	if (is_colibri_vf61()) {
+	if (is_colibri_vf61())
 		pfd_clk_sel = CCM_CCSR_PLL1_PFD_CLK_SEL(1);
-		ddr_clk_sel = CCM_CCSR_DDRC_CLK_SEL(0);
-	} else {
+	else
 		pfd_clk_sel = CCM_CCSR_PLL1_PFD_CLK_SEL(3);
-		ddr_clk_sel = CCM_CCSR_DDRC_CLK_SEL(1);
-	}
+	ddr_clk_sel = CCM_CCSR_DDRC_CLK_SEL(0);
 
 	clrsetbits_le32(&ccm->ccsr, CCM_REG_CTRL_MASK, pfd_clk_sel |
 			CCM_CCSR_PLL2_PFD4_EN | CCM_CCSR_PLL2_PFD3_EN |
