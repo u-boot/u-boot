@@ -1939,5 +1939,6 @@ Q:	http://patchwork.ozlabs.org/project/uboot/list/
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/u-boot.git
 F:	configs/tools-only_defconfig
+F:	test/image/spl_ram.c
 F:	*
 F:	*/

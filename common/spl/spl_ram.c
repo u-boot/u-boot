@@ -16,32 +16,43 @@
 #include <spl.h>
 #include <linux/libfdt.h>
 
+struct spl_ram_image {
+	const void *data;
+	size_t size;
+};
+
 static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
-	ulong addr = 0;
+	struct spl_ram_image *image = load->priv;
 
 	debug("%s: sector %lx, count %lx, buf %lx\n",
 	      __func__, sector, count, (ulong)buf);
 
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT)) {
-		addr = IF_ENABLED_INT(CONFIG_SPL_LOAD_FIT,
-				      CONFIG_SPL_LOAD_FIT_ADDRESS);
-
-#ifdef	CONFIG_SPL_PCI_DFU
-		if (spl_boot_device() == BOOT_DEVICE_PCIE)
-			addr = CONFIG_SPL_PCI_DFU_SPL_LOAD_FIT_ADDRESS;
-#endif
-	}
-	addr += sector;
-	if (CONFIG_IS_ENABLED(IMAGE_PRE_LOAD))
-		addr += image_load_offset;
-
-	memcpy(buf, (void *)addr, count);
-
+	if (sector >= image->size)
+		return 0;
+	count = min_t(ulong, count, image->size - sector);
+	memmove(buf, image->data + sector, count);
 	return count;
 }
 
+int spl_ram_load_fit(struct spl_image_info *spl_image, void *fit, size_t size)
+{
+	struct spl_ram_image image = { .data = fit, .size = size };
+	struct spl_load_info load;
+
+	if (!CONFIG_IS_ENABLED(LOAD_FIT))
+		return -EOPNOTSUPP;
+	if (size < sizeof(struct fdt_header) || fdt_check_header(fit) ||
+	    fdt_totalsize(fit) > size)
+		return -EINVAL;
+
+	spl_load_init(&load, spl_ram_load_read, &image, 1);
+	return spl_load_simple_fit(spl_image, &load, 0, fit);
+}
+
+#if CONFIG_IS_ENABLED(RAM_DEVICE) || CONFIG_IS_ENABLED(DFU) || \
+	CONFIG_IS_ENABLED(PCI_DFU)
 static int spl_ram_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
@@ -81,11 +92,8 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic(header) == FDT_MAGIC) {
-		struct spl_load_info load;
-
 		debug("Found FIT\n");
-		spl_load_init(&load, spl_ram_load_read, NULL, 1);
-		ret = spl_load_simple_fit(spl_image, &load, 0, header);
+		ret = spl_ram_load_fit(spl_image, header, SIZE_MAX);
 	} else {
 		ulong u_boot_pos = spl_get_image_pos();
 
@@ -119,4 +127,5 @@ SPL_LOAD_IMAGE_METHOD("DFU", 0, BOOT_DEVICE_DFU, spl_ram_load_image);
 #endif
 #if CONFIG_IS_ENABLED(PCI_DFU)
 SPL_LOAD_IMAGE_METHOD("PCIE", 0, BOOT_DEVICE_PCIE, spl_ram_load_image);
+#endif
 #endif

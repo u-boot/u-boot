@@ -163,7 +163,9 @@ static size_t start_fit(void *dst, size_t fit_size, size_t data_size,
 static size_t create_fit(void *dst, struct spl_image_info *spl_image,
 			 size_t *data_offset, bool external)
 {
-	size_t prop_size = 596, total_size = prop_size + spl_image->size;
+	/* Both the image and configuration have a description. */
+	size_t prop_size = ALIGN(596 + 2 * (strlen(spl_image->name) + 1), 4);
+	size_t total_size = prop_size + spl_image->size;
 	size_t off, size;
 
 	if (external) {
