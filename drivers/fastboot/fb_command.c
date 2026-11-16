@@ -318,6 +318,13 @@ static void getvar(char *cmd_parameter, char *response)
 	fastboot_getvar(cmd_parameter, response);
 }
 
+void fastboot_download_reset(void)
+{
+	image_size = 0;
+	fastboot_bytes_received = 0;
+	fastboot_bytes_expected = 0;
+}
+
 /**
  * fastboot_download() - Start a download transfer from the client
  *
@@ -328,11 +335,11 @@ static void download(char *cmd_parameter, char *response)
 {
 	char *tmp;
 
+	fastboot_download_reset();
 	if (!cmd_parameter) {
 		fastboot_fail("Expected command parameter", response);
 		return;
 	}
-	fastboot_bytes_received = 0;
 	fastboot_bytes_expected = hextoul(cmd_parameter, &tmp);
 	if (fastboot_bytes_expected == 0) {
 		fastboot_fail("Expected nonzero image size", response);
@@ -436,6 +443,11 @@ void fastboot_data_download(const void *fastboot_data,
  */
 void fastboot_data_complete(char *response)
 {
+	if (!fastboot_bytes_expected || fastboot_data_remaining()) {
+		fastboot_fail("Incomplete download", response);
+		return;
+	}
+
 	/* Download complete. Respond with "OKAY" */
 	fastboot_okay(NULL, response);
 	printf("\ndownloading of %d bytes finished\n", fastboot_bytes_received);
