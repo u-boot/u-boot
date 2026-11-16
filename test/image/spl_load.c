@@ -367,6 +367,48 @@ SPL_IMG_TEST(spl_test_image, IMX8, 0);
 SPL_IMG_TEST(spl_test_image, FIT_INTERNAL, 0);
 SPL_IMG_TEST(spl_test_image, FIT_EXTERNAL, 0);
 
+static int spl_test_fit_missing_fdt(struct unit_test_state *uts)
+{
+	struct spl_image_info expected = {
+		.name = "missing FDT",
+		.size = SPL_TEST_DATA_SIZE,
+	};
+	struct spl_image_info loaded = {};
+	struct spl_load_info load;
+	size_t size, offset;
+	void *image;
+	int node, ret;
+
+	if (!IS_ENABLED(CONFIG_SPL_LOAD_FIT))
+		return -EAGAIN;
+	size = create_image(NULL, FIT_INTERNAL, &expected, &offset);
+	image = calloc(1, size + 128);
+	ut_assertnonnull(image);
+	generate_data(image + offset, expected.size, expected.name);
+	if (create_image(image, FIT_INTERNAL, &expected, NULL) != size) {
+		ret = -EINVAL;
+		goto out;
+	}
+	ret = fdt_open_into(image, image, size + 128);
+	if (ret)
+		goto out;
+	node = fdt_path_offset(image, "/configurations/config-1");
+	ret = fdt_setprop_string(image, node, FIT_FDT_PROP, "missing");
+	if (ret)
+		goto out;
+	spl_load_init(&load, spl_test_read, image, 1);
+	ret = spl_load_simple_fit(&loaded, &load, 0, image);
+	free(image);
+	ut_assert(ret < 0);
+	return 0;
+out:
+	free(image);
+	ut_assertok(ret);
+	return 0;
+}
+
+SPL_TEST(spl_test_fit_missing_fdt, 0);
+
 /*
  * Build a FIT with external data, overwrite one property of the image node
  * with a hostile value and check that loading fails with the expected error.

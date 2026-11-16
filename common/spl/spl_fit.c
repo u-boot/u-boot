@@ -490,12 +490,17 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	 */
 	image_info.load_addr = ALIGN(spl_image->load_addr + spl_image->size, 8);
 
+	/* The caller may ignore a missing FDT, so initialize the output. */
+	spl_image->fdt_addr = NULL;
+
 	/* Figure out which device tree the board wants to use */
 	node = spl_fit_get_image_node(ctx, FIT_FDT_PROP, index++);
 	if (node < 0) {
 		size_t size;
 
 		debug("%s: cannot find FDT node\n", __func__);
+		if (fdt_getprop(ctx->fit, ctx->conf_node, FIT_FDT_PROP, NULL))
+			return node;
 
 		/*
 		 * U-Boot did not find a device tree inside the FIT image. Use
@@ -896,6 +901,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	int ret;
 	int index = 0;
 	int firmware_node;
+	bool has_fdt;
 
 	ret = spl_simple_fit_read(&ctx, info, offset, fit);
 	if (ret < 0)
@@ -910,6 +916,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	ret = spl_simple_fit_parse(&ctx);
 	if (ret < 0)
 		return ret;
+
+	has_fdt = fdt_getprop(ctx.fit, ctx.conf_node, FIT_FDT_PROP, NULL);
 
 	if (IS_ENABLED(CONFIG_SPL_FPGA))
 		spl_fit_load_fpga(&ctx, info, offset);
@@ -958,11 +966,11 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	/*
 	 * Booting a next-stage U-Boot may require us to append the FDT.
-	 * We allow this to fail, as the U-Boot image might embed its FDT.
+	 * A U-Boot image may omit it when the FDT is embedded in the binary.
 	 */
 	if (os_takes_devicetree(spl_image->os)) {
 		ret = spl_fit_append_fdt(spl_image, info, offset, &ctx);
-		if (ret < 0 && spl_image->os != IH_OS_U_BOOT)
+		if (ret < 0 && (has_fdt || spl_image->os != IH_OS_U_BOOT))
 			return ret;
 	}
 
@@ -999,7 +1007,9 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));
 
 		if (os_takes_devicetree(os_type)) {
-			spl_fit_append_fdt(&image_info, info, offset, &ctx);
+			ret = spl_fit_append_fdt(&image_info, info, offset, &ctx);
+			if (ret < 0 && has_fdt)
+				return ret;
 			spl_image->fdt_addr = image_info.fdt_addr;
 		}
 
