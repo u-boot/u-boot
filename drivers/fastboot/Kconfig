@@ -67,6 +67,21 @@ config SPL_FASTBOOT
 config SPL_USB_FUNCTION_FASTBOOT
 	bool
 
+config SPL_FASTBOOT_BOOT
+	bool "Boot FIT images downloaded with fastboot in SPL"
+	depends on ARM || MIPS || RISCV || SANDBOX
+	depends on SPL_FASTBOOT && SPL_FRAMEWORK && SPL_LOAD_FIT
+	depends on !SPL_LOAD_FIT_FULL && !SPL_USB_SDP_SUPPORT
+	help
+	  Enable fastboot boot to load a downloaded FIT image through the SPL
+	  image loader. Boards enter the USB session by selecting
+	  BOOT_DEVICE_BOARD in their SPL boot order.
+
+config SPL_FASTBOOT_USB_DEV
+	int "SPL fastboot USB controller number"
+	depends on SPL_FASTBOOT_BOOT
+	default 0
+
 config SPL_FASTBOOT_REBOOT
 	bool "Enable fastboot reboot commands in SPL"
 	depends on SPL_FASTBOOT

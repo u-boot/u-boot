@@ -42,10 +42,13 @@ static u32 fastboot_bytes_received;
  */
 static u32 fastboot_bytes_expected;
 
+static bool boot_requested;
+
 static void okay(char *, char *);
 static void boot_image(char *, char *);
 static void getvar(char *, char *);
 static void download(char *, char *);
+static void boot(char *, char *);
 static void flash(char *, char *);
 static void erase(char *, char *);
 static void reboot_bootloader(char *, char *);
@@ -89,6 +92,10 @@ static const struct fastboot_command commands[FASTBOOT_COMMAND_COUNT] = {
 	[FASTBOOT_COMMAND_ERASE] =  {
 		.command = "erase",
 		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_FLASH, (erase), (NULL))
+	},
+	[FASTBOOT_COMMAND_BOOT] = {
+		.command = "boot",
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_BOOT, (boot), (NULL))
 	},
 	[FASTBOOT_COMMAND_CONTINUE] =  {
 		.command = "continue",
@@ -323,6 +330,7 @@ void fastboot_download_reset(void)
 	image_size = 0;
 	fastboot_bytes_received = 0;
 	fastboot_bytes_expected = 0;
+	boot_requested = false;
 }
 
 /**
@@ -458,6 +466,27 @@ void fastboot_data_complete(char *response)
 	fastboot_bytes_expected = 0;
 	fastboot_bytes_received = 0;
 }
+
+static void __maybe_unused boot(char *cmd_parameter, char *response)
+{
+	if (!image_size || fastboot_bytes_expected)
+		fastboot_fail("No complete image downloaded", response);
+	else
+		fastboot_okay(NULL, response);
+}
+
+#if CONFIG_IS_ENABLED(FASTBOOT_BOOT)
+void fastboot_boot(void)
+{
+	boot_requested = true;
+}
+
+u32 fastboot_get_boot_image(void **buf)
+{
+	*buf = fastboot_buf_addr;
+	return boot_requested ? image_size : 0;
+}
+#endif
 
 /**
  * flash() - write the downloaded image to the indicated partition.

@@ -98,7 +98,7 @@ stub. The ``continue`` command ends the session and returns control to the
 caller. The ``flash`` and ``erase`` commands are available when their SPL
 backend is enabled. A recognized command whose optional backend is disabled is
 reported as unsupported. Commands omitted from the SPL table, including
-``boot``, ``ucmd``, ``acmd`` and the OEM commands, are reported as unrecognized.
+``ucmd``, ``acmd`` and the OEM commands, are reported as unrecognized.
 
 MMC flash and erase support is enabled with
 ``CONFIG_SPL_FASTBOOT_FLASH_MMC``. The SPL partition-table parser matching the
@@ -121,6 +121,49 @@ Reboot commands require ``CONFIG_SPL_FASTBOOT_REBOOT`` and a platform
 ``reset_cpu()`` implementation. The ``reboot-bootloader``, ``reboot-fastboot``
 and ``reboot-recovery`` commands also require a platform
 ``fastboot_set_reboot_flag()`` implementation.
+
+Booting a downloaded FIT from SPL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enable ``CONFIG_SPL_FASTBOOT_BOOT`` and include ``BOOT_DEVICE_BOARD`` in the
+board's SPL boot order. This load method starts the fastboot session itself;
+select the USB controller with ``CONFIG_SPL_FASTBOOT_USB_DEV``. RAM and the
+USB controller must be ready before the load method runs.
+
+The host can then download and run a U-Boot FIT without flashing it::
+
+   fastboot boot u-boot.itb
+
+::
+
+   Host                         Target
+   +----------------+           +-----------------------+
+   | U-Boot FIT     | -- USB -->| SPL fastboot download |
+   +----------------+           +-----------+-----------+
+                                            |
+                                  acknowledge boot,
+                                  stop USB session
+                                            |
+                                +-----------v-----------+
+                                | SPL FIT loader        |
+                                +-----------+-----------+
+                                            |
+                                +-----------v-----------+
+                                | Firmware / U-Boot     |
+                                | running from RAM      |
+                                +-----------------------+
+
+Use a FIT built for the target, including any firmware required by its normal
+SPL handoff (for example BL31 or OP-TEE). FIT verification uses the board's
+existing SPL configuration. Raw U-Boot binaries are not supported. The loader
+accepts a bare FIT or the Android v0 wrapper added by the standard fastboot
+client; separate ramdisk and second-stage arguments are not supported.
+
+Keep the download buffer separate from SPL, its heap and stack, and all FIT
+load destinations. ``CONFIG_SPL_FASTBOOT_FLASH`` is optional.
+
+``continue`` leaves fastboot and lets SPL try the remaining boot methods.
+Loading errors also follow SPL's normal boot order.
 
 Fastboot environment variables
 ------------------------------

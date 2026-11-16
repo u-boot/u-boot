@@ -158,8 +158,16 @@ int fastboot_usb_run(int controller_index, void *buf_addr, u32 buf_size);
  *
  * Otherwise execute "bootm <fastboot_buf_addr>", if that fails, reset
  * the board.
+ * In SPL, record the request for loading after the USB session stops.
  */
 void fastboot_boot(void);
+
+/**
+ * fastboot_get_boot_image() - Get the download requested for booting in SPL
+ * @buf: Receives the download buffer address
+ * Return: Image size, or zero if no boot command has completed
+ */
+u32 fastboot_get_boot_image(void **buf);
 
 /**
  * fastboot_handle_boot() - Shared implementation of system reaction to
