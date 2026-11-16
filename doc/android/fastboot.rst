@@ -122,8 +122,8 @@ Reboot commands require ``CONFIG_SPL_FASTBOOT_REBOOT`` and a platform
 and ``reboot-recovery`` commands also require a platform
 ``fastboot_set_reboot_flag()`` implementation.
 
-Booting a downloaded FIT from SPL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Booting a downloaded image from SPL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Enable ``CONFIG_SPL_FASTBOOT_BOOT`` and include ``BOOT_DEVICE_BOARD`` in the
 board's SPL boot order. This load method starts the fastboot session itself;
@@ -153,11 +153,19 @@ The host can then download and run a U-Boot FIT without flashing it::
                                 | running from RAM      |
                                 +-----------------------+
 
-Use a FIT built for the target, including any firmware required by its normal
-SPL handoff (for example BL31 or OP-TEE). FIT verification uses the board's
-existing SPL configuration. Raw U-Boot binaries are not supported. The loader
-accepts a bare FIT or the Android v0 wrapper added by the standard fastboot
-client; separate ramdisk and second-stage arguments are not supported.
+With ``CONFIG_SPL_LOAD_FIT``, use a FIT built for the target, including any
+firmware required by its normal SPL handoff (for example BL31 or OP-TEE).
+FIT verification uses the board's existing SPL configuration.
+``CONFIG_SPL_LEGACY_IMAGE_FORMAT`` also permits uncompressed legacy U-Boot
+images, using their header's load address and entry point. Legacy CRC checks
+follow ``CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK``.
+With ``CONFIG_SPL_FIT_SIGNATURE``, legacy downloads are rejected to prevent
+bypassing FIT verification.
+Raw U-Boot binaries are not supported.
+
+The loader accepts these images directly or inside the Android v0 wrapper
+added by the standard fastboot client; separate ramdisk and second-stage
+arguments are not supported.
 
 Keep the download buffer separate from SPL, its heap and stack, and all FIT
 load destinations. ``CONFIG_SPL_FASTBOOT_FLASH`` is optional.

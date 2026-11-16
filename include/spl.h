@@ -999,7 +999,16 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 int spl_ram_load_fit(struct spl_image_info *spl_image, void *fit, size_t size);
 
 /**
- * spl_fastboot_load() - Load a FIT after the fastboot USB session has stopped
+ * spl_ram_load() - Load a downloaded image from RAM
+ * @spl_image: Receives the loaded image information
+ * @buf: Image buffer
+ * @size: Number of bytes in the buffer
+ * Return: 0 on success, or a negative error code
+ */
+int spl_ram_load(struct spl_image_info *spl_image, void *buf, size_t size);
+
+/**
+ * spl_fastboot_load() - Load an image after the fastboot USB session has stopped
  * @spl_image: Receives the image's load address and entry point
  * Return: 0 on success, -EAGAIN if no boot was requested, or another error
  */

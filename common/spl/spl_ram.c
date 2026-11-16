@@ -14,6 +14,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <spl.h>
+#include <spl_load.h>
 #include <linux/libfdt.h>
 
 struct spl_ram_image {
@@ -49,6 +50,37 @@ int spl_ram_load_fit(struct spl_image_info *spl_image, void *fit, size_t size)
 
 	spl_load_init(&load, spl_ram_load_read, &image, 1);
 	return spl_load_simple_fit(spl_image, &load, 0, fit);
+}
+
+int spl_ram_load(struct spl_image_info *spl_image, void *buf, size_t size)
+{
+	struct legacy_img_hdr *header = buf;
+	struct spl_ram_image image = { .data = buf, .size = size };
+	struct spl_load_info load;
+
+	/* Require a complete magic word to identify a headered image. */
+	if (size < sizeof(header->ih_magic))
+		return -EINVAL;
+
+	/* FIT images can contain multiple payloads with separate load addresses. */
+	if (image_get_magic(header) == FDT_MAGIC)
+		return spl_ram_load_fit(spl_image, buf, size);
+	if (image_get_magic(header) != IH_MAGIC)
+		return -ENOEXEC;
+
+	/* Legacy images need a complete header and an uncompressed payload. */
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE))
+		return -EPERM;
+	if (!CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT))
+		return -EOPNOTSUPP;
+	if (size < sizeof(*header) || !image_get_data_size(header) ||
+	    image_get_data_size(header) > size - sizeof(*header))
+		return -EINVAL;
+	if (image_get_comp(header) != IH_COMP_NONE)
+		return -EPROTONOSUPPORT;
+
+	spl_load_init(&load, spl_ram_load_read, &image, 1);
+	return spl_load(spl_image, NULL, &load, size, 0);
 }
 
 #if CONFIG_IS_ENABLED(RAM_DEVICE) || CONFIG_IS_ENABLED(DFU) || \

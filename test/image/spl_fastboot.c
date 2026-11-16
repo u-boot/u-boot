@@ -92,6 +92,12 @@ static int check_download(struct unit_test_state *uts, void *image, size_t size,
 		ut_assert(ret < 0);
 		return 0;
 	}
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE) &&
+	    !(expected->flags & SPL_FIT_FOUND)) {
+		ut_asserteq(-EPERM, ret);
+		ut_asserteq(0, loaded.size);
+		return 0;
+	}
 	ut_assertok(ret);
 	ut_assertok(check_image_info(uts, expected, &loaded));
 	ut_asserteq_mem(data, map_sysmem(expected->load_addr, expected->size),
@@ -106,10 +112,12 @@ static int check_images(struct unit_test_state *uts, void *image, size_t size,
 	struct andr_boot_img_hdr_v0 *hdr = wrapped;
 	size_t wrapped_size = 2048 + size;
 	u32 magic;
+	bool fit = image_get_magic(image) == FDT_MAGIC;
 
 	ut_assertok(check_download(uts, image, size, info, data));
-	/* Truncated FIT metadata and external payloads must both fail. */
-	ut_assertok(check_download(uts, image, sizeof(struct fdt_header) - 1,
+	/* Both metadata and payload must fit in the completed download. */
+	ut_assertok(check_download(uts, image, (fit ? sizeof(struct fdt_header) :
+				   sizeof(struct legacy_img_hdr)) - 1,
 				   NULL, NULL));
 	if (type == FIT_EXTERNAL)
 		ut_assertok(check_download(uts, image, fdt_totalsize(image) - 1,
@@ -181,3 +189,4 @@ out:
 
 SPL_IMG_TEST(spl_test_fastboot, FIT_INTERNAL, 0);
 SPL_IMG_TEST(spl_test_fastboot, FIT_EXTERNAL, 0);
+SPL_IMG_TEST(spl_test_fastboot, LEGACY, 0);

@@ -11,7 +11,7 @@ struct fastboot_image {
 	size_t size;
 };
 
-/* The standard fastboot client wraps a FIT in an Android v0 boot image. */
+/* The standard fastboot client wraps non-Android images in a v0 header. */
 static int spl_fastboot_unwrap(struct fastboot_image *image)
 {
 	const struct andr_boot_img_hdr_v0 *hdr = image->data;
@@ -54,7 +54,7 @@ int spl_fastboot_load(struct spl_image_info *spl_image)
 	ret = spl_fastboot_unwrap(&image);
 	if (ret)
 		return ret;
-	return spl_ram_load_fit(spl_image, (void *)image.data, image.size);
+	return spl_ram_load(spl_image, (void *)image.data, image.size);
 }
 
 /* Sandbox tests the loader directly, without a physical USB boot method. */
