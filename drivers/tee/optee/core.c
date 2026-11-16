@@ -424,6 +424,7 @@ static int from_msg_param(struct tee_param *params, uint num_params,
 static void handle_rpc(struct udevice *dev, struct rpc_param *param,
 		       void *page_list)
 {
+	struct optee_private *priv = dev_get_priv(dev);
 	struct tee_shm *shm;
 
 	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
@@ -450,7 +451,13 @@ static void handle_rpc(struct udevice *dev, struct rpc_param *param,
 		break;
 	case OPTEE_SMC_RPC_FUNC_CMD:
 		shm = reg_pair_to_ptr(param->a1, param->a2);
+		/*
+		 * Tracked here rather than in optee_suppl_cmd(), which the
+		 * sandbox TEE driver shares with its own private data.
+		 */
+		priv->in_supplicant++;
 		optee_suppl_cmd(dev, shm, page_list);
+		priv->in_supplicant--;
 		break;
 	default:
 		break;
