@@ -98,7 +98,7 @@ static const struct udevice_id altera_pmgr_ids[] = {
 	{ /* sentinel */ }
 };
 
-static struct power_domain_ops altera_pmgr_ops = {
+static const struct power_domain_ops altera_pmgr_ops = {
 	.off = altera_pmgr_off,
 };
 
