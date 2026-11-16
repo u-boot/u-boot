@@ -62,7 +62,7 @@ static int lp873x_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops lp873x_ops = {
+static const struct dm_pmic_ops lp873x_ops = {
 	.read = lp873x_read,
 	.write = lp873x_write,
 };

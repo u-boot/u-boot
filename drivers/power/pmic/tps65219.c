@@ -68,7 +68,7 @@ static int tps65219_bind(struct udevice *dev)
 	return dm_scan_fdt_dev(dev);
 }
 
-static struct dm_pmic_ops tps65219_ops = {
+static const struct dm_pmic_ops tps65219_ops = {
 	.reg_count = tps65219_reg_count,
 	.read = tps65219_read,
 	.write = tps65219_write,

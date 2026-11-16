@@ -215,7 +215,7 @@ static int ab8500_write(struct udevice *dev, uint reg, const uint8_t *buf, int l
 	return 0;
 }
 
-static struct dm_pmic_ops ab8500_ops = {
+static const struct dm_pmic_ops ab8500_ops = {
 	.reg_count = ab8500_reg_count,
 	.read = ab8500_read,
 	.write = ab8500_write,

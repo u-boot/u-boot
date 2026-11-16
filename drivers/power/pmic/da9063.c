@@ -118,7 +118,7 @@ static int da9063_probe(struct udevice *dev)
 	return i2c_set_chip_addr_offset_mask(dev, 0x1);
 }
 
-static struct dm_pmic_ops da9063_ops = {
+static const struct dm_pmic_ops da9063_ops = {
 	.reg_count = da9063_reg_count,
 	.read = da9063_read,
 	.write = da9063_write,

@@ -22,7 +22,7 @@ static int axp_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	return -EINPROGRESS;
 }
 
-static struct sysreset_ops axp_sysreset_ops = {
+static const struct sysreset_ops axp_sysreset_ops = {
 	.request	= axp_sysreset_request,
 };
 
@@ -39,7 +39,7 @@ static int axp_pmic_reg_count(struct udevice *dev)
 	return 0x100;
 }
 
-static struct dm_pmic_ops axp_pmic_ops = {
+static const struct dm_pmic_ops axp_pmic_ops = {
 	.reg_count	= axp_pmic_reg_count,
 	.read		= dm_i2c_read,
 	.write		= dm_i2c_write,

@@ -155,7 +155,7 @@ static int as3722_reg_count(struct udevice *dev)
 	return AS3722_NUM_OF_REGS;
 }
 
-static struct dm_pmic_ops as3722_ops = {
+static const struct dm_pmic_ops as3722_ops = {
 	.reg_count = as3722_reg_count,
 	.read = as3722_read,
 	.write = as3722_write,

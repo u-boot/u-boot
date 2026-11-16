@@ -44,7 +44,7 @@ static int rn5t567_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 	return 0;
 }
 
-static struct dm_pmic_ops rn5t567_ops = {
+static const struct dm_pmic_ops rn5t567_ops = {
 	.reg_count = rn5t567_reg_count,
 	.read = rn5t567_read,
 	.write = rn5t567_write,

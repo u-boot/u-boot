@@ -65,7 +65,7 @@ static int lp87565_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops lp87565_ops = {
+static const struct dm_pmic_ops lp87565_ops = {
 	.read = lp87565_read,
 	.write = lp87565_write,
 };

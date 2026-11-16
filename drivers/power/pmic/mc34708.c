@@ -82,7 +82,7 @@ static int mc34708_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops mc34708_ops = {
+static const struct dm_pmic_ops mc34708_ops = {
 	.reg_count = mc34708_reg_count,
 	.read	= mc34708_read,
 	.write	= mc34708_write,

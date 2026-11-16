@@ -65,7 +65,7 @@ static int act8846_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops act8846_ops = {
+static const struct dm_pmic_ops act8846_ops = {
 	.reg_count = act8846_reg_count,
 	.read = act8846_read,
 	.write = act8846_write,

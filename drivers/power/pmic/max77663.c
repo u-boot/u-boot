@@ -83,7 +83,7 @@ static int max77663_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops max77663_ops = {
+static const struct dm_pmic_ops max77663_ops = {
 	.read = max77663_read,
 	.write = max77663_write,
 };

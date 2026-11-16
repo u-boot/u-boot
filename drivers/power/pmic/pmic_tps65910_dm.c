@@ -95,7 +95,7 @@ static int pmic_tps65910_probe(struct udevice *dev)
 			       TPS65910_I2C_SEL_MASK);
 }
 
-static struct dm_pmic_ops pmic_tps65910_ops = {
+static const struct dm_pmic_ops pmic_tps65910_ops = {
 	.reg_count = pmic_tps65910_reg_count,
 	.read = pmic_tps65910_read,
 	.write = pmic_tps65910_write,

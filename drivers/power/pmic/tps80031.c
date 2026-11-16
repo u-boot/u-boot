@@ -73,7 +73,7 @@ static int tps80031_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops tps80031_ops = {
+static const struct dm_pmic_ops tps80031_ops = {
 	.read = tps80031_read,
 	.write = tps80031_write,
 };

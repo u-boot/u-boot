@@ -39,7 +39,7 @@ static int max8998_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 	return ret;
 }
 
-static struct dm_pmic_ops max8998_ops = {
+static const struct dm_pmic_ops max8998_ops = {
 	.reg_count = max8998_reg_count,
 	.read	= max8998_read,
 	.write	= max8998_write,

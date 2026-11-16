@@ -862,7 +862,7 @@ static int mtk_pwrap_write(struct udevice *dev, uint reg, const uint8_t *buf, in
 	return pwrap_write(wrp, reg, *(u32 *)buf);
 }
 
-static struct dm_pmic_ops mtk_pwrap_ops = {
+static const struct dm_pmic_ops mtk_pwrap_ops = {
 	.reg_count = mtk_pwrap_reg_count,
 	.read = mtk_pwrap_read,
 	.write = mtk_pwrap_write,

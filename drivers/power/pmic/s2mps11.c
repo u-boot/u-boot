@@ -94,7 +94,7 @@ static int s2mps11_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops s2mps11_ops = {
+static const struct dm_pmic_ops s2mps11_ops = {
 	.reg_count = s2mps11_reg_count,
 	.read = s2mps11_read,
 	.write = s2mps11_write,

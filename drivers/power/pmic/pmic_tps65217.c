@@ -210,7 +210,7 @@ static int tps65217_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops tps65217_ops = {
+static const struct dm_pmic_ops tps65217_ops = {
 	.reg_count = tps65217_reg_count,
 	.read = tps65217_read,
 	.write = tps65217_write,

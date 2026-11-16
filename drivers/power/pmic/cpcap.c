@@ -106,7 +106,7 @@ static int cpcap_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops cpcap_ops = {
+static const struct dm_pmic_ops cpcap_ops = {
 	.read = cpcap_read,
 	.write = cpcap_write,
 };
