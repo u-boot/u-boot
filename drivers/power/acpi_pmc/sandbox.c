@@ -76,7 +76,7 @@ static int sandbox_pmc_probe(struct udevice *dev)
 	return pmc_ofdata_to_uc_plat(dev);
 }
 
-static struct acpi_pmc_ops sandbox_pmc_ops = {
+static const struct acpi_pmc_ops sandbox_pmc_ops = {
 	.init			= sandbox_pmc_fill_power_state,
 	.prev_sleep_state	= sandbox_prev_sleep_state,
 	.disable_tco		= sandbox_disable_tco,

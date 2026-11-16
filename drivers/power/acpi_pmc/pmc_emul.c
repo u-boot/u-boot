@@ -216,7 +216,7 @@ static int sandbox_pmc_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pci_emul_ops sandbox_pmc_emul_emul_ops = {
+static const struct dm_pci_emul_ops sandbox_pmc_emul_emul_ops = {
 	.read_config = sandbox_pmc_emul_read_config,
 	.write_config = sandbox_pmc_emul_write_config,
 	.read_io = sandbox_pmc_emul_read_io,
