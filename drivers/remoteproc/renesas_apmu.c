@@ -29,12 +29,12 @@
 #define APMU_CRBARP_CR_RBAR_ALIGN	0x40000
 
 /**
- * struct renesas_apmu_rproc_privdata - remote processor private data
+ * struct renesas_apmu_rproc_cr52_privdata - remote processor private data
  * @regs:		controller registers
  * @core_id:		CPU core id
  * @trampoline:		jump trampoline code
  */
-struct renesas_apmu_rproc_privdata {
+struct renesas_apmu_rproc_cr52_privdata {
 	void __iomem	*regs;
 	ulong		core_id;
 	u32		*trampoline;
@@ -44,7 +44,7 @@ struct renesas_apmu_rproc_privdata {
  * CRBARP address is aligned to 0x40000 / 256 kiB , this trampoline
  * allows arbitrary address alignment at instruction granularity.
  */
-static const u32 renesas_apmu_rproc_trampoline[4] = {
+static const u32 renesas_apmu_rproc_cr52_trampoline[4] = {
 	0xe59f0004,	/* ldr r0, [pc, #4] */
 	0xe1a0f000,	/* mov pc, r0 */
 	0xeafffffe,	/* 1: b 1b */
@@ -52,25 +52,25 @@ static const u32 renesas_apmu_rproc_trampoline[4] = {
 };
 
 /**
- * renesas_apmu_rproc_load() - Load the remote processor
+ * renesas_apmu_rproc_cr52_load() - Load the remote processor
  * @dev:	corresponding remote processor device
  * @addr:	Address in memory where image is stored
  * @size:	Size in bytes of the image
  *
  * Return: 0 if all went ok, else corresponding -ve error
  */
-static int renesas_apmu_rproc_load(struct udevice *dev, ulong addr, ulong size)
+static int renesas_apmu_rproc_cr52_load(struct udevice *dev, ulong addr, ulong size)
 {
-	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	struct renesas_apmu_rproc_cr52_privdata *priv = dev_get_priv(dev);
 	u32 trampolineaddr = (u32)(uintptr_t)(priv->trampoline);
 
 	priv->trampoline[3] = addr;
 	flush_dcache_range(trampolineaddr,
 			   trampolineaddr +
-			   sizeof(renesas_apmu_rproc_trampoline));
+			   sizeof(renesas_apmu_rproc_cr52_trampoline));
 	invalidate_dcache_range(trampolineaddr,
 				trampolineaddr +
-				sizeof(renesas_apmu_rproc_trampoline));
+				sizeof(renesas_apmu_rproc_cr52_trampoline));
 	flush_dcache_range(addr, addr + size);
 	invalidate_dcache_range(addr, addr + size);
 	asm volatile("dsb sy\n");
@@ -80,14 +80,14 @@ static int renesas_apmu_rproc_load(struct udevice *dev, ulong addr, ulong size)
 }
 
 /**
- * renesas_apmu_rproc_start() - Start the remote processor
+ * renesas_apmu_rproc_cr52_start() - Start the remote processor
  * @dev:	corresponding remote processor device
  *
  * Return: 0 if all went ok, else corresponding -ve error
  */
-static int renesas_apmu_rproc_start(struct udevice *dev)
+static int renesas_apmu_rproc_cr52_start(struct udevice *dev)
 {
-	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	struct renesas_apmu_rproc_cr52_privdata *priv = dev_get_priv(dev);
 	u32 trampolineaddr = (u32)(uintptr_t)(priv->trampoline);
 
 	/* CR52 boot address and valid flags set */
@@ -103,14 +103,14 @@ static int renesas_apmu_rproc_start(struct udevice *dev)
 }
 
 /**
- * renesas_apmu_rproc_stop() - Stop the remote processor
+ * renesas_apmu_rproc_cr52_stop() - Stop the remote processor
  * @dev:	corresponding remote processor device
  *
  * Return: 0 if all went ok, else corresponding -ve error
  */
-static int renesas_apmu_rproc_stop(struct udevice *dev)
+static int renesas_apmu_rproc_cr52_stop(struct udevice *dev)
 {
-	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	struct renesas_apmu_rproc_cr52_privdata *priv = dev_get_priv(dev);
 
 	/* Set APMU_CRRSTCTRL_CR52RST, the only bit in this register */
 	writel(APMU_CRRSTCTRL_CR52RST,
@@ -120,44 +120,44 @@ static int renesas_apmu_rproc_stop(struct udevice *dev)
 }
 
 /**
- * renesas_apmu_rproc_reset() - Reset the remote processor
+ * renesas_apmu_rproc_cr52_reset() - Reset the remote processor
  * @dev:	corresponding remote processor device
  *
  * Return: 0 if all went ok, else corresponding -ve error
  */
-static int renesas_apmu_rproc_reset(struct udevice *dev)
+static int renesas_apmu_rproc_cr52_reset(struct udevice *dev)
 {
-	renesas_apmu_rproc_stop(dev);
-	renesas_apmu_rproc_start(dev);
+	renesas_apmu_rproc_cr52_stop(dev);
+	renesas_apmu_rproc_cr52_start(dev);
 	return 0;
 }
 
 /**
- * renesas_apmu_rproc_is_running() - Is the remote processor running
+ * renesas_apmu_rproc_cr52_is_running() - Is the remote processor running
  * @dev:	corresponding remote processor device
  *
  * Return: 0 if the remote processor is running, 1 otherwise
  */
-static int renesas_apmu_rproc_is_running(struct udevice *dev)
+static int renesas_apmu_rproc_cr52_is_running(struct udevice *dev)
 {
-	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	struct renesas_apmu_rproc_cr52_privdata *priv = dev_get_priv(dev);
 
 	return readl(priv->regs + APMU_CRRSTCTRL(priv->core_id)) &
 	       APMU_CRRSTCTRL_CR52RST;
 }
 
 /**
- * renesas_apmu_rproc_init() - Initialize the remote processor CRBAR registers
+ * renesas_apmu_rproc_cr52_init() - Initialize the remote processor CRBAR registers
  * @dev:	corresponding remote processor device
  *
  * Return: 0 if all went ok, else corresponding -ve error
  */
-static int renesas_apmu_rproc_init(struct udevice *dev)
+static int renesas_apmu_rproc_cr52_init(struct udevice *dev)
 {
-	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	struct renesas_apmu_rproc_cr52_privdata *priv = dev_get_priv(dev);
 
 	/* If the core is running already, do nothing. */
-	if (renesas_apmu_rproc_is_running(dev))
+	if (renesas_apmu_rproc_cr52_is_running(dev))
 		return 0;
 
 	/* Clear and invalidate CRBARP content */
@@ -185,25 +185,25 @@ static void *renesas_apmu_rproc_device_to_virt(struct udevice *dev, ulong da,
 	return (void *)da;
 }
 
-static const struct dm_rproc_ops renesas_apmu_rproc_ops = {
-	.init		= renesas_apmu_rproc_init,
-	.load		= renesas_apmu_rproc_load,
-	.start		= renesas_apmu_rproc_start,
-	.stop		= renesas_apmu_rproc_stop,
-	.reset		= renesas_apmu_rproc_reset,
-	.is_running	= renesas_apmu_rproc_is_running,
+static const struct dm_rproc_ops renesas_apmu_rproc_cr52_ops = {
+	.init		= renesas_apmu_rproc_cr52_init,
+	.load		= renesas_apmu_rproc_cr52_load,
+	.start		= renesas_apmu_rproc_cr52_start,
+	.stop		= renesas_apmu_rproc_cr52_stop,
+	.reset		= renesas_apmu_rproc_cr52_reset,
+	.is_running	= renesas_apmu_rproc_cr52_is_running,
 	.device_to_virt	= renesas_apmu_rproc_device_to_virt,
 };
 
 /**
- * renesas_apmu_rproc_of_to_plat() - Convert OF data to platform data
+ * renesas_apmu_rproc_cr52_of_to_plat() - Convert OF data to platform data
  * @dev:	corresponding remote processor device
  *
  * Return: 0 if all went ok, else corresponding -ve error
  */
-static int renesas_apmu_rproc_of_to_plat(struct udevice *dev)
+static int renesas_apmu_rproc_cr52_of_to_plat(struct udevice *dev)
 {
-	struct renesas_apmu_rproc_privdata *priv = dev_get_priv(dev);
+	struct renesas_apmu_rproc_cr52_privdata *priv = dev_get_priv(dev);
 
 	priv->core_id = dev_get_driver_data(dev);
 
@@ -212,12 +212,12 @@ static int renesas_apmu_rproc_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	priv->trampoline = memalign(APMU_CRBARP_CR_RBAR_ALIGN,
-				    sizeof(renesas_apmu_rproc_trampoline));
+				    sizeof(renesas_apmu_rproc_cr52_trampoline));
 	if (!priv->trampoline)
 		return -ENOMEM;
 
-	memcpy(priv->trampoline, renesas_apmu_rproc_trampoline,
-	       sizeof(renesas_apmu_rproc_trampoline));
+	memcpy(priv->trampoline, renesas_apmu_rproc_cr52_trampoline,
+	       sizeof(renesas_apmu_rproc_cr52_trampoline));
 
 	return 0;
 }
@@ -225,9 +225,9 @@ static int renesas_apmu_rproc_of_to_plat(struct udevice *dev)
 U_BOOT_DRIVER(renesas_apmu_cr52) = {
 	.name		= "rcar-apmu-cr52",
 	.id		= UCLASS_REMOTEPROC,
-	.ops		= &renesas_apmu_rproc_ops,
-	.of_to_plat	= renesas_apmu_rproc_of_to_plat,
-	.priv_auto	= sizeof(struct renesas_apmu_rproc_privdata),
+	.ops		= &renesas_apmu_rproc_cr52_ops,
+	.of_to_plat	= renesas_apmu_rproc_cr52_of_to_plat,
+	.priv_auto	= sizeof(struct renesas_apmu_rproc_cr52_privdata),
 };
 
 /**
@@ -238,21 +238,20 @@ U_BOOT_DRIVER(renesas_apmu_cr52) = {
  */
 static int renesas_apmu_rproc_bind(struct udevice *parent)
 {
-	const ulong cr52cores = RCAR4_CR52_CORES;
 	ofnode pnode = dev_ofnode(parent);
+	struct driver *cdrvr52;
 	struct udevice *cdev;
-	struct driver *cdrv;
 	char name[32];
 	ulong i;
 	int ret;
 
-	cdrv = lists_driver_lookup_name("rcar-apmu-cr52");
-	if (!cdrv)
+	cdrvr52 = lists_driver_lookup_name("rcar-apmu-cr52");
+	if (!cdrvr52)
 		return -ENOENT;
 
-	for (i = 0; i < cr52cores; i++) {
+	for (i = 0; i < RCAR4_CR52_CORES; i++) {
 		snprintf(name, sizeof(name), "rcar-apmu-cr52.%ld", i);
-		ret = device_bind_with_driver_data(parent, cdrv, strdup(name),
+		ret = device_bind_with_driver_data(parent, cdrvr52, strdup(name),
 						   i, pnode, &cdev);
 		if (ret)
 			return ret;
