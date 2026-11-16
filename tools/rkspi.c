@@ -2,8 +2,6 @@
 /*
  * (C) Copyright 2015 Google,  Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * See README.rockchip for details of the rkspi format
  */
 
 #include "imagetool.h"

@@ -44,11 +44,9 @@ static struct rockchip_pll_rate_table rk3588_pll_rates[] = {
 
 static struct rockchip_pll_clock rk3588_pll_clks[] = {
 	[B0PLL] = PLL(pll_rk3588, PLL_B0PLL, RK3588_B0_PLL_CON(0),
-		      RK3588_B0_PLL_MODE_CON, 0, 15, 0,
-		      rk3588_pll_rates),
+		      RK3588_B0_PLL_MODE_CON, 0, 15, 0, rk3588_pll_rates),
 	[B1PLL] = PLL(pll_rk3588, PLL_B1PLL, RK3588_B1_PLL_CON(8),
-		      RK3588_B1_PLL_MODE_CON, 0, 15, 0,
-		      rk3588_pll_rates),
+		      RK3588_B1_PLL_MODE_CON, 0, 15, 0, rk3588_pll_rates),
 	[LPLL] = PLL(pll_rk3588, PLL_LPLL, RK3588_LPLL_CON(16),
 		     RK3588_LPLL_MODE_CON, 0, 15, 0, rk3588_pll_rates),
 	[V0PLL] = PLL(pll_rk3588, PLL_V0PLL, RK3588_PLL_CON(88),
@@ -61,8 +59,9 @@ static struct rockchip_pll_clock rk3588_pll_clks[] = {
 		     RK3588_MODE_CON0, 2, 15, 0, rk3588_pll_rates),
 	[NPLL] = PLL(pll_rk3588, PLL_NPLL, RK3588_PLL_CON(120),
 		     RK3588_MODE_CON0, 0, 15, 0, rk3588_pll_rates),
-	[PPLL] = PLL(pll_rk3588, PLL_PPLL, RK3588_PMU_PLL_CON(128),
-		     RK3588_MODE_CON0, 10, 15, 0, rk3588_pll_rates),
+	[PPLL] = PLL(pll_rk3588, PLL_PPLL, RK3588_PHP_PLL_CON(128),
+		     RK3588_MODE_CON0, 10, 15, ROCKCHIP_PLL_FIXED_MODE,
+		     rk3588_pll_rates),
 #ifdef CONFIG_XPL_BUILD
 	/*
 	 * The SPLL is part of the SBUSCRU, not the main CRU and as
@@ -654,7 +653,7 @@ static ulong rk3588_adc_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 		if (sel == CLK_TSADC_SEL_24M)
 			prate = OSC_HZ;
 		else
-			prate = 100 * MHz;
+			prate = priv->gpll_hz;
 		return DIV_TO_RATE(prate, div);
 	default:
 		return -ENOENT;
@@ -778,7 +777,7 @@ static ulong rk3588_mmc_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 		sel = (con & DCLK_DECOM_SEL_MASK) >>
 		      DCLK_DECOM_SEL_SHIFT;
 		if (sel == DCLK_DECOM_SEL_SPLL)
-			prate = 702 * MHz;
+			prate = SPLL_HZ;
 		else
 			prate = priv->gpll_hz;
 		return DIV_TO_RATE(prate, div);
@@ -818,9 +817,9 @@ static ulong rk3588_mmc_set_clk(struct rk3588_clk_priv *priv,
 		}
 		break;
 	case DCLK_DECOM:
-		if (!(702 * MHz % rate)) {
+		if (!(SPLL_HZ % rate)) {
 			src_clk = DCLK_DECOM_SEL_SPLL;
-			div = DIV_ROUND_UP(702 * MHz, rate);
+			div = DIV_ROUND_UP(SPLL_HZ, rate);
 		} else {
 			src_clk = DCLK_DECOM_SEL_GPLL;
 			div = DIV_ROUND_UP(priv->gpll_hz, rate);
@@ -943,7 +942,7 @@ static ulong rk3588_aclk_vop_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 		else if (sel == ACLK_VOP_ROOT_SEL_NPLL)
 			parent = priv->npll_hz;
 		else
-			parent = 702 * MHz;
+			parent = SPLL_HZ;
 		return DIV_TO_RATE(parent, div);
 	case ACLK_VOP_LOW_ROOT:
 		con = readl(&cru->clksel_con[110]);
@@ -1342,7 +1341,7 @@ static ulong rk3588_uart_set_rate(struct rk3588_clk_priv *priv,
 	} else if (priv->cpll_hz % rate == 0) {
 		clk_src = CLK_UART_SRC_SEL_CPLL;
 		uart_src = CLK_UART_SEL_SRC;
-		div = DIV_ROUND_UP(priv->gpll_hz, rate);
+		div = DIV_ROUND_UP(priv->cpll_hz, rate);
 	} else if (rate == OSC_HZ) {
 		clk_src = CLK_UART_SRC_SEL_GPLL;
 		uart_src = CLK_UART_SEL_XIN24M;
@@ -1922,11 +1921,11 @@ static void rk3588_clk_init(struct rk3588_clk_priv *priv)
 {
 	int ret, div;
 
-	div = DIV_ROUND_UP(GPLL_HZ, 300 * MHz);
+	div = DIV_ROUND_UP(CPLL_HZ, 375 * MHz);
 	rk_clrsetreg(&priv->cru->clksel_con[38],
-		     ACLK_BUS_ROOT_SEL_MASK |
-		     ACLK_BUS_ROOT_DIV_MASK,
-		     div << ACLK_BUS_ROOT_DIV_SHIFT);
+		     ACLK_BUS_ROOT_SEL_MASK | ACLK_BUS_ROOT_DIV_MASK,
+		     (ACLK_BUS_ROOT_SEL_CPLL << ACLK_BUS_ROOT_SEL_SHIFT) |
+		     (div - 1) << ACLK_BUS_ROOT_DIV_SHIFT);
 
 	if (priv->cpll_hz != CPLL_HZ) {
 		ret = rockchip_pll_set_rate(&rk3588_pll_clks[CPLL], priv->cru,
@@ -1959,9 +1958,6 @@ static void rk3588_clk_init(struct rk3588_clk_priv *priv)
 static int rk3588_clk_probe(struct udevice *dev)
 {
 	struct rk3588_clk_priv *priv = dev_get_priv(dev);
-	int ret;
-
-	priv->sync_kernel = false;
 
 #ifdef CONFIG_XPL_BUILD
 	rockchip_pll_set_rate(&rk3588_pll_clks[B0PLL], priv->cru,
@@ -1969,8 +1965,8 @@ static int rk3588_clk_probe(struct udevice *dev)
 	rockchip_pll_set_rate(&rk3588_pll_clks[B1PLL], priv->cru,
 			      B1PLL, LPLL_HZ);
 	if (!priv->armclk_enter_hz) {
-		ret = rockchip_pll_set_rate(&rk3588_pll_clks[LPLL], priv->cru,
-					    LPLL, LPLL_HZ);
+		rockchip_pll_set_rate(&rk3588_pll_clks[LPLL], priv->cru,
+				      LPLL, LPLL_HZ);
 		priv->armclk_enter_hz =
 			rockchip_pll_get_rate(&rk3588_pll_clks[LPLL],
 					      priv->cru, LPLL);
@@ -1978,18 +1974,7 @@ static int rk3588_clk_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	if (IS_ERR(priv->grf))
-		return PTR_ERR(priv->grf);
-
 	rk3588_clk_init(priv);
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-	else
-		priv->sync_kernel = true;
 
 	return 0;
 }

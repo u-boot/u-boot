@@ -103,7 +103,7 @@ List of mainline supported Rockchip boards:
 
 * rk3528
      - ArmSoM Sige1 (sige1-rk3528)
-     - FriendlyElec NanoPi Zero2 (nanopi-zero2-rk3528)
+     - FriendlyElec NanoPi R28S/Zero2 (nanopi-zero2-rk3528)
      - Generic RK3528 (generic-rk3528)
      - HINLINK H28K (hinlink-h28k-rk3528)
      - Radxa E20C (radxa-e20c-rk3528)
@@ -328,6 +328,35 @@ To build rk3588 boards:
         make evb-rk3588_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
+Notes
+^^^^^
+
+* rk3036: SDMMC and the debug uart share the same iomux, so if
+  a SD card is the boot medium, the debug uart must be disabled.
+* rk3066: eMMC and NAND share the same iomux, so if in Mask ROM mode
+  and a NAND is the boot medium, clear the emmc_flash_sel bit in GRF_SOC_CON0.
+
+Mask ROM mode
+-------------
+
+Mask ROM mode is the fallback mode of the boot ROM,
+in which it listens for USB commands 0x471/0x472.
+
+Options to get your board into Mask ROM mode:
+
+* Hold the recovery button, depending on firmware support or wiring,
+  while booting the board.
+* Remove any SD cards, removable eMMC or removable UFS modules.
+* Erase any storage media containing boot firmware.
+
+Methods of last resort (USE AT YOUR OWN RISK):
+
+Short the following pins briefly while powering the board, so the boot ROM
+cannot locate any boot firmware and falls back into Mask ROM mode:
+
+* NAND: connect pin 8 and 9 of the NAND flash with a needle.
+* eMMC: connect the clock line to ground.
+
 Flashing
 --------
 
@@ -446,8 +475,8 @@ Note:
 3. Package the RK3066 image with U-Boot TPL/SPL on NAND
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Unlike later SoC models the rk3066 BootROM doesn't have SDMMC support.
-If all other boot options fail then it enters into a BootROM mode on the USB OTG port.
+Unlike later SoC models the rk3066 boot ROM doesn't have SDMMC support.
+If all other boot options fail then it enters into a Mask ROM mode on the USB OTG port.
 This method loads TPL/SPL on NAND with U-Boot and kernel on SD card.
 
 SD Card
@@ -488,10 +517,10 @@ To write a U-Boot image to the SD card (assumed to be /dev/sda):
 NAND
 """"
 
-Bring device in BootROM mode:
+Bring device in Mask ROM mode:
 
-If bricked and no BootROM mode shows up then connect pin 8 and 9 of the NAND flash
-with a needle while reconnecting to the USB OTG port to a PC.
+If bricked and no Mask ROM mode shows up then connect pin 8 and 9
+of the NAND flash briefly with a needle while powering the board.
 
 Show connected devices with:
 
@@ -541,13 +570,17 @@ config-flash.ini:
         [OUTPUT]
         PATH=RK30xxLoader_uboot.bin
 
-TODO
-----
 
-- Add Rockchip idbloader image building
-- Add Rockchip TPL image building
-- Document SPI flash boot
-- Add missing SoC's with it boards list
+Boot flow
+---------
+
+Back to ROM
+^^^^^^^^^^^
+
+Rockchip SoCs have the ability to load a second loader binary.
+If enabled, the TPL/SPL code will return to the boot ROM, which will then
+load and execute a SPL or U-Boot binary.
+
 
 .. Jagan Teki <jagan@amarulasolutions.com>
 .. Wednesday 28 October 2020 06:47:26 PM IST

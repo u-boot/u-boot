@@ -1162,16 +1162,9 @@ static void rk3308_clk_init(struct udevice *dev)
 
 static int rk3308_clk_probe(struct udevice *dev)
 {
-	int ret;
-
 	rk3308_clk_init(dev);
 
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, CLK_DEFAULTS_POST);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-
-	return ret;
+	return 0;
 }
 
 static int rk3308_clk_of_to_plat(struct udevice *dev)

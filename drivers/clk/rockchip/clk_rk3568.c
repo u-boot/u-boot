@@ -77,7 +77,7 @@ static struct rockchip_pll_clock rk3568_pll_clks[] = {
 		     RK3568_MODE_CON, 2, 10, 0, NULL),
 	[CPLL] = PLL(pll_rk3328, PLL_CPLL, RK3568_PLL_CON(24),
 		     RK3568_MODE_CON, 4, 10, 0, rk3568_pll_rates),
-	[GPLL] = PLL(pll_rk3328, PLL_HPLL, RK3568_PLL_CON(16),
+	[GPLL] = PLL(pll_rk3328, PLL_GPLL, RK3568_PLL_CON(16),
 		     RK3568_MODE_CON, 6, 10, 0, rk3568_pll_rates),
 	[NPLL] = PLL(pll_rk3328, PLL_NPLL, RK3568_PLL_CON(32),
 		     RK3568_MODE_CON, 10, 10, 0, rk3568_pll_rates),
@@ -294,12 +294,12 @@ static ulong rk3568_pwm_set_pmuclk(struct rk3568_pmuclk_priv *priv,
 				     CLK_PWM0_SEL_MASK | CLK_PWM0_DIV_MASK,
 				     (CLK_PWM0_SEL_XIN24M <<
 				      CLK_PWM0_SEL_SHIFT) |
-				     0 << CLK_PWM0_SEL_SHIFT);
+				     0 << CLK_PWM0_DIV_SHIFT);
 		} else {
 			src_clk_div = DIV_ROUND_UP(priv->ppll_hz, rate);
 			assert(src_clk_div - 1 <= 127);
 			rk_clrsetreg(&pmucru->pmu_clksel_con[6],
-				     CLK_PWM0_DIV_MASK | CLK_PWM0_DIV_MASK,
+				     CLK_PWM0_SEL_MASK | CLK_PWM0_DIV_MASK,
 				     (CLK_PWM0_SEL_PPLL << CLK_PWM0_SEL_SHIFT) |
 				     (src_clk_div - 1) << CLK_PWM0_DIV_SHIFT);
 		}
@@ -1889,7 +1889,7 @@ static ulong rk3568_gmac_src_get_clk(struct rk3568_clk_priv *priv,
 	case CLK_MAC0_2TOP_SEL_25M:
 		return 25 * MHz;
 	case CLK_MAC0_2TOP_SEL_PPLL:
-		return rk3568_pmu_pll_get_rate(priv, HPLL);
+		return rk3568_pmu_pll_get_rate(priv, PPLL);
 	default:
 		return -ENOENT;
 	}
@@ -2873,7 +2873,6 @@ static void rk3568_clk_init(struct rk3568_clk_priv *priv)
 {
 	int ret;
 
-	priv->sync_kernel = false;
 	if (!priv->armclk_enter_hz) {
 		priv->armclk_enter_hz =
 			rockchip_pll_get_rate(&rk3568_pll_clks[APLL],
@@ -2912,20 +2911,8 @@ static void rk3568_clk_init(struct rk3568_clk_priv *priv)
 static int rk3568_clk_probe(struct udevice *dev)
 {
 	struct rk3568_clk_priv *priv = dev_get_priv(dev);
-	int ret;
-
-	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	if (IS_ERR(priv->grf))
-		return PTR_ERR(priv->grf);
 
 	rk3568_clk_init(priv);
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-	else
-		priv->sync_kernel = true;
 
 	return 0;
 }

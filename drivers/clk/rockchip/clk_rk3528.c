@@ -72,7 +72,8 @@ static struct rockchip_pll_clock rk3528_pll_clks[] = {
 		     RK3528_MODE_CON, 4, 10, 0, rk3528_pll_rates),
 
 	[PPLL] = PLL(pll_rk3328, PLL_PPLL, RK3528_PCIE_PLL_CON(32),
-		     RK3528_MODE_CON, 6, 10, ROCKCHIP_PLL_FIXED_MODE, rk3528_pll_rates),
+		     RK3528_MODE_CON, 6, 10, ROCKCHIP_PLL_FIXED_MODE,
+		     rk3528_pll_rates),
 
 	[DPLL] = PLL(pll_rk3328, PLL_DPLL, RK3528_DDRPHY_PLL_CON(16),
 		     RK3528_DDRPHY_MODE_CON, 0, 10, 0, rk3528_pll_rates),
@@ -770,7 +771,7 @@ static ulong rk3528_pwm_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 	sel = (con & mask) >> shift;
 	if (sel == CLK_PWM0_SEL_CLK_MATRIX_100M_SRC)
 		rate = 100 * MHz;
-	if (sel == CLK_PWM0_SEL_CLK_MATRIX_50M_SRC)
+	else if (sel == CLK_PWM0_SEL_CLK_MATRIX_50M_SRC)
 		rate = 50 * MHz;
 	else
 		rate = OSC_HZ;
@@ -1097,7 +1098,7 @@ static ulong rk3528_dclk_vop_set_clk(struct rk3528_clk_priv *priv,
 	}
 
 	div = ((DIV_ROUND_UP(prate, rate) - 1) << div_shift) & div_mask;
-	rk_clrsetreg(&cru->clksel_con[id], sel, div);
+	rk_clrsetreg(&cru->clksel_con[id], sel_mask | div_mask, sel | div);
 
 	return rk3528_dclk_vop_get_clk(priv, clk_id);
 }
@@ -1601,8 +1602,6 @@ static int rk3528_clk_init(struct rk3528_clk_priv *priv)
 {
 	int ret;
 
-	priv->sync_kernel = false;
-
 #ifdef CONFIG_XPL_BUILD
 	/*
 	 * BOOTROM:
@@ -1683,20 +1682,8 @@ static int rk3528_clk_init(struct rk3528_clk_priv *priv)
 static int rk3528_clk_probe(struct udevice *dev)
 {
 	struct rk3528_clk_priv *priv = dev_get_priv(dev);
-	int ret;
 
-	ret = rk3528_clk_init(priv);
-	if (ret)
-		return ret;
-
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev, 1);
-	if (ret)
-		debug("%s clk_set_defaults failed %d\n", __func__, ret);
-	else
-		priv->sync_kernel = true;
-
-	return 0;
+	return rk3528_clk_init(priv);
 }
 
 static int rk3528_clk_ofdata_to_platdata(struct udevice *dev)

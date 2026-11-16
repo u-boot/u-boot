@@ -403,8 +403,8 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 		cs0_col = 9 + (sys_reg2 >> SYS_REG_COL_SHIFT(ch) &
 			  SYS_REG_COL_MASK);
 		cs1_col = cs0_col;
-		if (dram_type == LPDDR5)
-			/* LPDDR5: 0:8bank(bk=3), 1:16bank(bk=4) */
+		if (dram_type == LPDDR5 || dram_type == LPDDR5X)
+			/* LPDDR5/LPDDR5X: 0:8bank(bk=3), 1:16bank(bk=4) */
 			bk = 3 + ((sys_reg2 >> SYS_REG_BK_SHIFT(ch)) &
 			SYS_REG_BK_MASK);
 		else

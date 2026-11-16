@@ -35,7 +35,6 @@ struct rk3528_clk_priv {
 	unsigned long armclk_hz;
 	unsigned long armclk_enter_hz;
 	unsigned long armclk_init_hz;
-	bool sync_kernel;
 };
 
 struct rk3528_pll {

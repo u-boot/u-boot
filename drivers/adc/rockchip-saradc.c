@@ -342,7 +342,7 @@ static const struct rockchip_saradc_data rk3399_saradc_data = {
 static const struct rockchip_saradc_data rk3528_saradc_data = {
 	.num_bits = 10,
 	.num_channels = 4,
-	.clk_rate = 1000000,
+	.clk_rate = 3000000,
 	.channel_data = rockchip_saradc_channel_data_v2,
 	.start_channel = rockchip_saradc_start_channel_v2,
 };

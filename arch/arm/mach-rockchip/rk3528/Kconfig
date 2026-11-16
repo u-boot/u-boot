@@ -1,5 +1,11 @@
 if ROCKCHIP_RK3528
 
+config TARGET_NANOPI_RK3528
+	bool "FriendlyElec NanoPi R28S/Zero2"
+	help
+	  FriendlyElec NanoPi R28S/Zero2 single board computers with a RK3528A
+	  SoC.
+
 config TARGET_RADXA_ROCK_2_RK3528
 	bool "Radxa ROCK 2A/2F"
 	help
@@ -14,6 +20,7 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3528"
 
+source "board/friendlyelec/nanopi-rk3528/Kconfig"
 source "board/radxa/rock-2-rk3528/Kconfig"
 
 config SYS_CONFIG_NAME

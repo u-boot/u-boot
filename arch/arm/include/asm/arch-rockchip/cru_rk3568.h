@@ -44,7 +44,6 @@ struct rk3568_pmuclk_priv {
 
 struct rk3568_clk_priv {
 	struct rk3568_cru *cru;
-	struct rk3568_grf *grf;
 	ulong ppll_hz;
 	ulong hpll_hz;
 	ulong gpll_hz;
@@ -54,7 +53,6 @@ struct rk3568_clk_priv {
 	ulong armclk_hz;
 	ulong armclk_enter_hz;
 	ulong armclk_init_hz;
-	bool sync_kernel;
 	bool set_armclk_rate;
 };
 

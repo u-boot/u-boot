@@ -38,7 +38,6 @@ you want to write.
 sudo rkdeveloptool wl  <BeginSec> <File>
 
 to flash U-Boot image use below command. U-Boot binary is made by mkimage.
-see doc/README.rockchip for more detail about how to get U-Boot binary.
 
 sudo rkdeveloptool wl  64 <U-Boot binary>
 

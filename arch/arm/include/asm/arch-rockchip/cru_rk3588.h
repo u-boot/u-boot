@@ -41,7 +41,6 @@ struct rk3588_clk_info {
 
 struct rk3588_clk_priv {
 	struct rk3588_cru *cru;
-	struct rk3588_grf *grf;
 	ulong ppll_hz;
 	ulong gpll_hz;
 	ulong cpll_hz;
@@ -51,7 +50,6 @@ struct rk3588_clk_priv {
 	ulong armclk_hz;
 	ulong armclk_enter_hz;
 	ulong armclk_init_hz;
-	bool sync_kernel;
 	bool set_armclk_rate;
 };
 
@@ -105,9 +103,6 @@ struct pll_rate_table {
 	unsigned int k;
 };
 
-#define RK3588_PLL_CON(x)		((x) * 0x4)
-#define RK3588_MODE_CON			0x280
-
 #define RK3588_PHP_CRU_BASE		0x8000
 #define RK3588_PMU_CRU_BASE		0x30000
 #define RK3588_BIGCORE0_CRU_BASE	0x50000
@@ -129,10 +124,10 @@ struct pll_rate_table {
 #define RK3588_SDMMC_CON0		0xC30
 #define RK3588_SDMMC_CON1		0xC34
 
+#define RK3588_PHP_PLL_CON(x)		((x) * 0x4 + RK3588_PHP_CRU_BASE)
 #define RK3588_PHP_CLKGATE_CON(x)	((x) * 0x4 + RK3588_PHP_CRU_BASE + 0x800)
 #define RK3588_PHP_SOFTRST_CON(x)	((x) * 0x4 + RK3588_PHP_CRU_BASE + 0xa00)
 
-#define RK3588_PMU_PLL_CON(x)		((x) * 0x4 + RK3588_PHP_CRU_BASE)
 #define RK3588_PMU_CLKSEL_CON(x)	((x) * 0x4 + RK3588_PMU_CRU_BASE + 0x300)
 #define RK3588_PMU_CLKGATE_CON(x)	((x) * 0x4 + RK3588_PMU_CRU_BASE + 0x800)
 #define RK3588_PMU_SOFTRST_CON(x)	((x) * 0x4 + RK3588_PMU_CRU_BASE + 0xa00)

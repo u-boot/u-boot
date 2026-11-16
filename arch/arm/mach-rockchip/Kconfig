@@ -600,26 +600,26 @@ config ROCKCHIP_USB_UART
 	  SoCs will enable this routing as a debug measure.
 
 config SPL_ROCKCHIP_BACK_TO_BROM
-	bool "SPL returns to bootrom"
+	bool "SPL returns to boot ROM"
 	default y if ROCKCHIP_RK3036
 	select ROCKCHIP_BROM_HELPER
 	select SPL_BOOTROM_SUPPORT
 	depends on SPL
 	help
-	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
-	  SPL will return to the boot rom, which will then load the U-Boot
-	  binary to keep going on.
+	  Rockchip SoCs have the ability to load a second loader binary
+	  after the SPL phase. If enabled, SPL will return to the boot ROM,
+	  which will then load and execute the U-Boot binary.
 
 config TPL_ROCKCHIP_BACK_TO_BROM
-	bool "TPL returns to bootrom"
+	bool "TPL returns to boot ROM"
 	default y
 	select ROCKCHIP_BROM_HELPER if !ROCKCHIP_RK3066
 	select TPL_BOOTROM_SUPPORT
 	depends on TPL
 	help
-	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
-	  SPL will return to the boot rom, which will then load the U-Boot
-	  binary to keep going on.
+	  Rockchip SoCs have the ability to load a second loader binary
+	  after the TPL phase. If enabled, TPL will return to the boot ROM,
+	  which will then load and execute a SPL binary.
 
 config ROCKCHIP_COMMON_BOARD
 	bool "Rockchip common board file"

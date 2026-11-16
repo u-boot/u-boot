@@ -19,7 +19,7 @@ struct udevice;
  * PLL flags
  */
 #define ROCKCHIP_PLL_SYNC_RATE		BIT(0)
-/* normal mode only. now only for pll_rk3036, pll_rk3328 type */
+/* normal mode only. */
 #define ROCKCHIP_PLL_FIXED_MODE		BIT(1)
 
 enum {

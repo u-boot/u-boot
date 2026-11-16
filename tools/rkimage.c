@@ -3,7 +3,10 @@
  * (C) Copyright 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  *
- * See README.rockchip for details of the rkimage format
+ * rkimage.c combines the TPL/SPL binaries into a single image, sets the
+ * magic value expected by the SoC in the first 4 bytes and RC4-encodes
+ * the result if needed. The output is typically used as payload
+ * for the Mask ROM, uploaded via USB OTG or stored on a boot medium.
  */
 
 #include "imagetool.h"
