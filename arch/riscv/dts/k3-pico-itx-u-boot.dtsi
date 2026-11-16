@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright (c) 2026 E Shattow <e@freeshell.de>
+ */
+
+/* https://lore.kernel.org/linux-riscv/20261115195112.32120-3-e@freeshell.de/
+ * riscv: dts: spacemit: k3: use pico-itx 8gb memory configuration
+ */
+/ { memory@100000000 { reg = <0x1 0x00000000 0x2 0x00000000>; }; };
