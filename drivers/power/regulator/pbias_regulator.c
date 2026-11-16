@@ -111,7 +111,7 @@ static int pbias_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops pbias_ops = {
+static const struct dm_pmic_ops pbias_ops = {
 	.read = pbias_read,
 	.write = pbias_write,
 };
