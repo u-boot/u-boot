@@ -342,6 +342,7 @@ int board_fix_fdt(void *rw_fdt_blob)
 
 	return 0;
 }
+#endif /* CONFIG_USB_EHCI_MX7 */
 
 #if defined(CONFIG_BOARD_LATE_INIT)
 int board_late_init(void)
@@ -369,5 +370,3 @@ int board_late_init(void)
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */
-
-#endif /* CONFIG_USB_EHCI_MX7 */
