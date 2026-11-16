@@ -110,3 +110,201 @@ The bundling is done using U-Boot ``mkimage`` tool:
         -y /path/to/arm-trusted-firmware/build/rcar_gen4/*/bl31.bin \
         -Y 0x46400000 \
         /path/to/output/fitImage
+
+Cortex-R52 core start
+---------------------
+
+The U-Boot for Cortex-A76 remoteproc implementation is capable of
+starting additional CPU cores in the SoC, Cortex-R52 and Cortex-A76.
+This subchapter demonstrates how to start example code on Cortex-R52
+cores using the U-Boot on Cortex-A76 remoteproc.
+
+The piece of position independent assembler code below can be compiled
+for the Cortex-R52 core, can be started from any 4-Byte aligned address
+and prints CPU core program counter (PC) address and MPIDR onto HSCIF0.
+The MPIDR register encodes CPU cluster and core position and is useful
+when identifying on which specific CPU core does the code execute. The
+program counter (PC) can be used to determine from which address did
+the code running on the Cortex-R52 core start executing.
+
+.. code-block:: console
+
+    #define HSTDR        0xc
+    #define HSFSR        0x10
+    #define TEND         0x40
+
+    .macro mprintchr, chr, rt
+            mov          \rt, \chr
+            bl           printchr
+    .endm
+
+    .macro mprintnl, rt
+            mprintchr    #'\r', \rt
+            mprintchr    #'\n', \rt
+    .endm
+
+    start:
+
+    # Wait a bit before printing to avoid corrupting active HSCIF output
+            mov          r0,     #0x00040000
+    1:      sub          r0, r0, #0x00000001
+            cmp          r0,     #0x00000000
+            bne 1b
+
+    # Set up HSCIF output
+    mov                  r0,     #0xe0000000
+    orr                  r0, r0, #0x06000000
+    orr                  r0, r0, #0x00500000
+    orr                  r0, r0, #0x00040000
+
+    # Print newline
+    mprintnl             r1
+
+    # Print PC:
+    mprintchr            #'P', r1
+    mprintchr            #'C', r1
+    mprintchr            #':', r1
+    mprintchr            #' ', r1
+    bl                   printchr
+    bl                   printchr
+    bl                   printchr
+    mprintchr            #'0', r1
+    mprintchr            #'x', r1
+
+    # Figure out start address and print it
+    adr                  r2, start
+    bl                   printhex
+
+    # Print newline
+    mprintnl             r1
+
+    # Print MPIDR:
+    mprintchr            #'M', r1
+    mprintchr            #'P', r1
+    mprintchr            #'I', r1
+    mprintchr            #'D', r1
+    mprintchr            #'R', r1
+    mprintchr            #':', r1
+    mprintchr            #' ', r1
+    mprintchr            #'0', r1
+    mprintchr            #'x', r1
+
+    # Read MPIDR
+    mrc                  p15, 0, r2, c0, c0, 5
+    bl                   printhex
+
+    # Print newline
+    mprintnl             r1
+
+    # Halt and do nothing
+    3:      wfi
+            b            3b
+
+    # Print char byte of register r1 (clobber: r9)
+    printchr:
+    2:      ldrh         r9, [r0, #HSFSR]
+            tst          r9, #TEND
+            beq          2b
+            strb         r1, [r0, #HSTDR]
+            ldrh         r9, [r0, #HSFSR]
+            bic          r9, #TEND
+            strh         r9, [r0, #HSFSR]
+
+            bx           lr
+
+    # Print hex content of register r2 (clobber: r6, r7, r8, r9)
+    printhex:
+            mov          r8, #8
+
+    1:      and          r1, r2, #0xf0000000
+            lsl          r2, r2, #4
+            lsr          r1, r1, #28
+            add          r1, r1, #'0'
+            cmp          r1, #'9'
+            # >= '9' => add 'a' - ':'
+            addgt        r1, r1, #('a' - ':')
+
+            mov          r6, lr
+            bl           printchr
+            mov          lr, r6
+
+            sub          r8, r8, #1
+            cmp          r8, #0
+            bne          1b
+
+            bx           lr
+
+Compile the piece of position independent assembler code above for
+the Cortex-R52 core as follows:
+
+.. code-block:: console
+
+    $ cpp code.s > temp.S
+    $ arm-linux-gnueabi-as -march=armv8-r -o temp.o temp.S
+    $ arm-linux-gnueabi-objcopy -O binary temp.o output.bin
+
+Load the piece of compiled assembler code into memory, and start the
+code on the Cortex-R52 cluster 0 core 0 as follows:
+
+.. note::
+
+    The example below does use ethernet loading of the Cortex-R52
+    firmware, however, it is perfectly fine to load the firmware from
+    either SD card, NVMe, or other storage media.
+
+.. note::
+
+    The example below does use load address 0x4b000000 for the Cortex-R52
+    firmware. This address is located in DRAM and may be overwritten by
+    other software while the Cortex-R52 is running.
+
+.. code-block:: console
+
+    # Configure ethernet address, adjust as needed:
+    => env set ipaddr 192.168.1.10
+    => env set serverip 192.168.1.1
+    => env set netmask 255.255.255.0
+
+    # Load Cortex-R52 firmware into DRAM at address 0x4b000000
+    => tftp 0x4b000000 output.bin
+    # Configure Cortex-R52 cluster 0 core 0 entry point
+    => rproc load 0 0x4b000000 ${filesize}
+    # Start Cortex-R52 cluster 0 core 0
+    => rproc start 0
+
+The expected output of ``rproc start 0`` a print of both MPIDR and PC register
+values on HSCIF0.
+
+.. code-block:: console
+
+    Load Remote Processor 0 with data@addr=0x4b000000 324 bytes: Success!
+
+    PC:    0x4b000000
+    MPIDR: 0x80000000
+
+.. note::
+
+    The MPIDR register value above is 0x80000000 . Cortex-R52 MPIDR register
+    bit 31 is always set to 1, bitfields AFF2[23:16], AFF1[15:8], AFF0[7:0]
+    describe core affinity, in this case this is cluster 0, core 0.
+
+Other Cortex-R52 cores in other clusters can be started by passing a
+matching core number to both ``rproc load`` and ``rproc start``. Example:
+
+.. code-block:: console
+
+    => rproc list
+    0 - Name:'rcar-apmu-cr52.0-apmu@e6170000' type:'internal memory mapped' supports: load start stop reset is_running
+    1 - Name:'rcar-apmu-cr52.1-apmu@e6170000' type:'internal memory mapped' supports: load start stop reset is_running
+    2 - Name:'rcar-apmu-cr52.2-apmu@e6170000' type:'internal memory mapped' supports: load start stop reset is_running
+    => rproc load 2 0x4b000000 ${filesize} && rproc start 2
+    Load Remote Processor 2 with data@addr=0x4b000000 324 bytes: Success!
+
+    PC:    0x4b000000
+    MPIDR: 0x80000200
+
+.. note::
+
+    The MPIDR register value above is 0x80000200 . Cortex-R52 MPIDR register
+    bit 31 is always set to 1, bitfields AFF2[23:16], AFF1[15:8], AFF0[7:0]
+    describe core affinity, in this case this is cluster 2, core 0.
