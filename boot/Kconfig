@@ -541,7 +541,7 @@ config SPL_BOOTSTD
 config VPL_BOOTSTD
 	bool "Standard boot support in VPL"
 	depends on VPL && VPL_DM && VPL_OF_CONTROL && VPL_BLK
-	default y
+	default y if VPL
 	help
 	  This enables standard boot in SPL. This is needed so that VBE
 	  (Verified Boot for Embedded) can be used, since it depends on standard
@@ -742,7 +742,7 @@ config BOOTMETH_QFW
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
 	depends on FIT
-	default y
+	default y if SANDBOX
 	select BOOTMETH_GLOBAL
 	select EVENT
 	help
@@ -771,7 +771,7 @@ config VPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (VPL)"
 	depends on VPL && FIT
 	select EVENT
-	default y
+	default y if SANDBOX
 	help
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, selection of an OS to
@@ -779,8 +779,8 @@ config VPL_BOOTMETH_VBE
 
 config TPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (TPL)"
-	depends on TPL
-	default y
+	depends on TPL && VBE
+	default y if SANDBOX
 	help
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, seleciton of an OS to

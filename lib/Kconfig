@@ -1054,6 +1054,7 @@ config TPL_LZMA
 
 config VPL_LZMA
 	bool "Enable LZMA decompression support for VPL build"
+	depends on VPL
 	default y if LZMA
 	help
 	  This enables support for LZMA compression algorithm for VPL boot.
