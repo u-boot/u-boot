@@ -776,38 +776,42 @@ void tcp_parse_options(struct tcp_stream *tcp, uchar *o, int o_len)
 {
 	struct tcp_t_opt  *tsopt;
 	struct tcp_scale  *wsopt;
+	uchar *end = o + o_len;
 	uchar *p = o;
+	u8 len;
 
-	/*
-	 * NOPs are options with a zero length, and thus are special.
-	 * All other options have length fields.
-	 */
-	for (p = o; p < (o + o_len); ) {
-		if (!p[1])
-			return; /* Finished processing options */
+	while (p < end) {
+		if (p[0] == TCP_O_END)
+			return;
+		if (p[0] == TCP_1_NOP) {
+			p++;
+			continue;
+		}
+
+		/* All other options have a length byte covering kind and len */
+		if (end - p < TCP_OPT_LEN_2)
+			return;
+		len = p[1];
+		if (len < TCP_OPT_LEN_2 || len > end - p)
+			return;
 
 		switch (p[0]) {
-		case TCP_O_END:
-			return;
-		case TCP_O_MSS:
-		case TCP_P_SACK:
-		case TCP_V_SACK:
-			break;
 		case TCP_O_SCL:
+			if (len != TCP_OPT_LEN_3)
+				break;
 			wsopt = (struct tcp_scale *)p;
-			tcp->rmt_win_scale = wsopt->scale;
+			/* RFC 7323: a shift count above 14 is treated as 14 */
+			tcp->rmt_win_scale = wsopt->scale > 14 ? 14 : wsopt->scale;
 			break;
 		case TCP_O_TS:
+			if (len != TCP_OPT_LEN_A)
+				break;
 			tsopt = (struct tcp_t_opt *)p;
 			tcp->rmt_timestamp = tsopt->t_snd;
 			break;
 		}
 
-		/* Process optional NOPs */
-		if (p[0] == TCP_1_NOP)
-			p++;
-		else
-			p += p[1];
+		p += len;
 	}
 }
 
