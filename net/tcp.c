@@ -58,7 +58,7 @@ static int (*tcp_stream_on_create)(struct tcp_stream *tcp);
 #define ROUND_TCPHDR_LEN(x) (LEN_B_TO_DW((x) + 3))
 #define ROUND_TCPHDR_BYTES(x) (((x) + 3) & ~3)
 #define SHIFT_TO_TCPHDRLEN_FIELD(x) ((x) << 4)
-#define GET_TCP_HDR_LEN_IN_BYTES(x) ((x) >> 2)
+#define GET_TCP_HDR_LEN_IN_BYTES(x) (((x) & 0xf0) >> 2)
 
 #define RANDOM_PORT_START 1024
 #define RANDOM_PORT_RANGE 0x4000
@@ -1162,6 +1162,18 @@ void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int pkt_len)
 	u16 tcp_rx_xsum = b->ip.hdr.ip_sum;
 	struct tcp_stream *tcp;
 	struct in_addr src;
+	int tcp_hdr_len;
+
+	/*
+	 * The data offset must cover the fixed TCP header and must not point
+	 * past the end of the segment. Otherwise the options parser reads
+	 * beyond the packet and the payload length becomes negative.
+	 */
+	if (tcp_len < (int)TCP_HDR_SIZE)
+		return;
+	tcp_hdr_len = GET_TCP_HDR_LEN_IN_BYTES(b->ip.hdr.tcp_hlen);
+	if (tcp_hdr_len < (int)TCP_HDR_SIZE || tcp_hdr_len > tcp_len)
+		return;
 
 	/* Verify IP header */
 	debug_cond(DEBUG_DEV_PKT,
