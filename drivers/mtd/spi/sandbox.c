@@ -110,6 +110,27 @@ void sandbox_sf_set_block_protect(struct udevice *dev, int bp_mask)
 	sbsf->status |= bp_mask << STAT_BP_SHIFT;
 }
 
+static const struct flash_info *spi_nor_match_name(const char *name,
+						   size_t name_len)
+{
+	const struct flash_info *part;
+	unsigned int i, j;
+	size_t len;
+
+	for (i = 0; manufacturers[i]; i++) {
+		for (j = 0; j < manufacturers[i]->nparts; j++) {
+			part = &manufacturers[i]->parts[j];
+			len = strlen(part->name);
+			if (name_len != len)
+				continue;
+			if (!strncasecmp(name, part->name, len))
+				return part;
+		}
+	}
+
+	return NULL;
+}
+
 /**
  * This is a very strange probe function. If it has platform data (which may
  * have come from the device tree) then this function gets the filename and
@@ -119,7 +140,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 {
 	/* spec = idcode:file */
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
-	size_t len, idname_len;
+	size_t idname_len;
 	const struct flash_info *data;
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_plat(dev);
 	struct sandbox_state *state = state_get_current();
@@ -153,14 +174,8 @@ static int sandbox_sf_probe(struct udevice *dev)
 	idname_len = strlen(spec);
 	debug("%s: device='%s'\n", __func__, spec);
 
-	for (data = spi_nor_ids; data->name; data++) {
-		len = strlen(data->name);
-		if (idname_len != len)
-			continue;
-		if (!strncasecmp(spec, data->name, len))
-			break;
-	}
-	if (!data->name) {
+	data = spi_nor_match_name(spec, idname_len);
+	if (!data) {
 		printf("%s: unknown flash '%*s'\n", __func__, (int)idname_len,
 		       spec);
 		ret = -EINVAL;

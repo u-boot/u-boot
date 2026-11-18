@@ -13,8 +13,36 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+#include "sfdp.h"
+
 #define SPI_NOR_MAX_ID_LEN	6
 #define SPI_NOR_MAX_ADDR_WIDTH	4
+
+#define SPI_NOR_DEFAULT_PAGE_SIZE 256
+
+/**
+ * struct spi_nor_fixups - SPI NOR fixup hooks
+ * @post_bfpt: called after the BFPT table has been parsed
+ * @post_sfdp: called after SFDP has been parsed. Typically used to tweak
+ *             various parameters that could not be extracted by other means
+ *             (i.e. when information provided by the SFDP tables are incomplete
+ *             or wrong).
+ * @late_init: used to initialize flash parameters that are not declared in the
+ *             JESD216 SFDP standard, or where SFDP tables not defined at all.
+ *
+ * Those hooks can be used to tweak the SPI NOR configuration when the SFDP
+ * table is broken or not available.
+ */
+struct spi_nor_fixups {
+	int (*post_bfpt)(struct spi_nor *nor,
+			 const struct sfdp_parameter_header *bfpt_header,
+			 const struct sfdp_bfpt *bfpt,
+			 struct spi_nor_flash_parameter *params);
+	void (*post_sfdp)(struct spi_nor *nor,
+			  struct spi_nor_flash_parameter *params);
+	void (*late_init)(struct spi_nor *nor,
+			  struct spi_nor_flash_parameter *params);
+};
 
 struct flash_info {
 #if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
@@ -35,7 +63,6 @@ struct flash_info {
 	unsigned int	sector_size;
 	u16		n_sectors;
 
-	u16		page_size;
 	u16		addr_width;
 
 	u32		flags;
@@ -71,7 +98,77 @@ struct flash_info {
 #define SPI_NOR_OCTAL_DTR_READ	BIT(17)	/* Flash supports Octal DTR Read */
 };
 
-extern const struct flash_info spi_nor_ids[];
+/* Exclude chip names for SPL to save space */
+#if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+#define INFO_NAME(_name) .name = _name,
+#else
+#define INFO_NAME(_name)
+#endif
+
+/* Used when the "_ext_id" is two bytes at most */
+#define INFO(_name, _jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
+		INFO_NAME(_name)					\
+		.id = {							\
+			((_jedec_id) >> 16) & 0xff,			\
+			((_jedec_id) >> 8) & 0xff,			\
+			(_jedec_id) & 0xff,				\
+			((_ext_id) >> 8) & 0xff,			\
+			(_ext_id) & 0xff,				\
+			},						\
+		.id_len = (!(_jedec_id) ? 0 : (3 + ((_ext_id) ? 2 : 0))),	\
+		.sector_size = (_sector_size),				\
+		.n_sectors = (_n_sectors),				\
+		.flags = (_flags),
+
+#define INFO6(_name, _jedec_id, _ext_id, _sector_size, _n_sectors, _flags)	\
+		INFO_NAME(_name)					\
+		.id = {							\
+			((_jedec_id) >> 16) & 0xff,			\
+			((_jedec_id) >> 8) & 0xff,			\
+			(_jedec_id) & 0xff,				\
+			((_ext_id) >> 16) & 0xff,			\
+			((_ext_id) >> 8) & 0xff,			\
+			(_ext_id) & 0xff,				\
+			},						\
+		.id_len = 6,						\
+		.sector_size = (_sector_size),				\
+		.n_sectors = (_n_sectors),				\
+		.flags = (_flags),
+
+/**
+ * struct spi_nor_manufacturer - SPI NOR manufacturer object
+ * @parts: array of parts supported by this manufacturer
+ * @nparts: number of entries in the parts array
+ * @fixups: hooks called at various points in time during spi_nor_scan()
+ * @set_fixups: called to assign chip-specific fixups
+ */
+struct spi_nor_manufacturer {
+	const struct flash_info *parts;
+	unsigned int nparts;
+#if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+	const struct spi_nor_fixups *fixups;
+	void (*set_fixups)(struct spi_nor *nor);
+#endif
+};
+
+extern const struct spi_nor_manufacturer *manufacturers[];
+extern const struct spi_nor_manufacturer spi_nor_atmel;
+extern const struct spi_nor_manufacturer spi_nor_dosilicon;
+extern const struct spi_nor_manufacturer spi_nor_eon;
+extern const struct spi_nor_manufacturer spi_nor_fujitsu;
+extern const struct spi_nor_manufacturer spi_nor_gigadevice;
+extern const struct spi_nor_manufacturer spi_nor_issi;
+extern const struct spi_nor_manufacturer spi_nor_macronix;
+extern const struct spi_nor_manufacturer spi_nor_puya;
+extern const struct spi_nor_manufacturer spi_nor_siliconkaiser;
+extern const struct spi_nor_manufacturer spi_nor_micron;
+extern const struct spi_nor_manufacturer spi_nor_st;
+extern const struct spi_nor_manufacturer spi_nor_spansion;
+extern const struct spi_nor_manufacturer spi_nor_sst;
+extern const struct spi_nor_manufacturer spi_nor_winbond;
+extern const struct spi_nor_manufacturer spi_nor_xmc;
+extern const struct spi_nor_manufacturer spi_nor_xtx;
+extern const struct spi_nor_manufacturer spi_nor_zbit;
 
 #define JEDEC_MFR(info)	((info)->id[0])
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
@@ -92,5 +189,41 @@ static inline void spi_flash_mtd_unregister(struct spi_flash *flash)
 {
 }
 #endif
+
+#if CONFIG_IS_ENABLED(SPI_FLASH_SFDP_SUPPORT)
+int spi_nor_parse_sfdp(struct spi_nor *nor,
+		       struct spi_nor_flash_parameter *params);
+#else
+static inline int spi_nor_parse_sfdp(struct spi_nor *nor,
+				     struct spi_nor_flash_parameter *params)
+{
+	return -EINVAL;
+}
+#endif
+
+#if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
+int write_enable(struct spi_nor *nor);
+int set_4byte(struct spi_nor *nor, const struct flash_info *info, int enable);
+int spi_nor_sr_ready(struct spi_nor *nor);
+int spi_nor_wait_till_ready(struct spi_nor *nor);
+int spi_nor_read_write_reg(struct spi_nor *nor, struct spi_mem_op *op,
+			   void *buf);
+void spi_nor_set_read_settings(struct spi_nor_read_command *read,
+			       u8 num_mode_clocks,
+			       u8 num_wait_states,
+			       u8 opcode,
+			       enum spi_nor_protocol proto);
+int spansion_read_cr_quad_enable(struct spi_nor *nor);
+int macronix_quad_enable(struct spi_nor *nor);
+#endif
+
+void spi_nor_set_pp_settings(struct spi_nor_pp_command *pp, u8 opcode,
+			     enum spi_nor_protocol proto);
+int spi_nor_default_setup(struct spi_nor *nor, const struct flash_info *info,
+			  const struct spi_nor_flash_parameter *params);
+int spi_nor_hwcaps_read2cmd(u32 hwcaps);
+int spansion_no_read_cr_quad_enable(struct spi_nor *nor);
+
+const struct flash_info *spi_nor_match_id(struct spi_nor *nor, const u8 *id);
 
 #endif /* _SF_INTERNAL_H_ */
