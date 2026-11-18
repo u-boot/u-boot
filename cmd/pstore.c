@@ -5,6 +5,7 @@
 
 #include <config.h>
 #include <command.h>
+#include <div64.h>
 #include <fdtdec.h>
 #include <fs.h>
 #include <log.h>
@@ -12,12 +13,41 @@
 #include <memalign.h>
 #include <part.h>
 #include <fdt_support.h>
+#include <linux/log2.h>
 
 struct persistent_ram_buffer {
 	u32    sig;
 	u32    start;
 	u32    size;
 	u8     data[0];
+};
+
+/**
+ * struct pstore_zone - Zone of the PStore memory
+ * @addr: Address of the zone
+ * @size: Size of the zone, record header included
+ */
+struct pstore_zone {
+	phys_addr_t addr;
+	u32 size;
+};
+
+/**
+ * struct pstore_zones - Zones of the PStore memory
+ * @dump: First dump zone, the others follow it with the same size
+ * @dump_count: Number of dump zones
+ * @dump_end: End of the dump zones
+ * @console: Console zone
+ * @ftrace: FTrace zone
+ * @pmsg: User space zone
+ */
+struct pstore_zones {
+	struct pstore_zone dump;
+	u32 dump_count;
+	phys_addr_t dump_end;
+	struct pstore_zone console;
+	struct pstore_zone ftrace;
+	struct pstore_zone pmsg;
 };
 
 #define PERSISTENT_RAM_SIG (0x43474244) /* DBGC */
@@ -36,7 +66,6 @@ static unsigned int pstore_console_size = CONFIG_CMD_PSTORE_CONSOLE_SIZE;
 static unsigned int pstore_ftrace_size = CONFIG_CMD_PSTORE_FTRACE_SIZE;
 static unsigned int pstore_pmsg_size = CONFIG_CMD_PSTORE_PMSG_SIZE;
 static unsigned int pstore_ecc_size = CONFIG_CMD_PSTORE_ECC_SIZE;
-static unsigned int buffer_size;
 
  /**
   * pstore_read_kmsg_hdr() - Check kernel header and get compression flag if
@@ -123,24 +152,81 @@ static u32 pstore_get_buffer(u32 sig, phys_addr_t buffer, u32 size, char *dest)
 }
 
 /**
- * pstore_init_buffer_size() - Init buffer size to largest record size
+ * pstore_round_size() - Round a zone size down to a power of two
+ * @size: Zone size, can be 0
  *
- * Records, console, FTrace and user logs can use different buffer sizes.
- * This function allows to retrieve the biggest one.
+ * Return: @size rounded down to a power of two, or 0 if @size is 0
  */
-static void pstore_init_buffer_size(void)
+static u32 pstore_round_size(u32 size)
 {
-	if (pstore_record_size > buffer_size)
-		buffer_size = pstore_record_size;
+	return size ? rounddown_pow_of_two(size) : 0;
+}
 
-	if (pstore_console_size > buffer_size)
-		buffer_size = pstore_console_size;
+/**
+ * pstore_has_ftrace_sig() - Check whether a zone has an FTrace signature
+ * @addr: Address of the zone
+ *
+ * Linux writes the signature of each zone when it starts: 'DBGC' XORed with
+ * LINUX_VERSION_CODE in the FTrace zones, the plain 'DBGC' in the others.
+ *
+ * Return: true if the zone at @addr has the signature of an FTrace zone
+ */
+static bool pstore_has_ftrace_sig(phys_addr_t addr)
+{
+	u32 *sig = map_sysmem(addr, sizeof(*sig));
+	u32 version = *sig ^ PERSISTENT_RAM_SIG;
 
-	if (pstore_ftrace_size > buffer_size)
-		buffer_size = pstore_ftrace_size;
+	unmap_sysmem(sig);
 
-	if (pstore_pmsg_size > buffer_size)
-		buffer_size = pstore_pmsg_size;
+	/* LINUX_VERSION_CODE of 3.0 to 255.255.255 */
+	return version >= 0x30000 && version <= 0xffffff;
+}
+
+/**
+ * pstore_get_zones() - Find the zones where Linux keeps the records
+ * @zones: Returns the zones
+ *
+ * Lay out the zones like ramoops_probe() in Linux: round each size down to a
+ * power of two, split the memory left for the dump records into as many
+ * zones as there is room for records, each rounded down to an even size, then
+ * put the console, user space and FTrace zones after them. Linux 6.1 and older
+ * put the FTrace zone before the user space one, which its signature shows.
+ *
+ * Return: size of the largest zone, which a buffer needs for any record
+ */
+static u32 pstore_get_zones(struct pstore_zones *zones)
+{
+	u32 record_size = pstore_round_size(pstore_record_size);
+	phys_size_t dump_size;
+	u32 count;
+
+	zones->console.size = pstore_round_size(pstore_console_size);
+	zones->ftrace.size = pstore_round_size(pstore_ftrace_size);
+	zones->pmsg.size = pstore_round_size(pstore_pmsg_size);
+
+	dump_size = pstore_length - zones->console.size - zones->ftrace.size -
+		    zones->pmsg.size;
+	count = record_size ? lldiv(dump_size, record_size) : 0;
+	zones->dump_count = count;
+	zones->dump.addr = pstore_addr;
+	zones->dump.size = count ? ALIGN_DOWN(lldiv(dump_size, count), 2) : 0;
+	zones->dump_end = zones->dump.addr +
+			  (phys_size_t)count * zones->dump.size;
+
+	zones->console.addr = zones->dump_end;
+	zones->pmsg.addr = zones->console.addr + zones->console.size;
+	zones->ftrace.addr = zones->pmsg.addr + zones->pmsg.size;
+
+	/* A zone too small for a record holds none, so its place is moot */
+	if (zones->pmsg.size > sizeof(struct persistent_ram_buffer) &&
+	    zones->ftrace.size > sizeof(struct persistent_ram_buffer) &&
+	    pstore_has_ftrace_sig(zones->pmsg.addr)) {
+		zones->ftrace.addr = zones->pmsg.addr;
+		zones->pmsg.addr += zones->ftrace.size;
+	}
+
+	return max(max(zones->dump.size, zones->console.size),
+		   max(zones->ftrace.size, zones->pmsg.size));
 }
 
 /**
@@ -196,11 +282,11 @@ static int pstore_set(struct cmd_tbl *cmdtp, int flag,  int argc,
 	if (argc > 7)
 		pstore_ecc_size = hextoul(argv[7], NULL);
 
-	/* Size the buffer again for the new record sizes on next use */
-	buffer_size = 0;
-
-	if (pstore_length < (pstore_record_size + pstore_console_size
-			     + pstore_ftrace_size + pstore_pmsg_size)) {
+	/* As Linux, use the sizes rounded down to powers of two */
+	if (pstore_length < (u64)pstore_round_size(pstore_record_size) +
+			    pstore_round_size(pstore_console_size) +
+			    pstore_round_size(pstore_ftrace_size) +
+			    pstore_round_size(pstore_pmsg_size)) {
 		printf("pstore <len> should be larger than the sum of all records sizes\n");
 		pstore_length = 0;
 	}
@@ -250,6 +336,7 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 			  char * const argv[])
 {
 	int type = PSTORE_TYPE_ALL;
+	struct pstore_zones zones;
 	phys_addr_t ptr;
 	char *buffer;
 	u32 size;
@@ -274,26 +361,33 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 		return CMD_RET_USAGE;
 	}
 
-	if (buffer_size == 0)
-		pstore_init_buffer_size();
-
-	buffer = malloc_cache_aligned(buffer_size);
+	size = pstore_get_zones(&zones);
+	buffer = malloc_cache_aligned(size);
+	if (!buffer) {
+		printf("Cannot allocate %u bytes for the records\n", size);
+		return CMD_RET_FAILURE;
+	}
 
 	if (type == PSTORE_TYPE_DMESG || type == PSTORE_TYPE_ALL) {
-		ptr = pstore_addr;
-		phys_addr_t ptr_end = ptr + pstore_length - pstore_pmsg_size
-				- pstore_ftrace_size - pstore_console_size;
+		ptr = zones.dump.addr;
+		phys_addr_t ptr_end = zones.dump_end;
 
 		if (argc > 2) {
-			ptr += dectoul(argv[2], NULL)
-				* pstore_record_size;
-			ptr_end = ptr + pstore_record_size;
+			ulong index = dectoul(argv[2], NULL);
+
+			/* Only read that dump zone, if there is one */
+			if (index < zones.dump_count) {
+				ptr += (phys_size_t)index * zones.dump.size;
+				ptr_end = ptr + zones.dump.size;
+			} else {
+				ptr_end = ptr;
+			}
 		}
 
 		while (ptr < ptr_end) {
 			size = pstore_get_buffer(PERSISTENT_RAM_SIG, ptr,
-						 pstore_record_size, buffer);
-			ptr += pstore_record_size;
+						 zones.dump.size, buffer);
+			ptr += zones.dump.size;
 
 			if (size == 0)
 				continue;
@@ -316,30 +410,26 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 	}
 
 	if (type == PSTORE_TYPE_CONSOLE || type == PSTORE_TYPE_ALL) {
-		ptr = pstore_addr + pstore_length - pstore_pmsg_size
-			- pstore_ftrace_size - pstore_console_size;
-		size = pstore_get_buffer(PERSISTENT_RAM_SIG, ptr,
-					 pstore_console_size, buffer);
+		size = pstore_get_buffer(PERSISTENT_RAM_SIG, zones.console.addr,
+					 zones.console.size, buffer);
 		if (size != 0)
 			pstore_print_buffer("Console", buffer, size);
 	}
 
 	if (type == PSTORE_TYPE_FTRACE || type == PSTORE_TYPE_ALL) {
-		ptr = pstore_addr + pstore_length - pstore_pmsg_size
-		- pstore_ftrace_size;
 		/* The FTrace record(s) uses LINUX_VERSION_CODE ^ 'DBGC'
 		 * signature, pass 0 to pstore_get_buffer to prevent
 		 * checking it
 		 */
-		size = pstore_get_buffer(0, ptr, pstore_ftrace_size, buffer);
+		size = pstore_get_buffer(0, zones.ftrace.addr,
+					 zones.ftrace.size, buffer);
 		if (size != 0)
 			pstore_print_buffer("FTrace", buffer, size);
 	}
 
 	if (type == PSTORE_TYPE_PMSG || type == PSTORE_TYPE_ALL) {
-		ptr = pstore_addr + pstore_length - pstore_pmsg_size;
-		size = pstore_get_buffer(PERSISTENT_RAM_SIG, ptr,
-					 pstore_pmsg_size, buffer);
+		size = pstore_get_buffer(PERSISTENT_RAM_SIG, zones.pmsg.addr,
+					 zones.pmsg.size, buffer);
 		if (size != 0)
 			pstore_print_buffer("User", buffer, size);
 	}
@@ -367,6 +457,7 @@ static int pstore_display(struct cmd_tbl *cmdtp, int flag,  int argc,
 static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 		       char * const argv[])
 {
+	struct pstore_zones zones;
 	phys_addr_t ptr, ptr_end;
 	char *buffer;
 	char *save_argv[6];
@@ -385,10 +476,12 @@ static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 		return CMD_RET_USAGE;
 	}
 
-	if (buffer_size == 0)
-		pstore_init_buffer_size();
-
-	buffer = malloc_cache_aligned(buffer_size);
+	size = pstore_get_zones(&zones);
+	buffer = malloc_cache_aligned(size);
+	if (!buffer) {
+		printf("Cannot allocate %u bytes for the records\n", size);
+		return CMD_RET_FAILURE;
+	}
 	sprintf(addr, "0x%p", buffer);
 
 	save_argv[0] = argv[0];
@@ -399,14 +492,13 @@ static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 	save_argv[5] = length;
 
 	/* Save all Dump records */
-	ptr = pstore_addr;
-	ptr_end = ptr + pstore_length - pstore_pmsg_size - pstore_ftrace_size
-				- pstore_console_size;
+	ptr = zones.dump.addr;
+	ptr_end = zones.dump_end;
 	index = 0;
 	while (ptr < ptr_end) {
 		size = pstore_get_buffer(PERSISTENT_RAM_SIG, ptr,
-					 pstore_record_size, buffer);
-		ptr += pstore_record_size;
+					 zones.dump.size, buffer);
+		ptr += zones.dump.size;
 
 		if (size == 0)
 			continue;
@@ -428,30 +520,29 @@ static int pstore_save(struct cmd_tbl *cmdtp, int flag,  int argc,
 	sprintf(addr, "0x%08lx", (ulong)map_to_sysmem(buffer));
 
 	/* Save Console record */
-	size = pstore_get_buffer(PERSISTENT_RAM_SIG, ptr, pstore_console_size,
-				 buffer);
+	size = pstore_get_buffer(PERSISTENT_RAM_SIG, zones.console.addr,
+				 zones.console.size, buffer);
 	if (size != 0) {
 		sprintf(length, "0x%X", size);
 		snprintf(path, sizeof(path), "%s/console-ramoops-0", argv[3]);
 		do_save(cmdtp, flag, 6, save_argv, FS_TYPE_ANY);
 	}
-	ptr += pstore_console_size;
 
 	/* Save FTrace record(s)
 	 * The FTrace record(s) uses LINUX_VERSION_CODE ^ 'DBGC' signature,
 	 * pass 0 to pstore_get_buffer to prevent checking it
 	 */
-	size = pstore_get_buffer(0, ptr, pstore_ftrace_size, buffer);
+	size = pstore_get_buffer(0, zones.ftrace.addr, zones.ftrace.size,
+				 buffer);
 	if (size != 0) {
 		sprintf(length, "0x%X", size);
 		snprintf(path, sizeof(path), "%s/ftrace-ramoops-0", argv[3]);
 		do_save(cmdtp, flag, 6, save_argv, FS_TYPE_ANY);
 	}
-	ptr += pstore_ftrace_size;
 
 	/* Save Console record */
-	size = pstore_get_buffer(PERSISTENT_RAM_SIG, ptr, pstore_pmsg_size,
-				 buffer);
+	size = pstore_get_buffer(PERSISTENT_RAM_SIG, zones.pmsg.addr,
+				 zones.pmsg.size, buffer);
 	if (size != 0) {
 		sprintf(length, "0x%X", size);
 		snprintf(path, sizeof(path), "%s/pmsg-ramoops-0", argv[3]);
