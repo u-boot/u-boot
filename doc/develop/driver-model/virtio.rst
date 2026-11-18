@@ -28,7 +28,13 @@ queues configuration and buffer transfers are nearly identical. Both MMIO
 and PCI transport options are supported in U-Boot.
 
 The VirtIO spec defines a lots of VirtIO device types, however at present only
-network and block device, the most two commonly used devices, are supported.
+the following devices are supported.
+
+  - network
+  - block
+  - entropy (rng)
+  - 9P transport
+  - RTC
 
 The following QEMU targets are supported.
 
@@ -72,6 +78,18 @@ Requirements
 ------------
 It is required that QEMU v2.5.0+ should be used to test U-Boot VirtIO support
 on QEMU ARM and x86, and v2.12.0+ on QEMU RISC-V.
+
+VirtIO RTC
+----------
+The VirtIO RTC device (``-device virtio-rtc-pci`` or
+``-device virtio-rtc-device``) requires QEMU v11.1.0+.
+
+The ``date`` command only uses RTC sequence 0. The QEMU ARM, RISC-V and x86
+machines also have a PL031, Goldfish or MC146818 RTC, which gets sequence 0,
+so ``date`` reads the VirtIO RTC only if ``CONFIG_RTC_PL031``,
+``CONFIG_RTC_GOLDFISH`` or ``CONFIG_RTC_MC146818`` is disabled.
+``dm uclass rtc`` shows the sequence numbers. ``rtc dev`` does not help, as
+``rtc read`` reads raw registers, which the VirtIO RTC does not have.
 
 Testing
 -------
@@ -246,9 +264,8 @@ So it's easy to tell which device these functions are operating on.
 
 Development Flow
 ----------------
-At present only VirtIO network card (device ID 1) and block device (device
-ID 2) are supported. If you want to develop new driver for new devices,
-please follow the guideline below.
+The supported devices are listed at the top of this document. If you want
+to develop new driver for new devices, please follow the guideline below.
 
 1. add new device ID in virtio.h
 

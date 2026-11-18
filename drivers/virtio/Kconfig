@@ -84,4 +84,15 @@ config VIRTIO_9P
 	help
 	  This enables the 9P transport driver over virtio.
 	  It can be used with QEMU based targets.
+
+config VIRTIO_RTC
+	bool "virtio RTC driver"
+	depends on DM_RTC
+	depends on VIRTIO
+	default y
+	help
+	  This enables the virtio RTC driver, which reads the UTC clock
+	  exposed by a virtio RTC device. QEMU v11.1.0 or later provides
+	  it as virtio-rtc-pci and virtio-rtc-device. The clocks are
+	  read-only, so the time cannot be set.
 endmenu
