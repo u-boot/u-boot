@@ -169,6 +169,12 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 	if (!align_log2)
 		align_log2 = BLOBLIST_BLOB_ALIGN_LOG2;
 
+	/*
+	 * The data of the last record does not have to end aligned, but the
+	 * next record starts aligned.
+	 */
+	hdr->used_size = ALIGN(hdr->used_size, BLOBLIST_BLOB_ALIGN);
+
 	/* Figure out where the new data will start */
 	data_start = map_to_sysmem(hdr) + hdr->used_size + sizeof(*rec);
 
@@ -461,7 +467,15 @@ int bloblist_check(ulong addr, uint size)
 	hdr = map_sysmem(addr, sizeof(*hdr));
 	if (hdr->magic != BLOBLIST_MAGIC)
 		return log_msg_ret("Bad magic", -ENOENT);
-	if (hdr->version != BLOBLIST_VERSION)
+	/*
+	 * Lists of version 1 and 2 are implemented the same way. Version 1.0
+	 * of the Firmware Handoff specification was withdrawn because it
+	 * specified an XOR checksum while implementations used the additive
+	 * checksum that version 2.0 specifies. Both are accepted for backwards
+	 * compatibility.
+	 */
+	if (hdr->version != BLOBLIST_VERSION &&
+	    hdr->version != BLOBLIST_VERSION_WITHDRAWN)
 		return log_msg_ret("Bad version", -EPROTONOSUPPORT);
 	if (!hdr->total_size || (size && hdr->total_size > size))
 		return log_msg_ret("Bad total size", -EFBIG);

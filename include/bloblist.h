@@ -76,7 +76,10 @@
 #include <linux/errno.h>
 
 enum {
-	BLOBLIST_VERSION	= 1,
+	/* Version of the lists supported here */
+	BLOBLIST_VERSION	= 2,
+	/* Withdrawn version 1.0 of the specification, still accepted */
+	BLOBLIST_VERSION_WITHDRAWN = 1,
 	BLOBLIST_MAGIC		= 0x4a0fb10b,
 
 	BLOBLIST_REGCONV_SHIFT_64 = 32,
@@ -179,7 +182,8 @@ enum bloblist_tag_t {
  *	blobs can be altered after being created, this checksum is only valid
  *	when the bloblist is finalized before jumping to the next stage of boot.
  *	This is the value needed to make all checksummed bytes sum to 0
- * @version: BLOBLIST_VERSION
+ * @version: BLOBLIST_VERSION, or BLOBLIST_VERSION_WITHDRAWN when created by
+ *	another boot stage
  * @hdr_size: Size of this header, normally sizeof(struct bloblist_hdr). The
  *	first bloblist_rec starts at this offset from the start of the header
  * @align_log2: Power of two of the maximum alignment required by this list
