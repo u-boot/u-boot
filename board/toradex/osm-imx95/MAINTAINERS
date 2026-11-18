@@ -1,0 +1,11 @@
+Toradex OSM iMX95
+F:	arch/arm/dts/imx95-toradex-osm.dtsi
+F:	arch/arm/dts/imx95-toradex-osm-dev.dts
+F:	arch/arm/dts/imx95-toradex-osm-dev-u-boot.dtsi
+F:	board/toradex/osm-imx95/
+F:	configs/toradex-osm-imx95_defconfig
+F:	doc/board/toradex/osm-imx95.rst
+F:	include/configs/toradex-osm-imx95.h
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+S:	Maintained
+W:	https://www.toradex.com/computer-on-modules/osm-arm-family/nxp-imx95

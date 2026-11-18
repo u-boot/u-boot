@@ -12,6 +12,7 @@ Toradex
    colibri_imx7
    colibri-imx8x
    colibri_vf
+   osm-imx95
    smarc-imx8mp
    smarc-imx95
    verdin-am62

@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/* Copyright (c) Toradex */
+
+#include "imx95-u-boot.dtsi"
+
+/ {
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+};
+
+&lpi2c3 {
+	bootph-pre-ram;
+};
+
+&lpuart1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_ctrl_gpio_exp_int {
+	bootph-pre-ram;
+};
+
+&pinctrl_emmc {
+	bootph-pre-ram;
+};
+
+&pinctrl_emmc_200mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c_som {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c_som_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart_con {
+	bootph-pre-ram;
+};
+
+&som_gpio_expander_0 {
+	bootph-pre-ram;
+};
+
+&usb2 {
+	/delete-property/power-domains;
+};
+
+&usb3 {
+	status = "disabled";
+};
+
+&usb3_dwc3 {
+	status = "disabled";
+};
+
+&usb_recov_ctrl {
+	bootph-pre-ram;
+};
+
+&usdhc1 {
+	bootph-pre-ram;
+};
