@@ -40,6 +40,7 @@ struct spacemit_gpio_data {
 
 struct spacemit_gpio_priv {
 	void __iomem *regs;
+	struct udevice *pinctrl;
 	const struct spacemit_gpio_data *data;
 };
 
@@ -125,6 +126,7 @@ static int spacemit_gpio_set_flags(struct udevice *dev, unsigned int offset,
 				   ulong flags)
 {
 	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
+	const struct pinctrl_ops *ops;
 	void __iomem *base, *addr;
 	int value;
 
@@ -146,19 +148,29 @@ static int spacemit_gpio_set_flags(struct udevice *dev, unsigned int offset,
 		addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GSDR);
 		writel(1 << GPIO_TO_BIT(offset), addr);
 	}
+	if (flags & GPIOD_MASK_PULL) {
+		unsigned int param;
+		int ret;
+
+		ops = pinctrl_get_ops(priv->pinctrl);
+		if (!ops->pinconf_set)
+			return -ENOSYS;
+
+		param = flags & GPIOD_PULL_UP ? PIN_CONFIG_BIAS_PULL_UP :
+			PIN_CONFIG_BIAS_PULL_DOWN;
+		ret = ops->pinconf_set(priv->pinctrl, offset, param, 1);
+		if (ret)
+			return ret;
+	}
 	return 0;
 }
 
 static int spacemit_gpio_request(struct udevice *dev, unsigned int offset,
 				 const char *label)
 {
+	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
+	struct udevice *pctldev = priv->pinctrl;
 	const struct pinctrl_ops *ops;
-	struct udevice *pctldev;
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_PINCTRL, &pctldev);
-	if (ret)
-		return ret;
 
 	ops = pinctrl_get_ops(pctldev);
 	if (!ops->gpio_request_enable)
@@ -169,13 +181,9 @@ static int spacemit_gpio_request(struct udevice *dev, unsigned int offset,
 
 static int spacemit_gpio_rfree(struct udevice *dev, unsigned int offset)
 {
+	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
+	struct udevice *pctldev = priv->pinctrl;
 	const struct pinctrl_ops *ops;
-	struct udevice *pctldev;
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_PINCTRL, &pctldev);
-	if (ret)
-		return ret;
 
 	ops = pinctrl_get_ops(pctldev);
 	if (!ops->gpio_disable_free)
@@ -224,6 +232,10 @@ static int spacemit_gpio_probe(struct udevice *dev)
 		dev_err(dev, "Fail to enable bulk clks\n");
 		goto out;
 	}
+	ret = uclass_first_device_err(UCLASS_PINCTRL, &priv->pinctrl);
+	if (ret)
+		return ret;
+
 	return 0;
 out:
 	clk_release_bulk(&clks);

@@ -1,6 +1,6 @@
 BananaPi F3
-M:	Huan Zhou <pericycle.cc@gmail.com>
 M:	Eric Chung <eric.chung@riscstar.com>
+R:	Hung-Chun Tseng <alan.tseng.cs@gmail.com>
 L:	u-boot-spacemit@groups.io
 S:	Maintained
 F:	arch/riscv/dts/k1-*-u-boot.dtsi

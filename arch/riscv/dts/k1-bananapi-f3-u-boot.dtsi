@@ -57,10 +57,11 @@
 };
 
 /*
- * The kernel pmic@41 nodes use the standard regulator-* properties only;
- * U-Boot's regulator framework looks up suppliers by `regulator-name`.
- * Carry the U-Boot-specific names (vdd_core / vdd_1v8 / vdd_1v8_mmc) here
- * so SPL can program the bucks that DDR training depends on.
+ * The kernel pmic@41 nodes use the standard regulator-* properties only.
+ * The SPL board code looks up the bucks that DDR training depends on by
+ * `regulator-name`, so carry the U-Boot-specific names (vdd_core /
+ * vdd_1v8) here. aldo1 is the vqmmc-supply of sdhci0 and is needed in
+ * SPL as well.
  */
 &i2c8 {
 	bootph-pre-ram;
@@ -80,7 +81,6 @@
 			};
 
 			aldo1 {
-				regulator-name = "vdd_1v8_mmc";
 				bootph-pre-ram;
 			};
 		};
