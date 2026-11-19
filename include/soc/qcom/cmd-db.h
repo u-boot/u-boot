@@ -28,5 +28,12 @@ const void *cmd_db_read_aux_data(const char *resource_id, size_t *len);
 static inline u32 cmd_db_read_addr(const char *resource_id)
 { return 0; }
 
+static inline enum cmd_db_hw_type cmd_db_read_slave_id(const char *resource_id)
+{ return CMD_DB_HW_INVALID; }
+
+static inline const void *cmd_db_read_aux_data(const char *resource_id,
+					       size_t *len)
+{ return ERR_PTR(-ENODEV); }
+
 #endif /* CONFIG_QCOM_COMMAND_DB */
 #endif /* __QCOM_COMMAND_DB_H__ */
