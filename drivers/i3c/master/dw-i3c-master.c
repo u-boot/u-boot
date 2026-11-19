@@ -837,6 +837,7 @@ static void dw_i3c_master_detach_i3c_dev(struct i3c_dev_desc *dev)
 	       DEV_ADDR_TABLE_LOC(master->datstartaddr, data->index));
 
 	i3c_dev_set_master_data(dev, NULL);
+	master->i3cdev[data->index] = NULL;
 	master->addrs[data->index] = 0;
 	master->free_pos |= BIT(data->index);
 	kfree(data);
@@ -1025,9 +1026,14 @@ static int dw_i3c_master_priv_read(struct udevice *dev, u32 dev_number,
 				   u8 *buf, u32 buf_size)
 {
 	struct dw_i3c_master *master = dev_get_priv(dev);
-	struct i3c_dev_desc *i3cdev = master->i3cdev[dev_number];
+	struct i3c_dev_desc *i3cdev;
 	struct i3c_priv_xfer i3c_xfers;
 
+	if (dev_number >= ARRAY_SIZE(master->i3cdev) ||
+	    !master->i3cdev[dev_number])
+		return -EINVAL;
+
+	i3cdev = master->i3cdev[dev_number];
 	i3c_xfers.data.in = buf;
 	i3c_xfers.len = buf_size;
 	i3c_xfers.rnw = I3C_MSG_READ;
@@ -1039,9 +1045,14 @@ static int dw_i3c_master_priv_write(struct udevice *dev, u32 dev_number,
 				    u8 *buf, u32 buf_size)
 {
 	struct dw_i3c_master *master = dev_get_priv(dev);
-	struct i3c_dev_desc *i3cdev = master->i3cdev[dev_number];
+	struct i3c_dev_desc *i3cdev;
 	struct i3c_priv_xfer i3c_xfers;
 
+	if (dev_number >= ARRAY_SIZE(master->i3cdev) ||
+	    !master->i3cdev[dev_number])
+		return -EINVAL;
+
+	i3cdev = master->i3cdev[dev_number];
 	i3c_xfers.data.out = buf;
 	i3c_xfers.len = buf_size;
 	i3c_xfers.rnw = I3C_MSG_WRITE;
