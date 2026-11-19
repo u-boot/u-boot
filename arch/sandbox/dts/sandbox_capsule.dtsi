@@ -104,6 +104,21 @@
 		};
 	};
 
+	capsule7a {
+		filename = "Test116";
+		efi-capsule {
+			image-index = <0x7>;
+			image-guid = SANDBOX_UBOOT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			public-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			text {
+				text = "u-boot:New";
+			};
+		};
+	};
+
 	capsule8 {
 		filename = "Test12";
 		efi-capsule {

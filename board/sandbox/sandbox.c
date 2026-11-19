@@ -57,6 +57,19 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
+u8 efi_capsule_resolve_image_index(const efi_guid_t *image_type,
+				   u8 capsule_index)
+{
+	int i;
+
+	for (i = 0; i < update_info.num_images; i++) {
+		if (!guidcmp(&update_info.images[i].image_type_id, image_type))
+			return update_info.images[i].image_index;
+	}
+
+	return capsule_index;
+}
+
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
