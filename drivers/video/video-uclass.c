@@ -641,6 +641,18 @@ static int video_post_probe(struct udevice *dev)
 	priv->fb_size = priv->line_length * priv->ysize;
 
 	/*
+	 * The mode can come from the display itself (e.g. its EDID), so check
+	 * that the frame buffer fits in the memory reserved for it before
+	 * anything is drawn
+	 */
+	if (plat->size && priv->fb_size > plat->size) {
+		log_err("Video device '%s': %dx%d needs %#x bytes but only %#x are reserved\n",
+			dev->name, priv->xsize, priv->ysize, priv->fb_size,
+			plat->size);
+		return -ENOSPC;
+	}
+
+	/*
 	 * Set up video handoff fields for passing video blob to next stage
 	 * NOTE:
 	 * This assumes that reserved video memory only uses a single framebuffer

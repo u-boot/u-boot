@@ -664,6 +664,9 @@ static int tegra_dc_dp_init_max_link_cfg(
 	if (ret)
 		return ret;
 	link_cfg->max_lane_count = dpcd_data & DP_MAX_LANE_COUNT_MASK;
+	/* The sink may report more lanes than the SOR has */
+	if (link_cfg->max_lane_count > DP_MAX_LANE_COUNT_LANE_4)
+		link_cfg->max_lane_count = DP_MAX_LANE_COUNT_LANE_4;
 	link_cfg->tps3_supported = (dpcd_data &
 			DP_MAX_LANE_COUNT_TPS3_SUPPORTED_YES) ? 1 : 0;
 

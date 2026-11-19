@@ -181,6 +181,7 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 			  enum video_log2_bpp l2bpp,
 			  struct udevice *disp, int mux, bool is_composite)
 {
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct display_timing timing;
 	struct display_plat *disp_uc_plat;
@@ -194,6 +195,8 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 	}
 
 	disp_uc_plat->source_id = mux;
+	disp_uc_plat->fb_size = plat->size;
+	disp_uc_plat->fb_bpp = 1 << l2bpp;
 
 	ret = display_read_timing(disp, &timing);
 	if (ret) {
