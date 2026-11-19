@@ -6,12 +6,15 @@ choice
 
 config SOC_K3_AM625
 	bool "TI's K3 based AM625 SoC Family Support"
+	select SPL_DM_EVENT if SPL
 
 config SOC_K3_AM62A7
 	bool "TI's K3 based AM62A7 SoC Family Support"
+	select SPL_DM_EVENT if SPL
 
 config SOC_K3_AM62P5
 	bool "TI's K3 based AM62P5 SoC Family Support"
+	select SPL_DM_EVENT if SPL
 
 config SOC_K3_AM642
 	bool "TI's K3 based AM642 SoC Family Support"
@@ -30,6 +33,7 @@ config SOC_K3_J721S2
 
 config SOC_K3_J722S
 	bool "TI's K3 based J722S SoC Family Support"
+	select SPL_DM_EVENT if SPL
 
 config SOC_K3_J784S4
 	bool "TI's K3 based J784S4 SoC Family Support"

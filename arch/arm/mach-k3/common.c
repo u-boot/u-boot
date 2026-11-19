@@ -54,6 +54,16 @@ struct ti_sci_handle *get_ti_sci_handle(void)
 	return (struct ti_sci_handle *)ti_sci_get_handle_from_sysfw(dev);
 }
 
+void k3_sysfw_wait_ready(void)
+{
+	/*
+	 * Wait for TIFS initialization to finish. This helper is used to make
+	 * sure TIFS removed the firewall before U-Boot tries to unlock CTRL_MMR
+	 * registers and continues the boot.
+	 */
+	get_ti_sci_handle();
+}
+
 void k3_sysfw_print_ver(void)
 {
 	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
