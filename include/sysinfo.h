@@ -286,6 +286,18 @@ struct sysinfo_ops {
 int sysinfo_detect(struct udevice *dev);
 
 /**
+ * sysinfo_get_by_seq() - Return the sysinfo device by sequence number.
+ * @devp:	Pointer to structure to receive the sysinfo device.
+ * @seq:	Sequence number
+ *
+ * On most boards there is only one sysinfo instance; sysinfo_get() can be used
+ * in this case.
+ *
+ * Return: 0 if OK, else -ve on error.
+ */
+int sysinfo_get_by_seq(struct udevice **devp, int seq);
+
+/**
  * sysinfo_get_bool() - Read a specific bool data value that describes the
  *		      hardware setup.
  * @dev:	The sysinfo instance to gather the data.
@@ -361,7 +373,7 @@ int sysinfo_get_data_by_index(struct udevice *dev, int id, int index,
 			      void **data, size_t *size);
 
 /**
- * sysinfo_get() - Return the sysinfo device for the sysinfo in question.
+ * sysinfo_get() - Return the primary sysinfo device.
  * @devp: Pointer to structure to receive the sysinfo device.
  *
  * Since there can only be at most one sysinfo instance, the API can supply a
@@ -371,19 +383,38 @@ int sysinfo_get_data_by_index(struct udevice *dev, int id, int index,
  * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
  * error.
  */
-int sysinfo_get(struct udevice **devp);
+static inline int sysinfo_get(struct udevice **devp)
+{
+	return sysinfo_get_by_seq(devp, 0);
+}
 
 /**
- * sysinfo_get_and_detect() - Get the sysinfo device and detect it.
+ * sysinfo_get_by_seq_and_detect() - Get the primary sysinfo device and detect it.
+ *
+ * @devp:	Pointer to structure to receive the sysinfo device.
+ * @seq:	Sequence number
+ *
+ * This is a convenience wrapper around sysinfo_get_by_seq() followed by
+ * sysinfo_detect_by_seq().
+ *
+ * Return: 0 if OK, -ve on error.
+ */
+int sysinfo_get_by_seq_and_detect(struct udevice **devp, int seq);
+
+/**
+ * sysinfo_get_and_detect() - Get the primary sysinfo device and detect it.
  *
  * @devp:	Pointer to structure to receive the sysinfo device.
  *
  * This is a convenience wrapper around sysinfo_get() followed by
- * sysinfo_detect()
+ * sysinfo_detect() on the primary device.
  *
  * Return: 0 if OK, -ve on error.
  */
-int sysinfo_get_and_detect(struct udevice **devp);
+static inline int sysinfo_get_and_detect(struct udevice **devp)
+{
+	return sysinfo_get_by_seq_and_detect(devp, 0);
+}
 
 /**
  * sysinfo_get_fit_loadable - Get the name of an image to load from FIT
@@ -407,6 +438,11 @@ int sysinfo_get_fit_loadable(struct udevice *dev, int index, const char *type,
 #else
 
 static inline int sysinfo_detect(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_by_seq(struct udevice **devp, int seq)
 {
 	return -ENOSYS;
 }
@@ -451,6 +487,11 @@ static inline int sysinfo_get(struct udevice **devp)
 }
 
 static inline int sysinfo_get_and_detect(struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_by_seq_and_detect(struct udevice **devp)
 {
 	return -ENOSYS;
 }
