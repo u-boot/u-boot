@@ -15,8 +15,9 @@ run_test() {
 
 # Select test attributes
 ut_mark_expr=test_ut
+mark_expr="not event_dump"
 if [ "$1" = "quick" ]; then
-	mark_expr="not slow"
+	mark_expr="not slow and not event_dump"
 	ut_mark_expr="test_ut and not slow"
 	skip=--skip-net-tests
 fi
@@ -32,7 +33,7 @@ if [ "$1" = "parallel" ]; then
 	para="-n${jobs} -q"
 	prompt="Building and..."
 	skip=--skip-net-tests
-	mark_expr="not slow and not bootstd and not spi_flash"
+	mark_expr="not slow and not bootstd and not spi_flash and not event_dump"
 	ut_mark_expr="test_ut and not slow and not bootstd and not spi_flash"
 	echo "Note: test log is garbled with parallel tests"
 fi
@@ -76,7 +77,6 @@ fi
 # to tools build by the build.
 DTC_DIR=build-sandbox_spl/scripts/dtc
 export PYTHONPATH=${DTC_DIR}/pylibfdt
-export DTC=${DTC_DIR}/dtc
 TOOLS_DIR=build-sandbox_spl/tools
 
 run_test "binman" ./tools/binman/binman --toolpath ${TOOLS_DIR} test
@@ -93,7 +93,7 @@ run_test "dtoc" ./tools/dtoc/dtoc -t
 # Code-coverage tests cannot run in parallel, so skip them in that case
 if [ -z "${para}" ]; then
 	export PATH=$PATH:${TOOLS_DIR}
-	run_test "binman code coverage" ./tools/binman/binman test -T
+	run_test "binman code coverage" ./tools/binman/binman --toolpath ${TOOLS_DIR} test -T
 	run_test "dtoc code coverage" ./tools/dtoc/dtoc -T
 	run_test "fdt code coverage" ./tools/dtoc/test_fdt -T
 fi

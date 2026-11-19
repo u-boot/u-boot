@@ -290,7 +290,10 @@ class Bintool:
         if self.name in self.missing_list:
             return None
         name = os.path.expanduser(self.name)  # Expand paths containing ~
-        all_args = (name,) + args
+        if args[0] == '':
+            all_args = (name,)
+        else:
+            all_args = (name,) + args
         env = tools.get_env_with_path()
         tout.debug(f"bintool: {' '.join(all_args)}")
         result = command.run_pipe(
