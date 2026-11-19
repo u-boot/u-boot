@@ -373,10 +373,10 @@ void sha1_hmac(const unsigned char *key, int keylen,
 	sha1_update (&ctx, tmpbuf, 20);
 	sha1_finish (&ctx, output);
 
-	memset (k_ipad, 0, 64);
-	memset (k_opad, 0, 64);
-	memset (tmpbuf, 0, 20);
-	memset (&ctx, 0, sizeof (sha1_context));
+	memzero_explicit(k_ipad, 64);
+	memzero_explicit(k_opad, 64);
+	memzero_explicit(tmpbuf, 20);
+	memzero_explicit(&ctx, sizeof(sha1_context));
 }
 
 #ifdef SELF_TEST

@@ -307,11 +307,11 @@ int sha256_hmac(const unsigned char *key, int keylen,
 	sha256_update(&ctx, tmpbuf, sizeof(tmpbuf));
 	sha256_finish(&ctx, output);
 
-	memset(k_ipad, 0, sizeof(k_ipad));
-	memset(k_opad, 0, sizeof(k_opad));
-	memset(tmpbuf, 0, sizeof(tmpbuf));
-	memset(keybuf, 0, sizeof(keybuf));
-	memset(&ctx, 0, sizeof(sha256_context));
+	memzero_explicit(k_ipad, sizeof(k_ipad));
+	memzero_explicit(k_opad, sizeof(k_opad));
+	memzero_explicit(tmpbuf, sizeof(tmpbuf));
+	memzero_explicit(keybuf, sizeof(keybuf));
+	memzero_explicit(&ctx, sizeof(sha256_context));
 
 	return 0;
 }
