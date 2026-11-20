@@ -7984,18 +7984,26 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFitFdtListDir(self):
         """Test an image with an FIT with FDT images using fit,fdt-list-dir"""
         old_dir = os.getcwd()
+        local_env = os.environ.copy()
+        if 'DTC' in local_env:
+            local_env.pop('DTC')
         try:
-            os.chdir(self._indir)
-            self.CheckFitFdt('fit/fdt_dir.dts', False)
+            with unittest.mock.patch.dict('os.environ', local_env, clear=True):
+                os.chdir(self._indir)
+                self.CheckFitFdt('fit/fdt_dir.dts', False)
         finally:
             os.chdir(old_dir)
 
     def testFitFdtListDirDefault(self):
         """Test an FIT fit,fdt-list-dir where the default DT in is a subdir"""
         old_dir = os.getcwd()
+        local_env = os.environ.copy()
+        if 'DTC' in local_env:
+            local_env.pop('DTC')
         try:
-            os.chdir(self._indir)
-            self.CheckFitFdt('fit/fdt_dir.dts', False,
+            with unittest.mock.patch.dict('os.environ', local_env, clear=True):
+                os.chdir(self._indir)
+                self.CheckFitFdt('fit/fdt_dir.dts', False,
                              default_dt='rockchip/test-fdt2')
         finally:
             os.chdir(old_dir)

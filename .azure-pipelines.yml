@@ -149,7 +149,11 @@ stages:
           # Avoid "Permission denied: 'cov'" error by using a temporary file
           COVERAGE_FILE=/tmp/.coverage ./tools/binman/binman ${TOOLPATH} test -T
           ./tools/buildman/buildman -t
+          ./tools/u_boot_pylib/u_boot_pylib
           ./tools/dtoc/dtoc -t
+          ./tools/dtoc/dtoc -T
+          ./tools/dtoc/test_fdt -t
+          ./tools/dtoc/test_fdt -T
           make O=${UBOOT_TRAVIS_BUILD_DIR} testconfig
 
   - job: pylint
