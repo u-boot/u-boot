@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <dt-bindings/clock/imx6ul-clock.h>
 
 #include "clk.h"
@@ -259,8 +260,12 @@ static int imx6ul_clk_probe(struct udevice *dev)
 	clk_dm(IMX6UL_CLK_PWM1,
 	       imx_clk_gate2(dev, "pwm1", "perclk", base + 0x78, 16));
 
-	clk_dm(IMX6UL_CLK_ENET,
-	       imx_clk_gate2(dev, "enet", "ipg", base + 0x6c, 10));
+	if (is_mx6ull())
+		clk_dm(IMX6UL_CLK_ENET,
+		       imx_clk_gate2(dev, "enet", "ipg", base + 0x68, 12));
+	else
+		clk_dm(IMX6UL_CLK_ENET,
+		       imx_clk_gate2(dev, "enet", "ipg", base + 0x74, 4));
 	clk_dm(IMX6UL_CLK_ENET_REF,
 	       imx_clk_fixed_factor(dev, "enet_ref", "pll6_enet", 1, 1));
 
