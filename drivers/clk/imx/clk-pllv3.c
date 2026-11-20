@@ -346,6 +346,8 @@ struct clk *imx_clk_pllv3(struct udevice *dev, enum imx_pllv3_type type,
 	case IMX_PLLV3_ENET:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_ENET;
 		pll->ref_clock = 500000000;
+		/* Bit 13 is an output gate, modelled by the SoC driver */
+		pll->enable_bit = 0;
 		break;
 	default:
 		kfree(pll);
