@@ -7,4 +7,7 @@ S:	Maintained
 F:	board/intel/agilex5-socdk/
 F:	include/configs/socfpga_agilex5_socdk.h
 F:	configs/socfpga_agilex5_defconfig
+F:	configs/socfpga_agilex5_013b_defconfig
 F:	configs/socfpga_agilex5_nand2_defconfig
+F:	arch/arm/dts/socfpga_agilex5_socdk_013b.dts
+F:	arch/arm/dts/socfpga_agilex5_socdk_013b-u-boot.dtsi
