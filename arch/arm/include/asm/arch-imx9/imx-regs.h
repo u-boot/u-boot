@@ -90,6 +90,7 @@
 #define BCTRL_GPR_ENET_QOS_INTF_SEL_RMII         (0x4 << 1)
 #define BCTRL_GPR_ENET_QOS_INTF_SEL_RGMII        (0x1 << 1)
 #define BCTRL_GPR_ENET_QOS_CLK_GEN_EN            (0x1 << 0)
+#define BCTRL_GPR_ENET_QOS_CLK_SEL_EXT           (0x1 << 0)
 
 #define TRDC_AON_BASE		(0x44270000UL)
 #define TRDC_WAKEUP_BASE	(0x42460000UL)
