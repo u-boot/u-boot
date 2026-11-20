@@ -24,6 +24,13 @@ config TQMA6Q
 	depends on MX6Q
 	help
 	  select TQMa6Q / TQMa6D variant with i.MX6Q resp. i.MX6D
+	  with 1GiB or 2GiB DRAM
+
+config TQMA6QP
+	bool "TQMaQP / TQMaDP"
+	depends on MX6Q
+	help
+	  select TQMa6QP / TQMa6DP with i.MX6QP/DP
 	  with 1GiB DRAM
 
 config TQMA6DL
@@ -31,7 +38,7 @@ config TQMA6DL
 	depends on MX6DL
 	help
 	  select TQMa6DL variant with i.MX6DL
-	  with 1GiB DRAM
+	  with 1GiB or 2GiB DRAM
 
 config TQMA6S
 	bool "TQMa6S"
@@ -39,27 +46,6 @@ config TQMA6S
 	help
 	  select TQMa6S variant with i.MX6S
 	  with 512 MiB DRAM
-
-endchoice
-
-choice
-	prompt "TQMa6 boot configuration"
-	default TQMA6X_MMC_BOOT
-	help
-	  Configure boot device. This is also used to implement environment
-	  location.
-
-config TQMA6X_MMC_BOOT
-	bool "MMC / SD Boot"
-	help
-	  Boot from
-	  eMMC / SD Card
-
-config TQMA6X_SPI_BOOT
-	bool "SPI NOR Boot"
-	help
-	  Boot from
-	  board SPI NOR flash
 
 endchoice
 
@@ -103,12 +89,10 @@ endchoice
 
 config TEXT_BASE
 	default 0x2fc00000 if TQMA6S
-	default 0x4fc00000 if TQMA6Q || TQMA6DL
+	default 0x4fc00000 if TQMA6Q || TQMA6QP || TQMA6DL
 
-config IMX_CONFIG
-	default "board/tq/tqma6/tqma6q.cfg" if TQMA6Q
-	default "board/tq/tqma6/tqma6dl.cfg" if TQMA6DL
-	default "board/tq/tqma6/tqma6s.cfg" if TQMA6S
+config SPL_TEXT_BASE
+	default 0x00908000
 
 source "board/tq/common/Kconfig"
 

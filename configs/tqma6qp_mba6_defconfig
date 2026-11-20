@@ -1,0 +1,6 @@
+#include <configs/tqma6_mba6_common.config>
+
+CONFIG_MX6Q=y
+CONFIG_TQMA6QP=y
+CONFIG_DEFAULT_DEVICE_TREE="nxp/imx/imx6qp-mba6b"
+

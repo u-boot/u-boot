@@ -1,0 +1,2 @@
+#include <configs/tqma6qp_mba6_defconfig>
+#include <configs/tqma6_mba6_uuu.config>

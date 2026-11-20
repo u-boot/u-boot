@@ -1,5 +1,0 @@
-#include <configs/tqma6_mba6_common.defconfig>
-#include <configs/tqma6_mba6_spi.defconfig>
-
-CONFIG_MX6S=y
-CONFIG_DEFAULT_DEVICE_TREE="nxp/imx/imx6dl-mba6b"

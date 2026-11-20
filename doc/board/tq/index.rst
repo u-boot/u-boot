@@ -9,5 +9,6 @@ TQ-Systems
 .. toctree::
    :maxdepth: 2
 
+   tqma6
    tqma6ul
    tqma7

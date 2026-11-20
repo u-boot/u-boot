@@ -9,29 +9,20 @@
  * Author: Markus Niebel
  */
 
-#include <init.h>
-#include <net.h>
-#include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/mx6-pins.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/iomux.h>
-#include <asm/arch/sys_proto.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
-#include <asm/gpio.h>
-#include <asm/mach-imx/mxc_i2c.h>
+#include <env.h>
+#include <env_internal.h>
+#include <sysinfo.h>
+#include <spl.h>
 
-#include <fsl_esdhc_imx.h>
-#include <linux/libfdt.h>
-#include <malloc.h>
-#include <i2c.h>
-#include <micrel.h>
-#include <miiphy.h>
-#include <mmc.h>
-#include <netdev.h>
+#include <asm/arch/mx6-pins.h>
+#include <asm/arch/sys_proto.h>
+#include <sysinfo/tq_eeprom.h>
 
 #include "../common/tq_bb.h"
+#include "../common/tq_sysinfo.h"
+
+#define UART_PAD_CTRL (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
+	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
 #define TQMA6Q_IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII	0x02e0790
 #define TQMA6Q_IOMUX_SW_PAD_CTRL_GRP_RGMII_TERM		0x02e07ac
@@ -46,6 +37,30 @@
 /* optimised drive strength for 1.3 .. 2.5 V signal on RGMII */
 #define IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII_1P5V	0x000C0000
 
+static const iomux_v3_cfg_t mba6_uart2_pads[] = {
+	MX6_PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
+static void mba6_setup_iomuxc_uart(void)
+{
+	imx_iomux_v3_setup_multiple_pads(mba6_uart2_pads,
+					 ARRAY_SIZE(mba6_uart2_pads));
+}
+
+int tq_bb_board_early_init_f(void)
+{
+	/* iomux and setup of uart */
+	mba6_setup_iomuxc_uart();
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		preloader_console_init();
+
+	return 0;
+}
+
+#if !IS_ENABLED(CONFIG_SPL_BUILD)
+
 static void mba6_setup_iomuxc_enet(void)
 {
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -58,7 +73,7 @@ static void mba6_setup_iomuxc_enet(void)
 			     (void *)TQMA6DL_IOMUX_SW_PAD_CTRL_GRP_RGMII_TERM);
 		__raw_writel(IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII_1P5V,
 			     (void *)TQMA6DL_IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII);
-	} else if (is_mx6dq()) {
+	} else if (is_mx6dq() || is_mx6dqp()) {
 		__raw_writel(IOMUX_SW_PAD_CTRL_GRP_RGMII_TERM_DISABLE,
 			     (void *)TQMA6Q_IOMUX_SW_PAD_CTRL_GRP_RGMII_TERM);
 		__raw_writel(IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII_1P5V,
@@ -76,53 +91,6 @@ int board_mmc_get_env_dev(int devno)
 	return (devno == 2) ? 0 : 1;
 }
 
-int board_phy_config(struct phy_device *phydev)
-{
-/*
- * optimized pad skew values depends on CPU variant on the TQMa6x module:
- * CONFIG_TQMA6Q: i.MX6Q/D
- * CONFIG_TQMA6S: i.MX6S
- * CONFIG_TQMA6DL: i.MX6DL
- */
-#if defined(CONFIG_TQMA6Q)
-#define MBA6X_KSZ9031_CTRL_SKEW	0x0032
-#define MBA6X_KSZ9031_CLK_SKEW	0x03ff
-#define MBA6X_KSZ9031_RX_SKEW	0x3333
-#define MBA6X_KSZ9031_TX_SKEW	0x2036
-#elif defined(CONFIG_TQMA6S) || defined(CONFIG_TQMA6DL)
-#define MBA6X_KSZ9031_CTRL_SKEW	0x0030
-#define MBA6X_KSZ9031_CLK_SKEW	0x03ff
-#define MBA6X_KSZ9031_RX_SKEW	0x3333
-#define MBA6X_KSZ9031_TX_SKEW	0x2052
-#else
-#error
-#endif
-	/* min rx/tx ctrl delay */
-	ksz9031_phy_extended_write(phydev, 2,
-				   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC,
-				   MBA6X_KSZ9031_CTRL_SKEW);
-	/* min rx delay */
-	ksz9031_phy_extended_write(phydev, 2,
-				   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC,
-				   MBA6X_KSZ9031_RX_SKEW);
-	/* max tx delay */
-	ksz9031_phy_extended_write(phydev, 2,
-				   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC,
-				   MBA6X_KSZ9031_TX_SKEW);
-	/* rx/tx clk skew */
-	ksz9031_phy_extended_write(phydev, 2,
-				   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC,
-				   MBA6X_KSZ9031_CLK_SKEW);
-
-	phydev->drv->config(phydev);
-
-	return 0;
-}
-
 int tq_bb_board_init(void)
 {
 	mba6_setup_iomuxc_enet();
@@ -137,6 +105,58 @@ const char *tq_bb_get_boardname(void)
 
 int tq_bb_board_late_init(void)
 {
+	struct udevice *sysinfo;
+	int ret;
+
+	ret = sysinfo_get_by_seq_and_detect(&sysinfo, 1);
+	if (ret) {
+		pr_err("Failed to get sysinfo data: %d\n", ret);
+	} else {
+		ret = tq_common_sysinfo_set_eeprom_macaddrs_by_index(sysinfo, 1, 1);
+		if (ret)
+			pr_err("Failed to set eth1addr: %d\n", ret);
+	}
+
 	board_late_mmc_env_init();
 	return 0;
 }
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bmode = imx6_src_get_boot_mode();
+	u8 imx6_bmode = (bmode & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT;
+
+	switch (imx6_bmode) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		if (prio == 0)
+			return ENVL_MMC;
+		break;
+	case IMX6_BMODE_SERIAL_ROM:
+		switch ((imx6_bmode & IMX6_BMODE_SERIAL_ROM_MASK) >>
+			IMX6_BMODE_SERIAL_ROM_SHIFT) {
+		case IMX6_BMODE_ECSPI1:
+		case IMX6_BMODE_ECSPI2:
+		case IMX6_BMODE_ECSPI3:
+		case IMX6_BMODE_ECSPI4:
+		case IMX6_BMODE_ECSPI5:
+			if (prio == 0)
+				return ENVL_SPI_FLASH;
+			break;
+		default:
+			if (prio == 0)
+				return ENVL_NOWHERE;
+			break;
+		}
+	default:
+		if (prio == 0)
+			return ENVL_NOWHERE;
+		break;
+	}
+
+	return ENVL_UNKNOWN;
+}
+
+#endif /* !IS_ENABLED(CONFIG_SPL_BUILD) */
