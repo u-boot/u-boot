@@ -123,6 +123,7 @@ static const table_entry_t uimage_os[] = {
 	{	IH_OS_OPENRTOS,	"openrtos",	"OpenRTOS",		},
 #endif
 	{	IH_OS_OPENSBI,	"opensbi",	"RISC-V OpenSBI",	},
+	{	IH_OS_RUSTSBI,	"rustsbi",	"RISC-V RustSBI",	},
 	{	IH_OS_EFI,	"efi",		"EFI Firmware"		},
 #ifdef CONFIG_BOOTM_ELF
 	{	IH_OS_ELF,	"elf",		"ELF Image"		},

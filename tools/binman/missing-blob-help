@@ -38,6 +38,10 @@ https://github.com/riscv/opensbi.git
 You may need to build fw_dynamic.bin first and re-build u-boot with
 OPENSBI=/path/to/fw_dynamic.bin
 
+rustsbi:
+Build RustSBI Prototyper in dynamic mode for the configured SPL SBI load
+address, then re-build U-Boot with RUSTSBI=/path/to/firmware.bin.
+
 rockchip-tpl:
 An external TPL is required to initialize DRAM. Get the external TPL
 binary and build with ROCKCHIP_TPL=/path/to/ddr.bin. One possible source

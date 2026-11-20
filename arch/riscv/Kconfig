@@ -476,8 +476,7 @@ config SBI_V02
 	  single hart needs to boot and enter the operating system. The booting
 	  hart can bring up secondary harts one by one afterwards.
 
-	  Choose this option if OpenSBI release v0.7 or above is used together
-	  with U-Boot.
+	  Choose this option if the SBI firmware implements SBI v0.2 or later.
 
 endchoice
 
@@ -625,12 +624,11 @@ config TPL_USE_ARCH_MEMSET
 endmenu
 
 config SPL_LOAD_FIT_OPENSBI_OS_BOOT
-	bool "Enable SPL (OpenSBI OS boot mode) applying linux from FIT"
+	bool "Boot Linux from a FIT through SBI firmware"
 	depends on SPL_LOAD_FIT
 	help
-	  Use fw_dynamic from the FIT image, and u-boot SPL will invoke it directly.
-	  This is a shortcut boot flow, from u-boot SPL -> OpenSBI -> u-boot proper
-	  -> linux to u-boot SPL -> OpenSBI -> linux.
+	  Load SBI firmware and Linux from the FIT image. SPL starts the SBI
+	  firmware, which starts Linux directly instead of U-Boot proper.
 
 config SPL_OPTEE_LOAD_ADDR
 	hex "OP-TEE Trusted OS image load address"

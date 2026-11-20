@@ -791,6 +791,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	} else if (CONFIG_IS_ENABLED(OPENSBI) && os == IH_OS_OPENSBI) {
 		debug("Jumping to U-Boot via RISC-V OpenSBI\n");
 		jumper = &spl_invoke_opensbi;
+	} else if (CONFIG_IS_ENABLED(RUSTSBI) && os == IH_OS_RUSTSBI) {
+		debug("Jumping to U-Boot via RISC-V RustSBI\n");
+		jumper = &spl_invoke_rustsbi;
 	} else if (CONFIG_IS_ENABLED(OS_BOOT) && os == IH_OS_LINUX) {
 		debug("Jumping to Linux\n");
 		if (CONFIG_IS_ENABLED(OS_BOOT_ARGS))

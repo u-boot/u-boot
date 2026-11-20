@@ -124,6 +124,15 @@ with the following commands.
     make qemu-riscv64_spl_defconfig
     make
 
+To use RustSBI firmware, build RustSBI Prototyper in dynamic mode for the
+target with the SPL firmware load address. See https://github.com/rustsbi/rustsbi
+for details. Set RUSTSBI to the firmware binary and build U-Boot::
+
+    make qemu-riscv32_spl_defconfig  # Or qemu-riscv64_spl_defconfig
+    scripts/config --disable SPL_OPENSBI --enable SPL_RUSTSBI
+    make olddefconfig
+    make RUSTSBI=/path/to/rustsbi-prototyper-dynamic.bin
+
 The minimal QEMU commands to run U-Boot SPL in both 32-bit and 64-bit
 configurations are:
 
