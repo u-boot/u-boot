@@ -12,6 +12,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <div64.h>
+#include <dm/read.h>
 #include <errno.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -913,6 +914,17 @@ static int imx93_eqos_interface_init(struct udevice *dev, phy_interface_t interf
 			     BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
 		break;
 	case PHY_INTERFACE_MODE_RMII:
+		/*
+		 * On boards where the PHY is REF_CLK master (its own crystal,
+		 * feeding REF_CLK into the SOC), the MAC's REF_CLK source mux
+		 * (the register right after eqos_gpr) must be switched to the
+		 * external pin - matches Linux's imx93_set_intf_mode()
+		 * (drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c). CLK_GEN_EN
+		 * is set unconditionally either way, same as Linux does.
+		 */
+		if (dev_read_bool(dev, "snps,rmii_refclk_ext"))
+			clrbits_le32(&bctrl->enet_clk_sel,
+				     BCTRL_GPR_ENET_QOS_CLK_SEL_EXT);
 		setbits_le32(&bctrl->eqos_gpr,
 			     BCTRL_GPR_ENET_QOS_INTF_SEL_RMII |
 			     BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
