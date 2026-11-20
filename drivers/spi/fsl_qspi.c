@@ -23,6 +23,7 @@
  * Transition to spi-mem in spi-fsl-qspi.c
  */
 
+#include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <log.h>
@@ -708,6 +709,29 @@ static int fsl_qspi_adjust_op_size(struct spi_slave *slave,
 	return 0;
 }
 
+static int fsl_qspi_clock_setup(struct fsl_qspi *q)
+{
+	struct clk_bulk clks;
+	int ret;
+
+	ret = clk_get_bulk(q->dev, &clks);
+
+	/* Ignore if no DT clock property or no clock framework support */
+	if (ret == -ENOENT || ret == -ENOSYS)
+		return 0;
+
+	if (ret) {
+		dev_err(q->dev, "Failed to get clocks: %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable_bulk(&clks);
+	if (ret)
+		dev_err(q->dev, "Failed to enable clocks: %d\n", ret);
+
+	return ret;
+}
+
 static int fsl_qspi_default_setup(struct fsl_qspi *q)
 {
 	void __iomem *base = q->iobase;
@@ -821,6 +845,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 	dm_bus->max_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
 					66000000);
 
+	fsl_qspi_clock_setup(q);
 	fsl_qspi_default_setup(q);
 
 	return 0;
