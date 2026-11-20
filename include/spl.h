@@ -572,6 +572,7 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
  *
  * Reads the container image @sector in the device. Loads u-boot image to
  * specified load address.
+ * Returns 0 on success.
  */
 int spl_load_imx_container(struct spl_image_info *spl_image,
 			   struct spl_load_info *info, ulong offset);
