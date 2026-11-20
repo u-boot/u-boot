@@ -33,6 +33,9 @@ void board_init_f(ulong dummy)
 
 u32 spl_boot_device(void)
 {
+	if (IS_ENABLED(CONFIG_MTK_BROM_DOWNLOAD_AGENT_FASTBOOT))
+		return BOOT_DEVICE_RAM;
+
 	if (CONFIG_IS_ENABLED(SPI))
 		return BOOT_DEVICE_SPI;
 	if (CONFIG_IS_ENABLED(MMC))

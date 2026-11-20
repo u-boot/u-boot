@@ -217,8 +217,8 @@ config SYS_CONFIG_NAME
 config MTK_BROM_HEADER_INFO
 	string
 	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629
-	default "media=emmc;arm64=1" if TARGET_MT8188
-	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8366 || TARGET_MT8183 || TARGET_MT8189 || TARGET_MT8195
+	default "media=emmc;arm64=1" if TARGET_MT8188 || TARGET_MT8189
+	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8366 || TARGET_MT8183 || TARGET_MT8195
 	default "lk=1" if TARGET_MT7623
 
 config SPL_MTK_FIRMWARE_AB
@@ -240,7 +240,7 @@ config SPL_MTK_FIRMWARE_AB
 
 config MTK_GENIO_BOOT_IMAGES
 	bool "Build MediaTek firmware images"
-	depends on TARGET_MT8188 && SPL
+	depends on (TARGET_MT8188 || TARGET_MT8189) && SPL
 	select BINMAN
 	select MTK_GENIO_IMAGE_CONTRACT
 	help
@@ -255,6 +255,7 @@ if MTK_GENIO_IMAGE_CONTRACT
 config MTK_GENIO_BROM_LOAD_ADDR
 	hex "BootROM payload load address"
 	default 0x201000 if TARGET_MT8188
+	default 0x2001000 if TARGET_MT8189
 	help
 	  Address at which the MediaTek BootROM loads and enters the external
 	  DDR loader.
@@ -262,6 +263,7 @@ config MTK_GENIO_BROM_LOAD_ADDR
 config MTK_GENIO_DDR_LOADER_SIZE
 	hex "DDR-loader image region size"
 	default 0x4b000 if TARGET_MT8188
+	default 0xa0000 if TARGET_MT8189
 	help
 	  Size reserved for the external DDR loader at the start of the
 	  BootROM payload. This is also the offset of U-Boot SPL and must match
@@ -269,10 +271,69 @@ config MTK_GENIO_DDR_LOADER_SIZE
 
 config MTK_GENIO_BL31_LOAD_ADDR
 	hex "BL31 load and entry address"
-	default 0x54601000 if TARGET_MT8188
+	default 0x54601000 if TARGET_MT8188 || TARGET_MT8189
 	help
 	  Address at which SPL loads and enters BL31. This must match the
 	  platform firmware's link address and secure-memory layout.
+
+endif
+
+config MTK_BROM_DOWNLOAD_AGENT
+	bool
+	depends on TARGET_MT8188 && SPL
+	select BINMAN
+	select MTK_GENIO_IMAGE_CONTRACT
+
+choice
+	prompt "MediaTek BootROM download agent"
+	optional
+	depends on TARGET_MT8188 && SPL && SUPPORT_EMMC_BOOT
+	depends on !MTK_GENIO_BOOT_IMAGES
+	help
+	  Select where to run fastboot after the BootROM downloads the agent
+	  into RAM. Leave this disabled for normal storage boot.
+	  Download agents cannot also build the normal storage-boot images.
+
+config SPL_MTK_BROM_DOWNLOAD_AGENT_FASTBOOT
+	bool "Run download-agent fastboot from SPL"
+	depends on SPL_FASTBOOT_FLASH_MMC
+	select MTK_BROM_DOWNLOAD_AGENT
+	select SPL_BOARD_INIT
+	help
+	  Build an SPL which enters USB fastboot after the MediaTek BootROM
+	  downloads it into RAM. The download agent also configures the eMMC
+	  boot partition so that a newly flashed board can boot normally.
+
+config MTK_BROM_DOWNLOAD_AGENT_FASTBOOT
+	bool "Run download-agent fastboot from U-Boot"
+	depends on SPL_RAM_DEVICE
+	depends on USB_FUNCTION_FASTBOOT
+	depends on FASTBOOT_FLASH_MMC
+	select BOARD_LATE_INIT
+	select MTK_BROM_DOWNLOAD_AGENT
+	help
+	  Build a small SPL which loads BL31 and U-Boot from a FIT already
+	  copied to DRAM by the external DDR loader. U-Boot proper then
+	  prepares the eMMC boot settings and provides USB fastboot.
+
+endchoice
+
+if MTK_BROM_DOWNLOAD_AGENT_FASTBOOT
+
+config MTK_GENIO_DA_FIT_OFFSET
+	hex "Download-agent FIT offset"
+	default 0x70000 if TARGET_MT8188
+	help
+	  Offset of the directly parseable FIT in the BootROM-loaded download
+	  agent. This must match the external loader's DA_FIT_OFFSET value.
+
+config MTK_GENIO_DA_FIT_MAX_SIZE
+	hex "Maximum download-agent FIT size"
+	default 0x8f000 if TARGET_MT8188
+	help
+	  Fixed region reserved for the download-agent FIT and the maximum FIT
+	  size accepted by this image layout. This must match the external
+	  loader's DA_FIT_SIZE value while the loader copies the complete region.
 
 endif
 

@@ -358,3 +358,138 @@ download/recovery path for exhausted slots or damaged metadata, including
 damage caused by an interrupted metadata update. A slot already marked
 successful is no longer subject to trial retries; a later failure of that
 image requires recovery.
+
+BootROM download agents
+-----------------------
+
+A download agent (DA) runs from RAM and exposes eMMC through USB fastboot for
+provisioning or recovery. The BootROM downloads ``da.bin`` into SRAM; the
+external DDR loader initializes DRAM and enters SPL using the same execution
+contract as normal boot. The DA itself is not installed in an eMMC partition.
+
+Prefer fastboot in U-Boot proper when the complete DA fits the platform's
+BootROM download limit. It provides U-Boot's shell and boot facilities in
+addition to flashing. The complete image must fit in the SRAM download area
+before the DDR loader can initialize DRAM. Fastboot in SPL offers a smaller
+executable payload for configurations where including BL31 and U-Boot proper
+would exceed that limit. Both variants run fastboot from DRAM.
+
+Two mutually exclusive modes are available:
+
+* ``CONFIG_SPL_MTK_BROM_DOWNLOAD_AGENT_FASTBOOT`` runs fastboot directly in
+  SPL. This keeps the provisioning agent small and independent of BL31,
+  OP-TEE and U-Boot proper. It needs the matching external DDR loader.
+* ``CONFIG_MTK_BROM_DOWNLOAD_AGENT_FASTBOOT`` uses SPL to load BL31 and
+  U-Boot from a FIT in RAM. U-Boot then runs ``fastboot usb 0``. This mode needs
+  a matching BL31 built without an OP-TEE dependency, and a DDR loader which
+  implements the additional FIT copy described below. It provides
+  U-Boot's shell and boot facilities for provisioning flows which need
+  more than the SPL agent's flash and erase commands.
+
+The two paths start USB fastboot at different stages::
+
+   Fastboot in SPL                   Fastboot in U-Boot proper
+   ---------------                  -------------------------
+   BootROM USB download             BootROM USB download
+   (host -> SRAM)                   (host -> SRAM)
+     |                                |
+     v                                v
+   DDR loader                       DDR loader
+     | Initialize DRAM                | Initialize DRAM
+     | Copy SPL to DRAM               | Copy SPL + FIT to DRAM
+     v                                v
+   SPL                              SPL
+     | USB fastboot <-> host           | Load BL31 + U-Boot from RAM
+     v                                v
+   eMMC provisioning                BL31
+                                      |
+                                      v
+                                    U-Boot proper
+                                      | USB fastboot <-> host
+                                      v
+                                    eMMC provisioning
+
+Build download agents separately from normal boot images; do not enable
+``CONFIG_MTK_GENIO_BOOT_IMAGES`` in a DA configuration.
+
+For Genio 700, build the SPL fastboot mode with::
+
+   $ export CROSS_COMPILE=aarch64-linux-gnu-
+   $ make O=build-da-spl mt8390_genio_700_evk_da_spl_defconfig
+   $ make O=build-da-spl BINMAN_INDIRS=/path/to/firmware
+
+For fastboot in U-Boot proper::
+
+   $ make O=build-da-uboot mt8390_genio_700_evk_da_uboot_defconfig
+   $ make O=build-da-uboot BL31=/path/to/da-bl31.bin \
+         BINMAN_INDIRS=/path/to/firmware
+
+Use the corresponding ``mt8370_genio_510_evk_da_spl_defconfig`` or
+``mt8370_genio_510_evk_da_uboot_defconfig`` for Genio 510. Each build produces
+``da.bin`` and ``da.map`` in its output directory. Use board- and mode-matched
+firmware inputs; do not set ``TEE`` for these builds.
+
+Image and loader contract
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default ``da.bin`` layouts are shown below. Offsets are relative to the
+start of the image, and region sizes include padding::
+
+   Fastboot in SPL                     Fastboot in U-Boot proper
+
+   0x00000 +----------------------+   0x00000 +----------------------+
+           | DDR loader           |           | DDR loader           |
+           | 300 KiB              |           | 300 KiB              |
+   0x4b000 +----------------------+   0x4b000 +----------------------+
+           | SPL + USB fastboot   |           | SPL                  |
+           | 700 KiB              |           | 148 KiB              |
+           |                      |   0x70000 +----------------------+
+           |                      |           | FIT: BL31 + U-Boot   |
+           |                      |           | 572 KiB              |
+   0xfa000 +----------------------+   0xff000 +----------------------+
+
+Both DA modes use the shared ``mtk-genio-*-binman-u-boot.dtsi`` templates and
+``CONFIG_MTK_GENIO_IMAGE_CONTRACT`` settings. The image starts with the DDR
+loader padded to ``CONFIG_MTK_GENIO_DDR_LOADER_SIZE``, followed by SPL padded
+to ``CONFIG_SPL_MAX_SIZE``. The loader copies that SPL region to
+``CONFIG_SPL_TEXT_BASE`` before entering it. SPL fastboot reserves a 16 MiB
+heap, including space for the sparse writer's 8 MiB buffer.
+
+The full-U-Boot DA appends a FIT at ``CONFIG_MTK_GENIO_DA_FIT_OFFSET``, in a
+fixed region of ``CONFIG_MTK_GENIO_DA_FIT_MAX_SIZE`` bytes. The external
+loader must copy this complete region to ``CONFIG_SPL_LOAD_FIT_ADDRESS``
+before entering SPL. Its ``DA_FIT_OFFSET`` and ``DA_FIT_SIZE`` must match the
+U-Boot settings. The FIT container is directly parseable; only its BL31 and
+U-Boot payloads are gzip-compressed. SPL decompresses them to
+``CONFIG_MTK_GENIO_BL31_LOAD_ADDR`` and ``CONFIG_TEXT_BASE`` respectively,
+then enters BL31, which starts U-Boot.
+
+The default padded images are 1000 KiB for the SPL DA and 1020 KiB for the
+U-Boot DA. The latter fits the Genio 700 BootROM download area. Selecting SPL
+alone does not remove the fixed padding; a tighter download budget also
+requires smaller reserved regions, with matching changes to the DDR loader.
+
+These fixed regions are part of the external loader ABI. Changing the image
+sizes or addresses requires corresponding loader changes. Binman rejects
+payloads which exceed their reserved regions. The generated DA is a raw
+payload for the platform download tooling; it has no eMMC BootROM wrapper.
+Its FIT hashes do not authenticate it. Platforms requiring authenticated
+DAs must use their external signing and BootROM download tooling.
+
+Using the download agent
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Select the generated agent with ``genio-flash --bootstrap /path/to/da.bin``.
+``genio-flash`` reboots the board after flashing.
+
+For manual fastboot sessions, use ``fastboot reboot`` to start the installed
+boot chain. ``fastboot continue`` boots firmware from eMMC with the SPL DA,
+or returns to the command prompt with the U-Boot DA, without resetting.
+
+Use raw images for ``mmc0boot0`` and ``mmc0boot1``. Android sparse images are
+supported for GPT partitions and the eMMC user-area alias.
+
+Both agents prepare the eMMC boot partition and bus settings, so a newly
+flashed board can boot without additional host commands. They also
+permanently enable the hardware reset pin if its policy is still
+unconfigured.

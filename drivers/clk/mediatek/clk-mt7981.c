@@ -619,7 +619,6 @@ static const struct mtk_gate infracfg_gates[] = {
 static const struct mtk_clk_tree mt7981_fixed_pll_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.fdivs_offs = CLK_APMIXED_NR_CLK,
 	.fclks = fixed_pll_clks,
 	.num_fclks = ARRAY_SIZE(fixed_pll_clks),
 	.type = MTK_CLK_TREE_APMIXED,

@@ -12,7 +12,8 @@ ddr-loader {
 	size = <CONFIG_MTK_GENIO_DDR_LOADER_SIZE>;
 };
 
-#ifdef CONFIG_SPL_FIT_SIGNATURE
+/* DA authentication is handled by the BootROM download tooling. */
+#if defined(CONFIG_SPL_FIT_SIGNATURE) && !defined(CONFIG_MTK_BROM_DOWNLOAD_AGENT)
 u-boot-spl {
 	type = "section";
 	size = <CONFIG_SPL_MAX_SIZE>;

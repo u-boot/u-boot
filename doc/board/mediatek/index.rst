@@ -8,3 +8,4 @@ Mediatek
 
    mt7621
    mt8188-genio-evk
+   mt8189-genio-evk
