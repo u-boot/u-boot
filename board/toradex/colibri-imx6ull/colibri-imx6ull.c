@@ -19,7 +19,6 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <dm.h>
-#include <dm/platform_data/serial_mxc.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <imx_thermal.h>
@@ -211,13 +210,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return ft_common_board_setup(blob, bd);
 }
 #endif
-
-static struct mxc_serial_plat mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART1_BASE,
-	.use_dte = 1,
-};
-
-U_BOOT_DRVINFO(mxc_serial) = {
-	.name = "serial_mxc",
-	.plat = &mxc_serial_plat,
-};
