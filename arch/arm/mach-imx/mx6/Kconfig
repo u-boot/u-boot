@@ -170,6 +170,7 @@ config TARGET_COLIBRI_IMX6ULL
 	select DM
 	select DM_THERMAL
 	select IOMUX_LPSR
+	imply OF_UPSTREAM
 
 config TARGET_DART_6UL
 	bool "Variscite imx6ULL dart(DART-SOM-6ULL)"
