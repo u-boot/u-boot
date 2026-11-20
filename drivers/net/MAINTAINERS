@@ -4,3 +4,8 @@ S:	Supported
 F:	drivers/net/dwc_eth_xgmac.c
 F:	drivers/net/dwc_eth_xgmac.h
 F:	drivers/net/dwc_eth_xgmac_socfpga.c
+
+NETWORK PHY MAXLINEAR
+M:	Alif Zakuan Yuslaimi <alif.zakuan.yuslaimi@altera.com>
+S:	Supported
+F:	drivers/net/phy/mxl86110.c
