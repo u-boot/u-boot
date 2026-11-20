@@ -11,6 +11,7 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <image.h>
+#include <lmb.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/global_data.h>
@@ -143,6 +144,79 @@ static int fdt_get_header_value(int argc, char *const argv[])
 	}
 
 	return CMD_RET_FAILURE;
+}
+
+/*
+ * fdt fit <addr>[#<conf>] <dest> [<length>]
+ *
+ * Load the devicetree of a FIT configuration, with its overlays applied, and
+ * copy it to <dest>. Images are always verified, so the configuration must
+ * also satisfy any required signature in the control devicetree. Unlike bootm,
+ * image load addresses are ignored and configurations cannot be chained.
+ */
+static int fdt_fit(int argc, char *const argv[])
+{
+	struct bootm_headers images = { .verify = 1 };
+	const char *conf = NULL;
+	ulong addr, dest, data, len;
+	bool caller_must_free_data;
+	void *fdt;
+	int ret, err;
+
+	if (argc < 2 || argc > 3)
+		return CMD_RET_USAGE;
+
+	if (!fit_parse_conf(argv[0], image_load_addr, &addr, &conf))
+		addr = hextoul(argv[0], NULL);
+	dest = hextoul(argv[1], NULL);
+
+	/* Only a single configuration authenticates the whole combination */
+	if (conf && strchr(conf, '#')) {
+		puts("Chained configurations are not supported\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (boot_get_fdt_fit(&images, addr, NULL, &conf, IH_ARCH_DEFAULT,
+			     FIT_LOAD_PREPARE, &data, &len,
+			     &caller_must_free_data) < 0)
+		return CMD_RET_FAILURE;
+
+	fdt = map_sysmem(data, len);
+	ret = CMD_RET_FAILURE;
+	if (fdt_check_full(fdt, len)) {
+		puts("Invalid FDT in FIT\n");
+		goto out;
+	}
+
+	len = fdt_totalsize(fdt);
+	if (argc > 2) {
+		ulong newlen = hextoul(argv[2], NULL);
+
+		if (newlen < len) {
+			printf("New length 0x%lX < existing length 0x%lX, aborting.\n",
+			       newlen, len);
+			goto out;
+		}
+		len = newlen;
+	}
+
+	if (CONFIG_IS_ENABLED(LMB) && lmb_read_check(dest, len)) {
+		puts("ERROR: trying to overwrite reserved memory...\n");
+		goto out;
+	}
+
+	err = fdt_open_into(fdt, map_sysmem(dest, len), len);
+	if (err) {
+		printf("libfdt fdt_open_into(): %s\n", fdt_strerror(err));
+		goto out;
+	}
+	ret = CMD_RET_SUCCESS;
+
+out:
+	if (caller_must_free_data)
+		free(fdt);
+
+	return ret;
 }
 
 /*
@@ -280,6 +354,10 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		return CMD_RET_SUCCESS;
 	}
+
+	/* Load the devicetree of a FIT configuration */
+	if (IS_ENABLED(CONFIG_CMD_FDT_FIT) && strncmp(argv[1], "fi", 2) == 0)
+		return fdt_fit(argc - 2, argv + 2);
 
 	if (!working_fdt) {
 		puts("No FDT memory address configured. Please configure\n"
@@ -1124,6 +1202,11 @@ U_BOOT_LONGHELP(fdt,
 #endif
 #ifdef CONFIG_OF_SYSTEM_SETUP
 	"fdt systemsetup                     - Do system-specific set up\n"
+#endif
+#ifdef CONFIG_CMD_FDT_FIT
+	"fdt fit    <addr>[#<conf>] <dest> [<length>] - Load the fdt of a FIT\n"
+	"                                      configuration, apply its overlays and\n"
+	"                                      copy it to <dest>\n"
 #endif
 	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
 	"fdt resize [<extrasize>]            - Resize fdt to size + padding to 4k addr + some optional <extrasize> if needed\n"

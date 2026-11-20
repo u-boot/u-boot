@@ -609,6 +609,7 @@ enum fit_load_op {
 	FIT_LOAD_OPTIONAL,	/* Can be provided, but optional */
 	FIT_LOAD_OPTIONAL_NON_ZERO,	/* Optional, a value of 0 is ignored */
 	FIT_LOAD_REQUIRED,	/* Must be provided */
+	FIT_LOAD_PREPARE,	/* Ignore load address, but align/decompress */
 };
 
 int boot_get_setup(struct bootm_headers *images, uint8_t arch, ulong *setup_start,
@@ -720,14 +721,24 @@ int boot_get_setup_fit(struct bootm_headers *images, uint8_t arch,
  *			name (e.g. "conf-1") or NULL to use the default. On
  *			exit points to the selected configuration name.
  * @param arch		Expected architecture (IH_ARCH_...)
+ * @param load_op	Load-address policy for the base image only; see
+ *			enum fit_load_op. FIT_LOAD_PREPARE ignores the address but
+ *			still aligns/decompresses as needed. Overlays always use
+ *			FIT_LOAD_IGNORED.
  * @param datap		Returns address of loaded image
  * @param lenp		Returns length of loaded image
+ * @param caller_must_free_datap
+ *			Returns true if the caller owns the allocated result;
+ *			false on error. When true, the caller must release it with
+ *			free(map_sysmem(*datap, *lenp)) after use. May be NULL if
+ *			ownership information is not needed.
  *
  * Return: node offset of base image, or -ve error code on error
  */
 int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 		     const char **fit_unamep, const char **fit_uname_configp,
-		     int arch, ulong *datap, ulong *lenp);
+		     int arch, enum fit_load_op load_op, ulong *datap,
+		     ulong *lenp, bool *caller_must_free_datap);
 
 /**
  * fit_image_load() - load an image from a FIT

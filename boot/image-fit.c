@@ -2238,6 +2238,7 @@ static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
 	fit_image_get_comp(fit, noffset, &img_comp);
 
 	if (img_comp == IH_COMP_NONE && load_op != FIT_LOAD_IGNORED &&
+	    load_op != FIT_LOAD_PREPARE &&
 	    !fit_image_get_load(fit, noffset, &img_load)) {
 		dst = map_sysmem(img_load, data_sz);
 
@@ -2260,10 +2261,13 @@ static inline int fit_image_load_storage(struct bootm_headers *images,
 }
 #endif
 
-int fit_image_load(struct bootm_headers *images, ulong addr,
-		   const char **fit_unamep, const char **fit_uname_configp,
-		   int arch, int ph_type, int bootstage_id,
-		   enum fit_load_op load_op, ulong *datap, ulong *lenp)
+/* Track load-time copies without changing the public fit_image_load() API. */
+static int fit_image_load_alloc(struct bootm_headers *images, ulong addr,
+				const char **fit_unamep,
+				const char **fit_uname_configp,
+				int arch, int ph_type, int bootstage_id,
+				enum fit_load_op load_op, ulong *datap,
+				ulong *lenp, bool *caller_must_free_datap)
 {
 	int image_type = image_ph_type(ph_type);
 	int cfg_noffset, noffset;
@@ -2273,6 +2277,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	const void *fit;
 	void *buf;
 	void *loadbuf;
+	bool loadbuf_owned = false;
 	size_t size;
 	int type_ok, os_ok;
 	ulong load, load_end, data, len;
@@ -2280,6 +2285,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	const char *prop_name;
 	int ret;
 
+	if (caller_must_free_datap)
+		*caller_must_free_datap = false;
 	fit = map_sysmem(addr, 0);
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
@@ -2457,7 +2464,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 	data = map_to_sysmem(buf);
 	load = data;
-	if (load_op == FIT_LOAD_IGNORED) {
+	if (load_op == FIT_LOAD_IGNORED || load_op == FIT_LOAD_PREPARE) {
 		log_debug("load_op: not loading\n");
 		/* Don't load */
 	} else if (fit_image_get_load(fit, noffset, &load)) {
@@ -2506,6 +2513,9 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		log_debug("decompressing image\n");
 		if (load == data) {
 			loadbuf = aligned_alloc(8, max_decomp_len);
+			if (!loadbuf)
+				return -ENOMEM;
+			loadbuf_owned = true;
 			load = map_to_sysmem(loadbuf);
 		} else {
 			loadbuf = map_sysmem(load, max_decomp_len);
@@ -2513,13 +2523,17 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		if (image_decomp(comp, load, data, image_type,
 				loadbuf, buf, len, max_decomp_len, &load_end)) {
 			printf("Error decompressing %s\n", prop_name);
-
+			if (loadbuf_owned)
+				free(loadbuf);
 			return -ENOEXEC;
 		}
 		len = load_end - load;
 	} else if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
 		   (load & 7)) {
 		loadbuf = aligned_alloc(8, len);
+		if (!loadbuf)
+			return -ENOMEM;
+		loadbuf_owned = true;
 		load = map_to_sysmem(loadbuf);
 		memcpy(loadbuf, buf, len);
 	} else if (load != data) {
@@ -2536,6 +2550,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
 	    fdt_check_header(loadbuf)) {
 		puts("Subimage data is not a FDT\n");
+		if (loadbuf_owned)
+			free(loadbuf);
 		return -ENOEXEC;
 	}
 
@@ -2545,6 +2561,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 	*datap = load;
 	*lenp = len;
+	if (caller_must_free_datap)
+		*caller_must_free_datap = loadbuf_owned;
 	if (fit_unamep)
 		*fit_unamep = (char *)fit_uname;
 	if (fit_uname_configp)
@@ -2552,6 +2570,16 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 					      fit_base_uname_config);
 
 	return noffset;
+}
+
+int fit_image_load(struct bootm_headers *images, ulong addr,
+		   const char **fit_unamep, const char **fit_uname_configp,
+		   int arch, int ph_type, int bootstage_id,
+		   enum fit_load_op load_op, ulong *datap, ulong *lenp)
+{
+	return fit_image_load_alloc(images, addr, fit_unamep, fit_uname_configp,
+				    arch, ph_type, bootstage_id, load_op, datap,
+				    lenp, NULL);
 }
 
 int boot_get_setup_fit(struct bootm_headers *images, uint8_t arch,
@@ -2650,7 +2678,8 @@ out:
 
 int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 		     const char **fit_unamep, const char **fit_uname_configp,
-		     int arch, ulong *datap, ulong *lenp)
+		     int arch, enum fit_load_op load_op, ulong *datap,
+		     ulong *lenp, bool *caller_must_free_datap)
 {
 	int fdt_noffset, cfg_noffset, count;
 	const void *fit;
@@ -2658,7 +2687,8 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	const char *fit_uname_config = NULL;
 	char *fit_uname_config_copy = NULL;
 	char *next_config = NULL;
-	ulong load, len;
+	ulong load = 0, len = 0;
+	bool caller_must_free_data = false;
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 	ulong ovload, ovlen, ovcopylen, need;
 	const char *uconfig;
@@ -2666,10 +2696,12 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	void *ovcopy = NULL;
 	void *base_buf = NULL;
 	ulong base_buf_size = 0;
-	int i, err, noffset, ov_noffset;
+	int i, err, ov_noffset;
 #endif
 
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
+	if (caller_must_free_datap)
+		*caller_must_free_datap = false;
 
 	if (fit_uname_configp && *fit_uname_configp) {
 		fit_uname_config_copy = strdup(*fit_uname_configp);
@@ -2683,11 +2715,11 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 			fit_uname_config = fit_uname_config_copy;
 	}
 
-	fdt_noffset = fit_image_load(images,
-		addr, &fit_uname, &fit_uname_config,
-		arch, IH_TYPE_FLATDT,
-		BOOTSTAGE_ID_FIT_FDT_START,
-		FIT_LOAD_OPTIONAL, &load, &len);
+	fdt_noffset = fit_image_load_alloc(images, addr, &fit_uname,
+					   &fit_uname_config, arch, IH_TYPE_FLATDT,
+					   BOOTSTAGE_ID_FIT_FDT_START,
+					   load_op, &load, &len,
+					   &caller_must_free_data);
 
 	if (fdt_noffset < 0)
 		goto out;
@@ -2718,6 +2750,10 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	err = boot_get_fdt_fit_into_buffer(map_sysmem(load, len), len,
 					   CONFIG_SYS_FDT_PAD, 0, &base_buf,
 					   &base_buf_size);
+	if (caller_must_free_data) {
+		free(map_sysmem(load, len));
+		caller_must_free_data = false;
+	}
 	if (err < 0) {
 		if (err != -ENOMEM)
 			printf("Required FDT copy for applying DTOs failed: %s\n",
@@ -2737,9 +2773,8 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	/* apply extra configs in FIT first, followed by args */
 	for (i = 1; ; i++) {
 		if (i < count) {
-			noffset = fit_conf_get_prop_node_index(fit, cfg_noffset,
-							       FIT_FDT_PROP, i);
-			uname = fit_get_name(fit, noffset, NULL);
+			uname = fdt_stringlist_get(fit, cfg_noffset,
+						   FIT_FDT_PROP, i, NULL);
 			uconfig = NULL;
 		} else {
 			if (!next_config)
@@ -2771,8 +2806,9 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 			BOOTSTAGE_ID_FIT_FDT_START,
 			FIT_LOAD_IGNORED, &ovload, &ovlen);
 		if (ov_noffset < 0) {
-			printf("load of %s failed\n", uname);
-			continue;
+			printf("load of %s failed\n", uname ? uname : uconfig);
+			fdt_noffset = ov_noffset;
+			goto out;
 		}
 		debug("%s loaded at 0x%08lx len=0x%08lx\n",
 				uname, ovload, ovlen);
@@ -2828,9 +2864,17 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 
 out:
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
-	if (fdt_noffset >= 0 && base_buf)
+	if (fdt_noffset >= 0 && base_buf) {
 		load = map_to_sysmem(base_buf);
+		caller_must_free_data = true;
+	}
 #endif
+	if (fdt_noffset < 0 && caller_must_free_data) {
+		free(map_sysmem(load, len));
+		caller_must_free_data = false;
+	}
+	if (caller_must_free_datap)
+		*caller_must_free_datap = caller_must_free_data;
 	if (datap)
 		*datap = load;
 	if (lenp)
