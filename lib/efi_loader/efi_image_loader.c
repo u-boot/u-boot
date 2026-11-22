@@ -1004,9 +1004,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		 * this is not expected.
 		 */
 		log_err("PE image measurement failed, no tpm device found\n");
-		goto err;
+		handle->auth_status = EFI_IMAGE_AUTH_FAILED;
 	}
-
 #endif
 
 	/* Copy PE headers */
