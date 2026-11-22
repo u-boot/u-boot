@@ -16,7 +16,7 @@ static int raa215300_reg_count(struct udevice *dev)
 	return RAA215300_REG_COUNT;
 }
 
-static struct dm_pmic_ops raa215300_ops = {
+static const struct dm_pmic_ops raa215300_ops = {
 	.reg_count = raa215300_reg_count,
 	.read = dm_i2c_read,
 	.write = dm_i2c_write,

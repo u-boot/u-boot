@@ -216,6 +216,7 @@ int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 {
 	int ret;
 	u8 part_conf;
+	struct blk_desc *desc = mmc_get_blk_desc(mmc);
 
 	part_conf = EXT_CSD_BOOT_ACK(ack) |
 		    EXT_CSD_BOOT_PART_NUM(part_num) |
@@ -223,10 +224,20 @@ int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 part_conf);
-	if (!ret)
-		mmc->part_config = part_conf;
+	if (ret)
+		return ret;
 
-	return ret;
+	mmc->part_config = part_conf;
+	/* Keep the block device in sync with the new PARTITION_ACCESS */
+	if (desc && desc->hwpart != access) {
+		ret = mmc_set_capacity(mmc, access);
+		if (ret)
+			return ret;
+		desc->hwpart = access;
+		blkcache_invalidate(desc->uclass_id, desc->devnum);
+	}
+
+	return 0;
 }
 
 /*

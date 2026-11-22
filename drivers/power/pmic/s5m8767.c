@@ -72,7 +72,7 @@ static int s5m8767_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops s5m8767_ops = {
+static const struct dm_pmic_ops s5m8767_ops = {
 	.reg_count = s5m8767_reg_count,
 	.read = s5m8767_read,
 	.write = s5m8767_write,

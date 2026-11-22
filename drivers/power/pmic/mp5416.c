@@ -74,7 +74,7 @@ static int mp5416_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops mp5416_ops = {
+static const struct dm_pmic_ops mp5416_ops = {
 	.reg_count = mp5416_reg_count,
 	.read = mp5416_read,
 	.write = mp5416_write,

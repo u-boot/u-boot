@@ -24,7 +24,7 @@ static const struct udevice_id ti_omap_prm_ids[] = {
 	{ }
 };
 
-static struct power_domain_ops ti_omap_prm_ops = {
+static const struct power_domain_ops ti_omap_prm_ops = {
 	.of_xlate = ti_omap_prm_xlate,
 };
 

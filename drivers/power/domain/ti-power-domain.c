@@ -397,7 +397,7 @@ static const struct udevice_id ti_power_domain_of_match[] = {
 	{ /* sentinel */ }
 };
 
-static struct power_domain_ops ti_power_domain_ops = {
+static const struct power_domain_ops ti_power_domain_ops = {
 	.on = ti_power_domain_on,
 	.off = ti_power_domain_off,
 	.of_xlate = ti_power_domain_of_xlate,

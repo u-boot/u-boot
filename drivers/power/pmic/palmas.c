@@ -118,7 +118,7 @@ static int palmas_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops palmas_ops = {
+static const struct dm_pmic_ops palmas_ops = {
 	.read = palmas_read,
 	.write = palmas_write,
 };

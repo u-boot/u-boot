@@ -87,7 +87,7 @@ static int bd718x7_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops bd71837_ops = {
+static const struct dm_pmic_ops bd71837_ops = {
 	.reg_count = bd71837_reg_count,
 	.read = bd71837_read,
 	.write = bd71837_write,

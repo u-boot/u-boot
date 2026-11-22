@@ -51,7 +51,7 @@ static int pmic_qcom_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 	return 0;
 }
 
-static struct dm_pmic_ops pmic_qcom_ops = {
+static const struct dm_pmic_ops pmic_qcom_ops = {
 	.reg_count = pmic_qcom_reg_count,
 	.read = pmic_qcom_read,
 	.write = pmic_qcom_write,

@@ -71,7 +71,7 @@ static int pfuze100_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops pfuze100_ops = {
+static const struct dm_pmic_ops pfuze100_ops = {
 	.reg_count = pfuze100_reg_count,
 	.read = pfuze100_read,
 	.write = pfuze100_write,

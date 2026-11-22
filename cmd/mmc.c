@@ -989,7 +989,7 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 {
 	int ret, dev;
 	struct mmc *mmc;
-	u8 ack, part_num, access;
+	ulong ack, part_num, access;
 
 	if (argc != 2 && argc != 3 && argc != 5)
 		return CMD_RET_USAGE;
@@ -1027,6 +1027,21 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 		}
 	} else {
 		access = dectoul(argv[4], NULL);
+	}
+
+	if (ack > BOOT_ACK_MASK) {
+		printf("Invalid boot_ack value '%lu'\n", ack);
+		return CMD_RET_FAILURE;
+	}
+
+	if (part_num > BOOT_PART_MASK || !*emmc_boot_part_names[part_num]) {
+		printf("Invalid boot_partition value '%lu'\n", part_num);
+		return CMD_RET_FAILURE;
+	}
+
+	if (access > PART_ACCESS_MASK) {
+		printf("Invalid partition_access value '%lu'\n", access);
+		return CMD_RET_FAILURE;
 	}
 
 	/* acknowledge to be sent during boot operation */

@@ -47,7 +47,7 @@ static int rk8xx_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	return -EINPROGRESS;
 }
 
-static struct sysreset_ops rk8xx_sysreset_ops = {
+static const struct sysreset_ops rk8xx_sysreset_ops = {
 	.request	= rk8xx_sysreset_request,
 };
 
@@ -351,7 +351,7 @@ static int rk8xx_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops rk8xx_ops = {
+static const struct dm_pmic_ops rk8xx_ops = {
 	.reg_count = rk8xx_reg_count,
 	.read = rk8xx_read,
 	.write = rk8xx_write,

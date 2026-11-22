@@ -58,7 +58,7 @@ static int sandbox_pmic_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops sandbox_pmic_ops = {
+static const struct dm_pmic_ops sandbox_pmic_ops = {
 	.reg_count = sandbox_pmic_reg_count,
 	.read = sandbox_pmic_read,
 	.write = sandbox_pmic_write,

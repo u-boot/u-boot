@@ -105,7 +105,7 @@ static int stpmic1_bind(struct udevice *dev)
 	return 0;
 }
 
-static struct dm_pmic_ops stpmic1_ops = {
+static const struct dm_pmic_ops stpmic1_ops = {
 	.reg_count = stpmic1_reg_count,
 	.read = stpmic1_read,
 	.write = stpmic1_write,
@@ -258,7 +258,7 @@ static int stpmic1_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	return -EINPROGRESS;
 }
 
-static struct sysreset_ops stpmic1_sysreset_ops = {
+static const struct sysreset_ops stpmic1_sysreset_ops = {
 	.request = stpmic1_sysreset_request,
 };
 

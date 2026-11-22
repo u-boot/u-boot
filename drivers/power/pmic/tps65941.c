@@ -64,7 +64,7 @@ static int tps65941_bind(struct udevice *dev)
 	return dm_scan_fdt_dev(dev);
 }
 
-static struct dm_pmic_ops tps65941_ops = {
+static const struct dm_pmic_ops tps65941_ops = {
 	.read = tps65941_read,
 	.write = tps65941_write,
 };

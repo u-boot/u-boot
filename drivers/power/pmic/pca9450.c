@@ -99,7 +99,7 @@ static int pca9450_probe(struct udevice *dev)
 			       PCA9450_PMIC_RESET_WDOG_B_CFG_MASK, reset_ctrl);
 }
 
-static struct dm_pmic_ops pca9450_ops = {
+static const struct dm_pmic_ops pca9450_ops = {
 	.reg_count = pca9450_reg_count,
 	.read = pca9450_read,
 	.write = pca9450_write,
@@ -180,7 +180,7 @@ int pca9450_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-static struct sysreset_ops pca9450_sysreset_ops = {
+static const struct sysreset_ops pca9450_sysreset_ops = {
 	.request	= pca9450_sysreset_request,
 	.get_status	= pca9450_sysreset_get_status,
 };
