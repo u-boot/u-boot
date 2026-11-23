@@ -124,7 +124,13 @@ class DiskHelper:
     VFAT  = 0xc
     EXT4  = 0x83
 
-    def __init__(self, config, devnum, prefix, cur_dir=False):
+    # GPT partition-type GUIDs for the above codes
+    GPT_TYPES = {
+        VFAT: 'EBD0A0A2-B9E5-4433-87C0-68B6B72699C7',
+        EXT4: '0FC63DAF-8483-4772-8E79-3D69D8477DE4',
+    }
+
+    def __init__(self, config, devnum, prefix, cur_dir=False, gpt=False):
         """Set up a new disk image
 
         Args:
@@ -133,37 +139,49 @@ class DiskHelper:
             prefix (str): Prefix string of volume's file name
             cur_dir (bool): True to put the file in the current directory,
                 instead of the persistent-data directory
+            gpt (bool): True to use a GPT partition table, instead of MBR
         """
         self.fs_list = []
+        self.gpt = gpt
         self.fname = os.path.join('' if cur_dir else config.persistent_data_dir,
                                   f'{prefix}{devnum}.img')
 
-    def add_fs(self, fs_img, part_type, bootable=False):
+    def add_fs(self, fs_img, part_type, bootable=False, name=None):
         """Add a new filesystem
 
         Args:
             fs_img (FsHelper): Filesystem to add
             part_type (DiskHelper.FAT or DiskHelper.EXT4): Partition type
             bootable (bool): True to set the 'bootable' flat
+            name (str): Partition name, only supported with GPT
         """
-        self.fs_list.append([fs_img, part_type, bootable])
+        if name and not self.gpt:
+            raise ValueError('Partition names need a GPT partition table')
+        self.fs_list.append([fs_img, part_type, bootable, name])
 
     def create(self):
         """Create the disk image
 
         Create an image with a partition table and the filesystems
         """
-        spec = ''
+        spec = 'label: gpt' if self.gpt else ''
         pos = 1   # Reserve 1MB for the partition table itself
-        for fsi, part_type, bootable in self.fs_list:
+        for fsi, part_type, bootable, name in self.fs_list:
             if spec:
                 spec += '\n'
-            spec += f'type={part_type:x}, size={fsi.size_mb}M, start={pos}M'
+            if self.gpt:
+                spec += f'type={self.GPT_TYPES[part_type]}'
+            else:
+                spec += f'type={part_type:x}'
+            spec += f', size={fsi.size_mb}M, start={pos}M'
             if bootable:
-                spec += ', bootable'
+                spec += ', attrs=LegacyBIOSBootable' if self.gpt else ', bootable'
+            if name:
+                spec += f', name={name}'
             pos += fsi.size_mb
 
-        img_size = pos
+        # Reserve 1MB at the end for the backup GPT
+        img_size = pos + 1 if self.gpt else pos
         try:
             check_call(f'qemu-img create {self.fname} {img_size}M', shell=True)
             check_call(f'printf "{spec}" | sfdisk {self.fname}', shell=True)
@@ -172,7 +190,7 @@ class DiskHelper:
             raise
 
         pos = 1   # Reserve 1MB for the partition table itself
-        for fsi, part_type, bootable in self.fs_list:
+        for fsi, _, _, _ in self.fs_list:
             check_call(
                 f'dd if={fsi.fs_img} of={self.fname} bs=1M seek={pos} conv=notrunc',
                 shell=True)

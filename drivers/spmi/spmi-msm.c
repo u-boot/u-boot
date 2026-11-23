@@ -260,11 +260,21 @@ static struct dm_spmi_ops msm_spmi_ops = {
 static void msm_spmi_channel_map_v5(struct msm_spmi_priv *priv, unsigned int i,
 				    uint8_t slave_id, uint8_t pid)
 {
-	/* Mark channels read-only when from different owner */
-	uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
-	uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
-	bool prev_valid = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_VALID;
-	uint32_t prev_read_only = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_READ_ONLY;
+	phys_addr_t owner_addr;
+	uint32_t cnfg;
+	uint8_t owner;
+	bool prev_valid;
+	uint32_t prev_read_only;
+
+	if (priv->arb_ver == V5)
+		owner_addr = priv->spmi_cnfg + 0x700 + ARB_CHANNEL_OFFSET(i);
+	else /* V7 */
+		owner_addr = priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i);
+
+	cnfg = readl(owner_addr);
+	owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
+	prev_valid = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_VALID;
+	prev_read_only = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_READ_ONLY;
 
 	if (!prev_valid) {
 		/* First PPID mapping */

@@ -13,9 +13,9 @@ Architecture Overview
 The framework is built around the ``UCLASS_IMAGEMAP`` device class
 (``include/imagemap.h``), which provides:
 
-``imagemap_create(dev, name, part)``
+``imagemap_create(dev, name, part, devp)``
    Create an imagemap device over a partition of block device *dev*,
-   selected by *name* or by index *part*.
+   selected by *name* or by index *part*, and return it through *devp*.
 
 ``imagemap_map(dev, offset, size)``
    Return a pointer to a buffer holding the requested region.
@@ -76,6 +76,16 @@ they do for the rest of U-Boot; on NOR a partition is read linearly and
 end-to-end integrity is provided by the FIT hash or signature, so no
 MTD-specific read path is needed in imagemap.
 
+Build Phases
+------------
+
+``CONFIG_IMAGEMAP`` builds only in full U-Boot.  Nothing in the xpl
+phases sets ``images->imagemap``, so SPL and TPL would carry the code
+without ever reaching it, and their FIT loading is unaffected.  The
+``struct spl_load_info`` reader and ``spl_load_region()`` that imagemap
+builds on are shared with SPL rather than duplicated, which is why they
+live in ``include/spl.h``.
+
 Boot Integration
 ----------------
 
@@ -85,16 +95,20 @@ The ``imagemap`` framework integrates with the boot pipeline through
 1. The imagemap device pointer is stored in ``struct bootm_info``
    and propagated to the global ``images`` structure.
 
-2. ``boot_get_kernel()`` uses ``imagemap_map()`` to read the image
-   header and FIT metadata without loading the full image into RAM.
+2. While finding the OS, ``imagemap_map()`` reads the image header and
+   FIT metadata without loading the full image into RAM.  This happens
+   in ``boot_get_kernel()``, an internal helper of ``bootm_find_os()``.
 
 3. ``fit_image_load()`` uses the on-demand storage path via
    ``images->imagemap`` to stream individual sub-images directly to
-   their final load addresses.
+   their final load addresses.  Its internal
+   ``fit_image_load_storage()`` calls ``imagemap_map_to()`` for an
+   uncompressed sub-image that has a load address, and
+   ``imagemap_map()`` otherwise.
 
 4. Before jumping to the OS, ``imagemap_cleanup()`` releases all
    allocated resources.
 
-The ``bootmeth_openwrt`` boot method is the primary consumer of this
-framework, using it to boot OpenWrt-style FIT firmware images stored
-directly on raw storage.
+The ``bootmeth_openwrt`` boot method will be the first in-tree consumer
+of this framework, using it to boot OpenWrt-style FIT firmware images
+stored directly on raw storage.

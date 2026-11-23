@@ -231,7 +231,8 @@ static int imagemap_test_map_extend(struct unit_test_state *uts)
 	struct imagemap_priv *priv;
 	struct mock_priv *mock;
 	u8 image[IMAGE_SIZE];
-	void *p1, *p2;
+	void *p1, *p2, *p3;
+	ulong p2_end;
 
 	for (int i = 0; i < IMAGE_SIZE; i++)
 		image[i] = (u8)(i & 0xff);
@@ -264,17 +265,15 @@ static int imagemap_test_map_extend(struct unit_test_state *uts)
 	 * With LMB allocation this cannot happen because each allocation
 	 * reserves distinct memory.
 	 */
-	{
-		void *p3 = imagemap_map(dev, 256, 128);
-		ulong p2_end = map_to_sysmem(p2) + 256;
+	p3 = imagemap_map(dev, 256, 128);
+	p2_end = map_to_sysmem(p2) + 256;
 
-		ut_assert(!IS_ERR(p3));
-		ut_asserteq(2, priv->regions.count);
-		/* New region must not overlap the extended first region */
-		ut_assert(map_to_sysmem(p3) >= p2_end ||
-			  map_to_sysmem(p3) + 128 <= map_to_sysmem(p2));
-		ut_asserteq_mem(image + 256, p3, 128);
-	}
+	ut_assert(!IS_ERR(p3));
+	ut_asserteq(2, priv->regions.count);
+	/* New region must not overlap the extended first region */
+	ut_assert(map_to_sysmem(p3) >= p2_end ||
+		  map_to_sysmem(p3) + 128 <= map_to_sysmem(p2));
+	ut_asserteq_mem(image + 256, p3, 128);
 
 	imagemap_cleanup(dev);
 
@@ -316,6 +315,103 @@ static int imagemap_test_map_to(struct unit_test_state *uts)
 }
 
 IMAGEMAP_TEST(imagemap_test_map_to, UTF_DM);
+
+/* Sizes for imagemap_test_map_to_not_resized() */
+#define NOT_RESIZED_DST 512 /* caller-owned buffer */
+#define NOT_RESIZED_RECORD 64 /* recorded via imagemap_map_to() */
+#define NOT_RESIZED_REQUEST 256 /* larger request, gets fresh memory */
+
+/*
+ * Test: map() must NOT resize a region the caller recorded via map_to().
+ *
+ * The caller reserves (owns) its own load address through the LMB, then
+ * asks imagemap_map_to() to load 64 bytes there and records it as a
+ * caller-owned region (lmb_reserved = false).  A later, larger request at
+ * the same base must fall through to a fresh LMB allocation, leaving the
+ * caller's memory untouched.
+ *
+ * Without the guard in imagemap_map() this path would lmb_free() the
+ * caller's reservation, re-reserve the same address and re-read in place,
+ * clobbering whatever the caller kept beyond the 64 requested bytes.
+ *
+ * dst must live inside the LMB-managed RAM (here: a caller-reserved
+ * buffer) so the buggy in-place re-read actually happens; a plain stack
+ * buffer sits outside that region and would mask the bug.
+ */
+static int imagemap_test_map_to_not_resized(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct imagemap_priv *priv;
+	struct mock_priv *mock;
+	u8 image[IMAGE_SIZE];
+	u8 guard[NOT_RESIZED_DST - NOT_RESIZED_RECORD];
+	const struct imagemap_region *r;
+	phys_addr_t dst_phys;
+	u8 *dst;
+	void *p;
+
+	for (int i = 0; i < IMAGE_SIZE; i++)
+		image[i] = (u8)(i & 0xff);
+
+	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
+	mock = get_mock_priv(dev);
+	priv = dev_get_uclass_priv(dev);
+
+	/* Caller reserves its own load address and owns the memory */
+	ut_assertok(lmb_alloc_mem(LMB_MEM_ALLOC_ANY, ARCH_DMA_MINALIGN,
+				  &dst_phys, NOT_RESIZED_DST, LMB_NONE));
+	dst = map_sysmem(dst_phys, NOT_RESIZED_DST);
+
+	/* Distinct guard pattern beyond the 64 requested payload bytes */
+	memset(guard, 0xa5, sizeof(guard));
+	memcpy(dst + NOT_RESIZED_RECORD, guard, sizeof(guard));
+
+	/*
+	 * Caller records a 64-byte region at its chosen address; imagemap
+	 * must NOT claim an LMB reservation for it.
+	 */
+	p = imagemap_map_to(dev, 0, NOT_RESIZED_RECORD, dst);
+	ut_assert(!IS_ERR(p));
+	ut_asserteq_ptr(dst, p);
+	ut_asserteq_mem(image, dst, NOT_RESIZED_RECORD);
+	r = alist_get(&priv->regions, 0, struct imagemap_region);
+	ut_assert(r && !r->lmb_reserved);
+	ut_asserteq(1, priv->regions.count);
+
+	/*
+	 * Larger request at the same base: must fall through to a fresh
+	 * LMB allocation rather than resizing the caller's region.
+	 */
+	p = imagemap_map(dev, 0, NOT_RESIZED_REQUEST);
+	ut_assert(!IS_ERR(p));
+	/* Returned pointer must be a different buffer */
+	ut_assert(p != dst);
+	/* Caller's guard tail must remain intact */
+	ut_asserteq_mem(guard, dst + NOT_RESIZED_RECORD, sizeof(guard));
+	/* The new region is LMB-reserved and holds the full 256 bytes */
+	ut_assert(lmb_is_reserved_flags(map_to_sysmem(p), LMB_NONE));
+	ut_asserteq_mem(image, p, NOT_RESIZED_REQUEST);
+
+	/*
+	 * The fall-through replaced the caller's record via
+	 * imagemap_record() (same img_offset); the table keeps one entry,
+	 * now LMB-reserved (the fresh allocation).
+	 */
+	ut_asserteq(1, priv->regions.count);
+	ut_assert(alist_get(&priv->regions, 0, struct imagemap_region)->lmb_reserved);
+
+	imagemap_cleanup(dev);
+
+	/*
+	 * The caller's own reservation was never taken over by imagemap and
+	 * is still ours to release.
+	 */
+	lmb_free(dst_phys, NOT_RESIZED_DST, LMB_NONE);
+
+	return 0;
+}
+
+IMAGEMAP_TEST(imagemap_test_map_to_not_resized, UTF_DM);
 
 /* Test: lookup() returns NULL for unmapped ranges */
 static int imagemap_test_lookup_miss(struct unit_test_state *uts)
@@ -455,6 +551,7 @@ static int imagemap_test_read_oob(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	u8 image[IMAGE_SIZE];
+	u8 dst[64];
 	void *p;
 
 	ut_assertok(create_mock_loader(image, IMAGE_SIZE, &dev));
@@ -464,8 +561,6 @@ static int imagemap_test_read_oob(struct unit_test_state *uts)
 	ut_assert(IS_ERR(p));
 
 	/* map_to should also fail */
-	u8 dst[64];
-
 	p = imagemap_map_to(dev, IMAGE_SIZE - 32, 64, dst);
 	ut_assert(IS_ERR(p));
 

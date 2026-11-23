@@ -58,7 +58,7 @@ static int (*tcp_stream_on_create)(struct tcp_stream *tcp);
 #define ROUND_TCPHDR_LEN(x) (LEN_B_TO_DW((x) + 3))
 #define ROUND_TCPHDR_BYTES(x) (((x) + 3) & ~3)
 #define SHIFT_TO_TCPHDRLEN_FIELD(x) ((x) << 4)
-#define GET_TCP_HDR_LEN_IN_BYTES(x) ((x) >> 2)
+#define GET_TCP_HDR_LEN_IN_BYTES(x) (((x) & 0xf0) >> 2)
 
 #define RANDOM_PORT_START 1024
 #define RANDOM_PORT_RANGE 0x4000
@@ -776,38 +776,42 @@ void tcp_parse_options(struct tcp_stream *tcp, uchar *o, int o_len)
 {
 	struct tcp_t_opt  *tsopt;
 	struct tcp_scale  *wsopt;
+	uchar *end = o + o_len;
 	uchar *p = o;
+	u8 len;
 
-	/*
-	 * NOPs are options with a zero length, and thus are special.
-	 * All other options have length fields.
-	 */
-	for (p = o; p < (o + o_len); ) {
-		if (!p[1])
-			return; /* Finished processing options */
+	while (p < end) {
+		if (p[0] == TCP_O_END)
+			return;
+		if (p[0] == TCP_1_NOP) {
+			p++;
+			continue;
+		}
+
+		/* All other options have a length byte covering kind and len */
+		if (end - p < TCP_OPT_LEN_2)
+			return;
+		len = p[1];
+		if (len < TCP_OPT_LEN_2 || len > end - p)
+			return;
 
 		switch (p[0]) {
-		case TCP_O_END:
-			return;
-		case TCP_O_MSS:
-		case TCP_P_SACK:
-		case TCP_V_SACK:
-			break;
 		case TCP_O_SCL:
+			if (len != TCP_OPT_LEN_3)
+				break;
 			wsopt = (struct tcp_scale *)p;
-			tcp->rmt_win_scale = wsopt->scale;
+			/* RFC 7323: a shift count above 14 is treated as 14 */
+			tcp->rmt_win_scale = wsopt->scale > 14 ? 14 : wsopt->scale;
 			break;
 		case TCP_O_TS:
+			if (len != TCP_OPT_LEN_A)
+				break;
 			tsopt = (struct tcp_t_opt *)p;
 			tcp->rmt_timestamp = tsopt->t_snd;
 			break;
 		}
 
-		/* Process optional NOPs */
-		if (p[0] == TCP_1_NOP)
-			p++;
-		else
-			p += p[1];
+		p += len;
 	}
 }
 
@@ -936,6 +940,10 @@ static int tcp_rx_user_data(struct tcp_stream *tcp, u32 tcp_seq_num,
 		return TCP_PACKET_DROP;
 	}
 
+	/* A byte before the initial data sequence cannot have a valid offset. */
+	if (tcp_seq_cmp(tcp_seq_num, tcp->irs + 1) < 0)
+		return TCP_PACKET_DROP;
+
 	tmp_len = len;
 	old_offs = tcp_stream_rx_offs(tcp);
 	buf_offs = tcp_seq_num - tcp->irs - 1;
@@ -973,6 +981,8 @@ void tcp_rx_state_machine(struct tcp_stream *tcp,
 	u8  tcp_flags, action;
 
 	tcp_hdr_len = GET_TCP_HDR_LEN_IN_BYTES(b->ip.hdr.tcp_hlen);
+	if (tcp_hdr_len < TCP_HDR_SIZE || tcp_hdr_len > tcp_len)
+		return;
 	payload_len = tcp_len - tcp_hdr_len;
 
 	if (tcp_hdr_len > TCP_HDR_SIZE)
@@ -1058,7 +1068,8 @@ void tcp_rx_state_machine(struct tcp_stream *tcp,
 
 		action = tcp_stream_fin_needed(tcp, tcp->snd_una) | TCP_ACK;
 		tcp_send_packet(tcp, action, tcp->snd_una, tcp->rcv_nxt, 0);
-		tcp_rx_user_data(tcp, tcp_seq_num,
+		/* SYN consumes one sequence number before its payload. */
+		tcp_rx_user_data(tcp, tcp_seq_num + 1,
 				 ((char *)b) + pkt_len - payload_len,
 				 payload_len);
 		return;
@@ -1162,6 +1173,18 @@ void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int pkt_len)
 	u16 tcp_rx_xsum = b->ip.hdr.ip_sum;
 	struct tcp_stream *tcp;
 	struct in_addr src;
+	int tcp_hdr_len;
+
+	/*
+	 * The data offset must cover the fixed TCP header and must not point
+	 * past the end of the segment. Otherwise the options parser reads
+	 * beyond the packet and the payload length becomes negative.
+	 */
+	if (tcp_len < (int)TCP_HDR_SIZE)
+		return;
+	tcp_hdr_len = GET_TCP_HDR_LEN_IN_BYTES(b->ip.hdr.tcp_hlen);
+	if (tcp_hdr_len < (int)TCP_HDR_SIZE || tcp_hdr_len > tcp_len)
+		return;
 
 	/* Verify IP header */
 	debug_cond(DEBUG_DEV_PKT,

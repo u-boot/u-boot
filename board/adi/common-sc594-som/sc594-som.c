@@ -23,10 +23,8 @@ int board_init(void)
 {
 	sc59x_remap_ospi();
 
-	if (IS_ENABLED(CONFIG_ADI_CARRIER_SOMCRR_EZKIT) ||
-	    IS_ENABLED(CONFIG_ADI_CARRIER_SOMCRR_EZLITE)) {
+	if (IS_ENABLED(CONFIG_ADI_CARRIER_SOMCRR_COMMON))
 		adi_somcrr_init_ethernet();
-	}
 
 	sc5xx_enable_rgmii();
 

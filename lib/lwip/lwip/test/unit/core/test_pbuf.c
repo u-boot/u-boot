@@ -88,6 +88,7 @@ START_TEST(test_pbuf_copy_zero_pbuf)
   fail_unless(p2->ref == 1);
 
   p3 = pbuf_alloc(PBUF_RAW, p1->tot_len, PBUF_POOL);
+  fail_unless(p3 != NULL);
   err = pbuf_copy(p3, p1);
   fail_unless(err == ERR_VAL);
 
@@ -161,8 +162,8 @@ START_TEST(test_pbuf_copy_partial_pbuf)
   b->payload = packet;
   pbuf_cat(a, b);
   dest = pbuf_alloc(PBUF_RAW, 14, PBUF_RAM);
-  memset(dest->payload, 0, dest->len);
   fail_unless(dest != NULL);
+  memset(dest->payload, 0, dest->len);
 
   /* Don't copy if data will not fit */
   err = pbuf_copy_partial_pbuf(dest, a, a->tot_len, 4);
@@ -198,6 +199,7 @@ START_TEST(test_pbuf_split_64k_on_small_pbufs)
   LWIP_UNUSED_ARG(_i);
 
   p = pbuf_alloc(PBUF_RAW, 1, PBUF_POOL);
+  fail_unless(p != NULL);
   pbuf_split_64k(p, &rest);
   fail_unless(p->tot_len == 1);
   pbuf_free(p);
@@ -267,9 +269,14 @@ START_TEST(test_pbuf_take_at_edge)
   u8_t *out;
   int i;
   u8_t testdata[] = { 0x01, 0x08, 0x82, 0x02 };
-  struct pbuf *p = pbuf_alloc(PBUF_RAW, 1024, PBUF_POOL);
-  struct pbuf *q = p->next;
+  struct pbuf *p;
+  struct pbuf *q;
   LWIP_UNUSED_ARG(_i);
+
+  p = pbuf_alloc(PBUF_RAW, 1024, PBUF_POOL);
+  fail_unless(p != NULL);
+  q = p->next;
+
   /* alloc big enough to get a chain of pbufs */
   fail_if(p->tot_len == p->len);
   memset(p->payload, 0, p->len);
@@ -319,9 +326,14 @@ START_TEST(test_pbuf_get_put_at_edge)
   u8_t *out;
   u8_t testdata = 0x01;
   u8_t getdata;
-  struct pbuf *p = pbuf_alloc(PBUF_RAW, 1024, PBUF_POOL);
-  struct pbuf *q = p->next;
+  struct pbuf *p;
+  struct pbuf *q;
   LWIP_UNUSED_ARG(_i);
+
+  p = pbuf_alloc(PBUF_RAW, 1024, PBUF_POOL);
+  fail_unless(p != NULL);
+  q = p->next;
+
   /* alloc big enough to get a chain of pbufs */
   fail_if(p->tot_len == p->len);
   memset(p->payload, 0, p->len);

@@ -1,6 +1,6 @@
 /**
  * @file
- * SNMP support API for implementing netifs and statitics for MIB2
+ * SNMP support API for implementing netifs and statistics for MIB2
  */
 
 /*

@@ -12,6 +12,7 @@
 #include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <linux/sizes.h>
 
 static inline bool lmb_is_nomap(struct lmb_region *m)
 {
@@ -490,6 +491,30 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_test_lmb_at_0, 0);
+
+static int lib_test_lmb_alloc_max_underflow(struct unit_test_state *uts)
+{
+	struct alist *mem_lst, *used_lst;
+	phys_addr_t addr = SZ_4K;
+	struct lmb store;
+	int ret, count;
+
+	ut_assertok(setup_lmb_test(uts, &store, &mem_lst, &used_lst));
+	ut_assertok(lmb_add(0, SZ_1M));
+
+	ret = lmb_alloc_mem(LMB_MEM_ALLOC_MAX, SZ_4K, &addr, SZ_8K,
+			    LMB_NONE);
+	count = used_lst->count;
+	lmb_pop(&store);
+
+	ut_assert(ret < 0);
+	ut_asserteq(SZ_4K, addr);
+	ut_asserteq(0, count);
+
+	return 0;
+}
+
+LIB_TEST(lib_test_lmb_alloc_max_underflow, 0);
 
 /* Check that calling lmb_reserve with overlapping regions fails. */
 static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)

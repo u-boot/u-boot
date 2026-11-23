@@ -191,11 +191,25 @@ static int eth_phy_pre_probe(struct udevice *dev)
 	return 0;
 }
 
+static int eth_phy_pre_remove(struct udevice *dev)
+{
+	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&uc_priv->reset_gpio))
+		dm_gpio_free(dev, &uc_priv->reset_gpio);
+
+	if (CONFIG_IS_ENABLED(DM_RESET) && reset_valid(&uc_priv->reset_ctrl))
+		reset_free(&uc_priv->reset_ctrl);
+
+	return 0;
+}
+
 UCLASS_DRIVER(eth_phy_generic) = {
 	.id		= UCLASS_ETH_PHY,
 	.name		= "eth_phy_generic",
 	.per_device_auto	= sizeof(struct eth_phy_device_priv),
 	.pre_probe	= eth_phy_pre_probe,
+	.pre_remove	= eth_phy_pre_remove,
 };
 
 U_BOOT_DRIVER(eth_phy_generic_drv) = {

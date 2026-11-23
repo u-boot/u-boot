@@ -413,7 +413,9 @@ struct bootm_headers {
 
 	int		verify;		/* env_get("verify")[0] != 'n' */
 
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
 	struct udevice *imagemap;	/* on-demand storage loader, or NULL */
+#endif
 
 #define BOOTM_STATE_START	0x00000001
 #define BOOTM_STATE_FINDOS	0x00000002
@@ -432,6 +434,35 @@ struct bootm_headers {
 };
 
 extern struct bootm_headers images;
+
+/**
+ * bootm_imagemap() - Get the on-demand storage loader in use, if any
+ *
+ * @images: Images being booted
+ * Return: the imagemap device, or NULL when the image is already in RAM
+ */
+static inline struct udevice *bootm_imagemap(struct bootm_headers *images)
+{
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+	return images->imagemap;
+#else
+	return NULL;
+#endif
+}
+
+/**
+ * bootm_set_imagemap() - Record the on-demand storage loader to read through
+ *
+ * @images: Images being booted
+ * @imagemap: The imagemap device, or NULL for an image already in RAM
+ */
+static inline void bootm_set_imagemap(struct bootm_headers *images,
+				      struct udevice *imagemap)
+{
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+	images->imagemap = imagemap;
+#endif
+}
 
 /*
  * Some systems (for example LWMON) have very short watchdog periods;
@@ -1503,6 +1534,14 @@ static inline int fit_config_verify_with_key_blob(const void *fit,
 }
 #endif
 int fit_all_image_verify(const void *fit);
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+int fit_all_configurations_verify(const void *fit);
+#else
+static inline int fit_all_configurations_verify(const void *fit)
+{
+	return 0;
+}
+#endif
 int fit_config_decrypt(const void *fit, int conf_noffset);
 int fit_image_check_os(const void *fit, int noffset, uint8_t os);
 int fit_image_check_arch(const void *fit, int noffset, uint8_t arch);

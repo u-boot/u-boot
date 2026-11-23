@@ -32,6 +32,10 @@
 #ifndef LWIP_ARCH_SYS_ARCH_H
 #define LWIP_ARCH_SYS_ARCH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SYS_MBOX_NULL NULL
 #define SYS_SEM_NULL  NULL
 
@@ -85,6 +89,10 @@ void sys_lock_tcpip_core(void);
 #define LOCK_TCPIP_CORE()          sys_lock_tcpip_core()
 void sys_unlock_tcpip_core(void);
 #define UNLOCK_TCPIP_CORE()        sys_unlock_tcpip_core()
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* LWIP_ARCH_SYS_ARCH_H */

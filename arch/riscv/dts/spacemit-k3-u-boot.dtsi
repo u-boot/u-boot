@@ -3,4 +3,8 @@
  * Copyright (C) 2026 Yixun Lan <dlan@kernel.org>
  */
 
+/* Override reserved status of mimsic and maplic for OpenSBI */
+&mimsic { status = "okay"; };
+&maplic { status = "okay"; };
+
 #include "spacemit-k3-binman.dtsi"

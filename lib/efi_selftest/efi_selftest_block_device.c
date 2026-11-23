@@ -467,6 +467,12 @@ static int execute(void)
 		efi_st_error("Failed to get file system info\n");
 		return EFI_ST_FAILURE;
 	}
+	if (buf_size != system_info.info.size) {
+		efi_st_error("Buffer size %u differs from info size %u\n",
+			     (unsigned int)buf_size,
+			     (unsigned int)system_info.info.size);
+		return EFI_ST_FAILURE;
+	}
 	if (system_info.info.block_size != 512) {
 		efi_st_error("Wrong block size %u, expected 512\n",
 			     system_info.info.block_size);

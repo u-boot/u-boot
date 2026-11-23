@@ -324,16 +324,6 @@ static int spacemit_sdhci_wait_dat0(struct udevice *dev, int state,
 	return 0;
 }
 
-static int spacemit_sdhci_get_b_max(struct udevice *dev, void *dst,
-				    lbaint_t blkcnt)
-{
-	struct mmc *mmc = mmc_get_mmc_dev(dev);
-
-	if (IS_ENABLED(CONFIG_SPL_BUILD) && mmc && IS_SD(mmc))
-		return 1;
-	return mmc->cfg->b_max;
-}
-
 static void spacemit_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
@@ -574,7 +564,6 @@ static int spacemit_sdhci_probe(struct udevice *dev)
 
 	spacemit_mmc_ops = sdhci_ops;
 	spacemit_mmc_ops.wait_dat0 = spacemit_sdhci_wait_dat0;
-	spacemit_mmc_ops.get_b_max = spacemit_sdhci_get_b_max;
 
 	ret = clk_get_bulk(dev, &plat->clks);
 	if (ret) {
@@ -597,19 +586,19 @@ static int spacemit_sdhci_probe(struct udevice *dev)
 	ret = reset_deassert_bulk(&plat->resets);
 	if (ret) {
 		log_err("Failed to reset: %d\n", ret);
-		goto err_reset;
+		goto err_clk;
 	}
 
 	ret = clk_get_by_index(dev, 1, &clk);
 	if (ret) {
 		log_err("Can't get io clk: %d\n", ret);
-		goto err_reset;
+		goto err_clk;
 	}
 
 	ret = clk_set_rate(&clk, plat->cfg.f_max);
 	if (ret) {
 		log_err("Failed to set io clk: %d\n", ret);
-		goto err_reset;
+		goto err_clk;
 	}
 
 	/* Set quirks */
@@ -624,17 +613,20 @@ static int spacemit_sdhci_probe(struct udevice *dev)
 	ret = sdhci_setup_cfg(&plat->cfg, host, plat->cfg.f_max,
 			      SDHC_MIN_CLOCK);
 	if (ret)
-		goto err_reset;
+		goto err_clk;
 
 	ret = sdhci_probe(dev);
 	if (ret)
-		goto err_reset;
+		goto err_clk;
 
 	spacemit_sdhci_phy_init(dev, host);
 	return 0;
 
-err_reset:
-	reset_release_bulk(&plat->resets);
+	/*
+	 * Leave the resets deasserted: the "axi" reset is shared by all
+	 * three SDHCI controllers and is not reference counted, so
+	 * asserting it would hold the bus of the others in reset.
+	 */
 err_clk:
 	clk_release_bulk(&plat->clks);
 	return ret;

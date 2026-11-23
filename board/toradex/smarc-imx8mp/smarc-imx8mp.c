@@ -62,7 +62,7 @@ static void ft_board_assign_uart(void *blob)
 		return;
 
 	phandle = fdt_get_phandle(blob, pinctrl_offset);
-	if (phandle < 0)
+	if (!phandle)
 		return;
 
 	fdt_setprop_u32(blob, uart_offset, "pinctrl-0", phandle);

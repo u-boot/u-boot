@@ -583,15 +583,20 @@ def setup_efi_image(ubman):
     fsh.cleanup()
 
 
-def setup_rauc_image(ubman):
-    """Create a 40MB disk image with an A/B RAUC system on it"""
-    mmc_dev = 10
+def setup_rauc_image(ubman, mmc_dev, part_names=None):
+    """Create a disk image with an A/B RAUC system on it
 
+    Args:
+        ubman (ConsoleBase): Console to use
+        mmc_dev (int): MMC device number, e.g. 10
+        part_names (tuple of str): GPT names of the boot A, root A, boot B
+            and root B partitions, or None to use MBR
+    """
     boot = FsHelper(ubman.config, 'fat32', 8, 'rauc_boot')
     boot.setup()
 
-    # Generate boot script
-    script = '# dummy boot script'
+    # Generate boot script, which runs a command set by the test
+    script = 'run rauc_test_script'
     cmd_fname = os.path.join(boot.srcdir, 'boot.cmd')
     scr_fname = os.path.join(boot.srcdir, 'boot.scr')
     with open(cmd_fname, 'w', encoding='ascii') as outf:
@@ -606,11 +611,13 @@ def setup_rauc_image(ubman):
     root = FsHelper(ubman.config, 'ext4', 10, 'rauc_root')
     root.mk_fs()
 
-    img = DiskHelper(ubman.config, mmc_dev, 'mmc', True)
-    img.add_fs(boot, DiskHelper.VFAT, bootable=True)
-    img.add_fs(root, DiskHelper.EXT4)
-    img.add_fs(boot, DiskHelper.VFAT, bootable=True)
-    img.add_fs(root, DiskHelper.EXT4)
+    boot_a, root_a, boot_b, root_b = part_names or (None,) * 4
+    img = DiskHelper(ubman.config, mmc_dev, 'mmc', True,
+                     gpt=part_names is not None)
+    img.add_fs(boot, DiskHelper.VFAT, bootable=True, name=boot_a)
+    img.add_fs(root, DiskHelper.EXT4, name=root_a)
+    img.add_fs(boot, DiskHelper.VFAT, bootable=True, name=boot_b)
+    img.add_fs(root, DiskHelper.EXT4, name=root_b)
     img.create()
     boot.cleanup()
     root.cleanup()
@@ -626,7 +633,8 @@ def test_ut_dm_init_bootstd(ubman):
     setup_cros_image(ubman)
     setup_android_image(ubman)
     setup_efi_image(ubman)
-    setup_rauc_image(ubman)
+    setup_rauc_image(ubman, 10)
+    setup_rauc_image(ubman, 13, ('boot_a', 'root_a', 'boot_b', 'root_b'))
     setup_bls_prefix_image(ubman)
 
     # Restart so that the new mmc1.img is picked up

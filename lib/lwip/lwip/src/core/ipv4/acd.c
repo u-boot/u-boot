@@ -143,7 +143,7 @@ acd_add(struct netif *netif, struct acd *acd,
 
 /**
  * @ingroup acd
- * Remvoe ACD client from the client list
+ * Remove ACD client from the client list
  *
  * @param netif network interface from which to remove the acd client
  * @param acd   acd module to be removed from the list

@@ -214,6 +214,7 @@ static void input_pkt(struct netif *netif, const u8_t *data, size_t len)
 
 static void input_pkts(enum lwip_fuzz_type type, struct netif *netif, const u8_t *data, size_t len)
 {
+  size_t packet_nr = 0;
   remfuzz_ptr = data;
   remfuzz_len = len;
 
@@ -228,6 +229,7 @@ static void input_pkts(enum lwip_fuzz_type type, struct netif *netif, const u8_t
 #ifdef LWIP_FUZZ_SYS_NOW
       u32_t external_delay = 0;
 #endif
+      packet_nr++;
       if (type == LWIP_FUZZ_MULTIPACKET_TIME) {
 #ifdef LWIP_FUZZ_SYS_NOW
         /* Extract external delay time from fuzz pool */
@@ -265,7 +267,7 @@ static void input_pkts(enum lwip_fuzz_type type, struct netif *netif, const u8_t
 #if LWIP_TCP
 static struct altcp_pcb *tcp_client_pcb;  /* a pcb for the TCP client */
 static struct altcp_pcb *tcp_server_pcb;  /* a pcb for the TCP server */
-static u16_t            tcp_remote_port;  /* a TCP port number of the destionation */
+static u16_t            tcp_remote_port;  /* a TCP port number of the destination */
 static u16_t            tcp_local_port;   /* a TCP port number of the local server */
 
 /**
@@ -517,7 +519,7 @@ udp_app_fuzz_input(struct udp_pcb *pcb, const ip_addr_t *addr, u16_t port)
        *     We use udp_send().
        *
        * server:
-       *     The pcb does NOT have infomation about the destionation.
+       *     The pcb does NOT have information about the destination.
        *     We use udp_sendto().
        */
       if (addr == NULL) {
@@ -694,8 +696,8 @@ u32_t lwip_fuzz_rand(void)
   static s32_t state[1] = {0xdeadbeef};
   uint64_t val = state[0] & 0xffffffff;
   val = ((val * 1103515245) + 12345) & 0x7fffffff;
-  state[0] = val;
-  result = val;
+  state[0] = (s32_t)val;
+  result = (u32_t)val;
   return result;
 #endif
 }

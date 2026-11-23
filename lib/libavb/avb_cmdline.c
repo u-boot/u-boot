@@ -188,11 +188,33 @@ static int cmdline_append_hex(AvbSlotVerifyData* slot_data,
   return ret;
 }
 
+static const char* cmdline_get_digest_name(AvbDigestType avb_digest_type) {
+  const char* ret = NULL;
+  switch (avb_digest_type) {
+    case AVB_DIGEST_TYPE_SHA256:
+      ret = "sha256";
+      break;
+    case AVB_DIGEST_TYPE_SHA512:
+      ret = "sha512";
+      break;
+      /* Do not add a 'default:' case here because of -Wswitch. */
+  }
+
+  if (ret == NULL) {
+    avb_error("Unknown AvbDigestType.\n");
+    ret = "unknown";
+  }
+
+  return ret;
+}
+
 AvbSlotVerifyResult avb_append_options(
     AvbOps* ops,
     AvbSlotVerifyFlags flags,
     AvbSlotVerifyData* slot_data,
     AvbVBMetaImageHeader* toplevel_vbmeta,
+    const uint8_t* toplevel_vbmeta_public_key_data,
+    size_t toplevel_vbmeta_public_key_length,
     AvbAlgorithmType algorithm_type,
     AvbHashtreeErrorMode hashtree_error_mode,
     AvbHashtreeErrorMode resolved_hashtree_error_mode) {
@@ -200,16 +222,36 @@ AvbSlotVerifyResult avb_append_options(
   const char* verity_mode;
   bool is_device_unlocked;
   AvbIOResult io_ret;
+  char* requested_partition_hash_alg = NULL;
+  char* requested_partition_digest = NULL;
 
-  /* Add androidboot.vbmeta.device option... except if not using a vbmeta
-   * partition since it doesn't make sense in that case.
-   */
+  /* Add options that only make sense if there is a vbmeta partition. */
   if (!(flags & AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION)) {
+    /* Add androidboot.vbmeta.device option. */
     if (!cmdline_append_option(slot_data,
                                "androidboot.vbmeta.device",
                                "PARTUUID=$(ANDROID_VBMETA_PARTUUID)")) {
       ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
       goto out;
+    }
+
+    /* Set androidboot.vbmeta.public_key_digest to the SHA-256 hash of the
+     * public key used to verify the vbmeta image. */
+    if (toplevel_vbmeta_public_key_data != NULL &&
+        toplevel_vbmeta_public_key_length > 0) {
+      AvbSHA256Ctx ctx;
+      avb_sha256_init(&ctx);
+      avb_sha256_update(&ctx,
+                        toplevel_vbmeta_public_key_data,
+                        toplevel_vbmeta_public_key_length);
+      uint8_t* vbmeta_public_key_digest = avb_sha256_final(&ctx);
+      if (!cmdline_append_hex(slot_data,
+                              "androidboot.vbmeta.public_key_digest",
+                              vbmeta_public_key_digest,
+                              AVB_SHA256_DIGEST_SIZE)) {
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+        goto out;
+      }
     }
   }
 
@@ -247,7 +289,9 @@ AvbSlotVerifyResult avb_append_options(
     case AVB_ALGORITHM_TYPE_NONE:
     case AVB_ALGORITHM_TYPE_SHA256_RSA2048:
     case AVB_ALGORITHM_TYPE_SHA256_RSA4096:
-    case AVB_ALGORITHM_TYPE_SHA256_RSA8192: {
+    case AVB_ALGORITHM_TYPE_SHA256_RSA8192:
+    case AVB_ALGORITHM_TYPE_MLDSA65:
+    case AVB_ALGORITHM_TYPE_MLDSA87: {
       size_t n, total_size = 0;
       uint8_t vbmeta_digest[AVB_SHA256_DIGEST_SIZE];
       avb_slot_verify_data_calculate_vbmeta_digest(
@@ -291,7 +335,7 @@ AvbSlotVerifyResult avb_append_options(
       }
     } break;
     case _AVB_ALGORITHM_NUM_TYPES:
-      avb_assert_not_reached();
+      __builtin_trap();
       break;
   }
 
@@ -332,7 +376,7 @@ AvbSlotVerifyResult avb_append_options(
       case AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO:
         // Should never get here because MANAGED_RESTART_AND_EIO is
         // remapped by avb_manage_hashtree_error_mode().
-        avb_assert_not_reached();
+        __builtin_trap();
         break;
       case AVB_HASHTREE_ERROR_MODE_PANIC:
         verity_mode = "panicking";
@@ -361,10 +405,61 @@ AvbSlotVerifyResult avb_append_options(
     }
   }
 
+  size_t i;
+  for (i = 0; i < slot_data->num_loaded_partitions; i++) {
+    if (slot_data->loaded_partitions[i].partition_name != NULL &&
+        slot_data->loaded_partitions[i].digest != NULL) {
+      requested_partition_hash_alg =
+          avb_strdupv("androidboot.vbmeta.",
+                      slot_data->loaded_partitions[i].partition_name,
+                      ".hash_alg",
+                      NULL);
+      if (requested_partition_hash_alg == NULL) {
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+        goto out;
+      }
+
+      requested_partition_digest =
+          avb_strdupv("androidboot.vbmeta.",
+                      slot_data->loaded_partitions[i].partition_name,
+                      ".digest",
+                      NULL);
+      if (requested_partition_digest == NULL) {
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+        goto out;
+      }
+
+      if (!cmdline_append_option(
+              slot_data,
+              requested_partition_hash_alg,
+              cmdline_get_digest_name(
+                  slot_data->loaded_partitions[i].digest_type)) ||
+          !cmdline_append_hex(slot_data,
+                              requested_partition_digest,
+                              slot_data->loaded_partitions[i].digest,
+                              slot_data->loaded_partitions[i].digest_size)) {
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+        goto out;
+      }
+
+      avb_free(requested_partition_hash_alg);
+      requested_partition_hash_alg = NULL;
+      avb_free(requested_partition_digest);
+      requested_partition_digest = NULL;
+    }
+  }
+
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
 out:
-
+  if (requested_partition_hash_alg != NULL) {
+    avb_free(requested_partition_hash_alg);
+    requested_partition_hash_alg = NULL;
+  }
+  if (requested_partition_digest != NULL) {
+    avb_free(requested_partition_digest);
+    requested_partition_digest = NULL;
+  }
   return ret;
 }
 

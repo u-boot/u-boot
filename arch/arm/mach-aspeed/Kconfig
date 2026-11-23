@@ -39,6 +39,7 @@ config ASPEED_AST2600
 config ASPEED_AST2700
 	bool "Support Aspeed AST2700 SoC"
 	select ARM64
+	select SYSCON
 	select SYS_ARCH_TIMER
 	help
 	  Support for the Aspeed AST2700, an arm64 (Cortex-A35) Baseboard

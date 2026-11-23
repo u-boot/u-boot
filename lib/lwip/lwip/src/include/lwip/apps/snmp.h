@@ -55,8 +55,6 @@ struct snmp_varbind
 {
   /** pointer to next varbind, NULL for last in list */
   struct snmp_varbind *next;
-  /** pointer to previous varbind, NULL for first in list */
-  struct snmp_varbind *prev;
 
   /** object identifier */
   struct snmp_obj_id oid;

@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <log.h>
+#include <memalign.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -742,7 +743,8 @@ int imx9_probe_mu(void)
 	ofnode node;
 	int ret;
 	u32 res;
-	struct ele_get_info_data info;
+	ALLOC_CACHE_ALIGN_BUFFER(struct ele_get_info_data, info, 1);
+	ulong end = (ulong)info + roundup(sizeof(*info), ARCH_DMA_MINALIGN);
 
 	node = ofnode_by_compatible(ofnode_null(), "fsl,imx93-mu-s4");
 	if (!ofnode_valid(node))
@@ -752,14 +754,18 @@ int imx9_probe_mu(void)
 	if (ret)
 		return ret;
 
-	if (gd->flags & GD_FLG_RELOC)
+	if ((gd->flags & GD_FLG_RELOC) && !IS_ENABLED(CONFIG_SKIP_EARLY_DM))
 		return 0;
 
-	ret = ele_get_info(&info, &res);
+	flush_dcache_range((ulong)info, end);
+
+	ret = ele_get_info(info, &res);
 	if (ret)
 		return ret;
 
-	set_cpu_info(&info);
+	invalidate_dcache_range((ulong)info, end);
+
+	set_cpu_info(info);
 
 	return 0;
 }

@@ -211,7 +211,6 @@ shows output like::
     Fail to detect board:-19
     vdd_core, value:900000
     vdd_1v8, value:1800000
-    vdd_1v8_mmc, value:1800000
     DDR firmware: [0xc0815840]:0xf0227179, size:0x8d98
     DDR is ready
     SPL: Unsupported Boot Device!

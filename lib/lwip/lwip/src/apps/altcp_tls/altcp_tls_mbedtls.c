@@ -48,7 +48,7 @@
  *   GOOD custom entropy
  *
  * Missing things / @todo:
- * - some unhandled/untested things migh be caught by LWIP_ASSERTs...
+ * - some unhandled/untested things might be caught by LWIP_ASSERTs...
  */
 
 #include "lwip/opt.h"

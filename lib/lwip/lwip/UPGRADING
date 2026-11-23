@@ -10,6 +10,7 @@ with newer versions.
   * The eth_addr_cmp and ip_addr_cmp set of functions have been renamed to eth_addr_eq, ip_addr_eq
     and so on, since they return non-zero on equality. Macros for the old names exist.
   * The sio_write function used by PPP now takes the data argument as const.
+  * The prev field in the snmp_varbind struct has been removed.
 
 (2.2.0)
 

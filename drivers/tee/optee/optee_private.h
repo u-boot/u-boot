@@ -35,10 +35,13 @@
  * struct optee_private - OP-TEE driver private data
  * @rpmb_next_region:	next UFS RPMB region to report on PROBE_NEXT
  * @rpmb_cur_region:	UFS RPMB region selected by the last PROBE_NEXT
+ * @in_supplicant:	non-zero while a supplicant RPC from OP-TEE is being
+ *			serviced
  */
 struct optee_private {
 	unsigned int rpmb_next_region;
 	unsigned int rpmb_cur_region;
+	int in_supplicant;
 };
 #else
 /**
@@ -48,11 +51,14 @@ struct optee_private {
  * @rpmb_original_part:	the previosly active partition on the mmc device,
  *			used to restore active the partition when the RPMB
  *			accesses are finished
+ * @in_supplicant:	non-zero while a supplicant RPC from OP-TEE is being
+ *			serviced
  */
 struct optee_private {
 	struct mmc *rpmb_mmc;
 	int rpmb_dev_id;
 	int rpmb_original_part;
+	int in_supplicant;
 };
 #endif
 

@@ -1,5 +1,5 @@
 CHROMEBOOK JERRY BOARD
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-veyron-jerry-u-boot.dtsi
 F:	board/google/veyron/
@@ -7,7 +7,7 @@ F:	include/configs/veyron.h
 F:	configs/chromebook_jerry_defconfig
 
 CHROMEBIT MICKEY BOARD
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-veyron-mickey-u-boot.dtsi
 F:	board/google/veyron/
@@ -15,7 +15,7 @@ F:	include/configs/veyron.h
 F:	configs/chromebit_mickey_defconfig
 
 CHROMEBOOK MINNIE BOARD
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-veyron-minnie-u-boot.dtsi
 F:	board/google/veyron/
@@ -23,7 +23,7 @@ F:	include/configs/veyron.h
 F:	configs/chromebook_minnie_defconfig
 
 CHROMEBOOK SPEEDY BOARD
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-veyron-speedy-u-boot.dtsi
 F:	board/google/veyron/
@@ -31,6 +31,6 @@ F:	include/configs/veyron.h
 F:	configs/chromebook_speedy_defconfig
 
 CHROMEBOOK VEYRON COMMON FILES
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-veyron-u-boot.dtsi

@@ -1564,7 +1564,7 @@ tcp_receive(struct tcp_pcb *pcb)
           recv_data = inseg.p;
           /* Since this pbuf now is the responsibility of the
              application, we delete our reference to it so that we won't
-             (mistakingly) deallocate it. */
+             (mistakenly) deallocate it. */
           inseg.p = NULL;
         }
         if (TCPH_FLAGS(inseg.tcphdr) & TCP_FIN) {
@@ -1687,10 +1687,20 @@ tcp_receive(struct tcp_pcb *pcb)
                  ->ooseq. We check the lengths to see which one to
                  discard. */
               if (inseg.len > next->len) {
+                struct tcp_seg* cseg;
+
+                /* If next segment is the last segment in ooseq
+                   and smaller than inseg, that means it has been
+                   trimmed before to fit our window, so we just
+                   break here. */
+                if (next->next == NULL) {
+                  break;
+                }
+
                 /* The incoming segment is larger than the old
                    segment. We replace some segments with the new
                    one. */
-                struct tcp_seg *cseg = tcp_seg_copy(&inseg);
+                cseg = tcp_seg_copy(&inseg);
                 if (cseg != NULL) {
                   if (prev != NULL) {
                     prev->next = cseg;

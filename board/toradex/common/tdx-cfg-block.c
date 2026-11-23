@@ -613,7 +613,7 @@ int read_tdx_cfg_block_carrier(void)
 	offset = 4;
 
 	while (offset + sizeof(struct toradex_tag) +
-	       sizeof(struct toradex_hw) < TDX_CFG_BLOCK_MAX_SIZE) {
+	       sizeof(struct toradex_hw) < TDX_CFG_BLOCK_EXTRA_MAX_SIZE) {
 		tag = (struct toradex_tag *)(config_block + offset);
 		offset += 4;
 		if (tag->id == TAG_INVALID)

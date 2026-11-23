@@ -43,7 +43,7 @@
 extern "C" {
 #endif
 
-#if MEM_LIBC_MALLOC
+#if MEM_CUSTOM_ALLOCATOR
 
 #include "lwip/arch.h"
 

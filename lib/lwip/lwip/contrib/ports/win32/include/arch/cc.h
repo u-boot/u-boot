@@ -80,7 +80,11 @@ typedef int sys_prot_t;
 
 #define S16_F "hd"
 #define X16_F "hx"
+#ifdef _WIN64
+#define SZT_F "llu"
+#else
 #define SZT_F "lu"
+#endif
 #endif /* _MSC_VER */
 
 /* Compiler hints for packing structures */

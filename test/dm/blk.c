@@ -9,6 +9,7 @@
 #include <sandbox_host.h>
 #include <usb.h>
 #include <asm/state.h>
+#include <dm/device-internal.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
@@ -291,3 +292,67 @@ static int dm_test_blk_foreach(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_blk_foreach, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+static int count_part_devs(struct udevice *blk)
+{
+	struct udevice *dev;
+	int count = 0;
+
+	device_foreach_child(dev, blk) {
+		if (device_get_uclass_id(dev) == UCLASS_PARTITION)
+			count++;
+	}
+
+	return count;
+}
+
+/* Test that probing a block device again does not duplicate its partitions */
+static int dm_test_blk_part_reprobe(struct unit_test_state *uts)
+{
+	char str_disk_guid[UUID_STR_LEN + 1];
+	struct disk_partition parts[2] = {
+		{
+			.start = 48, /* GPT data takes up the first 34 blocks or so */
+			.size = 1,
+			.name = "test1",
+		},
+		{
+			.start = 49,
+			.size = 1,
+			.name = "test2",
+		},
+	};
+	struct blk_desc *desc;
+	struct udevice *blk;
+	int i;
+
+	ut_asserteq(2, blk_get_device_by_str("mmc", "2", &desc));
+	if (CONFIG_IS_ENABLED(RANDOM_UUID)) {
+		gen_rand_uuid_str(parts[0].uuid, UUID_STR_FORMAT_STD);
+		gen_rand_uuid_str(parts[1].uuid, UUID_STR_FORMAT_STD);
+		gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
+	}
+	ut_assertok(gpt_restore(desc, str_disk_guid, parts, ARRAY_SIZE(parts)));
+	blk = desc->bdev;
+
+	for (i = 0; i < 2; i++) {
+		ut_assertok(device_remove(blk, DM_REMOVE_NORMAL));
+		ut_asserteq(0, count_part_devs(blk));
+		ut_assertok(device_probe(blk));
+		ut_asserteq(ARRAY_SIZE(parts), count_part_devs(blk));
+	}
+
+	/*
+	 * Removing only the active devices, as done before booting an OS,
+	 * doesn't match the partition driver, but the partition devices are
+	 * removed along with the block device and must be unbound as well
+	 */
+	ut_assertok(device_remove(blk, DM_REMOVE_ACTIVE_ALL));
+	ut_assert(!device_active(blk));
+	ut_asserteq(0, count_part_devs(blk));
+	ut_assertok(device_probe(blk));
+	ut_asserteq(ARRAY_SIZE(parts), count_part_devs(blk));
+
+	return 0;
+}
+DM_TEST(dm_test_blk_part_reprobe, UTF_SCAN_PDATA | UTF_SCAN_FDT);

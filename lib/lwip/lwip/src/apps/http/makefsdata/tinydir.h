@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2019, tinydir authors:
+Copyright (c) 2013-2021, tinydir authors:
 - Cong Xu
 - Lautis Sun
 - Baudouin Feildel
@@ -125,8 +125,13 @@ extern "C" {
 # define _TINYDIR_FUNC static __inline
 #elif !defined __STDC_VERSION__ || __STDC_VERSION__ < 199901L
 # define _TINYDIR_FUNC static __inline__
-#else
+#elif defined(__cplusplus)
 # define _TINYDIR_FUNC static inline
+#elif defined(__GNUC__)
+/* Suppress unused function warning */
+# define _TINYDIR_FUNC __attribute__((unused)) static
+#else
+# define _TINYDIR_FUNC static
 #endif
 
 /* readdir_r usage; define TINYDIR_USE_READDIR_R to use it (if supported) */
@@ -543,7 +548,9 @@ int tinydir_readfile(const tinydir_dir *dir, tinydir_file *file)
 	if (_tstat(
 #elif (defined _BSD_SOURCE) || (defined _DEFAULT_SOURCE)	\
 	|| ((defined _XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500))	\
-	|| ((defined _POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200112L))
+	|| ((defined _POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200112L)) \
+	|| ((defined __APPLE__) && (defined __MACH__)) \
+	|| (defined BSD)
 	if (lstat(
 #else
 	if (stat(
@@ -636,7 +643,7 @@ int tinydir_file_open(tinydir_file *file, const _tinydir_char_t *path)
 	int result = 0;
 	int found = 0;
 	_tinydir_char_t dir_name_buf[_TINYDIR_PATH_MAX];
-	_tinydir_char_t file_name_buf[_TINYDIR_FILENAME_MAX];
+	_tinydir_char_t file_name_buf[_TINYDIR_PATH_MAX];
 	_tinydir_char_t *dir_name;
 	_tinydir_char_t *base_name;
 #if (defined _MSC_VER || defined __MINGW32__)

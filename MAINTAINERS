@@ -63,8 +63,7 @@ F:	net/9p/
 F:	test/py/tests/test_9p.py
 
 ACPI
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	board/emulation/configs/acpi.config
 F:	cmd/acpi.c
 F:	include/acpi/
@@ -77,8 +76,7 @@ S:	Maintained
 F:	drivers/net/phy/airoha/
 
 ALIST
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	include/alist.h
 F:	lib/alist.c
 F:	test/lib/alist.c
@@ -102,6 +100,7 @@ ANDROID AB
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 R:	Igor Opaniuk <igor.opaniuk@gmail.com>
 R:	Sam Protsenko <semen.protsenko@linaro.org>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	boot/android_ab.c
@@ -112,6 +111,7 @@ F:	test/py/tests/test_android/test_ab.py
 ANDROID AVB
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 R:	Igor Opaniuk <igor.opaniuk@gmail.com>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	cmd/avb.c
@@ -547,8 +547,6 @@ F:	drivers/usb/host/xhci-rcar*
 
 ARM ROCKCHIP
 M:	Quentin Schulz <u-boot@0leil.net>
-M:	Kever Yang <kever.yang@rock-chips.com>
-R:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-rockchip.git
 # Exclude from N: px5 matches
@@ -819,7 +817,6 @@ S:	Maintained
 F:	drivers/spi/spi-aspeed-smc.c
 
 BINMAN
-M:	Simon Glass <sjg@chromium.org>
 M:	Alper Nebi Yasak <alpernebiyasak@gmail.com>
 S:	Maintained
 F:	doc/develop/binman_tests.rst
@@ -835,8 +832,7 @@ F:	include/blkmap.h
 F:	test/dm/blkmap.c
 
 BOOTSTD
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	boot/bootdev*.c
 F:	boot/bootflow.c
 F:	boot/bootmeth*.c
@@ -847,11 +843,13 @@ F:	drivers/mmc/mmc_bootdev.c
 F:	include/bootdev.h
 F:	include/bootflow.h
 F:	include/bootmeth.h
+F:	include/bootmeth_rauc.h
 F:	include/bootstd.h
 F:	test/boot/
 
 BOOTMETH_ANDROID
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	boot/bootmeth_android.c
@@ -868,8 +866,7 @@ F:	fs/btrfs/
 F:	include/btrfs.h
 
 BUILDMAN
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	tools/buildman/
 
 CAAM
@@ -899,7 +896,6 @@ F:	drivers/clk/
 F:	drivers/clk/imx/
 
 CPU
-M:	Simon Glass <sjg@chromium.org>
 M:	Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 S:	Maintained
 F:	cmd/cpu.c
@@ -937,15 +933,13 @@ F:	include/linux/usb/ch9.h
 F:	include/linux/usb/gadget.h
 
 DRIVER MODEL
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dm.git
 F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
 
 EFI CLIENT
-M:	Simon Glass <sjg@chromium.org>
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
 W:	https://docs.u-boot-project.org/en/latest/develop/uefi/u-boot_on_efi.html
@@ -1003,8 +997,7 @@ F:	tools/env*
 F:	tools/mkenvimage.c
 
 ENVIRONMENT AS TEXT
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	doc/usage/environment.rst
 F:	scripts/env2string.awk
 
@@ -1018,8 +1011,7 @@ F:	include/erofs.h
 F:	test/py/tests/test_fs/test_erofs.py
 
 EVENTS
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	cmd/event.c
 F:	common/event.c
 F:	include/event.h
@@ -1038,6 +1030,7 @@ F:	include/extension_board.h
 
 FASTBOOT
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
+R:	Guillaume La Roque <glaroque@baylibre.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	cmd/fastboot.c
@@ -1064,8 +1057,7 @@ F:	include/fpga.h
 F:	test/dm/fpga.c
 
 FLATTENED DEVICE TREE
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-fdt.git
 F:	lib/fdtdec*
 F:	lib/libfdt/
@@ -1168,8 +1160,7 @@ F:	doc/kwboot.1
 F:	tools/kwb*
 
 LOGGING
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 T:	git https://git.u-boot-project.org/u-boot/u-boot.git
 F:	common/log*
 F:	cmd/log.c
@@ -1206,8 +1197,7 @@ S:	Maintained
 F:	lib/mbedtls/
 
 MEMBUF
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 T:	git https://git.u-boot-project.org/u-boot/u-boot.git
 F:	include/membuf.h
 F:	lib/membuf.c
@@ -1397,8 +1387,7 @@ F:	configs/o4-imx6ull-nano_defconfig
 F:	include/configs/o4-imx6ull-nano.h
 
 PATMAN
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	tools/patman/
 
 PCI
@@ -1566,12 +1555,9 @@ F:	cmd/rockusb.c
 F:	doc/README.rockusb
 
 SANDBOX
-M:	Simon Glass <sjg@chromium.org>
+M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
-F:	arch/sandbox/
-F:	configs/sandbox*
-F:	drivers/*/*sandbox*.c
-F:	include/dt-bindings/*/sandbox*.h
+N:	sandbox
 F:	include/os.h
 
 SCMI
@@ -1805,6 +1791,7 @@ M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-ubi.git
 F:	drivers/mtd/ubi/
+F:	test/dm/ubi.c
 
 UFETCH
 M:	Casey Connolly <casey.connolly@linaro.org>
@@ -1820,8 +1807,7 @@ F:	common/spl/spl_ufs.c
 F:	drivers/ufs/
 
 UPL
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dm.git
 F:	boot/upl*
 F:	cmd/upl.c
@@ -1869,8 +1855,7 @@ S:	Maintained
 F:	test/lib/uuid.c
 
 VBE
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
+S:	Orphan
 F:	boot/vbe*
 F:	include/vbe.h
 
@@ -1905,7 +1890,6 @@ F:	drivers/watchdog/
 F:	include/watchdog*.h
 
 X86
-M:	Simon Glass <sjg@chromium.org>
 M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-x86.git

@@ -1368,7 +1368,10 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 
 read_err:
 #if CONFIG_IS_ENABLED(SPI_FLASH_BAR)
-	ret = clean_bar(nor);
+	if (ret)
+		clean_bar(nor);
+	else
+		ret = clean_bar(nor);
 #endif
 	return ret;
 }
@@ -1796,7 +1799,10 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 write_err:
 #if CONFIG_IS_ENABLED(SPI_FLASH_BAR)
-	ret = clean_bar(nor);
+	if (ret)
+		clean_bar(nor);
+	else
+		ret = clean_bar(nor);
 #endif
 	return ret;
 }

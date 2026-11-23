@@ -34,10 +34,18 @@
 
 #include "lwip/netif.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 err_t vdeif_init(struct netif *netif);
 void vdeif_poll(struct netif *netif);
 #if NO_SYS
 int vdeif_select(struct netif *netif);
 #endif /* NO_SYS */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LWIP_VDEIF_H */

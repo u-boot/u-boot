@@ -155,6 +155,11 @@ static void tick_lwip(void)
   }
 }
 
+static u32_t get_bad_xid(const struct netif *netif)
+{
+  return ~netif_dhcp_data(netif)->xid;
+}
+
 static void send_pkt(struct netif *netif, const u8_t *data, size_t len)
 {
   struct pbuf *p, *q;
@@ -493,7 +498,7 @@ START_TEST(test_dhcp)
   dhcp_start(&net_test);
 
   fail_unless(txpacket == 1); /* DHCP discover sent */
-  xid = netif_dhcp_data(&net_test)->xid; /* Write bad xid, not using htonl! */
+  xid = get_bad_xid(&net_test);
   memcpy(&dhcp_offer[46], &xid, 4);
   send_pkt(&net_test, dhcp_offer, sizeof(dhcp_offer));
 
@@ -508,7 +513,7 @@ START_TEST(test_dhcp)
   send_pkt(&net_test, dhcp_offer, sizeof(dhcp_offer));
 
   fail_unless(txpacket == 2, "TX %d packets, expected 2", txpacket); /* DHCP request sent */
-  xid = netif_dhcp_data(&net_test)->xid; /* Write bad xid, not using htonl! */
+  xid = get_bad_xid(&net_test);
   memcpy(&dhcp_ack[46], &xid, 4);
   send_pkt(&net_test, dhcp_ack, sizeof(dhcp_ack));
 
@@ -568,7 +573,7 @@ START_TEST(test_dhcp_nak)
   dhcp_start(&net_test);
 
   fail_unless(txpacket == 1); /* DHCP discover sent */
-  xid = netif_dhcp_data(&net_test)->xid; /* Write bad xid, not using htonl! */
+  xid = get_bad_xid(&net_test);
   memcpy(&dhcp_offer[46], &xid, 4);
   send_pkt(&net_test, dhcp_offer, sizeof(dhcp_offer));
 
@@ -583,7 +588,7 @@ START_TEST(test_dhcp_nak)
   send_pkt(&net_test, dhcp_offer, sizeof(dhcp_offer));
 
   fail_unless(txpacket == 2); /* DHCP request sent */
-  xid = netif_dhcp_data(&net_test)->xid; /* Write bad xid, not using htonl! */
+  xid = get_bad_xid(&net_test);
   memcpy(&dhcp_ack[46], &xid, 4);
   send_pkt(&net_test, dhcp_ack, sizeof(dhcp_ack));
 
@@ -941,7 +946,7 @@ START_TEST(test_dhcp_nak_no_endmarker)
   dhcp = netif_dhcp_data(&net_test);
 
   fail_unless(txpacket == 1); /* DHCP discover sent */
-  xid = dhcp->xid; /* Write bad xid, not using htonl! */
+  xid = get_bad_xid(&net_test);
   memcpy(&dhcp_offer[46], &xid, 4);
   send_pkt(&net_test, dhcp_offer, sizeof(dhcp_offer));
 

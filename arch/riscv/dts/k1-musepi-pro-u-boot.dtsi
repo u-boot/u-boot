@@ -105,9 +105,9 @@
 				regulator-name = "vdd_1v8";
 			};
 
+			/* vqmmc-supply of sdhci0, set by the MMC core in SPL */
 			aldo1 {
 				bootph-pre-ram;
-				regulator-name = "vdd_1v8_mmc";
 			};
 
 		};
@@ -131,7 +131,6 @@
 
 &sdhci0 {
 	bootph-pre-ram;
-	cd-gpios = <&gpio K1_GPIO(80) (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 	max-frequency = <204800000>;
 };
 

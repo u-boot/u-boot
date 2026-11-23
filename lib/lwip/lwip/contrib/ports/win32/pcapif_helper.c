@@ -115,7 +115,7 @@ pcapifh_free_readonly_mem(void *data)
 }
 
 /**
- * Npcap keeps its DLLs in a different directory for compatiblity with winpcap.
+ * Npcap keeps its DLLs in a different directory for compatibility with winpcap.
  * Make sure they get found by adding that directory to the DLL search path.
  */
 void pcapifh_init_npcap(void)

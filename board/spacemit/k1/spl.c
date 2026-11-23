@@ -149,6 +149,7 @@ static const struct {
 	{ "k1-x_MUSE-Pi-Pro",   "spacemit/k1-musepi-pro"    },
 	{ "k1-x_deb1",          "spacemit/k1-bananapi-f3"   },
 	{ "k1-x_milkv-jupiter", "spacemit/k1-milkv-jupiter" },
+	{ "m1-x_milkv-jupiter", "spacemit/k1-milkv-jupiter" },
 };
 
 int read_product_name(char *name, int size)
@@ -276,26 +277,6 @@ static void set_vdd_1v8(void)
 	log_info("vdd_1v8, value:%d\n", ret);
 }
 
-static void set_vdd_mmc(void)
-{
-	struct udevice *dev;
-	int ret;
-
-	ret = regulator_get_by_platname("vdd_1v8_mmc", &dev);
-	if (ret)
-		panic("Fail to detect vdd_1v8_mmc (%d)\n", ret);
-	ret = regulator_set_value(dev, 1800000);
-	if (ret)
-		log_warning("Fail to set vdd_1v8_mmc as 1800000 (%d)\n", ret);
-	ret = regulator_set_enable(dev, true);
-	if (ret)
-		log_warning("Fail to enable vdd_1v8_mmc (%d)\n", ret);
-	ret = regulator_get_value(dev);
-	if (ret < 0)
-		log_warning("Fail to read vdd_1v8_mmc (%d)\n", ret);
-	log_info("vdd_1v8_mmc, value:%d\n", ret);
-}
-
 void pmic_init(void)
 {
 	struct udevice *pmic_dev;
@@ -314,7 +295,6 @@ void pmic_init(void)
 	}
 	set_vdd_core();
 	set_vdd_1v8();
-	set_vdd_mmc();
 }
 
 /* Set default value for DDR chips */

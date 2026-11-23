@@ -581,7 +581,7 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			dirs->entry = NULL;
 		}
 
-		if (ret) {
+		if (ret || !dirs->entry) {
 			printf("** Cannot find directory. **\n");
 			ret = -EINVAL;
 			goto out;
@@ -1295,6 +1295,10 @@ static int sqfs_split_path(char **file, char **dir, const char *path)
 
 	*file = NULL;
 	*dir = NULL;
+
+	if (!path)
+		return -EINVAL;
+
 	dirc = NULL;
 	basec = NULL;
 	bname = NULL;
@@ -1501,7 +1505,7 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 		dirs->entry = NULL;
 	}
 
-	if (ret) {
+	if (ret || !dirs->entry) {
 		printf("File not found.\n");
 		*actread = 0;
 		ret = -ENOENT;
@@ -1561,6 +1565,10 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 		dirs->entry = NULL;
 		sqfs_closedir(dirsp);
 		dirsp = NULL;
+		if (!resolved) {
+			ret = -EINVAL;
+			goto out;
+		}
 		ret = sqfs_read_nest(resolved, buf, offset, len, actread);
 		free(resolved);
 		goto out;
@@ -1803,7 +1811,7 @@ static int sqfs_size_nest(const char *filename, loff_t *size)
 		dirs->entry = NULL;
 	}
 
-	if (ret) {
+	if (ret || !dirs->entry) {
 		printf("File not found.\n");
 		*size = 0;
 		ret = -EINVAL;
@@ -1848,6 +1856,10 @@ static int sqfs_size_nest(const char *filename, loff_t *size)
 		 */
 		sqfs_closedir(dirsp);
 		dirsp = NULL;
+		if (!resolved) {
+			ret = -EINVAL;
+			break;
+		}
 		ret = sqfs_size(resolved, size);
 		free(resolved);
 		break;

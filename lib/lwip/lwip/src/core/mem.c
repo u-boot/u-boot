@@ -60,6 +60,7 @@
 #include "lwip/stats.h"
 #include "lwip/err.h"
 
+#include <stdio.h>  /* snprintf */
 #include <string.h>
 
 #if MEM_LIBC_MALLOC
@@ -151,7 +152,7 @@ mem_overflow_init_raw(void *p, size_t size)
 }
 #endif /* MEM_OVERFLOW_CHECK || MEMP_OVERFLOW_CHECK */
 
-#if MEM_LIBC_MALLOC || MEM_USE_POOLS
+#if MEM_CUSTOM_ALLOCATOR || MEM_USE_POOLS
 
 /** mem_init is not used when using pools instead of a heap or using
  * C library malloc().
@@ -171,23 +172,9 @@ mem_trim(void *mem, mem_size_t size)
   LWIP_UNUSED_ARG(size);
   return mem;
 }
-#endif /* MEM_LIBC_MALLOC || MEM_USE_POOLS */
+#endif /* MEM_CUSTOM_ALLOCATOR || MEM_USE_POOLS */
 
-#if MEM_LIBC_MALLOC
-/* lwIP heap implemented using C library malloc() */
-
-/* in case C library malloc() needs extra protection,
- * allow these defines to be overridden.
- */
-#ifndef mem_clib_free
-#define mem_clib_free free
-#endif
-#ifndef mem_clib_malloc
-#define mem_clib_malloc malloc
-#endif
-#ifndef mem_clib_calloc
-#define mem_clib_calloc calloc
-#endif
+#if MEM_CUSTOM_ALLOCATOR
 
 #if LWIP_STATS && MEM_STATS
 #define MEM_LIBC_STATSHELPER_SIZE LWIP_MEM_ALIGN_SIZE(sizeof(mem_size_t))
@@ -206,7 +193,7 @@ mem_trim(void *mem, mem_size_t size)
 void *
 mem_malloc(mem_size_t size)
 {
-  void *ret = mem_clib_malloc(size + MEM_LIBC_STATSHELPER_SIZE);
+  void *ret = MEM_CUSTOM_MALLOC(size + MEM_LIBC_STATSHELPER_SIZE);
   if (ret == NULL) {
     MEM_STATS_INC_LOCKED(err);
   } else {
@@ -233,7 +220,7 @@ mem_free(void *rmem)
   rmem = (u8_t *)rmem - MEM_LIBC_STATSHELPER_SIZE;
   MEM_STATS_DEC_USED_LOCKED(used, *(mem_size_t *)rmem);
 #endif
-  mem_clib_free(rmem);
+  MEM_CUSTOM_FREE(rmem);
 }
 
 #elif MEM_USE_POOLS
@@ -805,7 +792,7 @@ mem_trim(void *rmem, mem_size_t new_size)
   /* else {
     next struct mem is used but size between mem and mem2 is not big enough
     to create another struct mem
-    -> don't do anyhting.
+    -> don't do anything.
     -> the remaining space stays unused since it is too small
   } */
 #if MEM_OVERFLOW_CHECK
@@ -977,14 +964,14 @@ mem_malloc_adjust_lfree:
 
 #endif /* MEM_USE_POOLS */
 
-#if MEM_LIBC_MALLOC && (!LWIP_STATS || !MEM_STATS)
+#if MEM_CUSTOM_ALLOCATOR && (!LWIP_STATS || !MEM_STATS)
 void *
 mem_calloc(mem_size_t count, mem_size_t size)
 {
-  return mem_clib_calloc(count, size);
+  return MEM_CUSTOM_CALLOC(count, size);
 }
 
-#else /* MEM_LIBC_MALLOC && (!LWIP_STATS || !MEM_STATS) */
+#else /* MEM_CUSTOM_ALLOCATOR && (!LWIP_STATS || !MEM_STATS) */
 /**
  * Contiguously allocates enough space for count objects that are size bytes
  * of memory each and returns a pointer to the allocated memory.
@@ -1014,4 +1001,4 @@ mem_calloc(mem_size_t count, mem_size_t size)
   }
   return p;
 }
-#endif /* MEM_LIBC_MALLOC && (!LWIP_STATS || !MEM_STATS) */
+#endif /* MEM_CUSTOM_ALLOCATOR && (!LWIP_STATS || !MEM_STATS) */

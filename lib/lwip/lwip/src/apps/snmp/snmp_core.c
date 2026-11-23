@@ -584,7 +584,7 @@ snmp_oid_prefix(struct snmp_obj_id *target, const u32_t *oid, u8_t oid_len)
 
 /**
  * Combine two OIDs into struct snmp_obj_id
- * @param target Assignmet target
+ * @param target Assignment target
  * @param oid1 OID 1
  * @param oid1_len OID 1 length
  * @param oid2 OID 2

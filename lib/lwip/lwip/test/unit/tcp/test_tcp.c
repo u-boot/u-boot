@@ -517,7 +517,7 @@ START_TEST(test_tcp_fast_retx_recover)
   /* queue data4, don't send it (unsent-oversize is != 0) */
   err = tcp_write(pcb, data4, sizeof(data4), TCP_WRITE_FLAG_COPY);
   EXPECT_RET(err == ERR_OK);
-  /* 3nd duplicate ACK for data1 (data2 and data3 are lost) -> fast retransmission */
+  /* 3rd duplicate ACK for data1 (data2 and data3 are lost) -> fast retransmission */
   p = tcp_create_rx_segment(pcb, NULL, 0, 0, 0, TCP_ACK);
   EXPECT_RET(p != NULL);
   test_tcp_input(p, &netif);

@@ -1499,7 +1499,7 @@ static int lcp_nakci(fsm *f, u_char *p, int len, int treat_as_reject) {
 	    break;
 	case CI_AUTHTYPE:
 		/* This is potentially dead code (#if !PPP_AUTH_SUPPORT)
-		 * Thus the double parantheses to mark the code explicitely
+		 * Thus the double parentheses to mark the code explicitly
 		 * disabled when building with clang
 		 */
 	    if ((0

@@ -194,6 +194,7 @@ void optee_suppl_rpmb_release(struct udevice *dev)
 
 void optee_rpmb_available(void)
 {
+	struct optee_private *priv;
 	struct udevice *dev;
 	struct uclass *uc;
 	u32 tee_sess;
@@ -201,6 +202,16 @@ void optee_rpmb_available(void)
 	uclass_id_foreach_dev(UCLASS_TEE, dev, uc) {
 		if (strcmp(dev->driver->name, "optee") != 0 ||
 		    !device_active(dev))
+			continue;
+
+		/*
+		 * mmc_init() may run from the RPMB supplicant itself, while
+		 * OP-TEE is blocked in that RPC and holds its RPMB lock. A
+		 * nested call would then deadlock, and OP-TEE is about to use
+		 * the device anyway.
+		 */
+		priv = dev_get_priv(dev);
+		if (priv->in_supplicant)
 			continue;
 
 		if (optee_open_enum_session(dev, &tee_sess) != 0)

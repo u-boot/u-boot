@@ -122,7 +122,7 @@ struct stats_sys {
 
 /** SNMP MIB2 stats */
 struct stats_mib2 {
-  /* IP */
+  /* IPv4 */
   u32_t ipinhdrerrors;
   u32_t ipinaddrerrors;
   u32_t ipinunknownprotos;
@@ -139,6 +139,9 @@ struct stats_mib2 {
   u32_t ipreasmreqds;
   u32_t ipforwdatagrams;
   u32_t ipinreceives;
+
+  /* IPv6 */
+  u32_t ip6reasmoks;
 
   /* TCP */
   u32_t tcpactiveopens;

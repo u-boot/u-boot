@@ -59,7 +59,7 @@ Patch Series
 
 Patch series for a specific subject are welcome but they should be constrained
 to a single topic with a cover letter outlining the intention of the series.
-Each patch within the series should cover a single change, be self contained,
+Each patch within the series should cover a single change, be self-contained,
 not break the build or cause a regression.
 
 Generally bug fixes for existing bugs should be at the beginning of the
@@ -69,6 +69,8 @@ Each iteration of a patch set should be versioned, allow enough time for people
 to review previous versions of the series and incorporate all the review
 feedback before sending a new version. A week between larger patch sets is
 considered as reasonable amount of time.
+
+Additional tips can be found in :doc:`develop/sending_patches`.
 
 Development Branches
 --------------------

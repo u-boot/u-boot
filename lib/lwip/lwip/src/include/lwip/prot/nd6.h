@@ -153,6 +153,7 @@ PACK_STRUCT_END
 /** Link-layer address option. */
 #define ND6_OPTION_TYPE_SOURCE_LLADDR (0x01)
 #define ND6_OPTION_TYPE_TARGET_LLADDR (0x02)
+#define ND6_LLADDR_OPTION_MIN_LENGTH (2)
 #ifdef PACK_STRUCT_USE_INCLUDES
 #  include "arch/bpstruct.h"
 #endif

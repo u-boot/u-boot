@@ -9,6 +9,7 @@
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
+#include <bootmeth_rauc.h>
 #include <bootstd.h>
 #include <cli.h>
 #include <dm.h>
@@ -1619,22 +1620,36 @@ static int bootflow_efi(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_efi, UTF_CONSOLE);
 
-/* Test RAUC bootmeth */
-static int bootflow_rauc(struct unit_test_state *uts)
+/**
+ * bootflow_rauc_run() - Run RAUC bootmeth checks on an mmc bootdev
+ *
+ * This binds @mmc_dev and the RAUC bootmeth and makes them the only bootdev
+ * and bootmeth used, then runs @check. The bootdev order is restored even if
+ * @check fails, since bootstd frees it when it is removed.
+ *
+ * The options of the bootmeth are reset to their defaults, so that the tests
+ * do not depend on the Kconfig values. @check can change them.
+ *
+ * @uts: Unit test state
+ * @mmc_dev: MMC device to use, e.g. "mmc10"
+ * @check: Checks to run with the RAUC bootmeth
+ * Returns 0 on success, -ve on failure
+ */
+static int bootflow_rauc_run(struct unit_test_state *uts, const char *mmc_dev,
+			     int (*check)(struct unit_test_state *uts,
+					  struct distro_rauc_plat *rplat))
 {
-	const char *mmc_dev = "mmc10";
+	static const char *order[] = {NULL, NULL};
+	struct distro_rauc_plat *rplat;
 	struct bootstd_priv *std;
 	struct udevice *bootstd;
-	static const char *order[] = {NULL, NULL};
+	struct udevice *dev;
 	const char **old_order;
-	ulong mem_start;
 	ofnode root;
 	ofnode node;
+	int ret;
 
 	order[0] = mmc_dev;
-
-	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
-		return -EAGAIN;
 
 	/* Enable the requested mmc node since we need a different bootflow */
 	root = oftree_root(oftree_default());
@@ -1645,14 +1660,26 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	/* Enable the rauc bootmeth */
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_rauc),
-				"rauc", 0, ofnode_null(), NULL));
+				"rauc", 0, ofnode_null(), &dev));
+	ut_assertok(bootmeth_set_order("rauc"));
+	rplat = dev_get_plat(dev);
+	rplat->partitions = "1,2 3,4";
+	rplat->bootcmd = "";
 
-	/* Change the device and bootmeth order */
+	/* Change the device order, and restore it also if a check fails */
 	std = dev_get_priv(bootstd);
 	old_order = std->bootdev_order;
 	std->bootdev_order = order;
+	ret = check(uts, rplat);
+	std->bootdev_order = old_order;
 
-	ut_assertok(bootmeth_set_order("rauc"));
+	return ret;
+}
+
+static int bootflow_rauc_check(struct unit_test_state *uts,
+			       struct distro_rauc_plat *rplat)
+{
+	ulong mem_start;
 
 	/* Run scan and list */
 	ut_assertok(run_command("bootflow scan", 0));
@@ -1705,12 +1732,258 @@ static int bootflow_rauc(struct unit_test_state *uts)
 
 	ut_assertok(env_set("BOOT_ORDER", "A B"));
 
-	/* Restore the order used by the device tree */
-	std->bootdev_order = old_order;
+	return 0;
+}
+
+/* Test RAUC bootmeth */
+static int bootflow_rauc(struct unit_test_state *uts)
+{
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
+		return -EAGAIN;
+
+	return bootflow_rauc_run(uts, "mmc10", bootflow_rauc_check);
+}
+BOOTSTD_TEST(bootflow_rauc, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+/**
+ * bootflow_rauc_run_env_fat() - Run RAUC checks with the environment on FAT
+ *
+ * Booting a RAUC bootflow saves the environment, so this selects the FAT
+ * environment, which is on the first partition of mmc10, while running @check
+ * on mmc10.
+ *
+ * @uts: Unit test state
+ * @check: Checks to run with the RAUC bootmeth
+ * Returns 0 on success, -EAGAIN if not supported, other -ve on failure
+ */
+static int bootflow_rauc_run_env_fat(struct unit_test_state *uts,
+				     int (*check)(struct unit_test_state *uts,
+						  struct distro_rauc_plat *rplat))
+{
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC) ||
+	    !IS_ENABLED(CONFIG_ENV_IS_IN_FAT) ||
+	    !IS_ENABLED(CONFIG_CMD_NVEDIT_SELECT))
+		return -EAGAIN;
+
+	ut_assertok(run_command("env select FAT", 0));
+	ut_assert_nextline("Select Environment on FAT: OK");
+
+	ret = bootflow_rauc_run(uts, "mmc10", check);
+	run_command("env select nowhere", 0);
+	if (ret)
+		return ret;
+	ut_assert_nextline("Select Environment on nowhere: OK");
+	ut_assert_console_end();
 
 	return 0;
 }
-BOOTSTD_TEST(bootflow_rauc, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+/* Boot the selected RAUC bootflow, which saves the environment first */
+static int bootflow_rauc_boot(struct unit_test_state *uts)
+{
+	ut_asserteq(1, run_command("bootflow boot", 0));
+	ut_assert_nextline("** Booting bootflow 'mmc10.bootdev.whole' with rauc");
+	ut_assert_nextline("Saving Environment to FAT... OK");
+
+	return 0;
+}
+
+static int bootflow_rauc_boot_twice_check(struct unit_test_state *uts,
+					  struct distro_rauc_plat *rplat)
+{
+	/* Start with the default tries, also when running a second time */
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+
+	/* Let the boot script fail, so that the bootflow can be booted again */
+	ut_assertok(env_set("rauc_test_script", "false"));
+
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assertok(run_command("bootflow select 0", 0));
+	ut_assertok(bootflow_rauc_boot(uts));
+	ut_assert_skip_to_line("Boot failed (err=1)");
+	ut_assert_console_end();
+	ut_asserteq_str("2", env_get("BOOT_A_LEFT"));
+
+	/* The second attempt loads the boot script again, but only once */
+	ut_assertok(bootflow_rauc_boot(uts));
+	ut_assert_skip_to_line("Boot failed (err=1)");
+	ut_assert_console_end();
+	ut_asserteq_str("1", env_get("BOOT_A_LEFT"));
+
+	ut_assertok(run_command("bootstd images", 0));
+	ut_assert_skip_to_line("(1 image)");
+	ut_assert_console_end();
+
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+	ut_assertok(env_set("rauc_test_script", NULL));
+
+	return 0;
+}
+
+/* Test booting the same RAUC bootflow twice after a failed boot */
+static int bootflow_rauc_boot_twice(struct unit_test_state *uts)
+{
+	return bootflow_rauc_run_env_fat(uts, bootflow_rauc_boot_twice_check);
+}
+BOOTSTD_TEST(bootflow_rauc_boot_twice, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+/* Remove the RAUC variables, which are set when a device is found */
+static int bootflow_rauc_clear_env(struct unit_test_state *uts)
+{
+	ut_assertok(env_set("BOOT_ORDER", NULL));
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+
+	return 0;
+}
+
+/* Check that scanning finds no bootflow and leaves the environment alone */
+static int bootflow_rauc_scan_none(struct unit_test_state *uts)
+{
+	ut_assertok(bootflow_rauc_clear_env(uts));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+	ut_assertnull(env_get("BOOT_ORDER"));
+	ut_assertnull(env_get("BOOT_A_LEFT"));
+	ut_assertnull(env_get("BOOT_B_LEFT"));
+
+	return 0;
+}
+
+static int bootflow_rauc_part_names_check(struct unit_test_state *uts,
+					  struct distro_rauc_plat *rplat)
+{
+	/* The partitions of all slots are found by their names */
+	rplat->partitions = "boot_a,root_a boot_b,root_b";
+	ut_assertok(bootflow_rauc_clear_env(uts));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+	ut_asserteq_str("A B", env_get("BOOT_ORDER"));
+
+	ut_assertok(run_command("bootflow list", 0));
+	ut_assert_nextlinen("Showing all");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("  0  rauc         ready   mmc          0  mmc13.bootdev.whole      ");
+	ut_assert_nextlinen("---");
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	/* The partitions of slot B are missing */
+	rplat->partitions = "boot_a,root_a boot_c,root_c";
+	ut_assertok(bootflow_rauc_scan_none(uts));
+
+	/* The partitions of no slot are found */
+	rplat->partitions = "boot,rootfs boot2,rootfs2";
+	ut_assertok(bootflow_rauc_scan_none(uts));
+
+	return 0;
+}
+
+/* Test finding the RAUC partitions by their names */
+static int bootflow_rauc_part_names(struct unit_test_state *uts)
+{
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
+		return -EAGAIN;
+
+	return bootflow_rauc_run(uts, "mmc13", bootflow_rauc_part_names_check);
+}
+BOOTSTD_TEST(bootflow_rauc_part_names, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+static int bootflow_rauc_part_names_mbr_check(struct unit_test_state *uts,
+					      struct distro_rauc_plat *rplat)
+{
+	/* The partitions are found by their numbers */
+	ut_assertok(bootflow_rauc_clear_env(uts));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow list", 0));
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	/* MBR has no partition names */
+	rplat->partitions = "boot_a,root_a boot_b,root_b";
+	ut_assertok(bootflow_rauc_scan_none(uts));
+
+	return 0;
+}
+
+/* Test that the RAUC bootmeth rejects MBR devices if names are given */
+static int bootflow_rauc_part_names_mbr(struct unit_test_state *uts)
+{
+	if (!CONFIG_IS_ENABLED(BOOTMETH_RAUC))
+		return -EAGAIN;
+
+	return bootflow_rauc_run(uts, "mmc10",
+				 bootflow_rauc_part_names_mbr_check);
+}
+BOOTSTD_TEST(bootflow_rauc_part_names_mbr, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
+/* Scan and boot the RAUC bootflow, as a successful boot command frees it */
+static int bootflow_rauc_scan_boot(struct unit_test_state *uts)
+{
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assertok(run_command("bootflow select 0", 0));
+
+	return bootflow_rauc_boot(uts);
+}
+
+static int bootflow_rauc_bootcmd_check(struct unit_test_state *uts,
+				       struct distro_rauc_plat *rplat)
+{
+	/* Start with the default tries, also when running a second time */
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+	ut_assertok(env_set("rauc_test_boot",
+			    "echo rauc boot: ${raucargs} ${distro_bootpart} ${distro_rootpart}"));
+	rplat->bootcmd = "run rauc_test_boot";
+
+	/* The command returns instead of booting, so the boot fails */
+	ut_assertok(bootflow_rauc_scan_boot(uts));
+	ut_assert_skip_to_line("rauc boot: rauc.slot=A 1 2");
+	ut_assert_nextline("Boot failed (err=-14)");
+	ut_assert_console_end();
+	ut_asserteq_str("2", env_get("BOOT_A_LEFT"));
+
+	/* The boot script is not loaded */
+	ut_assertok(run_command("bootstd images", 0));
+	ut_assert_skip_to_line("(0 images)");
+	ut_assert_console_end();
+
+	/* Slot B is booted once slot A has no tries left */
+	ut_assertok(env_set("BOOT_A_LEFT", "0"));
+	ut_assertok(bootflow_rauc_scan_boot(uts));
+	ut_assert_skip_to_line("rauc boot: rauc.slot=B 3 4");
+	ut_assert_nextline("Boot failed (err=-14)");
+	ut_assert_console_end();
+	ut_asserteq_str("2", env_get("BOOT_B_LEFT"));
+
+	/* A failing command uses up a try as well */
+	ut_assertok(env_set("rauc_test_boot", "false"));
+	ut_assertok(bootflow_rauc_scan_boot(uts));
+	ut_assert_skip_to_line("Boot failed (err=1)");
+	ut_assert_console_end();
+	ut_asserteq_str("1", env_get("BOOT_B_LEFT"));
+
+	ut_assertok(env_set("BOOT_A_LEFT", NULL));
+	ut_assertok(env_set("BOOT_B_LEFT", NULL));
+	ut_assertok(env_set("rauc_test_boot", NULL));
+
+	return 0;
+}
+
+/* Test booting a slot with the built-in boot command of the RAUC bootmeth */
+static int bootflow_rauc_bootcmd(struct unit_test_state *uts)
+{
+	return bootflow_rauc_run_env_fat(uts, bootflow_rauc_bootcmd_check);
+}
+BOOTSTD_TEST(bootflow_rauc_bootcmd, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
 /*
  * Test the BLS bootmeth against entries that live below a '/boot/' prefix,

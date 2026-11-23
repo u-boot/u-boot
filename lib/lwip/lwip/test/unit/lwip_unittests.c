@@ -58,9 +58,15 @@ void lwip_check_ensure_no_alloc(unsigned int skip)
   }
   for (i = 0, mask = 1; i < MEMP_MAX; i++, mask <<= 1) {
     if (!(skip & mask)) {
+#if defined(LWIP_DEBUG) || LWIP_STATS_DISPLAY
       fail_unless(lwip_stats.memp[i]->used == 0,
         "memp pool '%s' still has %d entries allocated",
         lwip_stats.memp[i]->name, lwip_stats.memp[i]->used);
+#else
+      fail_unless(lwip_stats.memp[i]->used == 0,
+        "memp pool %d still has %d entries allocated",
+        i, lwip_stats.memp[i]->used);
+#endif
     }
   }
 }

@@ -137,6 +137,23 @@ config FIT_SIGNATURE
 	  format support in this case, enable it using
 	  CONFIG_LEGACY_IMAGE_FORMAT.
 
+config FIT_REQUIRE_CONFIG_SIGS
+	bool "Require configuration signature verification of FIT uImages"
+	depends on FIT_SIGNATURE
+	help
+	  This option requires that FIT uImages have configuration
+	  nodes that are signed or boot will fail.
+	  That means the U-Boot device tree must contain a
+	  "/signature" node and at least one public key with
+	  required="conf".
+	  All configuration sections of a FIT file must be signed
+	  using those keys based on "required-mode" policy.
+	  The option is useful to avoid fail-open situations so it
+	  is recommended to enable. The option currently defaults to
+	  off to avoid breaking existing setups. Keep it off if you
+	  need to reuse the same u-boot binary in setups without
+	  keys or rely on image node only signatures.
+
 config FIT_SIGNATURE_MAX_SIZE
 	hex "Max size of signed FIT structures"
 	depends on FIT_SIGNATURE
@@ -258,6 +275,11 @@ config SPL_FIT_SIGNATURE_MAX_SIZE
 	  A sane value of 256MB protects corrupted DTB structures from overlapping
 	  device memory. Assure this size does not extend past expected storage
 	  space.
+
+config SPL_FIT_REQUIRE_CONFIG_SIGS
+	bool "Require signature verification of FIT firmware within SPL"
+	depends on SPL_FIT_SIGNATURE
+	select FIT_REQUIRE_CONFIG_SIGS
 
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
@@ -519,7 +541,7 @@ config SPL_BOOTSTD
 config VPL_BOOTSTD
 	bool "Standard boot support in VPL"
 	depends on VPL && VPL_DM && VPL_OF_CONTROL && VPL_BLK
-	default y
+	default y if VPL
 	help
 	  This enables standard boot in SPL. This is needed so that VBE
 	  (Verified Boot for Embedded) can be used, since it depends on standard
@@ -720,7 +742,7 @@ config BOOTMETH_QFW
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
 	depends on FIT
-	default y
+	default y if SANDBOX
 	select BOOTMETH_GLOBAL
 	select EVENT
 	help
@@ -749,7 +771,7 @@ config VPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (VPL)"
 	depends on VPL && FIT
 	select EVENT
-	default y
+	default y if SANDBOX
 	help
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, selection of an OS to
@@ -757,8 +779,8 @@ config VPL_BOOTMETH_VBE
 
 config TPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (TPL)"
-	depends on TPL
-	default y
+	depends on TPL && VBE
+	default y if SANDBOX
 	help
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, seleciton of an OS to
@@ -958,6 +980,7 @@ config BOOTMETH_RAUC_BOOT_ORDER
 	  Sets the default boot order. This must be list of space-separated
 	  strings naming the individual boot slots. Each entry in this string
 	  should correspond to an existing slot on the target's flash device.
+	  Slot names can be at most 32 characters long.
 
 config BOOTMETH_RAUC_PARTITIONS
 	string "RAUC boot and root partitions indexes"
@@ -967,6 +990,29 @@ config BOOTMETH_RAUC_PARTITIONS
 	  of comma-separated pair values, which in turn are separated by spaces.
 	  The first value in pair is for the boot partition and second for the
 	  root partition.
+
+	  Instead of an index, a value can also be the name of a GPT partition,
+	  for example "boot_a,root_a boot_b,root_b". A device is then only used
+	  if it has partitions with these names for all slots, so the bootmeth
+	  does not claim devices with a different layout. As only GPT has
+	  partition names, this also rejects MBR devices. A value consisting
+	  only of digits is always taken as an index.
+
+config BOOTMETH_RAUC_BOOTCMD
+	string "RAUC built-in boot command"
+	default ""
+	help
+	  Sets a command to boot the selected slot, for example
+	  "run distro_boot_rauc". It is run instead of loading a boot script
+	  from the slot's boot partition, and can use the same environment
+	  variables as the boot script, such as distro_bootpart and raucargs.
+
+	  As the command is built into U-Boot, the boot partition does not
+	  need to contain anything U-Boot executes, which helps with verified
+	  boot. If the command runs an environment variable, that variable must
+	  not be writable at runtime then, see ENV_WRITEABLE_LIST.
+
+	  Leave this empty to load the boot script.
 
 config BOOTMETH_RAUC_DEFAULT_TRIES
 	int "RAUC slot default tries"

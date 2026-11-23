@@ -693,6 +693,12 @@ static int check_av(const struct ubi_volume *vol,
 		err = 5;
 		goto bad;
 	}
+	if (vol->vol_type == UBI_STATIC_VOLUME &&
+	    (av->last_data_size < 0 ||
+	     av->last_data_size > vol->usable_leb_size)) {
+		err = 6;
+		goto bad;
+	}
 	return 0;
 
 bad:

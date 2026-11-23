@@ -245,10 +245,28 @@
 /**
  * MEM_LIBC_MALLOC==1: Use malloc/free/realloc provided by your C-library
  * instead of the lwip internal allocator. Can save code size if you
- * already use it.
+ * already use it. Specialized case of MEM_CUSTOM_ALLOCATOR.
+ * @see MEM_CUSTOM_ALLOCATOR
  */
 #if !defined MEM_LIBC_MALLOC || defined __DOXYGEN__
 #define MEM_LIBC_MALLOC                 0
+#elif MEM_LIBC_MALLOC
+#define MEM_CUSTOM_ALLOCATOR            1
+#define MEM_CUSTOM_FREE                 free
+#define MEM_CUSTOM_MALLOC               malloc
+#define MEM_CUSTOM_CALLOC               calloc
+#endif
+
+/**
+ * MEM_CUSTOM_ALLOCATOR==1: Use malloc/free/realloc provided by a custom
+ * implementation instead of the lwip internal allocator. Can save code size if
+ * you already use it. If enabled, you have to define those functions:
+ *  \#define MEM_CUSTOM_FREE   my_free
+ *  \#define MEM_CUSTOM_MALLOC my_malloc
+ *  \#define MEM_CUSTOM_CALLOC my_calloc
+ */
+#if !defined MEM_CUSTOM_ALLOCATOR || defined __DOXYGEN__
+#define MEM_CUSTOM_ALLOCATOR            0
 #endif
 
 /**
@@ -671,7 +689,7 @@
 #endif
 
 /**
- * LWIP_VLAN_PCP==1: Enable outgoing VLAN taggning of frames on a per-PCB basis
+ * LWIP_VLAN_PCP==1: Enable outgoing VLAN tagging of frames on a per-PCB basis
  * for QoS purposes. With this feature enabled, each PCB has a new variable:
  * "netif_hints.tci" (Tag Control Identifier).
  * The TCI contains three fields: VID, CFI and PCP.
@@ -969,12 +987,12 @@
 #define LWIP_DHCP_MAX_DNS_SERVERS       DNS_MAX_SERVERS
 #endif
 
-/** LWIP_DHCP_DISCOVER_ADD_HOSTNAME: Set to 1 to include hostname opt in discover packets.
+/** LWIP_DHCP_DISCOVER_ADD_HOSTNAME: Set to 0 to not include hostname opt in discover packets.
  * If the hostname is not set in the DISCOVER packet, then some servers might issue an OFFER with hostname
  * configured and consequently reject the REQUEST with any other hostname.
  */
 #if !defined LWIP_DHCP_DISCOVER_ADD_HOSTNAME || defined __DOXYGEN__
-#define LWIP_DHCP_DISCOVER_ADD_HOSTNAME 0
+#define LWIP_DHCP_DISCOVER_ADD_HOSTNAME 1
 #endif /* LWIP_DHCP_DISCOVER_ADD_HOSTNAME */
 /**
  * @}
@@ -1610,10 +1628,22 @@
 /**
  * LWIP_PBUF_CUSTOM_DATA: Store private data on pbufs (e.g. timestamps)
  * This extends struct pbuf so user can store custom data on every pbuf.
+ * e.g.:
+ *  \#define LWIP_PBUF_CUSTOM_DATA   u32_t myref;
  */
 #if !defined LWIP_PBUF_CUSTOM_DATA || defined __DOXYGEN__
 #define LWIP_PBUF_CUSTOM_DATA
 #endif
+
+/**
+ * LWIP_PBUF_CUSTOM_DATA_INIT: Initialize private data on pbufs.
+ * e.g. for the above example definition:
+ *  \#define LWIP_PBUF_CUSTOM_DATA(p) (p)->myref = 0
+ */
+#if !defined LWIP_PBUF_CUSTOM_DATA_INIT || defined __DOXYGEN__
+#define LWIP_PBUF_CUSTOM_DATA_INIT(p)
+#endif
+
 /**
  * @}
  */
@@ -2238,7 +2268,7 @@
  * MEM_STATS==1: Enable mem.c stats.
  */
 #if !defined MEM_STATS || defined __DOXYGEN__
-#define MEM_STATS                       ((MEM_LIBC_MALLOC == 0) && (MEM_USE_POOLS == 0))
+#define MEM_STATS                       ((MEM_CUSTOM_ALLOCATOR == 0) && (MEM_USE_POOLS == 0))
 #endif
 
 /**

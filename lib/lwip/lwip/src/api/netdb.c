@@ -40,6 +40,7 @@
 #if LWIP_DNS && LWIP_SOCKET
 
 #include "lwip/err.h"
+#include "lwip/errno.h"
 #include "lwip/mem.h"
 #include "lwip/memp.h"
 #include "lwip/ip_addr.h"
@@ -62,7 +63,7 @@ int h_errno;
 #endif /* LWIP_DNS_API_DECLARE_H_ERRNO */
 
 /** LWIP_DNS_API_HOSTENT_STORAGE: if set to 0 (default), lwip_gethostbyname()
- * returns the same global variabe for all calls (in all threads).
+ * returns the same global variable for all calls (in all threads).
  * When set to 1, your port should provide a function
  *      struct hostent* sys_thread_hostent( struct hostent* h);
  * which have to do a copy of "h" and return a pointer ont the "per-thread"
@@ -382,7 +383,9 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
     /* set up sockaddr */
     inet6_addr_from_ip6addr(&sa6->sin6_addr, ip_2_ip6(&addr));
     sa6->sin6_family = AF_INET6;
+#if LWIP_SOCKET_HAVE_SA_LEN
     sa6->sin6_len = sizeof(struct sockaddr_in6);
+#endif /* LWIP_SOCKET_HAVE_SA_LEN */
     sa6->sin6_port = lwip_htons((u16_t)port_nr);
     sa6->sin6_scope_id = ip6_addr_zone(ip_2_ip6(&addr));
     ai->ai_family = AF_INET6;
@@ -393,7 +396,9 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
     /* set up sockaddr */
     inet_addr_from_ip4addr(&sa4->sin_addr, ip_2_ip4(&addr));
     sa4->sin_family = AF_INET;
+#if LWIP_SOCKET_HAVE_SA_LEN
     sa4->sin_len = sizeof(struct sockaddr_in);
+#endif /* LWIP_SOCKET_HAVE_SA_LEN */
     sa4->sin_port = lwip_htons((u16_t)port_nr);
     ai->ai_family = AF_INET;
 #endif /* LWIP_IPV4 */

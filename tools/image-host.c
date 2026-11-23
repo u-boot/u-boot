@@ -1645,7 +1645,7 @@ static int fit_config_add_verification_data(const char *keydir,
  * 2) get public key (X509_get_pubkey)
  * 3) provide der format (d2i_RSAPublicKey)
  */
-static int read_pub_key(const char *keydir, const void *name,
+static int read_pub_key(const char *keydir, const char *name,
 			unsigned char **pubkey, int *pubkey_len)
 {
 	char path[1024];
@@ -1655,7 +1655,7 @@ static int read_pub_key(const char *keydir, const void *name,
 	int ret;
 
 	memset(path, 0, 1024);
-	snprintf(path, sizeof(path), "%s/%s.crt", keydir, (char *)name);
+	snprintf(path, sizeof(path), "%s/%s.crt", keydir, name);
 
 	/* Open certificate file */
 	f = fopen(path, "r");
@@ -1700,7 +1700,7 @@ err_cert:
 }
 
 static int fit_pre_load_data_key_rsa(const char *keydir, void *keydest,
-				     int pre_load_noffset, const void *key_name)
+				     int pre_load_noffset, const char *key_name)
 {
 	unsigned char *pubkey = NULL;
 	int ret, pubkey_len;
@@ -1721,8 +1721,8 @@ static int fit_pre_load_data_key_rsa(const char *keydir, void *keydest,
 }
 
 static int fit_pre_load_data_key_ecdsa(const char *keydir, void *keydest,
-				       int pre_load_noffset, const void *key_name,
-				       const void *algo_name)
+				       int pre_load_noffset, const char *key_name,
+				       const char *algo_name)
 {
 	struct image_sign_info info;
 	int node, ret = 0;
@@ -1733,15 +1733,13 @@ static int fit_pre_load_data_key_ecdsa(const char *keydir, void *keydest,
 	info.name = strdup(algo_name);
 	info.checksum = image_get_checksum_algo(algo_name);
 	if (!info.checksum) {
-		fprintf(stderr, "Can't find valid checksum from %s\n",
-			(char *)algo_name);
+		fprintf(stderr, "Can't find valid checksum from %s\n", algo_name);
 		ret = -EINVAL;
 		goto out;
 	}
 	info.crypto = image_get_crypto_algo(algo_name);
 	if (!info.crypto) {
-		fprintf(stderr, "Can't find valid crypto from %s\n",
-			(char *)algo_name);
+		fprintf(stderr, "Can't find valid crypto from %s\n", algo_name);
 		ret = -EINVAL;
 		goto out;
 	}
@@ -1763,9 +1761,9 @@ static int fit_pre_load_data_key_ecdsa(const char *keydir, void *keydest,
 int fit_pre_load_data(const char *keydir, void *keydest, void *fit)
 {
 	int pre_load_noffset;
-	const void *algo_name;
-	const void *key_name;
-	char *name;
+	const char *algo_name;
+	const char *key_name;
+	const char *name;
 	int ret;
 
 	if (!keydir || !keydest || !fit)
@@ -1794,10 +1792,9 @@ int fit_pre_load_data(const char *keydir, void *keydest, void *fit)
 	}
 
 	/* Is it a RSA or an ECDSA key */
-	name = strchr((const char *)algo_name, ',');
+	name = strchr(algo_name, ',');
 	if (!name) {
-		fprintf(stderr, "The name of the algo is invalid: %s\n",
-			(char *)algo_name);
+		fprintf(stderr, "The name of the algo is invalid: %s\n", algo_name);
 		ret = -EINVAL;
 		goto out;
 	}
@@ -1809,7 +1806,7 @@ int fit_pre_load_data(const char *keydir, void *keydest, void *fit)
 		ret = fit_pre_load_data_key_ecdsa(keydir, keydest, pre_load_noffset,
 						  key_name, algo_name);
 	} else {
-		fprintf(stderr, "The algo %s is not supported\n", (char *)algo_name);
+		fprintf(stderr, "The algo %s is not supported\n", algo_name);
 		ret = -EINVAL;
 	}
 

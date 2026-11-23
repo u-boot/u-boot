@@ -429,6 +429,16 @@ config DEBUG_UART_MXC
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_LPUART
+	bool "NXP LPUART"
+	depends on FSL_LPUART
+	depends on ARCH_MX7ULP || ARCH_IMX8 || ARCH_IMX8ULP || ARCH_IMX9 || ARCH_IMXRT
+	help
+	  Select this to enable a debug UART using the serial_lpuart driver
+	  with the LPUART found on i.MX7ULP, i.MX8, i.MX8ULP, i.MX9 and i.MXRT.
+	  You will need to provide parameters to make this work. The driver
+	  will be available until the real driver model serial is running.
+
 config DEBUG_UART_SANDBOX
 	bool "sandbox"
 	depends on SANDBOX_SERIAL

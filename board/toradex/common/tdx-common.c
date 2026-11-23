@@ -46,7 +46,7 @@ u32 get_board_revision(void)
 		((tdx_hw_tag.ver_minor & 0xf) << 4) |
 		((tdx_hw_tag.ver_assembly & 0xf) + 0xa);
 }
-#endif /* CONFIG_TDX_CFG_BLOCK */
+#endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
 #ifdef CONFIG_SERIAL_TAG
 void get_board_serial(struct tag_serialnr *serialnr)
@@ -306,7 +306,7 @@ u32 get_board_revision(void)
 {
 	return 0;
 }
-#endif /* CONFIG_REVISION_TAG */
+#endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
 
 #ifdef CONFIG_SERIAL_TAG
 u32 get_board_serial(void)

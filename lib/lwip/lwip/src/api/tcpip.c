@@ -68,11 +68,20 @@ sys_mutex_t lock_tcpip_core;
 static void tcpip_thread_handle_msg(struct tcpip_msg *msg);
 
 #if !LWIP_TIMERS
-/* wait for a message with timers disabled (e.g. pass a timer-check trigger into tcpip_thread) */
-#define TCPIP_MBOX_FETCH(mbox, msg) sys_mbox_fetch(mbox, msg)
+
+/** Wait for a message with timers disabled (e.g. pass a timer-check trigger into tcpip_thread) */
+static void
+tcpip_mbox_fetch(sys_mbox_t* mbox, void** msg)
+{
+  LWIP_ASSERT_CORE_LOCKED();
+
+  UNLOCK_TCPIP_CORE();
+  sys_mbox_fetch(mbox, msg);
+  LOCK_TCPIP_CORE();
+}
+
 #else /* !LWIP_TIMERS */
-/* wait for a message, timeouts are processed while waiting */
-#define TCPIP_MBOX_FETCH(mbox, msg) tcpip_timeouts_mbox_fetch(mbox, msg)
+
 /**
  * Wait (forever) for a message to arrive in an mbox.
  * While waiting, timeouts are processed.
@@ -81,7 +90,7 @@ static void tcpip_thread_handle_msg(struct tcpip_msg *msg);
  * @param msg the place to store the message
  */
 static void
-tcpip_timeouts_mbox_fetch(sys_mbox_t *mbox, void **msg)
+tcpip_mbox_fetch(sys_mbox_t *mbox, void **msg)
 {
   u32_t sleeptime, res;
 
@@ -139,7 +148,7 @@ tcpip_thread(void *arg)
   while (1) {                          /* MAIN Loop */
     LWIP_TCPIP_THREAD_ALIVE();
     /* wait for a message, timeouts are processed while waiting */
-    TCPIP_MBOX_FETCH(&tcpip_mbox, (void **)&msg);
+    tcpip_mbox_fetch(&tcpip_mbox, (void **)&msg);
     if (msg == NULL) {
       LWIP_DEBUGF(TCPIP_DEBUG, ("tcpip_thread: invalid message: NULL\n"));
       LWIP_ASSERT("tcpip_thread: invalid message", 0);
@@ -428,7 +437,7 @@ tcpip_untimeout(sys_timeout_handler h, void *arg)
 
 /**
  * Sends a message to TCPIP thread to call a function. Caller thread blocks on
- * on a provided semaphore, which ist NOT automatically signalled by TCPIP thread,
+ * on a provided semaphore, which is NOT automatically signalled by TCPIP thread,
  * this has to be done by the user.
  * It is recommended to use LWIP_TCPIP_CORE_LOCKING since this is the way
  * with least runtime overhead.

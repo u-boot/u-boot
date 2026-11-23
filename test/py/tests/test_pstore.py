@@ -7,6 +7,7 @@ import utils
 import os
 import tempfile
 import shutil
+import struct
 
 PSTORE_ADDR=0x3000000
 PSTORE_LENGTH=0x100000
@@ -49,6 +50,14 @@ def write_header(ubman, addr, sig, start, size):
         'mw.l 0x%x 0x%x' % (addr + 4, start),
         'mw.l 0x%x 0x%x' % (addr + 8, size)])
 
+def write_record(ubman, addr, sig, data):
+    """Write a record holding data at addr"""
+
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(struct.pack('<III', sig, 0, len(data)) + data)
+        f.flush()
+        ubman.run_command('host load hostfs - 0x%x %s' % (addr, f.name))
+
 @pytest.mark.buildconfigspec('cmd_pstore')
 def test_pstore_display_all_records(ubman):
     """Test that pstore displays all records."""
@@ -90,8 +99,8 @@ def test_pstore_invalid_records(ubman):
     """Test that pstore skips records with an invalid header."""
 
     console = PSTORE_ADDR + PSTORE_LENGTH - 3 * 4096
-    ftrace = console + 4096
-    pmsg = ftrace + 4096
+    pmsg = console + 4096
+    ftrace = pmsg + 4096
     outdir = tempfile.mkdtemp()
 
     ubman.run_command('')
@@ -163,3 +172,186 @@ def test_pstore_cut_dump_header(ubman):
     assert(not os.path.exists('%s/dmesg-ramoops-1' % (outdir)))
 
     shutil.rmtree(outdir)
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_buffer_too_large(ubman):
+    """Test that pstore reports a buffer that it cannot allocate."""
+
+    # A record size larger than the malloc pool
+    malloc_len = int(ubman.config.buildconfig['config_sys_malloc_len'], 0)
+    size = 1 << malloc_len.bit_length()
+
+    ubman.run_command('')
+    try:
+        ubman.run_command('pstore set 0x%x 0x%x 0x%x 0 0 0' %
+                          (PSTORE_ADDR, size, size))
+        write_record(ubman, PSTORE_ADDR, PSTORE_SIG, b'====1.0-D\ndump\n')
+
+        response = ubman.run_command('pstore display')
+        assert('Cannot allocate' in response)
+
+        with tempfile.TemporaryDirectory() as outdir:
+            response = ubman.run_command('pstore save hostfs - %s' % outdir)
+            assert('Cannot allocate' in response)
+            assert(not os.listdir(outdir))
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_zone_layout(ubman):
+    """Test that pstore finds the zones where Linux puts them."""
+
+    # Linux rounds the console size down to 0x1000, which leaves 0xf000 for
+    # the dump records: 3 zones of 0x5000 for a record size of 0x4000
+    dump1 = PSTORE_ADDR + 0x5000
+    console = PSTORE_ADDR + 0xf000
+    # Larger than the record size, but fits in the zone
+    dump = b'x' * 0x4800 + b'\nend of dump 1\n'
+    # Looks like a dump record, to catch a read past the dump zones
+    text = b'====1.0-D\nconsole text\n'
+
+    ubman.run_command('')
+    try:
+        ubman.run_command_list([
+            'mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+            'pstore set 0x%x 0x12000 0x4000 0x1800 0x1000 0x1000' %
+            (PSTORE_ADDR)])
+        write_record(ubman, dump1, PSTORE_SIG, b'====1.0-D\n' + dump)
+        write_record(ubman, console, PSTORE_SIG, text)
+
+        response = ubman.run_command('pstore display')
+        assert('end of dump 1' in response)
+        assert('console text' in response)
+
+        # There is no dump zone 3
+        response = ubman.run_command('pstore display dump 3')
+        assert('****' not in response)
+        if ubman.config.buildconfig.get('config_64bit') == 'y':
+            # Nor zone 2^52 + 1, whose offset wraps around to zone 1
+            response = ubman.run_command('pstore display dump %d' %
+                                         ((1 << 52) + 1))
+            assert('****' not in response)
+
+        with tempfile.TemporaryDirectory() as outdir:
+            ubman.run_command('pstore save hostfs - %s' % (outdir))
+            with open('%s/dmesg-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == dump)
+            with open('%s/console-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == text)
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_no_dump_zones(ubman):
+    """Test that pstore finds the console zone with a record size of 0."""
+
+    ubman.run_command('')
+    try:
+        ubman.run_command_list([
+            'mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH),
+            'pstore set 0x%x 0x%x 0 0x1000 0x1000 0x1000' %
+            (PSTORE_ADDR, PSTORE_LENGTH)])
+        # Linux makes no dump zones, the console zone comes first
+        write_record(ubman, PSTORE_ADDR, PSTORE_SIG, b'console text\n')
+
+        response = ubman.run_command('pstore display')
+        assert('console text' in response)
+        response = ubman.run_command('pstore display dump 0')
+        assert('****' not in response)
+
+        with tempfile.TemporaryDirectory() as outdir:
+            ubman.run_command('pstore save hostfs - %s' % (outdir))
+            with open('%s/console-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == b'console text\n')
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_rounded_sizes(ubman):
+    """Test that pstore set checks the sizes as Linux rounds them."""
+
+    ubman.run_command('')
+    try:
+        # Rounded down to 0x1000, a dump and a console zone fit in 0x2000
+        ubman.run_command('mw.b 0x%x 0 0x2000' % (PSTORE_ADDR))
+        response = ubman.run_command('pstore set 0x%x 0x2000 0x1800 0x1800 0 0'
+                                     % (PSTORE_ADDR))
+        assert('should be larger' not in response)
+        write_record(ubman, PSTORE_ADDR + 0x1000, PSTORE_SIG,
+                     b'console text\n')
+        response = ubman.run_command('pstore display console')
+        assert('console text' in response)
+
+        # Sizes whose sum wraps around in 32 bits
+        response = ubman.run_command(
+            'pstore set 0x%x 0x%x 0x80000000 0x80000000 0x80000000 0x80000000'
+            % (PSTORE_ADDR, PSTORE_LENGTH))
+        assert('should be larger' in response)
+        response = ubman.run_command('pstore display')
+        assert('Please set PStore configuration' in response)
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_pstore')
+def test_pstore_zone_order(ubman):
+    """Test that pstore finds the ftrace and user zones in both orders."""
+
+    # The ftrace zone is larger than the user space one, so that the two
+    # zones do not just swap places
+    console = PSTORE_ADDR + PSTORE_LENGTH - 0x4000
+    orders = [
+        # Linux 6.2 and later put the user space zone first
+        (console + 0x1000, console + 0x2000, 0x060200),
+        # Older kernels put the ftrace zone first
+        (console + 0x3000, console + 0x1000, 0x060100),
+    ]
+
+    ubman.run_command('')
+    try:
+        ubman.run_command('pstore set 0x%x 0x%x 0x1000 0x1000 0x2000 0x1000' %
+                          (PSTORE_ADDR, PSTORE_LENGTH))
+        for pmsg, ftrace, version in orders:
+            ubman.run_command('mw.b 0x%x 0 0x%x' % (PSTORE_ADDR,
+                                                    PSTORE_LENGTH))
+            write_record(ubman, pmsg, PSTORE_SIG, b'user text\n')
+            # The ftrace signature holds the Linux version
+            write_record(ubman, ftrace, PSTORE_SIG ^ version,
+                         b'ftrace text\n')
+
+            response = ubman.run_command('pstore display user')
+            assert('user text' in response)
+            assert('ftrace text' not in response)
+            response = ubman.run_command('pstore display ftrace')
+            assert('ftrace text' in response)
+            assert('user text' not in response)
+
+            with tempfile.TemporaryDirectory() as outdir:
+                ubman.run_command('pstore save hostfs - %s' % (outdir))
+                with open('%s/pmsg-ramoops-0' % (outdir), 'rb') as f:
+                    assert(f.read() == b'user text\n')
+                with open('%s/ftrace-ramoops-0' % (outdir), 'rb') as f:
+                    assert(f.read() == b'ftrace text\n')
+
+        # A user space record without a signature in the new order, and an
+        # ftrace record with data that looks like a user space record where
+        # the old order puts the user space zone
+        ubman.run_command('mw.b 0x%x 0 0x%x' % (PSTORE_ADDR, PSTORE_LENGTH))
+        write_record(ubman, console + 0x1000, 0, b'user text\n')
+        data = (b'ftrace text\n' + b'x' * (0x1000 - 12 - 12) +
+                struct.pack('<III', PSTORE_SIG, 0, 6) + b'bogus\n')
+        write_record(ubman, console + 0x2000, PSTORE_SIG ^ 0x060200, data)
+
+        response = ubman.run_command('pstore display user')
+        assert('****' not in response)
+        with tempfile.TemporaryDirectory() as outdir:
+            ubman.run_command('pstore save hostfs - %s' % (outdir))
+            assert(not os.path.exists('%s/pmsg-ramoops-0' % (outdir)))
+            with open('%s/ftrace-ramoops-0' % (outdir), 'rb') as f:
+                assert(f.read() == data)
+    finally:
+        # Restore the default record sizes
+        ubman.restart_uboot()

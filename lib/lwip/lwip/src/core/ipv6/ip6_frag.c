@@ -162,7 +162,7 @@ ip6_reass_free_complete_datagram(struct ip6_reassdata *ipr)
     ipr->p = iprh->next_pbuf;
     /* Restore the part that we've overwritten with our helper structure, or we
      * might send garbage (and disclose a pointer) in the ICMPv6 reply. */
-    MEMCPY(p->payload, ipr->orig_hdr, sizeof(iprh));
+    MEMCPY(p->payload, ipr->orig_hdr, sizeof(*iprh));
     /* Then, move back to the original ipv6 header (we are now pointing to Fragment header).
        This cannot fail since we already checked when receiving this fragment. */
     if (pbuf_header_force(p, (s16_t)((u8_t*)p->payload - (u8_t*)ipr->iphdr))) {
@@ -447,6 +447,19 @@ ip6_reass(struct pbuf *p)
         }
       }
 #endif /* IP_REASS_CHECK_OVERLAP */
+      /* Check if the fragments received so far have no gaps. */
+      if (iprh_prev != NULL) {
+        if (iprh_prev->end != start) {
+          /* There is a fragment missing between the current
+           * and the previous fragment */
+          valid = 0;
+        }
+      }
+      if (end != iprh_tmp->start) {
+        /* There is a fragment missing between the current
+         * and the following fragment */
+        valid = 0;
+      }
       /* the new pbuf should be inserted before this */
       next_pbuf = q;
       if (iprh_prev != NULL) {
@@ -658,6 +671,7 @@ ip6_reass(struct pbuf *p)
     }
 
     /* Return the pbuf chain */
+    MIB2_STATS_INC(mib2.ip6reasmoks);
     return p;
   }
   /* the datagram is not (yet?) reassembled completely */

@@ -471,6 +471,32 @@ http_state_alloc(void)
   return ret;
 }
 
+/** Make sure the post code knows that the connection is closed */
+static void
+http_state_close_post(struct http_state* hs)
+{
+#if LWIP_HTTPD_SUPPORT_POST
+  if (hs != NULL) {
+    if ((hs->post_content_len_left != 0)
+#if LWIP_HTTPD_POST_MANUAL_WND
+      || ((hs->no_auto_wnd != 0) && (hs->unrecved_bytes != 0))
+#endif /* LWIP_HTTPD_POST_MANUAL_WND */
+      ) {
+      /* prevent calling httpd_post_finished twice */
+      hs->post_content_len_left = 0;
+#if LWIP_HTTPD_POST_MANUAL_WND
+      hs->unrecved_bytes = 0;
+#endif /* LWIP_HTTPD_POST_MANUAL_WND */
+      /* make sure the post code knows that the connection is closed */
+      http_uri_buf[0] = 0;
+      httpd_post_finished(hs, http_uri_buf, LWIP_HTTPD_URI_BUF_LEN);
+    }
+  }
+#else /* LWIP_HTTPD_SUPPORT_POST*/
+  LWIP_UNUSED_ARG(hs);
+#endif /* LWIP_HTTPD_SUPPORT_POST*/
+}
+
 /** Free a struct http_state.
  * Also frees the file data if dynamic.
  */
@@ -505,6 +531,7 @@ http_state_eof(struct http_state *hs)
     hs->req = NULL;
   }
 #endif /* LWIP_HTTPD_SUPPORT_REQUESTLIST */
+  http_state_close_post(hs);
 }
 
 /** Free a struct http_state.
@@ -598,20 +625,7 @@ http_close_or_abort_conn(struct altcp_pcb *pcb, struct http_state *hs, u8_t abor
   err_t err;
   LWIP_DEBUGF(HTTPD_DEBUG, ("Closing connection %p\n", (void *)pcb));
 
-#if LWIP_HTTPD_SUPPORT_POST
-  if (hs != NULL) {
-    if ((hs->post_content_len_left != 0)
-#if LWIP_HTTPD_POST_MANUAL_WND
-        || ((hs->no_auto_wnd != 0) && (hs->unrecved_bytes != 0))
-#endif /* LWIP_HTTPD_POST_MANUAL_WND */
-       ) {
-      /* make sure the post code knows that the connection is closed */
-      http_uri_buf[0] = 0;
-      httpd_post_finished(hs, http_uri_buf, LWIP_HTTPD_URI_BUF_LEN);
-    }
-  }
-#endif /* LWIP_HTTPD_SUPPORT_POST*/
-
+  http_state_close_post(hs);
 
   altcp_arg(pcb, NULL);
   altcp_recv(pcb, NULL);
@@ -1818,7 +1832,7 @@ http_post_request(struct pbuf *inp, struct http_state *hs,
 #define HTTP_HDR_CONTENT_LEN                "Content-Length: "
 #define HTTP_HDR_CONTENT_LEN_LEN            16
 #define HTTP_HDR_CONTENT_LEN_DIGIT_MAX_LEN  10
-    char *scontent_len = lwip_strnstr(uri_end + 1, HTTP_HDR_CONTENT_LEN, crlfcrlf - (uri_end + 1));
+    char *scontent_len = lwip_strnistr(uri_end + 1, HTTP_HDR_CONTENT_LEN, crlfcrlf - (uri_end + 1));
     if (scontent_len != NULL) {
       char *scontent_len_end = lwip_strnstr(scontent_len + HTTP_HDR_CONTENT_LEN_LEN, CRLF, HTTP_HDR_CONTENT_LEN_DIGIT_MAX_LEN);
       if (scontent_len_end != NULL) {
@@ -2086,8 +2100,8 @@ http_parse_request(struct pbuf *inp, struct http_state *hs, struct altcp_pcb *pc
 #if LWIP_HTTPD_SUPPORT_11_KEEPALIVE
           /* This is HTTP/1.0 compatible: for strict 1.1, a connection
              would always be persistent unless "close" was specified. */
-          if (!is_09 && (lwip_strnstr(data, HTTP11_CONNECTIONKEEPALIVE, data_len) ||
-                         lwip_strnstr(data, HTTP11_CONNECTIONKEEPALIVE2, data_len))) {
+          if (!is_09 && (lwip_strnistr(data, HTTP11_CONNECTIONKEEPALIVE, data_len) ||
+                         lwip_strnistr(data, HTTP11_CONNECTIONKEEPALIVE2, data_len))) {
             hs->keepalive = 1;
           } else {
             hs->keepalive = 0;
@@ -2401,7 +2415,7 @@ http_init_file(struct http_state *hs, struct fs_file *file, int is_09, const cha
          search for the end of the header. */
       char *file_start = lwip_strnstr(hs->file, CRLF CRLF, hs->left);
       if (file_start != NULL) {
-        int diff = file_start + 4 - hs->file;
+        size_t diff = file_start + 4 - hs->file;
         hs->file += diff;
         hs->left -= (u32_t)diff;
       }

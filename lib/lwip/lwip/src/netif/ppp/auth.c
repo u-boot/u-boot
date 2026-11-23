@@ -1012,8 +1012,8 @@ int auth_check_passwd(ppp_pcb *pcb, char *auser, unsigned int userlen, char *apa
     secretpasswdlen = strlen(pcb->settings.passwd);
     if (secretuserlen == userlen
         && secretpasswdlen == passwdlen
-        && !memcmp(auser, pcb->settings.user, userlen)
-        && !memcmp(apasswd, pcb->settings.passwd, passwdlen) ) {
+        && !lwip_memcmp_consttime(auser, pcb->settings.user, userlen)
+        && !lwip_memcmp_consttime(apasswd, pcb->settings.passwd, passwdlen) ) {
       *msg = "Login ok";
       *msglen = sizeof("Login ok")-1;
       return 1;

@@ -1,5 +1,5 @@
 FIREFLY
-M:	Simon Glass <sjg@chromium.org>
+M:	Quentin Schulz <foss+uboot@0leil.net>
 S:	Maintained
 F:	arch/arm/dts/rk3288-firefly-u-boot.dtsi
 F:	board/firefly/firefly-rk3288

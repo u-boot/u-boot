@@ -650,6 +650,8 @@ menu "Android Verified Boot"
 config LIBAVB
 	bool "Android Verified Boot 2.0 support"
 	depends on ANDROID_BOOT_IMAGE
+	select SHA256
+	select SHA512
 	help
 	  This enables support of Android Verified Boot 2.0 which can be used
 	  to assure the end user of the integrity of the software running on a
@@ -1052,6 +1054,7 @@ config TPL_LZMA
 
 config VPL_LZMA
 	bool "Enable LZMA decompression support for VPL build"
+	depends on VPL
 	default y if LZMA
 	help
 	  This enables support for LZMA compression algorithm for VPL boot.
