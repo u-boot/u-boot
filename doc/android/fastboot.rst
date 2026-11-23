@@ -68,9 +68,11 @@ General configuration
 The fastboot protocol requires a large memory buffer for
 downloads. This buffer should be as large as possible for a
 platform. The location of the buffer and size are set with
-``CONFIG_FASTBOOT_BUF_ADDR`` and ``CONFIG_FASTBOOT_BUF_SIZE``. These
-may be overridden on the fastboot command line using ``-l`` and
-``-s``.
+``CONFIG_FASTBOOT_BUF_ADDR`` and ``CONFIG_FASTBOOT_BUF_SIZE``. If the
+``fastboot_addr_r`` environment variable is set, its value is used as
+the buffer address instead of ``CONFIG_FASTBOOT_BUF_ADDR``, which lets
+a platform choose the address at run time. The address and size may be
+overridden on the fastboot command line using ``-l`` and ``-s``.
 
 Fastboot in SPL
 ^^^^^^^^^^^^^^^
@@ -96,7 +98,7 @@ stub. The ``continue`` command ends the session and returns control to the
 caller. The ``flash`` and ``erase`` commands are available when their SPL
 backend is enabled. A recognized command whose optional backend is disabled is
 reported as unsupported. Commands omitted from the SPL table, including
-``boot``, ``ucmd``, ``acmd`` and the OEM commands, are reported as unrecognized.
+``ucmd``, ``acmd`` and the OEM commands, are reported as unrecognized.
 
 MMC flash and erase support is enabled with
 ``CONFIG_SPL_FASTBOOT_FLASH_MMC``. The SPL partition-table parser matching the
@@ -119,6 +121,60 @@ Reboot commands require ``CONFIG_SPL_FASTBOOT_REBOOT`` and a platform
 ``reset_cpu()`` implementation. The ``reboot-bootloader``, ``reboot-fastboot``
 and ``reboot-recovery`` commands also require a platform
 ``fastboot_set_reboot_flag()`` implementation.
+
+Booting a downloaded image from SPL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enable ``CONFIG_SPL_FASTBOOT_BOOT`` and include ``BOOT_DEVICE_BOARD`` in the
+board's SPL boot order. This load method starts the fastboot session itself;
+select the USB controller with ``CONFIG_SPL_FASTBOOT_USB_DEV``. RAM and the
+USB controller must be ready before the load method runs.
+
+The host can then download and run a U-Boot FIT without flashing it::
+
+   fastboot boot u-boot.itb
+
+::
+
+   Host                         Target
+   +----------------+           +-----------------------+
+   | U-Boot FIT     | -- USB -->| SPL fastboot download |
+   +----------------+           +-----------+-----------+
+                                            |
+                                  acknowledge boot,
+                                  stop USB session
+                                            |
+                                +-----------v-----------+
+                                | SPL FIT loader        |
+                                +-----------+-----------+
+                                            |
+                                +-----------v-----------+
+                                | Firmware / U-Boot     |
+                                | running from RAM      |
+                                +-----------------------+
+
+With ``CONFIG_SPL_LOAD_FIT``, use a FIT built for the target, including any
+firmware required by its normal SPL handoff (for example BL31 or OP-TEE).
+FIT verification uses the board's existing SPL configuration.
+``CONFIG_SPL_LEGACY_IMAGE_FORMAT`` also permits uncompressed legacy U-Boot
+images, using their header's load address and entry point. Legacy CRC checks
+follow ``CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK``.
+``CONFIG_SPL_RAW_IMAGE_SUPPORT`` permits a raw ``u-boot.bin``. SPL uses its
+configured or binman-provided load address and entry point, and loads exactly
+the downloaded bytes. The image must match that address and firmware handoff
+contract; raw images carry no size, checksum or signature of their own.
+With ``CONFIG_SPL_FIT_SIGNATURE``, legacy and raw downloads are rejected to
+prevent bypassing FIT verification.
+
+The loader accepts these images directly or inside the Android v0 wrapper
+added by the standard fastboot client; separate ramdisk and second-stage
+arguments are not supported.
+
+Keep the download buffer separate from SPL, its heap and stack, and all FIT
+load destinations. ``CONFIG_SPL_FASTBOOT_FLASH`` is optional.
+
+``continue`` leaves fastboot and lets SPL try the remaining boot methods.
+Loading errors also follow SPL's normal boot order.
 
 Fastboot environment variables
 ------------------------------

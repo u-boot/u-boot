@@ -14,34 +14,99 @@
 #include <log.h>
 #include <mapmem.h>
 #include <spl.h>
+#include <spl_load.h>
 #include <linux/libfdt.h>
+
+struct spl_ram_image {
+	const void *data;
+	size_t size;
+};
 
 static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
-	ulong addr = 0;
+	struct spl_ram_image *image = load->priv;
 
 	debug("%s: sector %lx, count %lx, buf %lx\n",
 	      __func__, sector, count, (ulong)buf);
 
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT)) {
-		addr = IF_ENABLED_INT(CONFIG_SPL_LOAD_FIT,
-				      CONFIG_SPL_LOAD_FIT_ADDRESS);
-
-#ifdef	CONFIG_SPL_PCI_DFU
-		if (spl_boot_device() == BOOT_DEVICE_PCIE)
-			addr = CONFIG_SPL_PCI_DFU_SPL_LOAD_FIT_ADDRESS;
-#endif
-	}
-	addr += sector;
-	if (CONFIG_IS_ENABLED(IMAGE_PRE_LOAD))
-		addr += image_load_offset;
-
-	memcpy(buf, (void *)addr, count);
-
+	if (sector >= image->size)
+		return 0;
+	count = min_t(ulong, count, image->size - sector);
+	memmove(buf, image->data + sector, count);
 	return count;
 }
 
+int spl_ram_load_fit(struct spl_image_info *spl_image, void *fit, size_t size)
+{
+	struct spl_ram_image image = { .data = fit, .size = size };
+	struct spl_load_info load;
+
+	if (!CONFIG_IS_ENABLED(LOAD_FIT))
+		return -EOPNOTSUPP;
+	if (size < sizeof(struct fdt_header) || fdt_check_header(fit) ||
+	    fdt_totalsize(fit) > size)
+		return -EINVAL;
+
+	spl_load_init(&load, spl_ram_load_read, &image, 1);
+	return spl_load_simple_fit(spl_image, &load, 0, fit);
+}
+
+static int spl_ram_load_raw(struct spl_image_info *spl_image, void *buf,
+			    size_t size)
+{
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE))
+		return -EPERM;
+	if (!IS_ENABLED(CONFIG_SPL_RAW_IMAGE_SUPPORT))
+		return -ENOEXEC;
+	if (!size || size == SIZE_MAX)
+		return -EINVAL;
+	if (size > CONFIG_SYS_BOOTM_LEN)
+		return -EFBIG;
+
+	spl_set_header_raw_uboot(spl_image);
+	if (size > ULONG_MAX - spl_image->load_addr)
+		return -EOVERFLOW;
+	spl_image->size = size;
+	memmove(map_sysmem(spl_image->load_addr, size), buf, size);
+	return 0;
+}
+
+int spl_ram_load(struct spl_image_info *spl_image, void *buf, size_t size)
+{
+	struct legacy_img_hdr *header = buf;
+	struct spl_ram_image image = { .data = buf, .size = size };
+	struct spl_load_info load;
+
+	/* A buffer too short for a magic word can only be a raw image. */
+	if (size < sizeof(header->ih_magic))
+		return spl_ram_load_raw(spl_image, buf, size);
+
+	/* FIT images can contain multiple payloads with separate load addresses. */
+	if (image_get_magic(header) == FDT_MAGIC)
+		return spl_ram_load_fit(spl_image, buf, size);
+
+	/* Only unknown magic selects raw; recognized formats keep their errors. */
+	if (image_get_magic(header) != IH_MAGIC)
+		return spl_ram_load_raw(spl_image, buf, size);
+
+	/* Legacy images need a complete header and an uncompressed payload. */
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE))
+		return -EPERM;
+	if (!CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT))
+		return -EOPNOTSUPP;
+	if (size < sizeof(*header) || !image_get_data_size(header) ||
+	    image_get_data_size(header) > size - sizeof(*header))
+		return -EINVAL;
+	if (image_get_comp(header) != IH_COMP_NONE)
+		return -EPROTONOSUPPORT;
+
+	spl_load_init(&load, spl_ram_load_read, &image, 1);
+	return spl_load(spl_image, NULL, &load, size, 0);
+}
+
+#if CONFIG_IS_ENABLED(RAM_DEVICE) || CONFIG_IS_ENABLED(DFU) || \
+	CONFIG_IS_ENABLED(PCI_DFU)
 static int spl_ram_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
@@ -81,11 +146,8 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic(header) == FDT_MAGIC) {
-		struct spl_load_info load;
-
 		debug("Found FIT\n");
-		spl_load_init(&load, spl_ram_load_read, NULL, 1);
-		ret = spl_load_simple_fit(spl_image, &load, 0, header);
+		ret = spl_ram_load_fit(spl_image, header, SIZE_MAX);
 	} else {
 		ulong u_boot_pos = spl_get_image_pos();
 
@@ -119,4 +181,5 @@ SPL_LOAD_IMAGE_METHOD("DFU", 0, BOOT_DEVICE_DFU, spl_ram_load_image);
 #endif
 #if CONFIG_IS_ENABLED(PCI_DFU)
 SPL_LOAD_IMAGE_METHOD("PCIE", 0, BOOT_DEVICE_PCIE, spl_ram_load_image);
+#endif
 #endif

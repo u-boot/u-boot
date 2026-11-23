@@ -41,6 +41,15 @@ config SPL_UT_LOAD_NET
 	help
 	  Test loading images over TFTP using the NET image load method.
 
+config SPL_UT_LOAD_RAM
+	bool "Test loading images from RAM"
+	depends on SANDBOX && SPL_LOAD_FIT
+	select SPL_RAM_SUPPORT
+	default y
+	help
+	  Test loading FIT images from a RAM buffer, including images with
+	  embedded and external payloads.
+
 config SPL_UT_LOAD_SPI
 	bool "Test loading from SPI Flash"
 	depends on SANDBOX && SPL_OF_REAL

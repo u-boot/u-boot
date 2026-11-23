@@ -990,6 +990,31 @@ bool spl_was_boot_source(void);
 int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 
 /**
+ * spl_ram_load_fit() - Load a FIT from a RAM buffer
+ * @spl_image: Receives the loaded image information
+ * @fit: FIT image, including any external data
+ * @size: Buffer size, or SIZE_MAX for a preloaded image of unknown size
+ * Return: 0 on success, or a negative error code
+ */
+int spl_ram_load_fit(struct spl_image_info *spl_image, void *fit, size_t size);
+
+/**
+ * spl_ram_load() - Load a downloaded image from RAM
+ * @spl_image: Receives the loaded image information
+ * @buf: Image buffer
+ * @size: Number of bytes in the buffer
+ * Return: 0 on success, or a negative error code
+ */
+int spl_ram_load(struct spl_image_info *spl_image, void *buf, size_t size);
+
+/**
+ * spl_fastboot_load() - Load an image after the fastboot USB session has stopped
+ * @spl_image: Receives the image's load address and entry point
+ * Return: 0 on success, -EAGAIN if no boot was requested, or another error
+ */
+int spl_fastboot_load(struct spl_image_info *spl_image);
+
+/**
  * spl_mmc_clear_cache() - Clear cached MMC devices
  *
  * To avoid reinitializing MMCs, spl_mmc_load caches the most-recently-used MMC

@@ -296,6 +296,10 @@ script_size_f
 vendor_boot_comp_addr_r
     Address to which to load the vendor_boot Android image, e.g. 0xe0000000
 
+init_boot_comp_addr_r
+    Address to which to load the init_boot Android image (boot image header
+    version 4 devices with an init_boot partition), e.g. 0xe4000000
+
 Some variables are set by script bootmeth:
 
 devtype

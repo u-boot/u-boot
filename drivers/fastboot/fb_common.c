@@ -15,6 +15,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <fastboot.h>
+#include <fastboot-internal.h>
 #include <net.h>
 #include <vsprintf.h>
 
@@ -261,5 +262,5 @@ void fastboot_init(void *buf_addr, u32 buf_size)
 				       (void *)CONFIG_FASTBOOT_BUF_ADDR;
 	fastboot_buf_size = buf_size ? buf_size : CONFIG_FASTBOOT_BUF_SIZE;
 	fastboot_set_progress_callback(NULL);
-
+	fastboot_download_reset();
 }

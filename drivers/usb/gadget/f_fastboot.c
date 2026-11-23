@@ -489,9 +489,14 @@ static void do_exit_on_complete(struct usb_ep *ep, struct usb_request *req)
 	g_dnl_trigger_detach();
 }
 
-#ifndef CONFIG_XPL_BUILD
+#if !defined(CONFIG_XPL_BUILD) || CONFIG_IS_ENABLED(FASTBOOT_BOOT)
 static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 {
+	req->complete = fastboot_complete;
+	/* Do not boot if the acknowledgment transfer failed. */
+	if (req->status)
+		return;
+
 	fastboot_boot();
 	do_exit_on_complete(ep, req);
 }
@@ -561,7 +566,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	if (!strncmp("OKAY", response, 4)) {
 		switch (cmd) {
 		case FASTBOOT_COMMAND_BOOT:
-#ifndef CONFIG_XPL_BUILD
+#if !defined(CONFIG_XPL_BUILD) || CONFIG_IS_ENABLED(FASTBOOT_BOOT)
 			fastboot_func->in_req->complete = do_bootm_on_complete;
 #endif
 			break;

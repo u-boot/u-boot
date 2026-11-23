@@ -13,6 +13,9 @@ extern void *fastboot_buf_addr;
  */
 extern u32 fastboot_buf_size;
 
+/* Invalidate downloaded data when starting a new session or download. */
+void fastboot_download_reset(void);
+
 /**
  * fastboot_progress_callback - callback executed during long operations
  */

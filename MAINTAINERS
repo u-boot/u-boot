@@ -1041,6 +1041,8 @@ M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
 F:	cmd/fastboot.c
+F:	common/spl/spl_fastboot_boot.c
+F:	test/image/spl_fastboot.c
 F:	doc/android/fastboot*.rst
 F:	include/fastboot.h
 F:	include/fastboot-internal.h
@@ -1944,5 +1946,6 @@ Q:	http://patchwork.ozlabs.org/project/uboot/list/
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/u-boot.git
 F:	configs/tools-only_defconfig
+F:	test/image/spl_ram.c
 F:	*
 F:	*/
