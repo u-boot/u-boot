@@ -50,8 +50,10 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	ulong store_addr = image_load_addr + offset;
 	uchar *ptr;
 
-	// Avoid overflow
-	if (wget_info->buffer_size && wget_info->buffer_size < offset + len)
+	/* Compare without wrapping the 32-bit offset and length. */
+	if (wget_info->buffer_size &&
+	    (offset > wget_info->buffer_size ||
+	     len > wget_info->buffer_size - offset))
 		return -1;
 	if (CONFIG_IS_ENABLED(LMB) && wget_info->set_bootdev) {
 		if (store_addr < image_load_addr ||
