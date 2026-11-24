@@ -1062,6 +1062,16 @@ again:
   return txid;
 }
 
+/* Find the first configured server at or after start. */
+static u8_t
+dns_find_server(u8_t start)
+{
+  while (start < DNS_MAX_SERVERS && ip_addr_isany_val(dns_servers[start])) {
+    start++;
+  }
+  return start;
+}
+
 /**
  * Check whether there are other backup DNS servers available to try
  */
@@ -1071,7 +1081,7 @@ dns_backupserver_available(struct dns_table_entry *pentry)
   u8_t ret = 0;
 
   if (pentry) {
-    if ((pentry->server_idx + 1 < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[pentry->server_idx + 1])) {
+    if (dns_find_server(pentry->server_idx + 1) < DNS_MAX_SERVERS) {
       ret = 1;
     }
   }
@@ -1101,7 +1111,17 @@ dns_check_entry(u8_t i)
       /* initialize new entry */
       entry->txid = dns_create_txid();
       entry->state = DNS_STATE_ASKING;
-      entry->server_idx = 0;
+      entry->server_idx = dns_find_server(0);
+#if LWIP_DNS_SUPPORT_MDNS_QUERIES
+      if (entry->is_mdns) {
+        entry->server_idx = 0;
+      }
+#endif
+      if (entry->server_idx == DNS_MAX_SERVERS) {
+        dns_call_found(i, NULL);
+        entry->state = DNS_STATE_UNUSED;
+        break;
+      }
       entry->tmr = 1;
       entry->retries = 0;
 
@@ -1121,7 +1141,7 @@ dns_check_entry(u8_t i)
 #endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */
              ) {
             /* change of server */
-            entry->server_idx++;
+            entry->server_idx = dns_find_server(entry->server_idx + 1);
             entry->tmr = 1;
             entry->retries = 0;
           } else {
@@ -1670,7 +1690,7 @@ dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_call
 #endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */
   {
     /* prevent calling found callback if no server is set, return error instead */
-    if (ip_addr_isany_val(dns_servers[0])) {
+    if (dns_find_server(0) == DNS_MAX_SERVERS) {
       return ERR_VAL;
     }
   }

@@ -623,7 +623,7 @@ httpc_init_connection_common(httpc_state_t **connection, const httpc_connection_
   req->uri = req->server_name + server_name_len + 1;
   memcpy(req->uri, uri, uri_len + 1);
 #endif
-  req->pcb = altcp_new(settings ? settings->altcp_allocator : NULL);
+  req->pcb = altcp_new_ip_type(settings ? settings->altcp_allocator : NULL, IPADDR_TYPE_ANY);
   if(req->pcb == NULL) {
     httpc_free_state(req);
     return ERR_MEM;
@@ -717,6 +717,31 @@ httpc_get_file(const ip_addr_t* server_addr, u16_t port, const char* uri, const 
     return err;
   }
 
+  if (connection != NULL) {
+    *connection = req;
+  }
+  return ERR_OK;
+}
+
+/** Connect to an already resolved address while retaining the HTTP Host authority. */
+err_t
+httpc_get_file_host(const ip_addr_t* server_addr, const char* host, u16_t port, const char* uri,
+                    const httpc_connection_t *settings, altcp_recv_fn recv_fn,
+                    void* callback_arg, httpc_state_t **connection)
+{
+  httpc_state_t *req;
+  err_t err;
+
+  LWIP_ERROR("invalid parameters", server_addr && host && uri && settings && recv_fn, return ERR_ARG;);
+  err = httpc_init_connection(&req, settings, host, port, uri, recv_fn, callback_arg);
+  if (err != ERR_OK) {
+    return err;
+  }
+  err = httpc_get_internal_addr(req, settings->use_proxy ? &settings->proxy_addr : server_addr);
+  if (err != ERR_OK) {
+    httpc_free_state(req);
+    return err;
+  }
   if (connection != NULL) {
     *connection = req;
   }

@@ -10,18 +10,24 @@
 #include <dm/uclass.h>
 #include <hexdump.h>
 #include <linux/compiler_attributes.h>
+#include <linux/ctype.h>
 #include <linux/kernel.h>
 #include <lwip/ip4_addr.h>
 #include <lwip/dns.h>
 #include <lwip/err.h>
 #include <lwip/netif.h>
+#include <lwip/nd6.h>
 #include <lwip/pbuf.h>
 #include <lwip/etharp.h>
+#include <lwip/ethip6.h>
+#include <lwip/ip6.h>
 #include <lwip/init.h>
 #include <lwip/prot/etharp.h>
 #include <lwip/timeouts.h>
+#include <lwip-hooks.h>
 #include <net.h>
 #include <net/pcap.h>
+#include <net/wol.h>
 #include <timer.h>
 #include <time.h>
 #include <u-boot/schedule.h>
@@ -42,6 +48,13 @@ static struct {
 	unsigned int strict_env_users;
 	unsigned int no_addr_users;
 	bool polling;
+#if CONFIG_IS_ENABLED(IPV6)
+	bool ip6_configured;
+	u64 ip6_lifetime_time;
+	ip6_addr_t ip6_addr;
+	ip6_addr_t ip6_gateway;
+	u8 ip6_prefix_len;
+#endif
 } net_lwip_runtime;
 static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN]
 	__aligned(PKTALIGN);
@@ -102,12 +115,40 @@ static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 	return ERR_OK;
 }
 
+#if CONFIG_IS_ENABLED(IPV6)
+static err_t net_lwip_mld_filter(struct netif *netif, const ip6_addr_t *group,
+				 enum netif_mac_filter_action action)
+{
+	struct udevice *dev = netif->state;
+	u8 mac[ARP_HLEN] = { 0x33, 0x33 };
+
+	if (!eth_get_ops(dev)->mcast)
+		return ERR_OK;
+
+	memcpy(mac + 2, &group->addr[3], 4);
+	return eth_get_ops(dev)->mcast(dev, mac, action == NETIF_ADD_MAC_FILTER) ?
+		ERR_IF : ERR_OK;
+}
+#endif
+
 static err_t net_lwip_if_init(struct netif *netif)
 {
+#if CONFIG_IS_ENABLED(IPV6)
+	ip6_addr_t allnodes;
+#endif
+
 	netif->output = etharp_output;
 	netif->linkoutput = net_lwip_tx;
 	netif->mtu = 1500;
 	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
+#if CONFIG_IS_ENABLED(IPV6)
+	netif->output_ip6 = ethip6_output;
+	netif->flags |= NETIF_FLAG_MLD6;
+	netif_set_mld_mac_filter(netif, net_lwip_mld_filter);
+	/* lwIP assumes the all-nodes group is received without an MLD join. */
+	ip6_addr_set_allnodes_linklocal(&allnodes);
+	return net_lwip_mld_filter(netif, &allnodes, NETIF_ADD_MAC_FILTER);
+#endif
 
 	return ERR_OK;
 }
@@ -220,40 +261,6 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 #endif
 
 /*
- * Initialize DNS via env
- */
-int net_lwip_dns_init(void)
-{
-#if CONFIG_IS_ENABLED(DNS)
-	bool has_server = false;
-	ip_addr_t ns;
-	char *nsenv;
-
-	nsenv = env_get("dnsip");
-	if (nsenv && ipaddr_aton(nsenv, &ns)) {
-		dns_setserver(0, &ns);
-		has_server = true;
-	}
-
-	nsenv = env_get("dnsip2");
-	if (nsenv && ipaddr_aton(nsenv, &ns)) {
-		dns_setserver(1, &ns);
-		has_server = true;
-	}
-
-	if (!has_server) {
-		log_err("No valid name server (dnsip/dnsip2)\n");
-		return -EINVAL;
-	}
-
-	return 0;
-#else
-	log_err("DNS disabled\n");
-	return -EINVAL;
-#endif
-}
-
-/*
  * Initialize the network stack if needed and start the current device if valid
  */
 static int net_lwip_eth_start(void)
@@ -339,8 +346,364 @@ static struct netif *new_netif(struct udevice *udev, bool with_ip)
 
 static void net_lwip_remove_netif(struct netif *netif)
 {
+#if CONFIG_IS_ENABLED(IPV6)
+	ip6_addr_t allnodes;
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+	net_lwip_dhcp6_detach(netif);
+#endif
 	netif_remove(netif);
+#if CONFIG_IS_ENABLED(DNS)
+	/* Do not carry router-advertised name servers to the next interface. */
+	for (unsigned int i = 0; i < DNS_MAX_SERVERS; i++)
+		dns_setserver(i, NULL);
+#endif
+#if CONFIG_IS_ENABLED(IPV6)
+	ip6_addr_set_allnodes_linklocal(&allnodes);
+	net_lwip_mld_filter(netif, &allnodes, NETIF_DEL_MAC_FILTER);
+	net_lwip_runtime.ip6_configured = false;
+#endif
 	free(netif);
+}
+
+/* Parse a complete decimal field without overflowing before the range check. */
+int net_lwip_parse_decimal(const char *text, size_t len, unsigned int max,
+			   unsigned int *value)
+{
+	unsigned int number = 0;
+
+	if (!len)
+		return -EINVAL;
+	for (size_t i = 0; i < len; i++) {
+		unsigned int digit = (unsigned char)text[i] - '0';
+
+		if (digit > 9 || number > max / 10 ||
+		    (number == max / 10 && digit > max % 10))
+			return -EINVAL;
+		number = number * 10 + digit;
+	}
+	*value = number;
+	return 0;
+}
+
+#if CONFIG_IS_ENABLED(IPV6)
+/* Age learned configuration without replaying DAD or neighbor probes. */
+void net_lwip_ip6_update_lifetimes(void)
+{
+	u64 elapsed;
+
+	if (!net_lwip_runtime.netif)
+		return;
+	elapsed = get_timer_us(net_lwip_runtime.ip6_lifetime_time) / 1000000;
+	if (!elapsed)
+		return;
+	/* Keep fractional seconds and advance the clock before expiry callbacks. */
+	net_lwip_runtime.ip6_lifetime_time += elapsed * 1000000;
+	nd6_age_lifetimes(min_t(u64, elapsed, U32_MAX));
+}
+
+int net_lwip_ip6_aton(const char *text, ip6_addr_t *addr)
+{
+	const char *p = text;
+	unsigned int groups = 0;
+	bool compressed = false;
+
+	/* Validate groups and compression before using lwIP's permissive parser. */
+	if (*p == ':') {
+		if (*++p != ':')
+			return -EINVAL;
+		compressed = true;
+		p++;
+	}
+	while (*p) {
+		const char *start = p;
+
+		while (isxdigit(*p))
+			p++;
+		if (p == start || p - start > 4 || ++groups > 8)
+			return -EINVAL;
+		if (!*p)
+			break;
+		if (*p++ != ':')
+			return -EINVAL;
+		if (*p == ':') {
+			if (compressed)
+				return -EINVAL;
+			compressed = true;
+			p++;
+		} else if (!*p) {
+			return -EINVAL;
+		}
+	}
+	if (compressed ? groups >= 8 : groups != 8)
+		return -EINVAL;
+	if (!ip6addr_aton(text, addr) || ip6_addr_isany(addr) ||
+	    ip6_addr_ismulticast(addr) || ip6_addr_isloopback(addr) ||
+	    ip6_addr_isipv4mappedipv6(addr) || ip6_addr_isipv4compat(addr))
+		return -EINVAL;
+
+	return 0;
+}
+
+static int net_lwip_ip6_env(const char *name, ip6_addr_t *addr, unsigned int *prefix)
+{
+	const char *value = env_get(name);
+	char text[IP6ADDR_STRLEN_MAX];
+	char *slash;
+	unsigned int bits;
+
+	ip6_addr_set_zero(addr);
+	if (prefix)
+		*prefix = 64;
+	if (!value || !*value)
+		return 0;
+	if (strlcpy(text, value, sizeof(text)) >= sizeof(text))
+		goto invalid;
+	slash = strchr(text, '/');
+	if (slash) {
+		if (!prefix || net_lwip_parse_decimal(slash + 1, strlen(slash + 1),
+						      128, &bits))
+			goto invalid;
+		*prefix = bits;
+		*slash = '\0';
+	}
+	if (net_lwip_ip6_aton(text, addr))
+		goto invalid;
+
+	return 0;
+
+invalid:
+	printf("Invalid %s: %s\n", name, value);
+	return -EINVAL;
+}
+
+int net_lwip_ip6_static_prefix(struct netif *netif, unsigned int index,
+			       const ip6_addr_t *dest)
+{
+	const ip6_addr_t *addr = netif_ip6_addr(netif, index);
+	const u8 *a = (const u8 *)addr->addr, *b = (const u8 *)dest->addr;
+	unsigned int bits = 64, bytes;
+
+	if (netif == net_lwip_runtime.netif && net_lwip_runtime.ip6_configured &&
+	    ip6_addr_zoneless_eq(addr, &net_lwip_runtime.ip6_addr))
+		bits = net_lwip_runtime.ip6_prefix_len;
+	bytes = bits / 8;
+	if (memcmp(a, b, bytes))
+		return 0;
+	return !(bits % 8) || !((a[bytes] ^ b[bytes]) >> (8 - bits % 8));
+}
+
+const ip6_addr_t *net_lwip_ip6_gateway(struct netif *netif,
+				       const ip6_addr_t *dest)
+{
+	if (netif != net_lwip_runtime.netif || !net_lwip_runtime.ip6_configured ||
+	    ip6_addr_isany(&net_lwip_runtime.ip6_gateway))
+		return NULL;
+
+	return &net_lwip_runtime.ip6_gateway;
+}
+
+/* Configure IPv6 on demand, without changing a concurrent client's IPv4. */
+int net_lwip_ip6_init(struct net_lwip_ctx *ctx)
+{
+	ip6_addr_t addr, gateway;
+	struct netif *netif;
+	unsigned int prefix;
+	int ret;
+
+	if (!ctx || !ctx->netif || ctx->netif != net_lwip_runtime.netif)
+		return -EINVAL;
+	net_lwip_ip6_update_lifetimes();
+	netif = ctx->netif;
+	ret = net_lwip_ip6_env("ip6addr", &addr, &prefix);
+	if (ret)
+		return ret;
+	ret = net_lwip_ip6_env("gatewayip6", &gateway, NULL);
+	if (ret)
+		return ret;
+	if (net_lwip_runtime.ip6_configured) {
+		if (prefix != net_lwip_runtime.ip6_prefix_len ||
+		    !ip6_addr_zoneless_eq(&addr, &net_lwip_runtime.ip6_addr) ||
+		    !ip6_addr_zoneless_eq(&gateway, &net_lwip_runtime.ip6_gateway))
+			return -EBUSY;
+		return 0;
+	}
+
+	if (ip6_addr_islinklocal(&addr)) {
+		netif_ip6_addr_set(netif, 0, &addr);
+		netif_ip6_addr_set_state(netif, 0, IP6_ADDR_TENTATIVE);
+	} else {
+		netif_create_ip6_linklocal_address(netif, 1);
+		if (!ip6_addr_isany(&addr)) {
+			netif_ip6_addr_set(netif, 1, &addr);
+			netif_ip6_addr_set_state(netif, 1, IP6_ADDR_TENTATIVE);
+		}
+	}
+#if CONFIG_IS_ENABLED(IPV6_ROUTER_DISCOVERY)
+	netif_set_ip6_autoconfig_enabled(netif, 1);
+#endif
+	ip6_addr_copy(net_lwip_runtime.ip6_addr, addr);
+	net_lwip_runtime.ip6_prefix_len = prefix;
+	ip6_addr_copy(net_lwip_runtime.ip6_gateway, gateway);
+	ip6_addr_assign_zone(&net_lwip_runtime.ip6_gateway, IP6_UNICAST, netif);
+	net_lwip_runtime.ip6_configured = true;
+
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+	ret = net_lwip_dhcp6_restore(ctx, &addr);
+	if (ret) {
+		net_lwip_runtime.ip6_configured = false;
+		return ret;
+	}
+#endif
+	return 0;
+}
+
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+bool net_lwip_is_exclusive(struct net_lwip_ctx *ctx)
+{
+	return ctx->netif == net_lwip_runtime.netif && net_lwip_runtime.users == 1;
+}
+
+/* Start DAD; DHCPv6 checks completion from the shared runtime poller. */
+int net_lwip_ip6_lease(struct net_lwip_ctx *ctx, const ip6_addr_t *addr,
+		       u32 preferred, u32 valid)
+{
+	struct netif *netif = ctx->netif;
+
+	if (netif != net_lwip_runtime.netif || !net_lwip_runtime.ip6_configured)
+		return -EINVAL;
+	if (!valid || preferred > valid)
+		return -EINVAL;
+	for (unsigned int i = 1; i < LWIP_IPV6_NUM_ADDRESSES; i++)
+		netif_ip6_addr_set_state(netif, i, IP6_ADDR_INVALID);
+	netif_set_ip6_autoconfig_enabled(netif, 0);
+	netif_ip6_addr_set(netif, 1, addr);
+	netif_ip6_addr_set_valid_life(netif, 1, valid);
+	netif_ip6_addr_set_pref_life(netif, 1, preferred);
+	netif_ip6_addr_set_state(netif, 1, IP6_ADDR_TENTATIVE);
+	return 0;
+}
+
+int net_lwip_ip6_lease_commit(struct net_lwip_ctx *ctx)
+{
+	const ip6_addr_t *addr;
+	int ret;
+
+	if (ctx->netif != net_lwip_runtime.netif || !net_lwip_runtime.ip6_configured ||
+	    !ip6_addr_isvalid(netif_ip6_addr_state(ctx->netif, 1)))
+		return -EINVAL;
+	addr = netif_ip6_addr(ctx->netif, 1);
+	ret = env_set("ip6addr", ip6addr_ntoa(addr));
+	if (ret)
+		return ret;
+	ip6_addr_copy(net_lwip_runtime.ip6_addr, *addr);
+	net_lwip_runtime.ip6_prefix_len = 64;
+	return 0;
+}
+#endif
+
+int net_lwip_ip6_start(struct net_lwip_ctx *ctx)
+{
+	ulong start;
+	int ret = net_lwip_ip6_init(ctx);
+
+	if (ret)
+		return ret;
+	start = get_timer(0);
+	while (!ip6_addr_isvalid(netif_ip6_addr_state(ctx->netif, 0))) {
+		if (ip6_addr_isduplicated(netif_ip6_addr_state(ctx->netif, 0)))
+			return -EADDRINUSE;
+		if (ctrlc())
+			return -EINTR;
+		if (get_timer(start) >= 15000)
+			return -ETIMEDOUT;
+		ret = net_lwip_poll();
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+/* Check readiness without blocking another address family's clients. */
+int net_lwip_ip6_ready(struct net_lwip_ctx *ctx, ip_addr_t *dest)
+{
+	const ip6_addr_t *duplicate = NULL;
+	const ip_addr_t *src;
+	int ret, i;
+
+	if (!IP_IS_V6(dest) || ip6_addr_isany(ip_2_ip6(dest)) ||
+	    ip6_addr_ismulticast(ip_2_ip6(dest)) ||
+	    ip6_addr_isloopback(ip_2_ip6(dest)) ||
+	    ip6_addr_isipv4mappedipv6(ip_2_ip6(dest)) ||
+	    ip6_addr_isipv4compat(ip_2_ip6(dest)))
+		return -EINVAL;
+	ret = net_lwip_ip6_init(ctx);
+	if (ret)
+		return ret;
+	ip6_addr_assign_zone(ip_2_ip6(dest), IP6_UNICAST, ctx->netif);
+	src = ip6_select_source_address(ctx->netif, ip_2_ip6(dest));
+	if (src && (ip6_addr_islinklocal(ip_2_ip6(dest)) ||
+		    !ip6_addr_islinklocal(ip_2_ip6(src)))) {
+		if (ip6_addr_islinklocal(ip_2_ip6(dest)) ||
+		    !ip6_addr_isany(&net_lwip_runtime.ip6_gateway) ||
+		    nd6_find_route(ip_2_ip6(dest)) == ctx->netif)
+			return 0;
+		for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+			if (ip6_addr_isvalid(netif_ip6_addr_state(ctx->netif, i)) &&
+			    netif_ip6_addr_isstatic(ctx->netif, i) &&
+			    net_lwip_ip6_static_prefix(ctx->netif, i, ip_2_ip6(dest)))
+				return 0;
+		}
+		return -EAGAIN;
+	}
+	for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+		const ip6_addr_t *addr = netif_ip6_addr(ctx->netif, i);
+
+		if (ip6_addr_islinklocal(addr) != ip6_addr_islinklocal(ip_2_ip6(dest)))
+			continue;
+		if (ip6_addr_istentative(netif_ip6_addr_state(ctx->netif, i)))
+			return -EAGAIN;
+		if (ip6_addr_isduplicated(netif_ip6_addr_state(ctx->netif, i)))
+			duplicate = addr;
+	}
+	if (duplicate) {
+		printf("Duplicate IPv6 address: %s\n", ip6addr_ntoa(duplicate));
+		return -EADDRINUSE;
+	}
+	return -EAGAIN;
+}
+
+/* Wait for DAD and, if needed, an advertised prefix before starting a client. */
+int net_lwip_ip6_prepare(struct net_lwip_ctx *ctx, ip_addr_t *dest)
+{
+	ulong start = get_timer(0);
+	int ret;
+
+	do {
+		ret = net_lwip_ip6_ready(ctx, dest);
+		if (ret != -EAGAIN)
+			return ret;
+		if (ctrlc())
+			return -EINTR;
+		ret = net_lwip_poll();
+		if (ret < 0)
+			return ret;
+	} while (get_timer(start) < 15000);
+
+	puts("Timed out waiting for an IPv6 address or route\n");
+	return -ETIMEDOUT;
+}
+#endif
+
+int net_lwip_prepare_addr(struct net_lwip_ctx *ctx, ip_addr_t *addr)
+{
+#if CONFIG_IS_ENABLED(IPV6)
+	if (IP_IS_V6(addr))
+		return net_lwip_ip6_prepare(ctx, addr);
+#endif
+	return 0;
 }
 
 static int net_lwip_configure(enum net_lwip_addr_mode addr_mode)
@@ -408,6 +771,9 @@ static int net_lwip_start_ctx(struct net_lwip_ctx *ctx,
 			return -ENODEV;
 		}
 		net_lwip_runtime.netif = netif;
+#if CONFIG_IS_ENABLED(IPV6)
+		net_lwip_runtime.ip6_lifetime_time = get_timer_us(0);
+#endif
 	} else if (addr_mode == NET_LWIP_ADDR_NONE &&
 		   !net_lwip_runtime.no_addr_users) {
 		ret = net_lwip_configure(NET_LWIP_ADDR_NONE);
@@ -647,6 +1013,9 @@ static int net_lwip_rx(struct udevice *udev, struct netif *netif)
 					       packet, len, true);
 			}
 
+			if (IS_ENABLED(CONFIG_CMD_WOL))
+				net_lwip_wol_receive(netif, packet, len);
+
 			pbuf = alloc_pbuf_and_copy(packet, len);
 			if (pbuf)
 				netif->input(pbuf, netif);
@@ -674,7 +1043,7 @@ static int net_lwip_rx(struct udevice *udev, struct netif *netif)
  */
 int net_lwip_poll(void)
 {
-	int ret;
+	int ret = 0;
 
 	if (!net_lwip_runtime.users)
 		return -ENODEV;
@@ -682,47 +1051,37 @@ int net_lwip_poll(void)
 		return -EBUSY;
 
 	net_lwip_runtime.polling = true;
+#if CONFIG_IS_ENABLED(IPV6)
+	net_lwip_ip6_update_lifetimes();
+#endif
+#if CONFIG_IS_ENABLED(CMD_DHCP6)
+	net_lwip_dhcp6_poll();
+#endif
 	ret = net_lwip_rx(net_lwip_runtime.dev, net_lwip_runtime.netif);
 	net_lwip_runtime.polling = false;
 
 	return ret;
 }
 
-/**
- * net_lwip_dns_resolve() - find IP address from name or IP
- *
- * @name_or_ip: host name or IP address
- * @ip: output IP address
- *
- * Return value: 0 on success, -1 on failure.
- */
-int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip)
+int net_lwip_resolve(struct net_lwip_ctx *ctx, const char *name,
+		     ip_addr_t *addr, u8 type)
 {
-#if defined(CONFIG_DNS)
-	char *var = "_dnsres";
-	char *argv[] = { "dns", name_or_ip, var, NULL };
-	int argc = ARRAY_SIZE(argv) - 1;
+	if (ipaddr_aton(name, addr)) {
+		if (type != IPADDR_TYPE_ANY && IP_GET_TYPE(addr) != type)
+			return -EAFNOSUPPORT;
+#if CONFIG_IS_ENABLED(IPV6)
+		if (IP_IS_V6(addr))
+			return net_lwip_ip6_aton(name, ip_2_ip6(addr));
 #endif
-
-	if (ipaddr_aton(name_or_ip, ip))
 		return 0;
-
-#if defined(CONFIG_DNS)
-	if (do_dns(NULL, 0, argc, argv) != CMD_RET_SUCCESS)
-		return -1;
-
-	name_or_ip = env_get(var);
-	if (!name_or_ip)
-		return -1;
-
-	if (!ipaddr_aton(name_or_ip, ip))
-		return -1;
-
-	env_set(var, NULL);
-
-	return 0;
+	}
+	/* A malformed address is not a DNS hostname. */
+	if (strchr(name, ':'))
+		return -EINVAL;
+#if CONFIG_IS_ENABLED(DNS)
+	return net_lwip_dns_lookup(ctx, name, addr, type);
 #else
-	return -1;
+	return -ENOSYS;
 #endif
 }
 

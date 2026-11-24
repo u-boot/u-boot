@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright 2026 James Hilliard <james.hilliard1@gmail.com> */
 
+#include <command.h>
 #include <console.h>
 #include <dm.h>
 #include <env.h>
 #include <lwip/pbuf.h>
 #include <lwip/udp.h>
 #include <lwip/timeouts.h>
+#include <mapmem.h>
 #include <net.h>
 #include <time.h>
 #include <asm/eth.h>
@@ -25,6 +27,9 @@
 #include <lwip/apps/http_client.h>
 #include <lwip/priv/tcp_priv.h>
 #endif
+#if CONFIG_IS_ENABLED(WGET_CACERT)
+#include <lwip/altcp_tls.h>
+#endif
 
 struct lwip_test_eth_hdr {
 	u8 dst[ARP_HLEN];
@@ -36,6 +41,32 @@ struct lwip_test_recv_ctx {
 	unsigned int packets;
 	int nested_poll_ret;
 };
+
+static int dm_test_lwip_decimal(struct unit_test_state *uts)
+{
+	static const char *const invalid[] = {
+		"", "-1", "+1", " 1", "1 ", "1x", "65536", "4294967365",
+		"18446744073709551685", "99999999999999999999999999999999999",
+	};
+	const char *padded = "0000000000000000000000065535";
+	unsigned int value = 123;
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(invalid); i++) {
+		ut_asserteq(-EINVAL, net_lwip_parse_decimal(invalid[i], strlen(invalid[i]),
+							    U16_MAX, &value));
+		ut_asserteq(123, value);
+	}
+	ut_assertok(net_lwip_parse_decimal("0", 1, 0, &value));
+	ut_asserteq(0, value);
+	ut_asserteq(-EINVAL, net_lwip_parse_decimal("1", 1, 0, &value));
+	ut_assertok(net_lwip_parse_decimal(padded, strlen(padded), U16_MAX, &value));
+	ut_asserteq(U16_MAX, value);
+	ut_assertok(net_lwip_parse_decimal("4294967295/", 10, U32_MAX, &value));
+	ut_asserteq(U32_MAX, value);
+	ut_asserteq(-EINVAL, net_lwip_parse_decimal("4294967296", 10, U32_MAX, &value));
+	return 0;
+}
+DM_TEST(dm_test_lwip_decimal, 0);
 
 #if CONFIG_IS_ENABLED(PROT_DNS_LWIP)
 struct lwip_test_dns_ctx {
@@ -490,3 +521,21 @@ out:
 }
 
 DM_TEST(dm_test_lwip_restart, UTF_SCAN_FDT | UTF_CONSOLE);
+
+#if CONFIG_IS_ENABLED(CMD_WGET) && CONFIG_IS_ENABLED(WGET_CACERT)
+static int dm_test_lwip_wget_cacert(struct unit_test_state *uts)
+{
+	void *buf = map_sysmem(0x20000, 8);
+
+	memset(buf, 0, 8);
+	unmap_sysmem(buf);
+	ut_asserteq(CMD_RET_FAILURE, run_command("wget cacert 20000 8", 0));
+	ut_assert_nextlinen("Could not parse certificates");
+	ut_assertnull(cacert);
+	ut_asserteq(0, cacert_size);
+	ut_assertok(run_command("wget cacert 0 0", 0));
+	ut_assert_console_end();
+	return 0;
+}
+DM_TEST(dm_test_lwip_wget_cacert, UTF_SCAN_FDT | UTF_CONSOLE);
+#endif

@@ -55,6 +55,9 @@ endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_PROT_UDP_LWIP),yy)
 obj-y += lwip.o
 endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_PING6),yy)
+obj-y += lwip_ipv6.o
+endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_DHCP),yy)
 obj-y += lwip_dhcp.o
 obj-y += lwip_dhcp_options.o
@@ -160,6 +163,10 @@ ifeq ($(CONFIG_CMD_UBI)$(CONFIG_NAND_SANDBOX),yy)
 obj-y += ubi.o
 endif
 obj-$(CONFIG_DM_USB) += usb.o
+obj-$(CONFIG_CMD_WOL) += wol.o
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_WOL),yy)
+obj-y += lwip_wol.o
+endif
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += video.o
 ifeq ($(CONFIG_VIRTIO_SANDBOX),y)
 obj-y += virtio.o

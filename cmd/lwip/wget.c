@@ -4,6 +4,7 @@
 #include <command.h>
 #include <env.h>
 #include <image.h>
+#include <mapmem.h>
 #include <net.h>
 #include <lwip/altcp_tls.h>
 
@@ -47,12 +48,11 @@ static int _set_cacert(const void *addr, size_t sz)
 
 	if (cacert)
 		free(cacert);
+	cacert = NULL;
+	cacert_size = 0;
 
-	if (!addr) {
-		cacert = NULL;
-		cacert_size = 0;
+	if (!addr)
 		return CMD_RET_SUCCESS;
-	}
 
 	p = malloc(sz);
 	if (!p)
@@ -102,11 +102,18 @@ static int set_auth(enum auth_mode auth)
 static int set_cacert(char * const saddr, char * const ssz)
 {
 	ulong addr, sz;
+	const void *p;
+	int ret;
 
 	addr = hextoul(saddr, NULL);
 	sz = hextoul(ssz, NULL);
 
-	return _set_cacert((void *)addr, sz);
+	if (!addr)
+		return _set_cacert(NULL, 0);
+	p = map_sysmem(addr, sz);
+	ret = _set_cacert(p, sz);
+	unmap_sysmem(p);
+	return ret;
 }
 #endif
 

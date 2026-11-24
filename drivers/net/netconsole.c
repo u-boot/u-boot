@@ -9,6 +9,7 @@
 #include <stdio_dev.h>
 #include <net.h>
 #include <vsprintf.h>
+#include <linux/errno.h>
 
 #include "netconsole.h"
 
@@ -75,6 +76,14 @@ int nc_refresh_settings_from_env(void)
 				settings.in_port = settings.out_port;
 			}
 		}
+#if CONFIG_IS_ENABLED(NET_LWIP) && CONFIG_IS_ENABLED(IPV6)
+		tmp = env_get("ncip6");
+		if (tmp && *tmp) {
+			if (net_lwip_ip6_aton(tmp, &settings.ip6))
+				return -EINVAL;
+			settings.ipv6 = true;
+		}
+#endif
 
 		p = env_get("ncoutport");
 		if (p != NULL)
@@ -104,14 +113,19 @@ void nc_set_input_recursion(bool enable)
 int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	unsigned src_port, unsigned len)
 {
-	int end, chunk;
-
 	if (dest_port != nc_settings.in_port || !len)
 		return 0; /* not for us */
 
 	if (src_ip.s_addr != nc_settings.ip.s_addr &&
 	    !nc_is_broadcast(nc_settings.ip))
 		return 0; /* not from our client */
+
+	return nc_input_data(pkt, len);
+}
+
+int nc_input_data(const uchar *pkt, unsigned int len)
+{
+	int end, chunk;
 
 	debug_cond(DEBUG_NET_PKT_TRACE, "input: \"%*.*s\"\n", len, len,
 		   pkt);

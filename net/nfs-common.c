@@ -43,6 +43,7 @@
 #include <log.h>
 #include <net.h>
 #include <mapmem.h>
+#include <linux/ctype.h>
 #include "nfs.h"
 #include "nfs-common.h"
 
@@ -60,6 +61,7 @@ struct in_addr nfs_server_ip;
 int nfs_server_mount_port;
 int nfs_server_port;
 int nfs_our_port;
+bool nfs_use_rpcbind;
 int nfs_state;
 int nfs_timeout_count;
 unsigned long rpc_id;
@@ -211,6 +213,8 @@ void rpc_req_common(int rpc_prog, int rpc_proc, uint32_t *data, int datalen,
 		}
 		break;
 	case PROG_PORTMAP:
+		rpc_pkt.u.call.vers = htonl(nfs_use_rpcbind ? 3 : 2);
+		break;
 	default:
 		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
 	}
@@ -238,12 +242,19 @@ void rpc_req_common(int rpc_prog, int rpc_proc, uint32_t *data, int datalen,
  */
 static void rpc_lookup_req(int prog, int ver)
 {
-	u32 data[16];
+	u32 data[10] = {};
 
 	data[0] = 0; data[1] = 0;	/* auth credential */
 	data[2] = 0; data[3] = 0;	/* auth verifier */
 	data[4] = htonl(prog);
 	data[5] = htonl(ver);
+	if (nfs_use_rpcbind) {
+		/* RPCBPROC_GETADDR: netid, universal address and owner strings. */
+		data[6] = htonl(4);
+		memcpy(&data[7], "udp6", 4);
+		rpc_req(PROG_PORTMAP, RPCB_GETADDR, data, ARRAY_SIZE(data));
+		return;
+	}
 	data[6] = htonl(17);	/* IP_UDP */
 	data[7] = 0;
 	rpc_req(PROG_PORTMAP, PORTMAP_GETPORT, data, 8);
@@ -502,8 +513,9 @@ static int rpc_handle_error(struct rpc_t *rpc_pkt)
 static int rpc_lookup_reply(int prog, uchar *pkt, unsigned int len)
 {
 	struct rpc_t rpc_pkt;
+	u32 port;
 
-	if (len > sizeof(rpc_pkt.u.data))
+	if (len < offsetof(struct rpc_t, u.reply.data[1]) || len > sizeof(rpc_pkt.u.data))
 		return -NFS_RPC_DROP;
 	memcpy(&rpc_pkt.u.data[0], pkt, len);
 
@@ -514,15 +526,52 @@ static int rpc_lookup_reply(int prog, uchar *pkt, unsigned int len)
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
+	    rpc_pkt.u.reply.v2 ||
+	    ntohl(rpc_pkt.u.reply.type) != MSG_REPLY ||
 	    rpc_pkt.u.reply.astatus)
-		return -1;
+		return -NFS_RPC_ERR;
+
+	port = ntohl(rpc_pkt.u.reply.data[0]);
+	if (nfs_use_rpcbind) {
+		const char *addr = (const char *)&rpc_pkt.u.reply.data[1];
+		const char *end, *part;
+		u32 octet;
+
+		/* The universal address ends in two decimal UDP port octets. */
+		if (port > len - offsetof(struct rpc_t, u.reply.data[1]))
+			return -NFS_RPC_DROP;
+		if (!port)
+			return -NFS_RPC_ERR;
+		if (memchr(addr, 0, port))
+			return -NFS_RPC_DROP;
+		end = addr + port;
+		port = 0;
+		for (int shift = 0; shift <= 8; shift += 8) {
+			part = end;
+			while (part > addr && isdigit(part[-1]))
+				part--;
+			if (part == end || end - part > 3 || part <= addr || part[-1] != '.')
+				return -NFS_RPC_DROP;
+			octet = 0;
+			for (const char *p = part; p < end; p++)
+				octet = octet * 10 + *p - '0';
+			if (octet > 255)
+				return -NFS_RPC_DROP;
+			port |= octet << shift;
+			end = part - 1;
+		}
+		if (end == addr)
+			return -NFS_RPC_DROP;
+	}
+	if (!port || port > 65535)
+		return -NFS_RPC_ERR;
 
 	switch (prog) {
 	case PROG_MOUNT:
-		nfs_server_mount_port = ntohl(rpc_pkt.u.reply.data[0]);
+		nfs_server_mount_port = port;
 		break;
 	case PROG_NFS:
-		nfs_server_port = ntohl(rpc_pkt.u.reply.data[0]);
+		nfs_server_port = port;
 		break;
 	}
 
@@ -780,15 +829,25 @@ void nfs_pkt_recv(uchar *pkt, unsigned int len)
 
 	switch (nfs_state) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
-		if (rpc_lookup_reply(PROG_MOUNT, pkt, len) == -NFS_RPC_DROP)
+		reply = rpc_lookup_reply(PROG_MOUNT, pkt, len);
+		if (reply == -NFS_RPC_DROP)
 			break;
+		if (reply) {
+			net_set_state(NETLOOP_FAIL);
+			break;
+		}
 		nfs_state = STATE_PRCLOOKUP_PROG_NFS_REQ;
 		nfs_send();
 		break;
 
 	case STATE_PRCLOOKUP_PROG_NFS_REQ:
-		if (rpc_lookup_reply(PROG_NFS, pkt, len) == -NFS_RPC_DROP)
+		reply = rpc_lookup_reply(PROG_NFS, pkt, len);
+		if (reply == -NFS_RPC_DROP)
 			break;
+		if (reply) {
+			net_set_state(NETLOOP_FAIL);
+			break;
+		}
 		nfs_state = STATE_MOUNT_REQ;
 		nfs_send();
 		break;

@@ -1996,11 +1996,11 @@ config CMD_BOOTP
 	help
 	  bootp - boot image via network using BOOTP/TFTP protocol
 
-if NET_LEGACY
-
 config CMD_DHCP6
 	bool "dhcp6"
 	depends on IPV6
+	select PROT_UDP_LWIP if NET_LWIP
+	select IPV6_ROUTER_DISCOVERY if NET_LWIP
 	help
 	  Boot image via network using DHCPv6/TFTP protocol using IPv6.
 
@@ -2023,8 +2023,6 @@ config DHCP6_RAPID_COMMIT
 	  Request the Rapid Commit option (option 14) in DHCPv6 Solicit
 	  messages to enable a 2-message exchange (Solicit-Reply) rather
 	  than the default 4-message exchange.
-
-endif
 
 endif
 
@@ -2185,14 +2183,15 @@ config SYS_DISABLE_AUTOLOAD
 	  is complete.  Enable this option to disable this behavior and instead
 	  require files to be loaded over the network by subsequent commands.
 
-if NET_LEGACY
-
 config CMD_PING6
 	bool "ping6"
 	depends on IPV6
 	default y if (CMD_PING && IPV6)
+	select PROT_RAW_LWIP if NET_LWIP
 	help
 	  Send ICMPv6 ECHO_REQUEST to network host
+
+if NET_LEGACY
 
 config CMD_CDP
 	bool "cdp"
@@ -2215,19 +2214,14 @@ config CMD_NCSI
 	  Normally this happens automatically before other network
 	  operations.
 
+endif  # if NET_LEGACY
+
 config IPV6_ROUTER_DISCOVERY
 	bool "Do IPv6 router discovery"
 	depends on IPV6
 	help
 	  Will automatically perform router solicitation on first IPv6
 	  network operation
-
-config CMD_WOL
-	bool "wol"
-	help
-	  Wait for wake-on-lan Magic Packet
-
-endif  # if NET_LEGACY
 
 config CMD_TFTPPUT
 	bool "tftp put"
@@ -2266,6 +2260,12 @@ config CMD_ETHSW
 	  by the vsc9953 Ethernet driver at present. Sub-commands allow
 	  operations such as enabling / disabling a port and
 	  viewing/maintaining the filtering database (FDB)
+
+config CMD_WOL
+	bool "wol"
+	help
+	  Wait for a Wake-on-LAN magic packet on the active Ethernet interface.
+	  Accept Ethernet packets and IPv4 UDP packets on ports 0, 7 and 9.
 
 config CMD_MII
 	bool "mii"
