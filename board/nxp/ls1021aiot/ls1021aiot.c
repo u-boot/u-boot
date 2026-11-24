@@ -7,6 +7,7 @@
 #include <config.h>
 #include <clock_legacy.h>
 #include <fdt_support.h>
+#include <fdtdec.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/immap_ls102xa.h>
@@ -183,7 +184,22 @@ int misc_init_r(void)
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	int off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
+						CFG_SYS_IFC_ADDR);
+	bool ifc_enabled = off >= 0 && fdtdec_get_is_enabled(blob, off);
+
 	ft_cpu_setup(blob, bd);
+
+	/*
+	 * ft_cpu_setup() disables the IFC when booting with QSPI, but on this
+	 * board the system CPLD on IFC CS0 works alongside QSPI. Keep the IFC
+	 * enabled when the device tree enables it.
+	 */
+	if (ifc_enabled) {
+		off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
+						    CFG_SYS_IFC_ADDR);
+		fdt_set_node_status(blob, off, FDT_STATUS_OKAY);
+	}
 
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);

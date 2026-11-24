@@ -514,7 +514,7 @@ static int scmi_base_probe(struct udevice *dev)
 	return ret;
 }
 
-static struct scmi_base_ops scmi_base_ops = {
+static const struct scmi_base_ops scmi_base_ops = {
 	/* Commands */
 	.protocol_version = scmi_base_protocol_version_int,
 	.protocol_attrs = scmi_protocol_attrs_int,

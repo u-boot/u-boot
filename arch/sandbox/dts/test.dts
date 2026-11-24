@@ -2008,7 +2008,7 @@
 		compatible = "sandbox,scmi-devices";
 		power-domains = <&pwrdom_scmi 2>;
 		clocks = <&clk_scmi 2>, <&clk_scmi 0>;
-		resets = <&reset_scmi 3>;
+		resets = <&reset_scmi 0>;
 		regul0-supply = <&regul0_scmi>;
 		regul1-supply = <&regul1_scmi>;
 	};

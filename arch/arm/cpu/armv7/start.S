@@ -114,6 +114,12 @@ switch_to_hypervisor_ret:
 #endif
 #endif
 
+#ifdef CONFIG_ARCH_LS1021A
+	ldr r1, =0x01180000
+	mov r2, #0x00000008
+	str r2, [r1]
+#endif
+
 	/* the mask ROM code should have PLL and others stable */
 #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 #ifdef CONFIG_CPU_V7A

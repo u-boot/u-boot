@@ -86,7 +86,7 @@ static struct sandbox_scmi_clk scmi_clk[] = {
 };
 
 static struct sandbox_scmi_reset scmi_reset[] = {
-	{ .id = 3 },
+	{ .id = 0 },
 };
 
 static struct sandbox_scmi_voltd scmi_voltd[] = {
