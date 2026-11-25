@@ -10,7 +10,7 @@ variables:
   container_option: -u 0
   work_dir: /u
   # We define all of these as variables so we can easily reference them twice
-  am33xx_kirkwood: "am33xx kirkwood"
+  am33xx_qcom: "am33xx qcom"
   amd: "amd xilinx zynq"
   amlogic_bcm: "amlogic bcm -x mips"
   atmel: "atmel"
@@ -38,7 +38,7 @@ variables:
   sun8i: "sun8i"
   sunxi_rest: "sunxi -x sun4i,sun5i,sun6i,sun7i,sun8i"
   arm_catch_all: "arm -x aarch64,am33xx,atmel,bcm,ls,lx,imx,k3,kirkwood,mvebu,mx,omap,renesas,rk,samsung,socfpga,stm32,sunxi,tegra,vf610,xilinx,zynq"
-  aarch64_catch_all: "aarch64 -x amd,amlogic,bcm,engicam,imx,k3,ls,lx,mediatek,mvebu,renesas,rk,samsung,socfpga,stm32,sunxi,tegra,xilinx,zynq"
+  aarch64_catch_all: "aarch64 -x amd,amlogic,bcm,engicam,imx,k3,ls,lx,mediatek,mvebu,renesas,qcom,rk,samsung,socfpga,stm32,sunxi,tegra,xilinx,zynq"
 
 stages:
 - stage: testsuites
@@ -208,7 +208,7 @@ stages:
           # First get the total number of boards
           total=$(tools/buildman/buildman ${BMANARGS} | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
           # Now build up the list of what each job built.
-          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_kirkwood) | grep '^   ')"
+          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_qcom) | grep '^   ')"
           built="$built $(tools/buildman/buildman ${BMANARGS} $(amd) | grep '^   ')"
           built="$built $(tools/buildman/buildman ${BMANARGS} $(amlogic_bcm) | grep '^   ')"
           built="$built $(tools/buildman/buildman ${BMANARGS} $(atmel) | grep '^   ')"
@@ -644,8 +644,8 @@ stages:
       # We split the world up in to 10 jobs as we can have at most 10
       # parallel jobs going on the free tier of Azure.
       matrix:
-        am33xx_kirkwood:
-          BUILDMAN: $(am33xx_kirkwood)
+        am33xx_qcom:
+          BUILDMAN: $(am33xx_qcom)
         amd:
           BUILDMAN: $(amd)
         amlogic_bcm:
