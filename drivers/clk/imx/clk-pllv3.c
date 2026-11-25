@@ -14,6 +14,7 @@
 #include <clk.h>
 #include "clk.h"
 #include <linux/err.h>
+#include <linux/iopoll.h>
 
 #define UBOOT_DM_CLK_IMX_PLLV3_GENERIC	"imx_clk_pllv3_generic"
 #define UBOOT_DM_CLK_IMX_PLLV3_SYS	"imx_clk_pllv3_sys"
@@ -30,6 +31,8 @@
 #define BM_PLL_ENABLE		(0x1 << 13)
 #define BM_PLL_LOCK		(0x1 << 31)
 #define BM_PLL_LOCK_V2		(0x1 << 29)
+
+#define PLL_LOCK_TIMEOUT_US	10000
 
 struct clk_pllv3 {
 	struct clk	clk;
@@ -275,8 +278,22 @@ static ulong clk_pllv3_enet_get_rate(struct clk *clk)
 	return pll->ref_clock;
 }
 
+static int clk_pllv3_enet_enable(struct clk *clk)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	u32 val;
+	int ret;
+
+	ret = clk_pllv3_generic_enable(clk);
+	if (ret)
+		return ret;
+
+	return readl_poll_timeout(pll->base, val, val & pll->lock_bit,
+				  PLL_LOCK_TIMEOUT_US);
+}
+
 static const struct clk_ops clk_pllv3_enet_ops = {
-	.enable	= clk_pllv3_generic_enable,
+	.enable	= clk_pllv3_enet_enable,
 	.disable	= clk_pllv3_generic_disable,
 	.get_rate	= clk_pllv3_enet_get_rate,
 };
@@ -329,6 +346,8 @@ struct clk *imx_clk_pllv3(struct udevice *dev, enum imx_pllv3_type type,
 	case IMX_PLLV3_ENET:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_ENET;
 		pll->ref_clock = 500000000;
+		/* Bit 13 is an output gate, modelled by the SoC driver */
+		pll->enable_bit = 0;
 		break;
 	default:
 		kfree(pll);

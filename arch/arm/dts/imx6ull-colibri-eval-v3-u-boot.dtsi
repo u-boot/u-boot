@@ -29,6 +29,12 @@
 	bootph-all;
 };
 
+/* RMII reference clock from the internal ENET PLL, not from the pad */
+&fec2 {
+	assigned-clocks = <&clks IMX6UL_CLK_ENET2_REF_SEL>;
+	assigned-clock-parents = <&clks IMX6UL_CLK_ENET2_REF_125M>;
+};
+
 &lcdif {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lcdif_dat

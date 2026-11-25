@@ -4,6 +4,8 @@
  */
 
 / {
+	model = "Toradex Colibri VF50/VF61 on Colibri Evaluation Board";
+
 	soc {
 		bootph-all;
 	};

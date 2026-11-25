@@ -196,7 +196,8 @@ static int settings_r(void)
 		eth_env_set_enetaddr("eth1addr", ethaddr);
 	}
 
-	if (IS_ENABLED(CONFIG_TARGET_TORADEX_SMARC_IMX95) &&
+	if ((IS_ENABLED(CONFIG_TARGET_TORADEX_OSM_IMX95) ||
+	     IS_ENABLED(CONFIG_TARGET_TORADEX_SMARC_IMX95)) &&
 	    !eth_env_get_enetaddr("eth2addr", ethaddr)) {
 		/*
 		 * Third MAC address is allocated from block

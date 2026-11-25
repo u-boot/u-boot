@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <dt-bindings/clock/imx6ul-clock.h>
 
 #include "clk.h"
@@ -33,8 +34,20 @@ static struct clk_ops imx6ul_clk_ops = {
 	.disable = ccf_clk_disable,
 };
 
+static const struct clk_div_table clk_enet_ref_table[] = {
+	{ .val = 0, .div = 20, },
+	{ .val = 1, .div = 10, },
+	{ .val = 2, .div = 5, },
+	{ .val = 3, .div = 4, },
+	{ }
+};
+
 static const char *const pll_bypass_src_sels[] = { "osc", "dummy", };
 static const char *const pll3_bypass_sels[] = { "pll3", "pll3_bypass_src", };
+static const char *const pll6_bypass_sels[] = { "pll6", "pll6_bypass_src", };
+/* The ENETn_TX_CLK pad clocks are not modelled, hence "dummy" */
+static const char *const enet1_ref_sels[] = { "enet1_ref_125m", "dummy", };
+static const char *const enet2_ref_sels[] = { "enet2_ref_125m", "dummy", };
 static const char *const bch_sels[] = { "pll2_pfd2_396m", "pll2_pfd0_352m", };
 static const char *const gpmi_sels[] = { "pll2_pfd2_396m", "pll2_pfd0_352m", };
 
@@ -102,8 +115,48 @@ static int imx6ul_clk_probe(struct udevice *dev)
 	clk_dm(IMX6UL_CLK_PLL6,
 	       imx_clk_pllv3(dev, IMX_PLLV3_ENET, "pll6", "osc", base + 0xe0,
 			     0x3));
+	clk_dm(IMX6UL_PLL6_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll6_bypass_src", base + 0xe0, 14, 1,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6UL_PLL6_BYPASS,
+	       imx_clk_mux_flags(dev, "pll6_bypass", base + 0xe0, 16, 1,
+				 pll6_bypass_sels, ARRAY_SIZE(pll6_bypass_sels),
+				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX6UL_CLK_PLL6_ENET,
-	       imx_clk_gate(dev, "pll6_enet", "pll6", base + 0xe0, 13));
+	       imx_clk_fixed_factor(dev, "pll6_enet", "pll6_bypass", 1, 1));
+	clk_dm(IMX6UL_CLK_ENET_REF,
+	       clk_register_divider_table(dev, "enet1_ref", "pll6_enet", 0,
+					  base + 0xe0, 0, 2, 0,
+					  clk_enet_ref_table));
+	clk_dm(IMX6UL_CLK_ENET2_REF,
+	       clk_register_divider_table(dev, "enet2_ref", "pll6_enet", 0,
+					  base + 0xe0, 2, 2, 0,
+					  clk_enet_ref_table));
+	clk_dm(IMX6UL_CLK_ENET1_REF_125M,
+	       imx_clk_gate(dev, "enet1_ref_125m", "enet1_ref", base + 0xe0,
+			    13));
+	clk_dm(IMX6UL_CLK_ENET2_REF_125M,
+	       imx_clk_gate(dev, "enet2_ref_125m", "enet2_ref", base + 0xe0,
+			    20));
+	/*
+	 * IOMUXC_GPR1 ENETn_CLK_SEL: the ENET reference clock comes from
+	 * the anatop ENET PLL (0) or from the ENETn_TX_CLK pad (1).
+	 */
+	clk_dm(IMX6UL_CLK_ENET1_REF_SEL,
+	       imx_clk_mux_flags(dev, "enet1_ref_sel",
+				 (void *)IOMUXC_GPR_BASE_ADDR + 0x4, 13, 1,
+				 enet1_ref_sels, ARRAY_SIZE(enet1_ref_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6UL_CLK_ENET2_REF_SEL,
+	       imx_clk_mux_flags(dev, "enet2_ref_sel",
+				 (void *)IOMUXC_GPR_BASE_ADDR + 0x4, 14, 1,
+				 enet2_ref_sels, ARRAY_SIZE(enet2_ref_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6UL_CLK_ENET_PTP_REF,
+	       imx_clk_fixed_factor(dev, "enet_ptp_ref", "pll6_enet", 1, 20));
+	clk_dm(IMX6UL_CLK_ENET_PTP,
+	       imx_clk_gate(dev, "enet_ptp", "enet_ptp_ref", base + 0xe0, 21));
 
 	/* CCM clocks */
 	base = dev_read_addr_ptr(dev);
@@ -259,10 +312,17 @@ static int imx6ul_clk_probe(struct udevice *dev)
 	clk_dm(IMX6UL_CLK_PWM1,
 	       imx_clk_gate2(dev, "pwm1", "perclk", base + 0x78, 16));
 
-	clk_dm(IMX6UL_CLK_ENET,
-	       imx_clk_gate2(dev, "enet", "ipg", base + 0x6c, 10));
-	clk_dm(IMX6UL_CLK_ENET_REF,
-	       imx_clk_fixed_factor(dev, "enet_ref", "pll6_enet", 1, 1));
+	if (is_mx6ull()) {
+		clk_dm(IMX6UL_CLK_ENET,
+		       imx_clk_gate2(dev, "enet", "ipg", base + 0x68, 12));
+		clk_dm(IMX6UL_CLK_ENET_AHB,
+		       imx_clk_gate2(dev, "enet_ahb", "ahb", base + 0x68, 12));
+	} else {
+		clk_dm(IMX6UL_CLK_ENET,
+		       imx_clk_gate2(dev, "enet", "ipg", base + 0x74, 4));
+		clk_dm(IMX6UL_CLK_ENET_AHB,
+		       imx_clk_gate2(dev, "enet_ahb", "ahb", base + 0x74, 4));
+	}
 
 	struct clk *clk, *clk1;
 
@@ -270,6 +330,17 @@ static int imx6ul_clk_probe(struct udevice *dev)
 	clk_get_by_id(IMX6UL_CLK_PLL2_PFD2, &clk1);
 
 	clk_set_parent(clk, clk1);
+
+	/* Take PLL6 out of bypass, the ENET reference clocks need 500 MHz */
+	clk_get_by_id(IMX6UL_PLL6_BYPASS, &clk);
+	clk_get_by_id(IMX6UL_CLK_PLL6, &clk1);
+
+	clk_set_parent(clk, clk1);
+
+	clk_get_by_id(IMX6UL_CLK_ENET_REF, &clk);
+	clk_set_rate(clk, 50000000);
+	clk_get_by_id(IMX6UL_CLK_ENET2_REF, &clk);
+	clk_set_rate(clk, 50000000);
 
 	return 0;
 }

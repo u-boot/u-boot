@@ -35,10 +35,6 @@
 	bootph-pre-ram;
 };
 
-&binman_imx_fit {
-	offset = <0x5fc00>;
-};
-
 &gpio1 {
 	bootph-pre-ram;
 };

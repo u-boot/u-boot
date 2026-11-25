@@ -7,10 +7,7 @@
 #include <asm/global_data.h>
 #include <linux/delay.h>
 
-#include <asm/arch/clock.h>
-#include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch-mx6/clock.h>
 #include <asm/arch-mx6/imx-regs.h>
 #include <asm/arch-mx6/mx6ull_pins.h>
 #include <asm/arch/sys_proto.h>
@@ -19,7 +16,6 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <dm.h>
-#include <dm/platform_data/serial_mxc.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <imx_thermal.h>
@@ -58,15 +54,6 @@ int dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_NAND_MXS
-static void setup_gpmi_nand(void)
-{
-	setup_gpmi_io_clk((MXC_CCM_CS2CDR_ENFC_CLK_PODF(0) |
-			   MXC_CCM_CS2CDR_ENFC_CLK_PRED(3) |
-			   MXC_CCM_CS2CDR_ENFC_CLK_SEL(3)));
-}
-#endif /* CONFIG_NAND_MXS */
-
 #ifdef CONFIG_VIDEO
 static const iomux_v3_cfg_t backlight_pads[] = {
 	/* Backlight On */
@@ -95,25 +82,16 @@ static int setup_lcd(void)
 #endif
 
 #ifdef CONFIG_FEC_MXC
-static int setup_fec(void)
+static void setup_fec(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int ret;
 
 	/*
-	 * Use 50MHz anatop loopback REF_CLK2 for ENET2,
-	 * clear gpr1[14], set gpr1[18].
+	 * Drive the ENET2 reference clock out to the PHY: ENET2_TX_CLK_DIR
+	 * (gpr1[18]) output. The ENET2_CLK_SEL (gpr1[14]) half is the
+	 * IMX6UL_CLK_ENET2_REF_SEL clock, set up from the device tree.
 	 */
-	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK,
-			IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
-
-	ret = enable_fec_anatop_clock(1, ENET_50MHZ);
-	if (ret)
-		return ret;
-
-	enable_enet_clk(1);
-
-	return 0;
+	setbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
 }
 #endif /* CONFIG_FEC_MXC */
 
@@ -136,9 +114,6 @@ int board_init(void)
 	setup_fec();
 #endif
 
-#ifdef CONFIG_NAND_MXS
-	setup_gpmi_nand();
-#endif
 	return 0;
 }
 
@@ -211,13 +186,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return ft_common_board_setup(blob, bd);
 }
 #endif
-
-static struct mxc_serial_plat mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART1_BASE,
-	.use_dte = 1,
-};
-
-U_BOOT_DRVINFO(mxc_serial) = {
-	.name = "serial_mxc",
-	.plat = &mxc_serial_plat,
-};
