@@ -20,6 +20,20 @@
 #include <asm/utils.h>
 #include <dm/uclass.h>
 
+u32 reset_flag(u32 flag)
+{
+	/* Check rstmgr.stat for warm reset status */
+	u32 status = readl(SOCFPGA_RSTMGR_ADDRESS);
+
+	/* Check whether any L4 watchdogs or SDM had triggered warm reset */
+	u32 warm_reset_mask = RSTMGR_L4WD_MPU_WARMRESET_MASK;
+
+	if (status & warm_reset_mask)
+		return 0;
+
+	return 1;
+}
+
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -28,7 +42,7 @@ void board_init_f(ulong dummy)
 	/* Enable Async */
 	asm volatile("msr daifclr, #4");
 
-#ifdef CONFIG_XPL_BUILD
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RECOVER_DATA_SECTION)
 	spl_save_restore_data();
 #endif
 
