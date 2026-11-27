@@ -116,7 +116,7 @@ class Bintoollzma_alone(bintool.Bintool):
         Returns:
             str: Version number of lzma_alone
         """
-        out = self.run_cmd_result('', raise_on_error=False).stderr.strip()
+        out = self.run_cmd_result('', raise_on_error=False).combined.strip()
         lines = out.splitlines()
         if not lines:
             return super().version()
