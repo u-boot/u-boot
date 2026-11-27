@@ -1238,6 +1238,20 @@ efi_status_t efi_ecpt_register(void);
 efi_status_t efi_esrt_populate(void);
 efi_status_t efi_load_capsule_drivers(void);
 
+/**
+ * efi_capsule_resolve_image_index() - get the FMP image index for a capsule
+ * @image_type:		image type GUID from the capsule
+ * @capsule_index:	image index from the capsule
+ *
+ * The default returns @capsule_index. A platform whose image indices are
+ * not fixed at build time can override this to look the image up by
+ * @image_type.
+ *
+ * Return:		image index to pass to efi_fmp_find() and set_image()
+ */
+u8 efi_capsule_resolve_image_index(const efi_guid_t *image_type,
+				   u8 capsule_index);
+
 efi_status_t platform_get_eventlog(struct udevice *dev, u64 *addr, u32 *sz);
 
 efi_status_t efi_locate_handle_buffer_int(enum efi_locate_search_type search_type,
