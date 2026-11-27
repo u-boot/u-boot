@@ -373,12 +373,16 @@ static bool edid_find_valid_detailed_timing(void *buf, int count,
 
 	for (i = 0; i < count && !found; i++, t++)
 		if (EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) != 0) {
-			decode_timing((u8 *)t, timing);
+			struct display_timing dtd;
+
+			/* Leave the caller's timing alone if no mode is valid */
+			decode_timing((u8 *)t, &dtd);
 			if (mode_valid)
-				found = mode_valid(mode_valid_priv,
-						   timing);
+				found = mode_valid(mode_valid_priv, &dtd);
 			else
 				found = true;
+			if (found)
+				*timing = dtd;
 		}
 
 	return found;

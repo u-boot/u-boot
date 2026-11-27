@@ -331,6 +331,7 @@ static int display_update_config_from_edid(struct udevice *dp_dev,
 static int display_init(struct udevice *dev, void *lcdbase,
 			int fb_bits_per_pixel, struct display_timing *timing)
 {
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct display_plat *disp_uc_plat;
 	struct dc_ctlr *dc_ctlr;
 	struct udevice *dp_dev;
@@ -354,6 +355,8 @@ static int display_init(struct udevice *dev, void *lcdbase,
 	debug("Found device '%s', disp_uc_priv=%p\n", dp_dev->name,
 	      disp_uc_plat);
 	disp_uc_plat->src_dev = dev;
+	disp_uc_plat->fb_size = plat->size;
+	disp_uc_plat->fb_bpp = fb_bits_per_pixel;
 
 	ret = uclass_get_device(UCLASS_DISPLAY, 0, &dp_dev);
 	if (ret) {

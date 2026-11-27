@@ -646,6 +646,10 @@ static int rk_edp_init_training(struct rk_edp_priv *edp)
 		return -EPERM;
 	}
 
+	/* The sink may report more lanes than the controller has */
+	if (edp->link_train.lane_count > LANE_CNT4)
+		edp->link_train.lane_count = LANE_CNT4;
+
 	ret = rk_edp_link_power_up(edp);
 	if (ret)
 		return ret;

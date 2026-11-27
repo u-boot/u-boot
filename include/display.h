@@ -18,11 +18,17 @@ struct display_timing;
  * controller
  * @src_dev:	Source device providing the video
  * @in_use:	Display is being used
+ * @fb_size:	Size of the source's frame buffer in bytes, or 0 if unknown. Set
+ *		by the source before reading the timing, so that modes which
+ *		do not fit in the frame buffer are skipped
+ * @fb_bpp:	Bits per pixel of the source's frame buffer
  */
 struct display_plat {
 	int source_id;
 	struct udevice *src_dev;
 	bool in_use;
+	uint fb_size;
+	int fb_bpp;
 };
 
 /**

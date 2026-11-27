@@ -49,8 +49,8 @@ struct tegra_lcd_priv {
 
 enum {
 	/* Maximum LCD size we support */
-	LCD_MAX_WIDTH		= 2560,
-	LCD_MAX_HEIGHT		= 1600,
+	LCD_MAX_WIDTH		= TEGRA_DC_MAX_WIDTH,
+	LCD_MAX_HEIGHT		= TEGRA_DC_MAX_HEIGHT,
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
 
