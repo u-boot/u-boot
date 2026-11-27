@@ -4,14 +4,28 @@
  *
  */
 
+#include <cpu_func.h>
 #include <hang.h>
+#include <log.h>
 #include <string.h>
+#include <time.h>
 #include <wait_bit.h>
 #include <asm/arch/base_addr_soc64.h>
+#include <asm/arch/handoff_soc64.h>
+#include <asm/arch/iossm_mailbox.h>
+#include <asm/arch/mailbox_s10.h>
+#include <asm/arch/socfpga_ddr_ecc.h>
+#include <asm/arch/system_manager.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/errno.h>
+#include <linux/iopoll.h>
 #include <linux/sizes.h>
-#include "iossm_mailbox.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define TIMEOUT_120000MS			120000
 #define TIMEOUT_60000MS				60000
@@ -67,6 +81,29 @@
 #define IOSSM_STATUS_CAL_INTF0_OFFSET			0x404
 #define IOSSM_STATUS_CAL_INTF1_OFFSET			0x408
 
+/* IO96B ECC inject */
+#define IO96B_SBE_SYNDROME		0xF4
+#define IO96B_DBE_SYNDROME		0xFF
+#define IO96B_ECC_INJECT_DELAY_US	40
+#define IO96B_ECC_INJECT_VERIFY_US	5000
+#define IO96B_ECC_INJECT_POLL_STEP_US	10
+#define IO96B_ECC_DDR_TOUCH_ALIGN	64
+#define IO96B_ECC_DDR_TOUCH_PATTERN	0xCAFEBABEFEEDFACEULL
+/* ECC_ERR_STATUS[31:16] overflow bits used to verify inject when Q is full */
+#define ECC_OVF_SBE_MASK		(BIT(0) | BIT(1))
+#define ECC_OVF_DBE_MASK		(BIT(2) | BIT(3))
+
+/* SDM dedicated EMIF ECC queue (HPS_PUSH / READ_EMIF_ERROR) */
+#define EMIF_ECC_SDM_MAX_ENTRIES	MBOX_HPS_PUSH_EMIF_MAX_ENTRIES
+#define EMIF_ECC_SDM_ENTRY_WORDS	MBOX_HPS_PUSH_EMIF_ENTRY_WORDS
+/* One entry per READ_EMIF_ERROR: Error Count + 3 entry words */
+#define EMIF_ECC_SDM_RESP_MAX_WORDS	(1 + EMIF_ECC_SDM_ENTRY_WORDS)
+/* SDM trailer word2: io96b_inst[7:0] | reserved[15:8]=0 | overflow[31:16] */
+#define EMIF_ECC_ENTRY_IO96B_INST_MASK	GENMASK(7, 0)
+#define EMIF_ECC_ENTRY_OVERFLOW_MASK	GENMASK(31, 16)
+#define MAX_ECC_ERR_INFO_COUNT		16
+#define ECC_SDM_PUSH_MAX	(MAX_IO96B_SUPPORTED * MAX_ECC_ERR_INFO_COUNT)
+
 #define ECC_INTSTATUS_SERR SOCFPGA_SYSMGR_ADDRESS + 0x9C
 #define ECC_INISTATUS_DERR SOCFPGA_SYSMGR_ADDRESS + 0xA0
 #define DDR_CSR_CLKGEN_LOCKED_IO96B0_MASK BIT(16)
@@ -112,8 +149,6 @@
 #define ECC_FULL_ADDR_UPPER_MASK	GENMASK(63, 32)
 #define ECC_FULL_ADDR_LOWER_MASK	GENMASK(31, 0)
 
-#define MAX_ECC_ERR_INFO_COUNT 16
-
 #define BIST_START_ADDR_SPACE_MASK GENMASK(5, 0)
 #define BIST_START_ADDR_LOW_MASK   GENMASK(31, 0)
 #define BIST_START_ADDR_HIGH_MASK  GENMASK(37, 32)
@@ -134,6 +169,33 @@
 #define IO96B1_PLL_A_MASK	BIT(2)
 #define IO96B1_PLL_B_MASK	BIT(3)
 
+/**
+ * struct emif_ecc_sdm_entry - one EMIF ECC entry for HPS_PUSH / READ
+ * @word0: IOSSM ECC_ERR_DATA[0]
+ * @word1: IOSSM ECC_ERR_DATA[1] (DDR addr LSB)
+ * @word2: SDM trailer
+ */
+struct emif_ecc_sdm_entry {
+	u32 word0;
+	u32 word1;
+	u32 word2;
+};
+
+/**
+ * struct ecc_sdm_push - IO96B ECC entries waiting for HPS_PUSH_EMIF_ECC
+ * @entry: scanned entries, oldest first
+ * @n: number of entries stored
+ */
+struct ecc_sdm_push {
+	struct emif_ecc_sdm_entry entry[ECC_SDM_PUSH_MAX];
+	unsigned int n;
+};
+
+static const phys_addr_t io96b_csr_base[MAX_IO96B_SUPPORTED] = {
+	SOCFPGA_IO96B0_CSR_ADDRESS,
+	SOCFPGA_IO96B1_CSR_ADDRESS,
+};
+
 /* supported DDR type list */
 static const char *ddr_type_list[7] = {
 		"DDR4", "DDR5", "DDR5_RDIMM", "LPDDR4", "LPDDR5", "QDRIV", "UNKNOWN"
@@ -153,41 +215,41 @@ enum ecc_error_type {
 	READ_MODIFY_WRITE_DOUBLE_BIT_ERROR = 13	/* 0b1101 */
 };
 
-/*
- * ecc error info
- *
- * @ip_type:		The IP type of the interface that produced the ECC interrupt.
- * @instance_id:	The instance ID of the interface that produced the ECC interrupt.
- * @ecc_err_source_id:	The source ID associated with the ECC event.
- * @ecc_err_type:	The ECC error type of the ECC event.
- * @ecc_err_addr_upper:	Upper 6 bits of the address of the read data that caused the ECC event.
- * @ecc_err_addr_lower:	Lower 32 bits of the address of the read data that caused the ECC event.
+/**
+ * struct ecc_error_desc - IOSSM ECC_ERR_TYPE / overflow name mapping
+ * @type: ECC_ERR_TYPE value from ECC_ERR_DATA[0]
+ * @ovf_bit: bit in ECC_ERR_OVERFLOW after FIELD_GET([31:16]),
+ *	per IOSSM Mailbox Specification; types 0..3 match TYPE,
+ *	scrubbing/LPDDR5 use TYPE - 1 (bits 7..12)
+ * @msg: shared print string for type and overflow
  */
-struct ecc_err_info {
-	u32 ip_type;
-	u32 instance_id;
-	u32 source_id;
-	enum ecc_error_type err_type;
-	u32 addr_upper;
-	u32 addr_lower;
-};
-
-struct ecc_overflow_error_desc {
-	int bit;
+struct ecc_error_desc {
+	enum ecc_error_type type;
+	u8 ovf_bit;
 	const char *msg;
 };
 
-static const struct ecc_overflow_error_desc ecc_overflow_errors[] = {
-	{ 0,  " - Single-bit error\n" },
-	{ 1,  " - Multiple single-bit errors\n" },
-	{ 2,  " - Double-bit error\n" },
-	{ 3,  " - Multiple double-bit errors\n" },
-	{ 8,  " - Single-bit error during ECC scrubbing\n" },
-	{ 9,  " - Write link ECC single-bit error (LPDDR5 only)\n" },
-	{ 10, " - Write link ECC double-bit error (LPDDR5 only)\n" },
-	{ 11, " - Read link ECC single-bit error (LPDDR5 only)\n" },
-	{ 12, " - Read link ECC double-bit error (LPDDR5 only)\n" },
-	{ 13, " - RMW read link ECC double-bit error (LPDDR5 only)\n" },
+static const struct ecc_error_desc ecc_errors[] = {
+	{ SINGLE_BIT_ERROR,			0,
+	  "Single-bit error" },
+	{ MULTIPLE_SINGLE_BIT_ERRORS,		1,
+	  "Multiple single-bit errors" },
+	{ DOUBLE_BIT_ERROR,			2,
+	  "Double-bit error" },
+	{ MULTIPLE_DOUBLE_BIT_ERRORS,		3,
+	  "Multiple double-bit errors" },
+	{ SINGLE_BIT_ERROR_SCRUBBING,		7,
+	  "Single-bit error during ECC scrubbing" },
+	{ WRITE_LINK_SINGLE_BIT_ERROR,		8,
+	  "Write link ECC single-bit error (LPDDR5 only)" },
+	{ WRITE_LINK_DOUBLE_BIT_ERROR,		9,
+	  "Write link ECC double-bit error (LPDDR5 only)" },
+	{ READ_LINK_SINGLE_BIT_ERROR,		10,
+	  "Read link ECC single-bit error (LPDDR5 only)" },
+	{ READ_LINK_DOUBLE_BIT_ERROR,		11,
+	  "Read link ECC double-bit error (LPDDR5 only)" },
+	{ READ_MODIFY_WRITE_DOUBLE_BIT_ERROR,	12,
+	  "RMW read link ECC double-bit error (LPDDR5 only)" },
 };
 
 static int is_ddr_csr_clkgen_locked(u8 io96b_pll)
@@ -275,6 +337,11 @@ int io96b_mb_req(phys_addr_t io96b_csr_addr, struct io96b_mb_req req,
 		       __func__);
 		goto err;
 	}
+
+	/* Clear stale RESPONSE_READY before posting a new command */
+	clrbits_le32((u32 *)(uintptr_t)(io96b_csr_addr +
+					IOSSM_CMD_RESPONSE_STATUS_OFFSET),
+		     IOSSM_STATUS_COMMAND_RESPONSE_READY);
 
 	/* Write CMD_PARAM_* */
 	for (i = 0; i < NUM_CMD_PARAM ; i++) {
@@ -393,7 +460,7 @@ static bool is_mailbox_spec_compatible(struct io96b_info *io96b_ctrl)
 	mailbox_header = readl(io96b_ctrl->io96b[0].io96b_csr_addr +
 				IOSSM_MAILBOX_HEADER_OFFSET);
 	mailbox_spec_ver = IOSSM_MAILBOX_SPEC_VERSION(mailbox_header);
-	printf("%s: IOSSM mailbox version: %d\n", __func__, mailbox_spec_ver);
+	debug("%s: IOSSM mailbox version: %d\n", __func__, mailbox_spec_ver);
 
 	/* for now there are two mailbox spec versions, 0 and 1; only version 1 is compatible */
 	if (!mailbox_spec_ver)
@@ -669,11 +736,175 @@ bool is_double_bit_error(enum ecc_error_type err_type)
 	}
 }
 
+/**
+ * emif_ecc_pack_word2() - build trailer word2
+ * @io96b_inst: IO96B instance index
+ * @ecc_err_status: raw ECC_ERR_STATUS (overflow taken from [31:16])
+ */
+static u32 emif_ecc_pack_word2(unsigned int io96b_inst, u32 ecc_err_status)
+{
+	return (io96b_inst & EMIF_ECC_ENTRY_IO96B_INST_MASK) |
+	       (ecc_err_status & EMIF_ECC_ENTRY_OVERFLOW_MASK);
+}
+
+/**
+ * io96b_ecc_print_overflow() - print ECC_ERR_STATUS overflow bits
+ * Overflow means more errors occurred than the queue retained.
+ * @overflow: ECC_ERR_OVERFLOW after FIELD_GET of ECC_ERR_STATUS[31:16]
+ */
+static void io96b_ecc_print_overflow(u32 overflow)
+{
+	int i;
+
+	if (!overflow)
+		return;
+
+	for (i = 0; i < ARRAY_SIZE(ecc_errors); i++) {
+		if (overflow & BIT(ecc_errors[i].ovf_bit))
+			log_err(" - overflow: %s\n", ecc_errors[i].msg);
+	}
+}
+
+/**
+ * ecc_overflow_has_dbe() - any DBE-class bit set in ECC_ERR_OVERFLOW?
+ * @overflow: ECC_ERR_OVERFLOW after FIELD_GET of ECC_ERR_STATUS[31:16]
+ *
+ * Retained Q entries can be all SBE after overflow; DBE overflow still
+ * means a double-bit error occurred and recovery must run.
+ */
+static bool ecc_overflow_has_dbe(u32 overflow)
+{
+	int i;
+
+	if (!overflow)
+		return false;
+
+	for (i = 0; i < ARRAY_SIZE(ecc_errors); i++) {
+		if ((overflow & BIT(ecc_errors[i].ovf_bit)) &&
+		    is_double_bit_error(ecc_errors[i].type))
+			return true;
+	}
+
+	return false;
+}
+
+/**
+ * io96b_ecc_print_error_type() - print ECC_ERR_TYPE from one entry
+ * @err_type: ECC_ERR_TYPE field from ECC_ERR_DATA[0]
+ */
+static void io96b_ecc_print_error_type(enum ecc_error_type err_type)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ecc_errors); i++) {
+		if (ecc_errors[i].type == err_type) {
+			log_err(" - error type: %s (0x%x)\n",
+				ecc_errors[i].msg, (unsigned int)err_type);
+			return;
+		}
+	}
+
+	log_err(" - error type: Unknown (0x%x)\n", (unsigned int)err_type);
+}
+
+/**
+ * io96b_ecc_print_emif_entry() - print one EMIF/IOSSM ECC entry
+ * @word0: ECC_ERR_DATA[0]
+ * @word1: ECC_ERR_DATA[1] (DDR addr LSB)
+ * @word2: io96b_inst[7:0] | reserved[15:8]=0 | overflow[31:16]
+ * @idx: entry index for display
+ *
+ * Return: true if a double-bit error occurred
+ */
+static bool io96b_ecc_print_emif_entry(u32 word0, u32 word1, u32 word2,
+				       unsigned int idx)
+{
+	enum ecc_error_type err_type = FIELD_GET(ECC_ERR_TYPE_MASK, word0);
+	u32 addr_upper = FIELD_GET(ECC_ERR_ADDR_UPPER_MASK, word0);
+	u32 overflow = FIELD_GET(EMIF_ECC_ENTRY_OVERFLOW_MASK, word2);
+	unsigned int io96b_inst = FIELD_GET(EMIF_ECC_ENTRY_IO96B_INST_MASK,
+					    word2);
+
+	log_err(" DDR ECC Error Detected on IO96B_%u number:%u\n",
+		io96b_inst, idx);
+	io96b_ecc_print_overflow(overflow);
+	log_err(" - error ip type: %lu\n",
+		FIELD_GET(ECC_ERR_IP_TYPE_MASK, word0));
+	log_err(" - error instance id: %lu\n",
+		FIELD_GET(ECC_ERR_INSTANCE_ID_MASK, word0));
+	log_err(" - error source id: %lu\n",
+		FIELD_GET(ECC_ERR_SOURCE_ID_MASK, word0));
+	io96b_ecc_print_error_type(err_type);
+	log_err(" - error address: 0x%016llx\n",
+		(u64)FIELD_PREP(ECC_FULL_ADDR_UPPER_MASK, addr_upper) |
+		FIELD_PREP(ECC_FULL_ADDR_LOWER_MASK, word1));
+
+	return is_double_bit_error(err_type) || ecc_overflow_has_dbe(overflow);
+}
+
+/**
+ * ecc_sdm_push_add() - store one scanned IO96B ECC entry
+ * @push: collection filled during the IO96B scan
+ * @word0: IOSSM ECC_ERR_DATA[0]
+ * @word1: IOSSM ECC_ERR_DATA[1] (DDR addr LSB)
+ * @word2: io96b_inst[7:0] | reserved[15:8]=0 | overflow[31:16]
+ *
+ * Stops once ECC_SDM_PUSH_MAX entries are stored.
+ */
+static void ecc_sdm_push_add(struct ecc_sdm_push *push,
+			     u32 word0, u32 word1, u32 word2)
+{
+	if (!IS_ENABLED(CONFIG_XPL_BUILD))
+		return;
+
+	if (push->n >= ECC_SDM_PUSH_MAX) {
+		log_err("IO96B ECC: SDM push buffer full, dropping entry\n");
+		return;
+	}
+
+	push->entry[push->n].word0 = word0;
+	push->entry[push->n].word1 = word1;
+	push->entry[push->n].word2 = word2;
+	push->n++;
+}
+
+/**
+ * ecc_sdm_push_flush() - append stored entries to the SDM EMIF queue
+ * @push: entries collected from the IO96B scan
+ *
+ * Each command carries at most EMIF_ECC_SDM_MAX_ENTRIES and uses R=0.
+ */
+static void ecc_sdm_push_flush(const struct ecc_sdm_push *push)
+{
+	unsigned int off;
+
+	if (!IS_ENABLED(CONFIG_XPL_BUILD))
+		return;
+
+	for (off = 0; off < push->n;) {
+		unsigned int cnt = push->n - off;
+		int ret;
+
+		if (cnt > EMIF_ECC_SDM_MAX_ENTRIES)
+			cnt = EMIF_ECC_SDM_MAX_ENTRIES;
+
+		ret = mbox_hps_push_emif_ecc(&push->entry[off].word0, cnt);
+		if (ret) {
+			log_err("IO96B ECC: HPS_PUSH_EMIF_ECC failed (%d)\n",
+				ret);
+			return;
+		}
+
+		off += cnt;
+	}
+}
+
 bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 {
+	struct ecc_sdm_push sdm = { };
 	int i, j;
 	u32 ecc_err_status;
-	u16 ecc_err_counter, ecc_overflow_status;
+	u16 ecc_err_counter;
 	bool ecc_error_flag = false;
 
 	/* Get ECC double-bit error status */
@@ -682,61 +913,26 @@ bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 					IOSSM_ECC_ERR_STATUS_OFFSET);
 
 		ecc_err_counter = FIELD_GET(ECC_ERR_COUNTER_MASK, ecc_err_status);
-		log_err("%s: ECC error number detected on IO96B_%d: %d\n",
-			__func__, i, ecc_err_counter);
-
-		ecc_overflow_status = FIELD_GET(ECC_ERR_OVERFLOW_MASK, ecc_err_status);
-		if (ecc_overflow_status != 0) {
-			log_err("ECC Error Overflow Flags:\n");
-
-			for (int i = 0; i < ARRAY_SIZE(ecc_overflow_errors); i++) {
-				if (ecc_overflow_status & BIT(ecc_overflow_errors[i].bit)) {
-					log_err("%s", ecc_overflow_errors[i].msg);
-				}
-			}
-		}
 
 		if (ecc_err_counter != 0) {
 			phys_addr_t address;
-			u32 ecc_err_data;
-			struct ecc_err_info err_info;
+			u32 word0, word1, word2;
 
 			address = io96b_ctrl->io96b[i].io96b_csr_addr +
 				    IOSSM_ECC_ERR_DATA_START_OFFSET;
+			word2 = emif_ecc_pack_word2(i, ecc_err_status);
 
 			for (j = 0; j < ecc_err_counter && j < MAX_ECC_ERR_INFO_COUNT; j++) {
-				ecc_err_data = readl(address);
-				err_info.err_type = FIELD_GET(ECC_ERR_TYPE_MASK,
-							      ecc_err_data);
-				err_info.ip_type = FIELD_GET(ECC_ERR_IP_TYPE_MASK,
-							     ecc_err_data);
-				err_info.instance_id = FIELD_GET(ECC_ERR_INSTANCE_ID_MASK,
-								 ecc_err_data);
-				err_info.source_id = FIELD_GET(ECC_ERR_SOURCE_ID_MASK,
-							       ecc_err_data);
-				err_info.addr_upper = FIELD_GET(ECC_ERR_ADDR_UPPER_MASK,
-								ecc_err_data);
-				err_info.addr_lower = readl(address + sizeof(u32));
+				word0 = readl(address);
+				word1 = readl(address + sizeof(u32));
 
-				log_err(" %s: DDR ECC Error Detected on IO96B_%d number:%d\n",
-					__func__, i, j);
-				log_err(" - error info address :0x%llx\n", address);
-				log_err(" - error ip type: %d\n", err_info.ip_type);
-				log_err(" - error instance id: %d\n", err_info.instance_id);
-				log_err(" - error source id: %d\n", err_info.source_id);
-				log_err(" - error type: %s\n",
-					is_double_bit_error(err_info.err_type) ?
-					"Double-bit error" : "Single-bit error");
-				log_err(" - error address: 0x%016llx\n",
-					(u64)FIELD_PREP(ECC_FULL_ADDR_UPPER_MASK,
-							err_info.addr_upper) |
-					FIELD_PREP(ECC_FULL_ADDR_LOWER_MASK,
-						   err_info.addr_lower));
+				if (io96b_ecc_print_emif_entry(word0, word1,
+							       word2, j))
+					ecc_error_flag = true;
 
-				if (is_double_bit_error(err_info.err_type)) {
-					if (!ecc_error_flag)
-						ecc_error_flag = true;
-				}
+				if (IS_ENABLED(CONFIG_XPL_BUILD))
+					ecc_sdm_push_add(&sdm, word0, word1,
+							 word2);
 
 				address += sizeof(u32) * 2;
 			}
@@ -745,6 +941,9 @@ bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 
 	if (ecc_error_flag)
 		log_err("\n%s: ECC double-bit error detected!\n", __func__);
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
+		ecc_sdm_push_flush(&sdm);
 
 	return ecc_error_flag;
 }
@@ -945,3 +1144,497 @@ int bist_mem_init_start(struct io96b_info *io96b_ctrl)
 	else
 		return out_of_band_bist_mem_init_start(io96b_ctrl);
 }
+
+/**
+ * io96b_csr_from_mask() - fill IO96B CSR bases from an instance bitmask
+ * @io96b_ctrl: IO96B info to update
+ * @mask: bit N set => IO96B_N present (compile-time CSR base)
+ *
+ * Return: 0 on success, -ENODEV if no instance bit is set.
+ */
+static int io96b_csr_from_mask(struct io96b_info *io96b_ctrl, u32 mask)
+{
+	u8 i, count = 0;
+
+	for (i = 0; i < MAX_IO96B_SUPPORTED; i++) {
+		if (!(mask & BIT(i)))
+			continue;
+		io96b_ctrl->io96b[count].io96b_csr_addr = io96b_csr_base[i];
+		debug("%s: IO96B_%u CSR 0x%llx enabled\n", __func__, i,
+		      (unsigned long long)io96b_ctrl->io96b[count].io96b_csr_addr);
+		count++;
+	}
+
+	io96b_ctrl->num_instance = count;
+	if (!count)
+		return -ENODEV;
+
+	return 0;
+}
+
+int io96b_csr_from_handoff_table(struct io96b_info *io96b_ctrl,
+				 const u32 *handoff, u32 handoff_len)
+{
+	u32 mask = 0;
+
+	if (!io96b_ctrl || !handoff || handoff_len < SOC64_HANDOFF_IO96B_LEN)
+		return -EINVAL;
+
+	if (IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M)) {
+		/* handoff[1] bit N => IO96B_N present (DDR/EMIF; HBM uses UIB) */
+		mask = handoff[1];
+	} else {
+		/* dual EMIF => both IO96B_0/1; else IO96B_0 only */
+		mask = FIELD_GET(SOC64_HANDOFF_SDRAM_IO96B0_DUAL_EMIF_MASK,
+				 handoff[SOC64_HANDOFF_SDRAM_PORT_EMIF_CONFIG_OFFSET]) ?
+		       GENMASK(1, 0) : BIT(0);
+	}
+
+	return io96b_csr_from_mask(io96b_ctrl, mask);
+}
+
+int io96b_csr_from_handoff(struct io96b_info *io96b_ctrl)
+{
+	u32 handoff[SOC64_HANDOFF_IO96B_LEN];
+	u32 mask = 0;
+	int ret;
+
+	if (!io96b_ctrl)
+		return -EINVAL;
+
+	if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
+		if (IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M)) {
+			mask = FIELD_GET(ALT_SYSMGR_SCRATCH_REG_8_IO96B_HPS_MASK,
+					 readl(socfpga_get_sysmgr_addr() +
+					       SYSMGR_SOC64_BOOT_SCRATCH_COLD8));
+			debug("%s: IO96B mask 0x%x from boot scratch cold8\n",
+			      __func__, mask);
+		} else if (IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)) {
+			mask = FIELD_GET(ALT_SYSMGR_SCRATCH_REG_3_DDR_EMIF_INFO_MASK,
+					 readl(socfpga_get_sysmgr_addr() +
+					       SYSMGR_SOC64_BOOT_SCRATCH_COLD3)) ?
+			       GENMASK(1, 0) : BIT(0);
+			debug("%s: IO96B mask 0x%x from boot scratch cold3\n",
+			      __func__, mask);
+		} else {
+			return -EOPNOTSUPP;
+		}
+
+		return io96b_csr_from_mask(io96b_ctrl, mask);
+	}
+
+	ret = socfpga_handoff_read((void *)SOC64_HANDOFF_IO96B_BASE, handoff,
+				   SOC64_HANDOFF_IO96B_LEN);
+	if (ret)
+		return ret;
+
+	return io96b_csr_from_handoff_table(io96b_ctrl, handoff,
+					    SOC64_HANDOFF_IO96B_LEN);
+}
+
+/**
+ * io96b_ecc_safe_ddr_touch_addr() - poke address for ECC inject
+ * @addrp: filled with a cache-line-aligned poke address on success
+ *
+ * gd->ram_base + 32 MiB (past BL31) + rolling cache-line slot within 1 MiB.
+ * Stays far below U-Boot proper at the top of bank 0.
+ *
+ * Return: 0 on success, -ENOSPC if DRAM is too small for that window.
+ */
+static int io96b_ecc_safe_ddr_touch_addr(phys_addr_t *addrp)
+{
+	const phys_addr_t align = IO96B_ECC_DDR_TOUCH_ALIGN;
+	const phys_size_t win = SZ_1M;
+	static u32 slot;
+	phys_addr_t lo, addr, span;
+
+	if (!addrp)
+		return -EINVAL;
+
+	/* Need room for the 32 MiB skip plus the 1 MiB poke window. */
+	if (gd->ram_size < SZ_32M + win) {
+		printf("%s: DRAM too small for safe poke window (%llu MiB)\n",
+		       __func__, (unsigned long long)(gd->ram_size >> 20));
+		return -ENOSPC;
+	}
+
+	lo = (gd->ram_base + SZ_32M + align - 1) & ~(align - 1);
+	span = win / align;
+	addr = lo + ((slot++ % span) * align);
+
+	*addrp = addr;
+	return 0;
+}
+
+/**
+ * io96b_ecc_cmd_req() - build an IOSSM CMD_REQ for one memory interface
+ * @ip_type: IP type from MEM_INTF_INFO
+ * @ip_id: IP instance id from MEM_INTF_INFO
+ * @opcode: mailbox opcode
+ *
+ * Return: CMD_REQ value for this interface.
+ */
+static u32 io96b_ecc_cmd_req(u32 ip_type, u32 ip_id, u32 opcode)
+{
+	return FIELD_PREP(CMD_TARGET_IP_TYPE_MASK, ip_type) |
+	       FIELD_PREP(CMD_TARGET_IP_INSTANCE_ID_MASK, ip_id) |
+	       FIELD_PREP(CMD_TYPE_MASK, CMD_TRIG_CONTROLLER_OP) |
+	       FIELD_PREP(CMD_OPCODE_MASK, opcode);
+}
+
+/**
+ * io96b_ecc_err_queue_clear() - clear one interface's IOSSM ECC error queue
+ * @base: IO96B CSR base
+ * @ip_type: IP type for this memory interface
+ * @ip_id: IP instance id for this memory interface
+ *
+ * Post CLEAR and wait until CMD_REQ goes idle again so the next mailbox
+ * command (e.g. ECC_INJECT_ERROR) cannot overwrite an in-flight CLEAR.
+ * Drain CMD_RESPONSE_READY if the HW asserts it; do not require READY.
+ *
+ * Return: 0 on success, negative errno on timeout or CLEAR response error.
+ */
+static int io96b_ecc_err_queue_clear(phys_addr_t base, u32 ip_type, u32 ip_id)
+{
+	u32 cmd_req, resp_status;
+	int ret;
+
+	ret = wait_for_bit_le32((const void *)(base + IOSSM_CMD_REQ_OFFSET),
+				GENMASK(31, 0), false, TIMEOUT, false);
+	if (ret) {
+		printf("%s: timeout waiting for IOSSM CMD_REQ @ 0x%llx\n",
+		       __func__, (unsigned long long)base);
+		return ret;
+	}
+
+	if (readl(base + IOSSM_CMD_RESPONSE_STATUS_OFFSET))
+		writel(0, base + IOSSM_CMD_RESPONSE_STATUS_OFFSET);
+
+	cmd_req = io96b_ecc_cmd_req(ip_type, ip_id, ECC_ERROR_QUEUE_CLEAR);
+	writel(cmd_req, base + IOSSM_CMD_REQ_OFFSET);
+
+	/* Wait until CLEAR is consumed before any later CMD_REQ write. */
+	ret = wait_for_bit_le32((const void *)(base + IOSSM_CMD_REQ_OFFSET),
+				GENMASK(31, 0), false, TIMEOUT, false);
+	if (ret) {
+		printf("%s: timeout waiting CLEAR complete @ 0x%llx\n",
+		       __func__, (unsigned long long)base);
+		return ret;
+	}
+
+	/*
+	 * If IOSSM posted a response, ACK READY then fail on error fields.
+	 * Do not treat a rejected CLEAR as success for status_io.
+	 */
+	resp_status = readl(base + IOSSM_CMD_RESPONSE_STATUS_OFFSET);
+	if (resp_status & IOSSM_STATUS_COMMAND_RESPONSE_READY) {
+		clrbits_le32((u32 *)(uintptr_t)(base +
+				IOSSM_CMD_RESPONSE_STATUS_OFFSET),
+			     IOSSM_STATUS_COMMAND_RESPONSE_READY);
+
+		if (IOSSM_STATUS_GENERAL_ERROR(resp_status) ||
+		    IOSSM_STATUS_CMD_RESPONSE_ERROR(resp_status))
+			return -EIO;
+	}
+
+	return 0;
+}
+
+/**
+ * io96b_ecc_err_status() - read IOSSM ECC_ERR_STATUS
+ * @base: IO96B CSR base
+ *
+ * Return: raw ECC_ERR_STATUS register value.
+ */
+static u32 io96b_ecc_err_status(phys_addr_t base)
+{
+	return readl(base + IOSSM_ECC_ERR_STATUS_OFFSET);
+}
+
+/**
+ * io96b_ecc_inject_visible() - inject reflected in ECC_ERR_STATUS?
+ * @status: current ECC_ERR_STATUS value
+ * @ctr_before: ECC_ERR_COUNTER before inject
+ * @dbe: true if DBE syndrome was armed
+ *
+ * Room in Q -> counter must rise. Q full -> matching SBE/DBE overflow bits.
+ *
+ * Return: true if the inject is visible in @status.
+ */
+static bool io96b_ecc_inject_visible(u32 status, u16 ctr_before, bool dbe)
+{
+	u16 ovf_mask = dbe ? ECC_OVF_DBE_MASK : ECC_OVF_SBE_MASK;
+
+	if (ctr_before < MAX_ECC_ERR_INFO_COUNT)
+		return FIELD_GET(ECC_ERR_COUNTER_MASK, status) > ctr_before;
+
+	return (FIELD_GET(ECC_ERR_OVERFLOW_MASK, status) & ovf_mask) != 0;
+}
+
+/**
+ * io96b_ecc_wait_inject_done() - wait for Q depth or overflow to reflect inject
+ * @base: IO96B CSR base
+ * @ctr_before: ECC_ERR_COUNTER before inject
+ * @dbe: true if DBE syndrome was armed
+ *
+ * Return: 0 if inject is visible, -ETIMEDOUT otherwise.
+ */
+static int io96b_ecc_wait_inject_done(phys_addr_t base, u16 ctr_before,
+				      bool dbe)
+{
+	void __iomem *addr = (void __iomem *)(uintptr_t)
+			     (base + IOSSM_ECC_ERR_STATUS_OFFSET);
+	u32 status;
+
+	return readl_poll_sleep_timeout(addr, status,
+					io96b_ecc_inject_visible(status,
+								 ctr_before,
+								 dbe),
+					IO96B_ECC_INJECT_POLL_STEP_US,
+					IO96B_ECC_INJECT_VERIFY_US);
+}
+
+/**
+ * io96b_ecc_trigger() - issue IOSSM inject CMD and DDR write/read-back
+ * @base: IO96B CSR base
+ * @ddr_target: cache-line-aligned DDR poke address
+ * @syndrome: SBE or DBE syndrome for CMD_PARAM_0
+ * @cmd_req: ECC_INJECT_ERROR CMD_REQ for this interface
+ */
+static void io96b_ecc_trigger(phys_addr_t base, phys_addr_t ddr_target,
+			      u32 syndrome, u32 cmd_req)
+{
+	u64 pattern = IO96B_ECC_DDR_TOUCH_PATTERN;
+
+	if (readl(base + IOSSM_CMD_RESPONSE_STATUS_OFFSET))
+		writel(0, base + IOSSM_CMD_RESPONSE_STATUS_OFFSET);
+
+	writel(syndrome, base + IOSSM_CMD_PARAM_0_OFFSET);
+	writel(cmd_req, base + IOSSM_CMD_REQ_OFFSET);
+	udelay(IO96B_ECC_INJECT_DELAY_US);
+
+	writeq(pattern, ddr_target);
+	flush_dcache_range(ddr_target, ddr_target + sizeof(pattern));
+
+	invalidate_dcache_range(ddr_target, ddr_target + sizeof(pattern));
+	(void)readq(ddr_target);
+}
+
+int io96b_ecc_inject(struct io96b_info *io96b_ctrl, bool dbe)
+{
+	phys_addr_t base, ddr_target;
+	struct io96b_mb_ctrl *mb;
+	u32 status, cmd_req;
+	u16 ctr_before;
+	int ret;
+
+	if (!io96b_ctrl || !io96b_ctrl->num_instance)
+		return -EINVAL;
+
+	mb = &io96b_ctrl->io96b[0].mb_ctrl;
+	if (!mb->num_mem_interface)
+		return -EINVAL;
+
+	base = io96b_ctrl->io96b[0].io96b_csr_addr;
+	ret = io96b_ecc_safe_ddr_touch_addr(&ddr_target);
+	if (ret)
+		return ret;
+
+	status = io96b_ecc_err_status(base);
+	ctr_before = FIELD_GET(ECC_ERR_COUNTER_MASK, status);
+	cmd_req = io96b_ecc_cmd_req(mb->ip_type[0], mb->ip_id[0],
+				    ECC_INJECT_ERROR);
+
+	debug("%s: %s inst=0 intf=0 target=0x%llx counter=%u ovf=0x%x\n",
+	      __func__, dbe ? "DBE" : "SBE",
+	      (unsigned long long)ddr_target, ctr_before,
+	      (u16)FIELD_GET(ECC_ERR_OVERFLOW_MASK, status));
+
+	io96b_ecc_trigger(base, ddr_target,
+			  dbe ? IO96B_DBE_SYNDROME : IO96B_SBE_SYNDROME,
+			  cmd_req);
+
+	ret = io96b_ecc_wait_inject_done(base, ctr_before, dbe);
+	if (!ret)
+		return 0;
+
+	status = io96b_ecc_err_status(base);
+	printf("%s: %s inject at 0x%llx not visible (counter %u ovf 0x%x)\n",
+	       __func__, dbe ? "DBE" : "SBE",
+	       (unsigned long long)ddr_target,
+	       (u16)FIELD_GET(ECC_ERR_COUNTER_MASK, status),
+	       (u16)FIELD_GET(ECC_ERR_OVERFLOW_MASK, status));
+	return -EIO;
+}
+
+int io96b_ecc_status_iossm(struct io96b_info *io96b_ctrl, bool *dbe)
+{
+	int i, j, ret;
+
+	if (!io96b_ctrl || !dbe)
+		return -EINVAL;
+
+	*dbe = ecc_interrupt_status(io96b_ctrl);
+
+	for (i = 0; i < io96b_ctrl->num_instance; i++) {
+		struct io96b_mb_ctrl *mb = &io96b_ctrl->io96b[i].mb_ctrl;
+
+		for (j = 0; j < mb->num_mem_interface; j++) {
+			ret = io96b_ecc_err_queue_clear(io96b_ctrl->io96b[i].io96b_csr_addr,
+							mb->ip_type[j],
+							mb->ip_id[j]);
+			if (ret)
+				return ret;
+		}
+	}
+
+	if (io96b_ctrl->num_instance)
+		debug("IO96B ECC: IOSSM error Q cleared\n");
+
+	return 0;
+}
+
+#if CONFIG_IS_ENABLED(CMD_SOCFPGA_DDR_ECC)
+int io96b_ecc_status_sdm(bool *dbe)
+{
+	u32 resp[EMIF_ECC_SDM_RESP_MAX_WORDS];
+	u32 resp_len;
+	u32 depth, idx = 0;
+	bool saw_entry = false;
+	int ret;
+
+	if (!dbe)
+		return -EINVAL;
+
+	*dbe = false;
+
+	while (idx < EMIF_ECC_SDM_MAX_ENTRIES) {
+		resp_len = ARRAY_SIZE(resp);
+		ret = mbox_read_emif_error(resp, &resp_len);
+		if (ret)
+			return -EIO;
+
+		if (resp_len < 1) {
+			printf("%s: empty mailbox response\n", __func__);
+			return -EIO;
+		}
+
+		depth = resp[0];
+		if (depth == 0) {
+			if (!saw_entry)
+				printf("IO96B ECC status_sdm: no ECC errors in SDM queue\n");
+			else
+				printf("IO96B ECC status_sdm: drained %u ECC error(s)\n",
+				       idx);
+			break;
+		}
+
+		if (depth > EMIF_ECC_SDM_MAX_ENTRIES ||
+		    resp_len < EMIF_ECC_SDM_RESP_MAX_WORDS) {
+			printf("%s: bad Error Count %u (resp_len %u)\n",
+			       __func__, depth, resp_len);
+			return -EIO;
+		}
+
+		if (!saw_entry) {
+			printf("IO96B ECC status_sdm: %u ECC error(s) in SDM queue\n",
+			       depth);
+			saw_entry = true;
+		}
+
+		if (io96b_ecc_print_emif_entry(resp[1], resp[2], resp[3], idx))
+			*dbe = true;
+		idx++;
+	}
+
+	if (idx == EMIF_ECC_SDM_MAX_ENTRIES) {
+		/* Cap defensive loop; queue should be empty after 8 pops */
+		resp_len = ARRAY_SIZE(resp);
+		ret = mbox_read_emif_error(resp, &resp_len);
+		if (!ret && resp_len >= 1 && resp[0] != 0)
+			printf("%s: warning: SDM ECC queue still non-empty after %u reads\n",
+			       __func__, idx);
+	}
+
+	return 0;
+}
+
+/**
+ * io96b_ddr_ecc_status_io() - ddr_ecc_ops.status_io for IO96B
+ * @dbe: set true if a DBE was observed in the IO ECC queue
+ *
+ * Loads handoff CSR bases, reads interface identity, then drains the
+ * IO ECC queue.
+ *
+ * Return: 0 on success, negative errno otherwise.
+ */
+static int io96b_ddr_ecc_status_io(bool *dbe)
+{
+	struct io96b_info io96b;
+	int ret;
+
+	if (!dbe)
+		return -EINVAL;
+
+	*dbe = false;
+	memset(&io96b, 0, sizeof(io96b));
+
+	ret = io96b_csr_from_handoff(&io96b);
+	if (ret) {
+		if (ret == -ENODEV)
+			printf("No IO96B instance in handoff\n");
+		else
+			printf("Failed to read DDR handoff\n");
+		return ret;
+	}
+
+	io96b_mb_init(&io96b);
+
+	return io96b_ecc_status_iossm(&io96b, dbe);
+}
+
+/**
+ * io96b_ddr_ecc_inject() - ddr_ecc_ops.inject for IO96B
+ * @dbe: true for DBE, false for SBE
+ *
+ * Return: 0 on success, -EOPNOTSUPP if ECC disabled, or negative errno.
+ */
+static int io96b_ddr_ecc_inject(bool dbe)
+{
+	struct io96b_info io96b;
+	int ret;
+
+	memset(&io96b, 0, sizeof(io96b));
+
+	ret = io96b_csr_from_handoff(&io96b);
+	if (ret) {
+		if (ret == -ENODEV)
+			printf("No IO96B instance in handoff\n");
+		else
+			printf("Failed to read DDR handoff\n");
+		return ret;
+	}
+
+	io96b_mb_init(&io96b);
+
+	ret = ecc_enable_status(&io96b);
+	if (ret || !io96b.ecc_status) {
+		printf("DDR ECC is not enabled\n");
+		return -EOPNOTSUPP;
+	}
+
+	return io96b_ecc_inject(&io96b, dbe);
+}
+
+static const struct ddr_ecc_ops io96b_ddr_ecc_ops = {
+	.name = "io96b",
+	.status_io = io96b_ddr_ecc_status_io,
+	.status_sdm = io96b_ecc_status_sdm,
+	.inject = io96b_ddr_ecc_inject,
+};
+
+const struct ddr_ecc_ops *ddr_ecc_get_ops(void)
+{
+	return &io96b_ddr_ecc_ops;
+}
+#endif /* CONFIG_CMD_SOCFPGA_DDR_ECC */

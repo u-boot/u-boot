@@ -1420,6 +1420,27 @@ config CMD_I3C
 	  Enable command to list i3c devices connected to the i3c controller
 	  and perform read and write on the connected i3c devices.
 
+config CMD_SOCFPGA_DDR_ECC
+	bool "ddr_ecc - DDR ECC status/inject CLI"
+	depends on ARCH_SOCFPGA_AGILEX5 || ARCH_SOCFPGA_AGILEX7M
+	default y
+	help
+	  Enable the ddr_ecc command for DDR ECC status and error injection.
+	  Default y so the platform ECC bring-up CLI is available without
+	  per-board defconfig churn; disable if the image must not expose
+	  inject.
+
+	  Subcommands:
+	    status_io   - drain the IO ECC queue
+	    status_sdm  - drain the SDM ECC queue
+	    inject_sbe  - inject a single-bit error
+	    inject_dbe  - inject a double-bit error
+
+	  status_sdm requires SDM firmware with EMIF ECC mailbox support
+	  (HPS_PUSH_EMIF_ECC / READ_EMIF_ERROR); without it the subcommand
+	  reports failure at runtime. inject_dbe may hang on a later DDR
+	  access and trigger watchdog recovery.
+
 config CMD_W1
 	depends on W1 && W1_EEPROM
 	default y if W1

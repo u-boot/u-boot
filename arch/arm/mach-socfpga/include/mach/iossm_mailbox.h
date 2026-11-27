@@ -4,6 +4,9 @@
  *
  */
 
+#ifndef _IOSSM_MAILBOX_H_
+#define _IOSSM_MAILBOX_H_
+
 #define MAX_IO96B_SUPPORTED			2
 #define MAX_MEM_INTERFACE_SUPPORTED			2
 #define NUM_CMD_RESPONSE_DATA			3
@@ -25,6 +28,7 @@ enum iossm_mailbox_cmd_opcode  {
 	ECC_INTERRUPT_MASK = 0x0105,
 	ECC_WRITEBACK_ENABLE = 0x0106,
 	ECC_INJECT_ERROR = 0x0109,
+	ECC_ERROR_QUEUE_CLEAR = 0x0110,
 	ECC_SCRUB_MODE_0_START = 0x0202,
 	ECC_SCRUB_MODE_1_START = 0x0203,
 	BIST_STANDARD_MODE_START = 0x0301,
@@ -139,3 +143,58 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl);
 int ecc_enable_status(struct io96b_info *io96b_ctrl);
 int bist_mem_init_start(struct io96b_info *io96b_ctrl);
 bool ecc_interrupt_status(struct io96b_info *io96b_ctrl);
+
+/**
+ * io96b_csr_from_handoff_table() - fill IO96B CSR bases from a handoff table
+ * @io96b_ctrl: IO96B info to update (@num_instance and @io96b[].io96b_csr_addr)
+ * @handoff: SDRAM handoff word array already read from OCRAM
+ * @handoff_len: number of words in @handoff (must be SOC64_HANDOFF_IO96B_LEN)
+ *
+ * Return: 0 on success, -EINVAL if arguments are invalid, -ENODEV if no
+ * IO96B instance is enabled.
+ */
+int io96b_csr_from_handoff_table(struct io96b_info *io96b_ctrl,
+				 const u32 *handoff, u32 handoff_len);
+
+/**
+ * io96b_csr_from_handoff() - fill IO96B CSR bases for the current phase
+ * @io96b_ctrl: IO96B info to update (@num_instance and @io96b[].io96b_csr_addr)
+ *
+ * Return: 0 on success, negative errno from handoff or scratch decode.
+ */
+int io96b_csr_from_handoff(struct io96b_info *io96b_ctrl);
+
+/**
+ * io96b_ecc_inject() - inject an IO96B ECC error via the IOSSM mailbox
+ * @io96b_ctrl: IO96B context with CSR bases and mailbox IP type/id filled
+ * @dbe: true for double-bit error, false for single-bit error
+ *
+ * Targets instance 0 / interface 0 with one safe DDR poke address.
+ *
+ * Return: 0 on success, -EINVAL for bad arguments, or negative errno.
+ */
+int io96b_ecc_inject(struct io96b_info *io96b_ctrl, bool dbe);
+
+/**
+ * io96b_ecc_status_iossm() - drain the IO ECC queue
+ * @io96b_ctrl: IO96B context; caller must have run io96b_mb_init()
+ * @dbe: set true if a double-bit error was observed (always written)
+ *
+ * Return: 0 if the queue was drained and cleared, negative errno otherwise.
+ * On clear failure after a DBE was observed, @dbe is still true so the
+ * caller can prefer recovery over the errno.
+ */
+int io96b_ecc_status_iossm(struct io96b_info *io96b_ctrl, bool *dbe);
+
+#if CONFIG_IS_ENABLED(CMD_SOCFPGA_DDR_ECC)
+/**
+ * io96b_ecc_status_sdm() - drain the SDM ECC queue
+ * @dbe: set true if any returned entry is a DBE (always written)
+ *
+ * Return: 0 if the queue was drained, negative errno on mailbox or
+ * response-format failure.
+ */
+int io96b_ecc_status_sdm(bool *dbe);
+#endif
+
+#endif /* _IOSSM_MAILBOX_H_ */

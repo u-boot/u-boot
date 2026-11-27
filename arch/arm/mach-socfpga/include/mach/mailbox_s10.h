@@ -129,6 +129,22 @@ enum ALT_SDM_MBOX_RESP_CODE {
 #define MBOX_QSPI_DIRECT	59
 #define MBOX_REBOOT_HPS		71
 #define MBOX_HPS_STAGE_NOTIFY		93
+/* Dedicated EMIF ECC error queue */
+#define MBOX_READ_EMIF_ERROR		0x43
+#define MBOX_HPS_PUSH_EMIF_ECC		0x44
+
+/*
+ * HPS_PUSH_EMIF_ECC first payload word:
+ *   [7:0]  N            - number of EMIF ECC entries (1..8)
+ *   [8]    R            - 0: append (U-Boot always). 1: clear, then insert.
+ *   [31:9] reserved     - must be 0
+ */
+#define MBOX_HPS_PUSH_EMIF_N_MASK		GENMASK(7, 0)
+#define MBOX_HPS_PUSH_EMIF_MAX_ENTRIES		8
+#define MBOX_HPS_PUSH_EMIF_ENTRY_WORDS		3
+#define MBOX_HPS_PUSH_EMIF_MAX_WORDS \
+	(1 + MBOX_HPS_PUSH_EMIF_MAX_ENTRIES * MBOX_HPS_PUSH_EMIF_ENTRY_WORDS)
+
 
 /* Mailbox registers */
 #define MBOX_CIN			0	/* command valid offset */
@@ -403,6 +419,8 @@ int mbox_qspi_open(void);
 
 int mbox_reset_cold(void);
 int mbox_hps_stage_notify(u32 execution_stage);
+int mbox_hps_push_emif_ecc(const u32 *entry_words, u32 n_entries);
+int mbox_read_emif_error(u32 *resp_buf, u32 *resp_buf_len);
 int mbox_get_fpga_config_status(u32 cmd);
 int mbox_get_fpga_config_status_psci(u32 cmd);
 #endif /* _MAILBOX_S10_H_ */
