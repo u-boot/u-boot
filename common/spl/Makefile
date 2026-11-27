@@ -26,6 +26,7 @@ obj-$(CONFIG_$(PHASE_)MMC) += spl_mmc.o
 obj-$(CONFIG_$(PHASE_)ATF) += spl_atf.o
 obj-$(CONFIG_$(PHASE_)OPTEE_IMAGE) += spl_optee.o
 obj-$(CONFIG_$(PHASE_)OPENSBI) += spl_opensbi.o
+obj-$(CONFIG_$(PHASE_)RUSTSBI) += spl_rustsbi.o spl_opensbi.o
 obj-$(CONFIG_$(PHASE_)USB_STORAGE) += spl_usb.o
 obj-$(CONFIG_$(PHASE_)FS_FAT) += spl_fat.o
 obj-$(CONFIG_$(PHASE_)FS_EXT4) += spl_ext.o

@@ -1145,6 +1145,11 @@ void __noreturn spl_optee_entry(void *arg0, void *arg1, void *arg2, void *arg3);
 void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image);
 
 /**
+ * spl_invoke_rustsbi - boot using a RISC-V RustSBI image
+ */
+void __noreturn spl_invoke_rustsbi(struct spl_image_info *spl_image);
+
+/**
  * board_return_to_bootrom - allow for boards to continue with the boot ROM
  *
  * If a board (e.g. the Rockchip RK3368 boards) provide some

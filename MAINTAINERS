@@ -1505,6 +1505,7 @@ M:	Leo Liang <leo.liang@sifive.com>
 R:	Yao Zi <me@ziyao.cc>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-riscv.git
+F:	common/spl/spl_rustsbi.c
 F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
 N:	riscv

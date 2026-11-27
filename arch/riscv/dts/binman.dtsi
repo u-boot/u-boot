@@ -21,7 +21,7 @@
 #endif
 
 		fit {
-			description = "Configuration to load OpenSBI before U-Boot";
+			description = "Configuration to load SBI firmware before U-Boot";
 			#address-cells = <2>;
 			fit,fdt-list = "of-list";
 
@@ -66,6 +66,7 @@
 				};
 #endif
 
+#ifdef CONFIG_SPL_OPENSBI
 				opensbi {
 					description = "OpenSBI fw_dynamic Firmware";
 					type = "firmware";
@@ -80,6 +81,22 @@
 						missing-msg = "opensbi";
 					};
 				};
+#elif defined(CONFIG_SPL_RUSTSBI)
+				rustsbi {
+					description = "RustSBI dynamic Firmware";
+					type = "firmware";
+					os = "rustsbi";
+					arch = "riscv";
+					compression = "none";
+					load = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+					entry = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+
+					rustsbi_blob: rustsbi {
+						filename = "rustsbi-prototyper-dynamic.bin";
+						missing-msg = "rustsbi";
+					};
+				};
+#endif
 
 #if !defined(CONFIG_OF_BOARD) || defined(CONFIG_MULTI_DTB_FIT)
 				@fdt-SEQ {
@@ -101,7 +118,11 @@
 				conf-1 {
 #endif
 					description = "NAME";
+#ifdef CONFIG_SPL_OPENSBI
 					firmware = "opensbi";
+#elif defined(CONFIG_SPL_RUSTSBI)
+					firmware = "rustsbi";
+#endif
 #ifdef CONFIG_OPTEE
 #ifdef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 					loadables = "linux", "tee";

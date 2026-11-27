@@ -100,6 +100,7 @@ enum {
 	IH_OS_OPENSBI,			/* RISC-V OpenSBI */
 	IH_OS_EFI,			/* EFI Firmware (e.g. GRUB2) */
 	IH_OS_ELF,			/* ELF Image (e.g. seL4) */
+	IH_OS_RUSTSBI,			/* RISC-V RustSBI */
 
 	IH_OS_COUNT,
 };
