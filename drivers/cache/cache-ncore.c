@@ -43,13 +43,6 @@
 #define CCU_DIR_REG_ADDR(base, reg, dir)	\
 		((base) + (reg) + ((dir) * DIR_REG_SZ))
 
-/* OCRAM firewall register */
-#define OCRAM_FW_01			0x100204
-#define OCRAM_SECURE_REGIONS		4
-
-#define OCRAM_PRIVILEGED_MASK		BIT(29)
-#define OCRAM_SECURE_MASK		BIT(30)
-
 static void ncore_ccu_init_dirs(void __iomem *base)
 {
 	ulong i, f;
@@ -124,16 +117,6 @@ static void ncore_ccu_init_coh_agent(void __iomem *base)
 	}
 }
 
-static void ocram_bypass_firewall(void __iomem *base)
-{
-	int i;
-
-	for (i = 0; i < OCRAM_SECURE_REGIONS; i++) {
-		clrbits_le32(base + OCRAM_FW_01 + (i * sizeof(u32)),
-			     OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
-	}
-}
-
 static int ncore_ccu_probe(struct udevice *dev)
 {
 	void __iomem *base;
@@ -147,7 +130,6 @@ static int ncore_ccu_probe(struct udevice *dev)
 
 	ncore_ccu_init_dirs(base);
 	ncore_ccu_init_coh_agent(base);
-	ocram_bypass_firewall(base);
 
 	return 0;
 }
