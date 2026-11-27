@@ -1693,6 +1693,7 @@
 				partition@100000 {
 					label = "nor-spare";
 					reg = <0x100000 0x100000>;
+					part-concat-next = <&nor1_spare>;
 				};
 			};
 		};
@@ -1703,6 +1704,28 @@
 			sandbox,filename = "spi.bin";
 			spi-cpol;
 			spi-cpha;
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				nor1_spare: partition@0 {
+					label = "nor1-spare";
+					reg = <0x0 0x100000>;
+				};
+
+				partition@100000 {
+					label = "nor1-b1";
+					reg = <0x100000 0x80000>;
+					part-concat-next = <&nor1_b2>;
+				};
+
+				nor1_b2: partition@180000 {
+					label = "nor1-b2";
+					reg = <0x180000 0x80000>;
+				};
+			};
 		};
 		eeprom@3 {
 			reg = <3>;

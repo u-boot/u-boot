@@ -50,6 +50,12 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 
 		writel(CQSPI_DFLT_INDIR_TRIG_ADDR_RANGE,
 		       priv->regbase + CQSPI_REG_INDIR_TRIG_ADDR_RANGE);
+		/* Clear all interrupts. */
+		writel(CQSPI_IRQ_STATUS_MASK,
+		       priv->regbase + CQSPI_REG_IRQSTATUS);
+		/* Enable DMA done interrupt */
+		writel(CQSPI_DMA_DST_I_STS_DONE,
+		       priv->regbase + CQSPI_DMA_DST_I_ENBL_REG);
 		writel(CQSPI_DFLT_DMA_PERIPH_CFG,
 		       priv->regbase + CQSPI_REG_DMA_PERIPH_CFG);
 		writel(lower_32_bits((unsigned long)rxbuf), priv->regbase +
@@ -73,6 +79,8 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 		if (ret)
 			return ret;
 
+		/* Disable DMA interrupt */
+		writel(0x0, priv->regbase + CQSPI_DMA_DST_I_DISBL_REG);
 		/* Clear indirect completion status */
 		writel(CQSPI_REG_INDIRECTRD_DONE, priv->regbase +
 		       CQSPI_REG_INDIRECTRD);
@@ -101,10 +109,6 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 			if (ret)
 				return ret;
 		}
-
-		dummy_cycles = 8;
-		writel((dummy_cycles << CQSPI_REG_RD_INSTR_DUMMY_LSB) | opcode,
-		       priv->regbase + CQSPI_REG_RD_INSTR);
 
 		reg = opcode << CQSPI_REG_CMDCTRL_OPCODE_LSB;
 		reg |= (0x1 << CQSPI_REG_CMDCTRL_RD_EN_LSB);
@@ -152,6 +156,18 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_priv *priv)
 
 	writel(readl(priv->regbase + CQSPI_DMA_DST_I_STS_REG),
 	       priv->regbase + CQSPI_DMA_DST_I_STS_REG);
+
+	/* Wait until the DMA is ready to accept a new command */
+	timeout = CQSPI_DMA_TIMEOUT;
+	while ((readl(priv->regbase + CQSPI_DMA_DST_STS_REG) &
+		CQSPI_DMA_DST_STS_BUSY) && --timeout)
+		udelay(1);
+
+	if (!timeout) {
+		printf("DMA busy timeout\n");
+		return -ETIMEDOUT;
+	}
+
 	return 0;
 }
 

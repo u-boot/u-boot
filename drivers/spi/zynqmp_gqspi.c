@@ -878,10 +878,14 @@ static int zynqmp_qspi_exec_op(struct spi_slave *slave,
 	priv->rx_buf = op->data.buf.in;
 	priv->len = op->data.nbytes;
 
+	/*
+	 * The controller only has a lower and an upper chip select, so use
+	 * the upper one for the upper stacked page or a device on CS1.
+	 */
 	if (slave->flags & SPI_XFER_U_PAGE)
 		priv->u_page = 1;
 	else
-		priv->u_page = 0;
+		priv->u_page = spi_chip_select(slave->dev) == 1;
 
 	if ((slave->flags & GQSPI_SELECT_LOWER_CS) &&
 	    (slave->flags & GQSPI_SELECT_UPPER_CS))

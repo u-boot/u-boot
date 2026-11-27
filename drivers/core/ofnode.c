@@ -1791,6 +1791,37 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 	}
 }
 
+ofnode ofnode_dfs_next(ofnode node)
+{
+	ofnode child, sibling;
+
+	child = ofnode_first_subnode(node);
+	if (ofnode_valid(child))
+		return child;
+
+	while (ofnode_valid(node)) {
+		sibling = ofnode_next_subnode(node);
+		if (ofnode_valid(sibling))
+			return sibling;
+		node = ofnode_get_parent(node);
+	}
+
+	return ofnode_null();
+}
+
+ofnode ofnode_find_node_with_property(ofnode from, const char *propname)
+{
+	ofnode node;
+
+	node = ofnode_valid(from) ? ofnode_dfs_next(from) : ofnode_root();
+	for (; ofnode_valid(node); node = ofnode_dfs_next(node)) {
+		if (ofnode_has_property(node, propname))
+			return node;
+	}
+
+	return ofnode_null();
+}
+
 int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 		      int len, bool copy)
 {

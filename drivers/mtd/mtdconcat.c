@@ -285,7 +285,7 @@ concat_read_oob(struct mtd_info *mtd, loff_t from, struct mtd_oob_ops *ops)
 			devops.ooblen = ops->ooblen - ops->oobretlen;
 			if (!devops.ooblen)
 				return ret;
-			devops.oobbuf += ops->oobretlen;
+			devops.oobbuf += devops.oobretlen;
 		}
 
 		from = 0;
@@ -318,7 +318,8 @@ concat_write_oob(struct mtd_info *mtd, loff_t to, struct mtd_oob_ops *ops)
 			devops.len = subdev->size - to;
 
 		err = mtd_write_oob(subdev, to, &devops);
-		ops->retlen += devops.oobretlen;
+		ops->retlen += devops.retlen;
+		ops->oobretlen += devops.oobretlen;
 		if (err)
 			return err;
 

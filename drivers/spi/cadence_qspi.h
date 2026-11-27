@@ -33,6 +33,8 @@
 #define CQSPI_DUMMY_BYTES_MAX                   4
 #define CQSPI_DUMMY_CLKS_MAX                    31
 
+#define CQSPI_TAP_GRAN_SEL_MIN_FREQ		120000000
+
 #define CMD_4BYTE_FAST_READ			0x0C
 #define CMD_4BYTE_OCTAL_READ			0x7c
 #define CMD_4BYTE_READ				0x13
@@ -118,6 +120,8 @@
 
 #define CQSPI_REG_IRQSTATUS                     0x40
 #define CQSPI_REG_IRQMASK                       0x44
+#define CQSPI_REG_ECO                           0x48
+#define CQSPI_REG_ECO_TAP_GRAN_SEL              BIT(0)
 
 #define CQSPI_REG_INDIRECTRD                    0x60
 #define CQSPI_REG_INDIRECTRD_START              BIT(0)
@@ -188,6 +192,7 @@
 #define CQSPI_DFLT_DMA_PERIPH_CFG               0x602
 #define CQSPI_DFLT_DST_CTRL_REG_VAL             0xF43FFA00
 
+#define CQSPI_DMA_DST_STS_BUSY                  BIT(0)
 #define CQSPI_DMA_DST_I_STS_DONE                BIT(1)
 #define CQSPI_DMA_TIMEOUT                       10000000
 
@@ -202,6 +207,20 @@
 #define CQSPI_GET_WR_SRAM_LEVEL(reg_base)		\
 	(((readl((reg_base) + CQSPI_REG_SDRAMLEVEL)) >>	\
 	CQSPI_REG_SDRAMLEVEL_WR_LSB) & CQSPI_REG_SDRAMLEVEL_WR_MASK)
+
+/* Interrupt status bits */
+#define CQSPI_REG_IRQ_UNDERFLOW                 BIT(1)
+#define CQSPI_REG_IRQ_IND_COMP                  BIT(2)
+#define CQSPI_REG_IRQ_WATERMARK                 BIT(6)
+
+#define CQSPI_IRQ_MASK_WR			(CQSPI_REG_IRQ_IND_COMP        | \
+						CQSPI_REG_IRQ_WATERMARK        | \
+						CQSPI_REG_IRQ_UNDERFLOW)
+
+#define CQSPI_IRQ_STATUS_MASK			GENMASK(16, 0)
+
+/* Indirect write timeout, same as CQSPI_TIMEOUT_MS in Linux */
+#define CQSPI_IND_WR_TIMEOUT_MS			500
 
 struct cadence_spi_plat {
 	unsigned int	max_hz;

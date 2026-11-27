@@ -31,6 +31,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/iopoll.h>
 #include <wait_bit.h>
 #include <spi.h>
 #include <spi-mem.h>
@@ -343,11 +344,51 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_priv *priv)
 	/* Configure the remap address register, no remap */
 	writel(0, priv->regbase + CQSPI_REG_REMAP);
 
+	/* Clear the read instruction register */
+	writel(0, priv->regbase + CQSPI_REG_RD_INSTR);
+
+	/* Reset the PHY delay lines */
+	writel(CQSPI_REG_PHY_CONFIG_RESET_FLD_MASK,
+	       priv->regbase + CQSPI_REG_PHY_CONFIG);
+
+	/* Disable the DQS and clear the read capture delay */
+	reg = readl(priv->regbase + CQSPI_REG_RD_DATA_CAPTURE);
+	reg &= ~CQSPI_REG_READCAPTURE_DQS_ENABLE;
+	reg &= ~(CQSPI_REG_RD_DATA_CAPTURE_DELAY_MASK
+		 << CQSPI_REG_RD_DATA_CAPTURE_DELAY_LSB);
+	writel(reg, priv->regbase + CQSPI_REG_RD_DATA_CAPTURE);
+
 	/* Indirect mode configurations */
 	writel(priv->fifo_depth / 2, priv->regbase + CQSPI_REG_SRAMPARTITION);
 
+	/* Program read watermark -- 1/2 of the FIFO. */
+	writel(priv->fifo_depth * priv->fifo_width / 2,
+	       priv->regbase + CQSPI_REG_INDIRECTRDWATERMARK);
+
+	/* Program write watermark -- 1/8 of the FIFO. */
+	writel(priv->fifo_depth * priv->fifo_width / 8,
+	       priv->regbase + CQSPI_REG_INDIRECTWRWATERMARK);
+
 	/* Disable all interrupts */
 	writel(0, priv->regbase + CQSPI_REG_IRQMASK);
+
+	/* Disable DTR, PHY and direct access mode, clear the chip select */
+	reg = readl(priv->regbase + CQSPI_REG_CONFIG);
+	reg &= ~CQSPI_REG_CONFIG_DTR_PROT_EN_MASK;
+	reg &= ~CQSPI_REG_CONFIG_PHY_ENABLE_MASK;
+	reg &= ~CQSPI_REG_CONFIG_DIRECT;
+	reg &= ~(CQSPI_REG_CONFIG_CHIPSELECT_MASK
+		 << CQSPI_REG_CONFIG_CHIPSELECT_LSB);
+	writel(reg, priv->regbase + CQSPI_REG_CONFIG);
+
+	/*
+	 * Versal OSPI needs the tap granularity selection in the ECO
+	 * register for reference clocks of 120 MHz and above.
+	 */
+	if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
+	    priv->ref_clk_hz >= CQSPI_TAP_GRAN_SEL_MIN_FREQ)
+		writel(CQSPI_REG_ECO_TAP_GRAN_SEL,
+		       priv->regbase + CQSPI_REG_ECO);
 
 	cadence_qspi_apb_controller_enable(priv->regbase);
 }
@@ -857,6 +898,7 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 	void *bounce_buf = NULL;
 	unsigned int write_bytes;
 	int ret;
+	u32 cr;
 
 	/*
 	 * Use bounce buffer for non 32 bit aligned txbuf to avoid data
@@ -870,8 +912,14 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 		bb_txbuf = bounce_buf;
 	}
 
-	/* Configure the indirect read transfer bytes */
+	/* Configure the indirect write transfer bytes */
 	writel(n_tx, priv->regbase + CQSPI_REG_INDIRECTWRBYTES);
+
+	/* Clear all interrupts */
+	writel(CQSPI_IRQ_STATUS_MASK, priv->regbase + CQSPI_REG_IRQSTATUS);
+
+	/* Enable the write related interrupt status bits */
+	writel(CQSPI_IRQ_MASK_WR, priv->regbase + CQSPI_REG_IRQMASK);
 
 	/* Start the indirect write transfer */
 	writel(CQSPI_REG_INDIRECTWR_START,
@@ -886,14 +934,18 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 	while (remaining > 0) {
 		write_bytes = remaining > page_size ? page_size : remaining;
 		writesl(priv->ahbbase, bb_txbuf, write_bytes >> 2);
-		if (write_bytes % 4)
-			writesb(priv->ahbbase,
-				bb_txbuf + rounddown(write_bytes, 4),
-				write_bytes % 4);
+		if (write_bytes % 4) {
+			/* Pad with 0xff, which leaves the flash bits unchanged */
+			u32 temp = U32_MAX;
 
-		ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_SDRAMLEVEL,
-					CQSPI_REG_SDRAMLEVEL_WR_MASK <<
-					CQSPI_REG_SDRAMLEVEL_WR_LSB, 0, 10, 0);
+			memcpy(&temp, bb_txbuf + rounddown(write_bytes, 4),
+			       write_bytes % 4);
+			writel(temp, priv->ahbbase);
+		}
+
+		ret = readl_poll_timeout(priv->regbase + CQSPI_REG_IRQSTATUS,
+					 cr, cr & CQSPI_REG_IRQ_IND_COMP,
+					 CQSPI_IND_WR_TIMEOUT_MS * 1000);
 		if (ret) {
 			printf("Indirect write timed out (%i)\n", ret);
 			goto failwr;
@@ -905,11 +957,15 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 
 	/* Check indirect done status */
 	ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_INDIRECTWR,
-				CQSPI_REG_INDIRECTWR_DONE, 1, 10, 0);
+				CQSPI_REG_INDIRECTWR_DONE, 1,
+				CQSPI_IND_WR_TIMEOUT_MS, 0);
 	if (ret) {
 		printf("Indirect write completion error (%i)\n", ret);
 		goto failwr;
 	}
+
+	/* Disable the interrupt status bits */
+	writel(0, priv->regbase + CQSPI_REG_IRQMASK);
 
 	/* Clear indirect completion status */
 	writel(CQSPI_REG_INDIRECTWR_DONE,
@@ -917,7 +973,8 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 
 	/* Check indirect done status */
 	ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_INDIRECTWR,
-				CQSPI_REG_INDIRECTWR_DONE, 0, 10, 0);
+				CQSPI_REG_INDIRECTWR_DONE, 0,
+				CQSPI_IND_WR_TIMEOUT_MS, 0);
 	if (ret) {
 		printf("Indirect write clear completion error (%i)\n", ret);
 		goto failwr;
@@ -933,6 +990,9 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 	return 0;
 
 failwr:
+	/* Disable the interrupt status bits */
+	writel(0, priv->regbase + CQSPI_REG_IRQMASK);
+
 	/* Cancel the indirect write */
 	writel(CQSPI_REG_INDIRECTWR_CANCEL,
 	       priv->regbase + CQSPI_REG_INDIRECTWR);

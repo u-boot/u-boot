@@ -27,6 +27,7 @@
 #include <linux/compat.h>
 #include <ubi_uboot.h>
 
+#include <linux/mtd/concat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/err.h>
@@ -908,6 +909,13 @@ int add_mtd_partitions_of(struct mtd_info *master)
 		if (!ofnode_is_enabled(child))
 			continue;
 
+		/*
+		 * A concatenated device from an earlier scan holds this
+		 * partition already
+		 */
+		if (mtd_virt_concat_is_joined(child))
+			continue;
+
 		offset = ofnode_get_addr_size_index_notrans(child, 0, &size);
 		if (offset == FDT_ADDR_T_NONE) {
 			debug("Missing partition offset on \"%s\" partition\n",
@@ -939,6 +947,15 @@ int add_mtd_partitions_of(struct mtd_info *master)
 		slave = allocate_partition(master, &part, i++, 0);
 		if (IS_ERR(slave))
 			return PTR_ERR(slave);
+
+		/*
+		 * Store the DT node so that mtd_virt_concat_add() can match
+		 * this partition against the concat groups, and let it take
+		 * the partition if it is part of one
+		 */
+		slave->flash_node = child;
+		if (mtd_virt_concat_add(slave))
+			continue;
 
 		mutex_lock(&mtd_partitions_mutex);
 		list_add_tail(&slave->node, &master->partitions);

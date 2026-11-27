@@ -212,6 +212,61 @@ static int dm_test_ofnode_by_prop_value_ot(struct unit_test_state *uts)
 DM_TEST(dm_test_ofnode_by_prop_value_ot,
 	UTF_SCAN_FDT | UTF_OTHER_FDT);
 
+/* test ofnode_dfs_next() */
+static int dm_test_ofnode_dfs_next(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	/* down into the first subnode */
+	node = ofnode_dfs_next(ofnode_path("/some-bus"));
+	ut_asserteq_str("c-test@5", ofnode_get_name(node));
+
+	/* across to the next sibling */
+	node = ofnode_dfs_next(node);
+	ut_asserteq_str("c-test@0", ofnode_get_name(node));
+
+	/* back up to the parent's next sibling */
+	node = ofnode_dfs_next(ofnode_path("/buttons/btn2"));
+	ut_asserteq_str("buttons2", ofnode_get_name(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_dfs_next, UTF_SCAN_FDT);
+
+/* test ofnode_find_node_with_property() */
+static int dm_test_ofnode_find_node_with_property(struct unit_test_state *uts)
+{
+	static const char *const expect[] = {
+		"a-test", "b-test", "some-bus", "c-test@5", "c-test@0",
+		"c-test@1",
+	};
+	ofnode node = ofnode_null();
+	int i;
+
+	/*
+	 * Nodes are found in depth-first order, whatever the value. Other
+	 * tests may add nodes to /some-bus in the live tree, so stop there.
+	 */
+	for (i = 0; i < ARRAY_SIZE(expect); i++) {
+		node = ofnode_find_node_with_property(node, "ping-expect");
+		ut_assert(ofnode_valid(node));
+		ut_asserteq_str(expect[i], ofnode_get_name(node));
+	}
+
+	/* the search can start from any node and runs to the end of the tree */
+	node = ofnode_find_node_with_property(ofnode_path("/d-test"),
+					      "ping-expect");
+	ut_asserteq_str("e-test", ofnode_get_name(node));
+	node = ofnode_find_node_with_property(node, "ping-expect");
+	ut_assert(!ofnode_valid(node));
+
+	node = ofnode_find_node_with_property(ofnode_null(), "no-such-prop");
+	ut_assert(!ofnode_valid(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_find_node_with_property, UTF_SCAN_FDT);
+
 /* test ofnode_read_fmap_entry() */
 static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 {

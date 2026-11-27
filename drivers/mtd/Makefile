@@ -6,7 +6,10 @@
 mtd-$(CONFIG_MTD) += mtdcore.o mtd_uboot.o
 mtd-$(CONFIG_DM_MTD) += mtd-uclass.o
 mtd-$(CONFIG_MTD_PARTITIONS) += mtdpart.o
-mtd-$(CONFIG_MTD_CONCAT) += mtdconcat.o
+ifneq ($(CONFIG_MTD_CONCAT)$(CONFIG_MTD_VIRT_CONCAT),)
+mtd-y += mtdconcat.o
+endif
+mtd-$(CONFIG_MTD_VIRT_CONCAT) += mtd_virt_concat.o
 mtd-$(CONFIG_ALTERA_QSPI) += altera_qspi.o
 mtd-$(CONFIG_FLASH_CFI_DRIVER) += cfi_flash.o
 mtd-$(CONFIG_FLASH_CFI_MTD) += cfi_mtd.o
