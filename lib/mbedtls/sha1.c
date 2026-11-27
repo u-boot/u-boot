@@ -92,8 +92,8 @@ void sha1_hmac(const unsigned char *key, int keylen,
 	sha1_update(&ctx, tmpbuf, sizeof(tmpbuf));
 	sha1_finish(&ctx, output);
 
-	memset(k_ipad, 0, sizeof(k_ipad));
-	memset(k_opad, 0, sizeof(k_opad));
-	memset(tmpbuf, 0, sizeof(tmpbuf));
-	memset(&ctx, 0, sizeof(sha1_context));
+	memzero_explicit(k_ipad, sizeof(k_ipad));
+	memzero_explicit(k_opad, sizeof(k_opad));
+	memzero_explicit(tmpbuf, sizeof(tmpbuf));
+	memzero_explicit(&ctx, sizeof(sha1_context));
 }
