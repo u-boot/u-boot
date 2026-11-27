@@ -17,3 +17,4 @@ Qualcomm
    rdp
    signing
    spl
+   snagboot

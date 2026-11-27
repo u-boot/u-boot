@@ -20,7 +20,6 @@ config QCOM_COMMAND_DB
 
 config QCOM_RPMH
 	bool "Qualcomm RPMh support"
-	depends on QCOM_COMMAND_DB
 	help
 	  Say y here to support the Qualcomm RPMh (resource peripheral manager)
 	  if you need to control regulators on Qualcomm platforms, say y here.
