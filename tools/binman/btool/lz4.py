@@ -76,7 +76,7 @@ class Bintoollz4(bintool.Bintool):
         man lz4
     """
     def __init__(self, name):
-        super().__init__(name, 'lz4 compression', r'.* (v[0-9.]*),.*')
+        super().__init__(name, 'lz4 compression', r'.* (v[0-9.]*).*')
 
     def compress(self, indata):
         """Compress data with lz4
