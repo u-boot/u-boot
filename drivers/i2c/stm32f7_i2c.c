@@ -420,7 +420,7 @@ static int stm32_i2c_message_xfer(struct stm32_i2c_priv *i2c_priv,
 				  struct i2c_msg *msg, bool stop)
 {
 	struct stm32_i2c_regs *regs = i2c_priv->regs;
-	u32 status;
+	u32 status = 0;
 	u32 mask = msg->flags & I2C_M_RD ? STM32_I2C_ISR_RXNE :
 		   STM32_I2C_ISR_TXIS | STM32_I2C_ISR_NACKF;
 	int bytes_to_rw = msg->len > STM32_I2C_MAX_LEN ?
@@ -431,6 +431,21 @@ static int stm32_i2c_message_xfer(struct stm32_i2c_priv *i2c_priv,
 	mask |= STM32_I2C_ISR_ERRORS;
 
 	stm32_i2c_message_start(i2c_priv, msg);
+
+	/*
+	 * Zero-length message (e.g. i2c probe): no data phase, so wait for
+	 * the address phase to finish (TC on ACK, NACKF on NACK) before
+	 * deciding whether to send a STOP.
+	 */
+	if (!msg->len) {
+		ret = stm32_i2c_wait_flags(i2c_priv,
+					   STM32_I2C_ISR_TC |
+					   STM32_I2C_ISR_NACKF |
+					   STM32_I2C_ISR_ERRORS,
+					   &status);
+		if (!ret && !stop && (status & STM32_I2C_ISR_TC))
+			return 0;
+	}
 
 	while (msg->len) {
 		/*

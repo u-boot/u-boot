@@ -624,8 +624,13 @@ static int stm32_spi_probe(struct udevice *dev)
 		if (!dm_gpio_is_valid(&plat->cs_gpios[i]))
 			continue;
 
-		dm_gpio_set_dir_flags(&plat->cs_gpios[i],
-				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		/*
+		 * As in Linux, the chip select polarity is given by the
+		 * SPI_CS_HIGH mode only, the cs-gpios flags are ignored.
+		 */
+		dm_gpio_clrset_flags(&plat->cs_gpios[i],
+				     GPIOD_MASK_DIR | GPIOD_ACTIVE_LOW,
+				     GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	}
 
 	/* Ensure I2SMOD bit is kept cleared */
