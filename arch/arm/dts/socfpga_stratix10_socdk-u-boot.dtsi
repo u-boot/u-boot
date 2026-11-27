@@ -103,6 +103,18 @@
 			algo = "crc32";
 		};
 	};
+
+	fdt-2 {
+		description = "socfpga_socdk_emmc";
+		type = "flat_dt";
+		compression = "none";
+		fdt_2_blob: blob-ext {
+			filename = "dts/upstream/src/arm64/altera/socfpga_stratix10_socdk_emmc.dtb";
+		};
+		hash {
+			algo = "crc32";
+		};
+	};
 };
 
 &board_config {
@@ -115,6 +127,18 @@
 			algo = "crc32";
 			key-name-hint = "dev";
 			sign-images = "atf", "uboot", "fdt-1";
+		};
+	};
+
+	board-2 {
+		description = "board_2";
+		firmware = "atf";
+		loadables = "uboot";
+		fdt = "fdt-2";
+		signature {
+			algo = "crc32";
+			key-name-hint = "dev";
+			sign-images = "atf", "uboot", "fdt-2";
 		};
 	};
 
