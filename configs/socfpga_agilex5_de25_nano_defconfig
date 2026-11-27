@@ -1,0 +1,7 @@
+#include <configs/socfpga_agilex5_defconfig>
+
+CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex5_de25_nano"
+CONFIG_MMC_SPEED_MODE_SET=y
+# CONFIG_ISO_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+CONFIG_SYS_SPI_U_BOOT_OFFS=0x0a00000
